@@ -9,9 +9,11 @@ Usage:
     pdf_path = generate_report(project_id)
 """
 
+import base64
 import json
 import sys
 import tempfile
+import urllib.request
 from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
@@ -29,6 +31,7 @@ from playwright.sync_api import sync_playwright
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from tools.storage import FMEAStorage
+from tools.chart_comparison import generate_comparison as _generate_chart_comparison
 from config.fmea_standards import (
     S_SCALE as S_INFO,
     O_SCALE as O_INFO,
@@ -36,7 +39,75 @@ from config.fmea_standards import (
     RPZ_COLORS as RPZ_HEX,
     RPZ_THRESHOLDS,
     RPZ_LABELS,
+    classify_rpz,
+    apply_special_rules,
 )
+
+_OUTFIT_FONT_STYLE_CACHE = None
+
+def _get_outfit_font_style():
+    """Build <style> with @font-face for Outfit 400+800, base64-encoded TTF."""
+    global _OUTFIT_FONT_STYLE_CACHE
+    if _OUTFIT_FONT_STYLE_CACHE is not None:
+        return _OUTFIT_FONT_STYLE_CACHE
+
+    fonts_dir = Path(__file__).parent.parent / ".tmp" / "fonts"
+    fonts_dir.mkdir(parents=True, exist_ok=True)
+
+    font_urls = {
+        "outfit-400.ttf": "https://fonts.gstatic.com/s/outfit/v15/QGYyz_MVcBeNP4NjuGObqx1XmO1I4TC1C4E.ttf",
+        "outfit-800.ttf": "https://fonts.gstatic.com/s/outfit/v15/QGYyz_MVcBeNP4NjuGObqx1XmO1I4bCyC4E.ttf",
+    }
+
+    css_parts = []
+    for fname, url in font_urls.items():
+        local = fonts_dir / fname
+        if not local.exists():
+            local.write_bytes(urllib.request.urlopen(url).read())
+        b64 = base64.b64encode(local.read_bytes()).decode()
+        weight = "400" if "400" in fname else "800"
+        css_parts.append(
+            f"@font-face{{font-family:'Outfit';font-style:normal;font-weight:{weight};"
+            f"src:url(data:font/ttf;base64,{b64}) format('truetype');}}"
+        )
+
+    _OUTFIT_FONT_STYLE_CACHE = "<style>" + "".join(css_parts) + "</style>"
+    return _OUTFIT_FONT_STYLE_CACHE
+
+
+STOP_ORDER = {"S": 0, "T": 1, "O": 2, "P": 3}
+STOP_LABELS = {"S": "Substitution", "T": "Technisch", "O": "Organisatorisch", "P": "Persönlich"}
+STOP_ICONS = {"S": "↻", "T": "⚙", "O": "☰", "P": "👤"}
+
+LOGO_SVG_SMALL = """<svg style="height:6mm;width:auto;" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+<!-- Antenna -->
+<line x1="50" y1="5" x2="50" y2="15" stroke="#2C2C54" stroke-width="2" stroke-linecap="round"/>
+<rect x="46" y="2" width="8" height="5" rx="1" fill="#F5004F"/>
+
+<!-- Head (cropped, no body) -->
+<rect x="8" y="15" width="84" height="64" rx="6" fill="#2C2C54"/>
+
+<!-- Glasses -->
+<rect x="11" y="24" width="32" height="24" rx="7" fill="none" stroke="#E8C547" stroke-width="2.5"/>
+<rect x="57" y="24" width="32" height="24" rx="7" fill="none" stroke="#E8C547" stroke-width="2.5"/>
+<line x1="43" y1="36" x2="57" y2="36" stroke="#E8C547" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="11" y1="36" x2="8" y2="37" stroke="#E8C547" stroke-width="2" stroke-linecap="round"/>
+<line x1="89" y1="36" x2="92" y2="37" stroke="#E8C547" stroke-width="2" stroke-linecap="round"/>
+
+<!-- Eyes -->
+<circle cx="27" cy="36" r="8.5" fill="#EFD9CE"/>
+<circle cx="73" cy="36" r="8.5" fill="#EFD9CE"/>
+<circle cx="27" cy="36" r="4.5" fill="#1a1730"/>
+<circle cx="73" cy="36" r="4.5" fill="#1a1730"/>
+<circle cx="29" cy="34" r="1.8" fill="#EFD9CE"/>
+<circle cx="75" cy="34" r="1.8" fill="#EFD9CE"/>
+
+<!-- Mouth -->
+<path d="M34,58 Q50,66 66,58" stroke="#EFD9CE" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.4"/>
+
+<!-- Red dot -->
+<circle cx="84" cy="21" r="4" fill="#F5004F"/>
+</svg>"""
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -79,10 +150,10 @@ def _render_risk_matrix(fmea_data: list, tmp_dir: str) -> str:
     fig, ax = plt.subplots(figsize=(9, 7.5))
 
     zone_colors = {
-        "kritisch": "#dc354520",
-        "hoch":     "#ff980020",
-        "mittel":   "#ffc10718",
-        "niedrig":  "#28a74512",
+        "kritisch": "#F5004F20",
+        "hoch":     "#FD7E1420",
+        "mittel":   "#E8C54718",
+        "niedrig":  "#00A38912",
     }
     for s_val in range(1, 11):
         for o_val in range(1, 11):
@@ -99,7 +170,9 @@ def _render_risk_matrix(fmea_data: list, tmp_dir: str) -> str:
                                         facecolor=c, edgecolor="white", linewidth=0.5))
 
     rpz_norm = mcolors.Normalize(vmin=1, vmax=500)
-    rpz_cmap = matplotlib.colormaps["RdYlGn_r"].resampled(256)
+    # Custom colormap: Teal -> Yellow -> Orange -> Pink/Red
+    cmap_colors = ["#00A389", "#E8C547", "#FD7E14", "#F5004F"]
+    rpz_cmap = mcolors.LinearSegmentedColormap.from_list("risk_theme", cmap_colors, N=256)
 
     for fm in fmea_data:
         s, o, d = fm.get("S", 0), fm.get("O", 0), fm.get("D", 0)
@@ -144,39 +217,106 @@ def _render_risk_matrix(fmea_data: list, tmp_dir: str) -> str:
     return p
 
 
+def _render_treemap_single(fmea_data: list, with_measures: bool, title: str,
+                           ax, corner_radius: float = 0.012):
+    """Render one treemap with rounded rectangles and modern styling."""
+    from matplotlib.patches import FancyBboxPatch
+
+    items = []
+    for fm in fmea_data:
+        fid = fm.get("fehler_id", "?")
+        short = "-".join(fid.split("-")[-2:])
+        if with_measures and fm.get("measures"):
+            best = min(fm["measures"], key=lambda m: (m.get("rpz_neu") or 9999))
+            rpz = best.get("rpz_neu") or fm.get("rpz", 1)
+            st = best.get("rpz_status_neu") or fm.get("rpz_status", "niedrig")
+        else:
+            rpz, st = fm.get("rpz", 1), fm.get("rpz_status", "niedrig")
+        items.append({"short": short, "rpz": max(rpz, 5),
+                      "color": RPZ_HEX.get(st, "#AAA"), "status": st})
+    items.sort(key=lambda x: -x["rpz"])
+    if not items:
+        items = [{"short": "---", "rpz": 1, "color": "#CCC", "status": "niedrig"}]
+
+    sizes = [i["rpz"] for i in items]
+    normed = squarify.normalize_sizes(sizes, 1.0, 1.0)
+    rects = squarify.squarify(normed, 0, 0, 1.0, 1.0)
+
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis("off")
+    ax.set_title(title, fontsize=12, fontweight="700", color="#1F2937", pad=14,
+                 fontfamily="sans-serif")
+
+    pad = 0.006
+    for rect, item in zip(rects, items):
+        x, y, w, h = rect["x"] + pad, rect["y"] + pad, rect["dx"] - 2*pad, rect["dy"] - 2*pad
+        if w <= 0 or h <= 0:
+            continue
+
+        base_color = item["color"]
+        r = min(corner_radius, w / 3, h / 3)
+
+        box = FancyBboxPatch(
+            (x, y), w, h,
+            boxstyle=f"round,pad=0,rounding_size={r}",
+            facecolor=base_color, edgecolor="white", linewidth=1.8,
+            alpha=0.92, zorder=2,
+        )
+        ax.add_patch(box)
+
+        highlight = FancyBboxPatch(
+            (x + 0.002, y + h * 0.55), w - 0.004, h * 0.42,
+            boxstyle=f"round,pad=0,rounding_size={r * 0.7}",
+            facecolor="white", edgecolor="none", alpha=0.08, zorder=3,
+        )
+        ax.add_patch(highlight)
+
+        cx, cy = x + w / 2, y + h / 2
+        area = w * h
+        if area > 0.02:
+            fs_id, fs_rpz = 8.5, 7.5
+        elif area > 0.008:
+            fs_id, fs_rpz = 7, 6
+        else:
+            fs_id, fs_rpz = 5.5, 5
+
+        if h > 0.06:
+            ax.text(cx, cy + 0.012, item["short"], ha="center", va="center",
+                    fontsize=fs_id, fontweight="700", color="white",
+                    fontfamily="sans-serif", zorder=4)
+            ax.text(cx, cy - 0.022, str(item["rpz"]), ha="center", va="center",
+                    fontsize=fs_rpz, fontweight="400", color=(1, 1, 1, 0.85),
+                    fontfamily="sans-serif", zorder=4)
+        else:
+            ax.text(cx, cy, f"{item['short']}  {item['rpz']}", ha="center", va="center",
+                    fontsize=fs_id * 0.85, fontweight="700", color="white",
+                    fontfamily="sans-serif", zorder=4)
+
+
 def _render_treemap_pair(fmea_data: list, tmp_dir: str) -> str:
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5.5))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6.5))
+    fig.patch.set_facecolor("white")
+    fig.subplots_adjust(wspace=0.08)
 
-    for ax, with_m, title in [(ax1, False, "Initial-Risiko (Vor Maßnahmen)"),
-                               (ax2, True,  "Aktuelles Risiko (Mit Maßnahmen)")]:
-        items = []
-        for fm in fmea_data:
-            fid = fm.get("fehler_id", "?")
-            short = "-".join(fid.split("-")[-2:])
-            if with_m and fm.get("measures"):
-                best = min(fm["measures"], key=lambda m: (m.get("rpz_neu") or 9999))
-                rpz = best.get("rpz_neu") or fm.get("rpz", 1)
-                st = best.get("rpz_status_neu") or fm.get("rpz_status", "niedrig")
-            else:
-                rpz, st = fm.get("rpz", 1), fm.get("rpz_status", "niedrig")
-            items.append({"label": f"{short}\n{max(rpz, 5)}", "rpz": max(rpz, 5),
-                          "color": RPZ_HEX.get(st, "#AAA")})
-        items.sort(key=lambda x: -x["rpz"])
-        if not items:
-            items = [{"label": "---", "rpz": 1, "color": "#CCC"}]
+    _render_treemap_single(fmea_data, False, "Initial-Risiko (Vor Maßnahmen)", ax1)
+    _render_treemap_single(fmea_data, True, "Residual-Risiko (Nach Maßnahmen)", ax2)
 
-        squarify.plot(sizes=[i["rpz"] for i in items], label=[i["label"] for i in items],
-                      color=[i["color"] for i in items], alpha=0.88,
-                      text_kwargs={"fontsize": 7.5, "fontweight": "bold", "color": "white"}, ax=ax, pad=2)
-        ax.axis("off")
-        ax.set_title(title, fontsize=11, fontweight="bold", color="#1F2937", pad=10)
-
-    handles = [mpatches.Patch(color=RPZ_HEX[s], label=s.capitalize()) for s in RPZ_HEX]
-    fig.legend(handles=handles, loc="lower center", ncol=4, fontsize=8, frameon=False,
-               bbox_to_anchor=(0.5, -0.02))
+    legend_items = [
+        ("Kritisch (≥ 200)", RPZ_HEX.get("kritisch", "#F5004F")),
+        ("Hoch (≥ 125)", RPZ_HEX.get("hoch", "#FD7E14")),
+        ("Mittel (≥ 50)", RPZ_HEX.get("mittel", "#E8C547")),
+        ("Niedrig (< 50)", RPZ_HEX.get("niedrig", "#00A389")),
+    ]
+    handles = [mpatches.FancyBboxPatch((0, 0), 1, 1, boxstyle="round,pad=0.1",
+               facecolor=c, edgecolor="none", alpha=0.92) for _, c in legend_items]
+    labels = [l for l, _ in legend_items]
+    fig.legend(handles, labels, loc="lower center", ncol=4, fontsize=8.5,
+               frameon=False, bbox_to_anchor=(0.5, -0.01),
+               handlelength=1.2, handleheight=0.8)
 
     p = _chart_path(tmp_dir, "treemap_pair")
-    fig.savefig(p, dpi=200, bbox_inches="tight", facecolor="white")
+    fig.savefig(p, dpi=220, bbox_inches="tight", facecolor="white", pad_inches=0.3)
     plt.close(fig)
     return p
 
@@ -195,9 +335,9 @@ def _render_rpz_comparison(fmea_data: list, tmp_dir: str):
     y = np.arange(len(labels))
     h = 0.35
     fig, ax = plt.subplots(figsize=(8, max(3, len(labels) * 0.6 + 1)))
-    ax.barh(y + h / 2, before, h, label="Vorher", color="#dc3545", alpha=0.85)
-    ax.barh(y - h / 2, after, h, label="Nachher", color="#28a745", alpha=0.85)
-    ax.axvline(x=100, color="#ff9800", linestyle="--", linewidth=1.2, alpha=0.7, label="Grenzwert 100")
+    ax.barh(y + h / 2, before, h, label="Vorher", color="#F5004F", alpha=0.85)
+    ax.barh(y - h / 2, after, h, label="Nachher", color="#00A389", alpha=0.85)
+    ax.axvline(x=100, color="#E8C547", linestyle="--", linewidth=1.2, alpha=0.7, label="Grenzwert 100")
     ax.set(yticks=y, xlabel="RPZ")
     ax.set_yticklabels(labels, fontsize=9)
     ax.xaxis.label.set(fontsize=11, fontweight="bold")
@@ -230,31 +370,50 @@ def _rpz_color(status: str) -> str:
 # Plant Data Loader (RTF → JSON)
 # ═══════════════════════════════════════════════════════════════
 
-def _load_plant_data(rtf_path: str = None) -> dict:
-    """Extract the JSON payload from the Anlagendaten.rtf file."""
-    if rtf_path is None:
-        rtf_path = str(Path(__file__).parent.parent / "tasks" / "risikoanalyse" / "Anlagendaten.rtf")
-    p = Path(rtf_path)
-    if not p.exists():
-        return {}
-    raw = p.read_text(encoding="utf-8", errors="replace")
+def _load_plant_data(path: str = None) -> dict:
+    """Load plant data from JSON or RTF file."""
+    base = Path(__file__).parent.parent / "tasks" / "Risikoanalyse"
 
-    try:
-        from striprtf.striprtf import rtf_to_text
-        text = rtf_to_text(raw)
-    except ImportError:
-        text = raw
+    if path:
+        candidates = [Path(path)]
+    else:
+        candidates = [
+            base / "anlagendaten.json",
+            base / "Anlagendaten.json",
+            base / "Anlagendaten.rtf",
+        ]
 
-    start = text.find("[")
-    end = text.rfind("]")
-    if start == -1 or end == -1:
-        return {}
+    for p in candidates:
+        if not p.exists():
+            continue
 
-    try:
-        data = json.loads(text[start : end + 1])
-        return data[0] if isinstance(data, list) and len(data) > 0 else {}
-    except json.JSONDecodeError:
-        return {}
+        raw = p.read_text(encoding="utf-8", errors="replace")
+
+        if p.suffix.lower() == ".json":
+            try:
+                data = json.loads(raw)
+                return data[0] if isinstance(data, list) else data
+            except json.JSONDecodeError:
+                continue
+
+        # RTF fallback
+        try:
+            from striprtf.striprtf import rtf_to_text
+            text = rtf_to_text(raw)
+        except ImportError:
+            text = raw
+
+        start = text.find("[")
+        end = text.rfind("]")
+        if start == -1 or end == -1:
+            continue
+        try:
+            data = json.loads(text[start : end + 1])
+            return data[0] if isinstance(data, list) and len(data) > 0 else {}
+        except json.JSONDecodeError:
+            continue
+
+    return {}
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -272,6 +431,18 @@ def generate_report(project_id: int, output_path: str = None, db_path: str = Non
     stats = db.get_project_statistics(project_id)
     fmea_data = db.get_full_fmea_data(project_id)
     components = db.get_components(project_id)
+
+    func_details = {}
+    for comp in components:
+        functions = db.get_functions(comp["id"])
+        for f in functions:
+            func_details[f["funktion_id"]] = {
+                "beschreibung": f["beschreibung"],
+                "typ": f["typ"],
+                "anforderungen": f.get("anforderungen", []),
+                "component_name": comp["name"],
+                "component_typ": comp.get("typ", ""),
+            }
     db.close()
 
     if output_path is None:
@@ -288,6 +459,11 @@ def generate_report(project_id: int, output_path: str = None, db_path: str = Non
         treemap_img = Path(_render_treemap_pair(fmea_data, tmp_dir)).as_uri()
         _cmp = _render_rpz_comparison(fmea_data, tmp_dir)
         comparison_img = Path(_cmp).as_uri() if _cmp else None
+        _chart_cmp = _generate_chart_comparison(
+            rpz_distribution=stats.get("rpz_distribution", {}),
+            output_path=str(Path(tmp_dir) / "chart_comparison.png"),
+        )
+        chart_comparison_img = Path(_chart_cmp).as_uri()
 
         # Group failure modes by function
         func_groups = OrderedDict()
@@ -297,13 +473,53 @@ def generate_report(project_id: int, output_path: str = None, db_path: str = Non
                 func_groups[fid] = {"beschreibung": fm.get("funktion_beschreibung", ""), "fms": []}
             func_groups[fid]["fms"].append(fm)
 
+        def _stop_sort_key(m):
+            return STOP_ORDER.get(m.get("stop_kategorie", ""), 99)
+
+        for fm in fmea_data:
+            if fm.get("measures"):
+                fm["measures"] = sorted(fm["measures"], key=_stop_sort_key)
+
+            S, O, D = fm.get("S", 0), fm.get("O", 0), fm.get("D", 0)
+            rpz = fm.get("rpz", S * O * D)
+            calc_status = classify_rpz(rpz)
+            final_status, rule_desc = apply_special_rules(S, O, D, calc_status)
+            if rule_desc:
+                fm["special_rule"] = {
+                    "description": rule_desc,
+                    "calculated_status": calc_status,
+                    "final_status": final_status,
+                }
+
         top5 = sorted(fmea_data, key=lambda x: x.get("rpz", 0), reverse=True)[:5]
         fmea_sorted = sorted(fmea_data, key=lambda x: x.get("rpz", 0), reverse=True)
         dist = stats.get("rpz_distribution", {})
         high_risk_count = dist.get("kritisch", 0) + dist.get("hoch", 0)
         total_measures = sum(len(fm.get("measures", [])) for fm in fmea_data)
 
-        # Load plant data from RTF
+        special_rule_count = sum(1 for fm in fmea_data if fm.get("special_rule"))
+        fms_with_measures = [fm for fm in fmea_data if fm.get("measures")]
+        stop_coverage = {}
+        for kat in ["S", "T", "O", "P"]:
+            stop_coverage[kat] = sum(
+                1 for fm in fmea_data
+                for m in fm.get("measures", [])
+                if m.get("stop_kategorie") == kat
+            )
+        max_rpz = max((fm.get("rpz", 0) for fm in fmea_data), default=0)
+        avg_rpz = round(sum(fm.get("rpz", 0) for fm in fmea_data) / max(len(fmea_data), 1))
+        best_reduction = None
+        avg_reduction = 0
+        if fms_with_measures:
+            reductions = []
+            for fm in fms_with_measures:
+                best = min(fm["measures"], key=lambda m: m.get("rpz_neu") or 9999)
+                if best.get("rpz_neu"):
+                    reductions.append(fm["rpz"] - best["rpz_neu"])
+            if reductions:
+                best_reduction = max(reductions)
+                avg_reduction = round(sum(reductions) / len(reductions))
+
         plant_data = _load_plant_data()
 
         # Jinja2 rendering
@@ -328,6 +544,7 @@ def generate_report(project_id: int, output_path: str = None, db_path: str = Non
             matrix_img=matrix_img,
             treemap_img=treemap_img,
             comparison_img=comparison_img,
+            chart_comparison_img=chart_comparison_img,
             scales=[
                 ("S", "Bedeutung (S)", S_INFO),
                 ("O", "Auftreten (O)", O_INFO),
@@ -336,6 +553,19 @@ def generate_report(project_id: int, output_path: str = None, db_path: str = Non
             sod_data=_sod_data,
             rpz_color=_rpz_color,
             plant=plant_data,
+            stop_labels=STOP_LABELS,
+            stop_icons=STOP_ICONS,
+            func_details=func_details,
+            abe_labels={"A": "Vermeidung", "B": "Entdeckung", "E": "Abschwächung"},
+            report_context={
+                "special_rule_count": special_rule_count,
+                "stop_coverage": stop_coverage,
+                "max_rpz": max_rpz,
+                "avg_rpz": avg_rpz,
+                "best_reduction": best_reduction,
+                "avg_reduction": avg_reduction if best_reduction else 0,
+                "fms_with_measures_count": len(fms_with_measures),
+            },
         )
 
         # Write temporary HTML to feed Playwright (it needs a file: URL for CSS)
@@ -344,20 +574,33 @@ def generate_report(project_id: int, output_path: str = None, db_path: str = Non
 
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
+        project_name = project.get("name") or ""
+        anlage_name = project.get("anlage_name") or ""
+        # Format: "Anlagenname (Teilanlage) – Risikoanalyse"
+        # e.g. "Ethylacetat-Anlage (20TA41) – Risikoanalyse"
+        header_right_text = f"{project_name} ({anlage_name}) – Risikoanalyse" if anlage_name else f"{project_name} – Risikoanalyse"
+
+        outfit_style = _get_outfit_font_style()
+
+        ff = "Outfit,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
         header_html = (
-            '<div style="width:100%;font-size:7pt;font-family:Inter,Segoe UI,sans-serif;'
-            'padding:6mm 18mm 0 18mm;display:flex;justify-content:space-between;color:#9CA3AF;'
-            'border-bottom:0.5px solid #E5E7EB;">'
-            '<span>FMEA-Bericht – ' + (project.get("anlage_name") or "") + '</span>'
-            '<span>AIAG-VDA FMEA</span>'
+            outfit_style +
+            '<div style="width:100%;font-size:7pt;font-family:' + ff + ' !important;'
+            'padding:5mm 18mm 2mm 18mm;display:flex;justify-content:space-between;'
+            'align-items:center;color:#6B7280;border-bottom:0.5px solid #E5E7EB;">'
+            '<div style="display:flex;align-items:center;gap:2mm;font-family:' + ff + ' !important;">' + LOGO_SVG_SMALL +
+            '<span style="font-weight:800;color:#2C2C54;font-family:' + ff + ' !important;">'
+            'Risk <span style="color:#F5004F;">Agent</span></span></div>'
+            '<span style="font-weight:400;font-family:' + ff + ' !important;">' + header_right_text + '</span>'
             '</div>'
         )
         footer_html = (
-            '<div style="width:100%;font-size:7pt;font-family:Inter,Segoe UI,sans-serif;'
-            'padding:0 18mm 6mm 18mm;display:flex;justify-content:space-between;color:#9CA3AF;'
-            'border-top:0.5px solid #E5E7EB;">'
-            '<span style="font-style:italic;">Vertraulich – nur für internen Gebrauch</span>'
-            '<span>Seite <span class="pageNumber"></span> / <span class="totalPages"></span></span>'
+            outfit_style +
+            '<div style="width:100%;font-size:6pt;font-family:' + ff + ' !important;font-weight:400;'
+            'padding:2mm 18mm 5mm 18mm;display:flex;justify-content:space-between;'
+            'align-items:center;color:#D1D5DB;">'
+            '<span style="font-family:' + ff + ' !important;">Vertraulich</span>'
+            '<span style="font-family:' + ff + ' !important;"><span class="pageNumber"></span> / <span class="totalPages"></span></span>'
             '</div>'
         )
 

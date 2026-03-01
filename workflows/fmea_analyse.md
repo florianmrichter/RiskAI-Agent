@@ -22,7 +22,7 @@ Schritt 4: Fehleranalyse      → Agent (pro Funktion) → Workflow: fehleranaly
 Schritt 5: RPZ + Validierung  → Tool: rpz_calculator.py + Konsistenz-Check
            ↓ REVIEW: Risiko-Ranking freigeben
 Schritt 6: Maßnahmen          → Agent (RPZ >= mittel) → Workflow: massnahmen.md
-           ↓ REVIEW: Maßnahmen + Restrisiko freigeben
+           ↓ REVIEW: Maßnahmen (STOP-Prinzip + ABE) + Restrisiko freigeben
 Schritt 7: Report             → Tool: report_generator.py
 ```
 
@@ -127,6 +127,7 @@ Für jede Funktion: Lies `workflows/fehleranalyse.md` und führe die Analyse dur
 1. Lade Fehlervorlagen: `from tools.failure_templates import get_templates_for_component`
 2. Lade den Kontext der Komponente aus der DB
 3. Lade die FMEA-Konfiguration: `from config.fmea_standards import FMEA_CONFIG`
+4. Lade Zuverlässigkeitsdaten: `from tools.reliability_lookup import ReliabilityDB` -- O-Richtwerte für jeden Fehlermodus abfragen und in Begründungen referenzieren
 
 **Pro Funktion erzeugen:**
 - FailureModes (WAS geht schief?)
@@ -221,7 +222,7 @@ Zeige:
 ## Schritt 6: Maßnahmenoptimierung (Agent)
 
 Nur für Fehlermodi mit RPZ >= mittel (gemäß `config/fmea_standards.py`).
-Lies `workflows/massnahmen.md` und entwickle Maßnahmen nach ABE-Hierarchie.
+Lies `workflows/massnahmen.md` und entwickle Maßnahmen nach STOP-Prinzip und ABE-Hierarchie.
 
 ### REVIEW nach Schritt 6
 Präsentiere Maßnahmen mit Vorher/Nachher-Vergleich:

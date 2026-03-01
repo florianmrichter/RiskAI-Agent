@@ -24,7 +24,7 @@ Agent (Claude) — Orchestrierung + FMEA-Fachanalyse
 | 3. Funktionsanalyse | Agent | Haupt-/Nebenfunktionen mit Anforderungen |
 | 4. Fehleranalyse | Agent + Tool | Fehlermodi, Ursachen, Folgen, S/O/D-Bewertung |
 | 5. RPZ-Berechnung | Tool | RPZ + Safety-Guard-Overrides |
-| 6. Maßnahmenoptimierung | Agent | Maßnahmen nach ABE-Hierarchie |
+| 6. Maßnahmenoptimierung | Agent | Maßnahmen nach STOP-Prinzip + ABE-Hierarchie |
 | 7. Export | Tool | Excel/JSON/HTML-Report |
 
 ## Projektstruktur
@@ -33,10 +33,12 @@ Agent (Claude) — Orchestrierung + FMEA-Fachanalyse
 RiskAI-Agent/
 ├── tools/           # Python-Skripte für deterministische Ausführung
 ├── workflows/       # Markdown-SOPs (Standard Operating Procedures)
-├── config/          # FMEA-Standards und Bewertungsskalen
+├── config/          # FMEA-Standards, Zuverlässigkeitsdaten
 ├── templates/       # HTML/CSS-Templates für Reports
 ├── plans/           # Architektur- und Strategiepläne
 ├── tasks/           # Aufgaben-spezifische Eingabedaten
+├── data/            # SQLite-Datenbank fmea.db (gitignored)
+├── archive/         # Archivierte Analyse-Läufe
 ├── .tmp/            # Temporäre Verarbeitungsdateien (gitignored)
 └── requirements.txt # Python-Abhängigkeiten
 ```
@@ -57,14 +59,15 @@ pip install -r requirements.txt
 - FMEA nach **AIAG-VDA** (harmonisierter Standard)
 - 10-Punkte Bewertungsskalen für Severity, Occurrence, Detection
 - Safety-Guard-System für automatische Risiko-Overrides
-- ABE-Hierarchie für Maßnahmen (Abstellen → Begrenzen → Erkennen)
+- ABE-Hierarchie für Maßnahmen (Vermeidung → Entdeckung → Abschwächung)
+- STOP-Prinzip (Substitution → Technisch → Organisatorisch → Persönlich)
 
 ## Berichts-Features
 
 - **Detaillierte Risiko-Cards** mit S/O/D-Bewertung, Ursachen, Folgen, Controls und Maßnahmen an einem Ort
 - **Ausführliche Controls-Tabelle** mit Beschreibung und Wirkungsbereich statt reiner Pill-Badges
 - **Maßnahmen-Checkliste** im Anhang zur systematischen Abarbeitung
-- **Visualisierungen**: Donut-Chart, Risikomatrix, Treemap (vorher/nachher), RPZ-Vergleichs-Balkendiagramm
+- **Visualisierungen**: Donut-Chart, Risikomatrix, Treemap (vorher/nachher), RPZ-Vergleich, 6-Chart-Typen-Vergleich
 - **Review-Tool mit S/O/D-Skala-Kontext**: zeigt Nachbarwerte zur besseren Einschätzung
 - **Treiber-Analyse**: erklärt welcher Faktor (S, O oder D) das Risiko dominiert und wie man ihn adressiert
 
@@ -74,4 +77,4 @@ pip install -r requirements.txt
 
 ## Status
 
-**In aktiver Entwicklung** — POC für Synthesereaktor R-101 erfolgreich abgeschlossen. Anlagendaten als JSON; Templates und Tools (Review, RPZ) aktualisiert.
+**In aktiver Entwicklung** — POC für Synthesereaktor R-101 erfolgreich abgeschlossen. STOP-Prinzip und ABE-Hierarchie in Maßnahmen integriert; Reliability-Lookup für O-Bewertungen; Report mit Sonderregel-Erklärungen, klickbarem Inhaltsverzeichnis und optimierter Treemap.

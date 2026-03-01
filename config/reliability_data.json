@@ -1,0 +1,349 @@
+{
+  "_meta": {
+    "beschreibung": "Referenz-Ausfallraten fuer typische Prozessausruestung in der chemischen Industrie",
+    "quellen": [
+      "CCPS Guidelines for Process Equipment Reliability Data (AIChE)",
+      "IEC 61511 / IEC 61508 (SIL-Zuverlaessigkeitsdaten)",
+      "IEEE Std 493 (Gold Book) -- Equipment Reliability",
+      "Oeffentlich zugaengliche OREDA-Zusammenfassungen",
+      "VDI 4006 -- Zuverlaessigkeit in der Verfahrenstechnik"
+    ],
+    "hinweis": "Diese Daten sind Richtwerte zur Orientierung bei der O-Bewertung. Fuer sicherheitskritische Anwendungen muessen herstellerspezifische Zuverlaessigkeitsdaten und betriebliche Erfahrungswerte herangezogen werden.",
+    "einheiten": {
+      "failure_rate": "Ausfaelle pro 10^6 Betriebsstunden (FPMH = Failures Per Million Hours)",
+      "mtbf_hours": "Mean Time Between Failures in Stunden",
+      "demand_failure_prob": "Versagenswahrscheinlichkeit pro Anforderung (Probability of Failure on Demand)"
+    },
+    "letzte_aktualisierung": "2026-03-01"
+  },
+  "equipment_categories": {
+    "pumpen": {
+      "beschreibung": "Pumpen aller Bauarten fuer chemische Prozesse",
+      "typen": {
+        "kreiselpumpe": {
+          "failure_rate": 50,
+          "mtbf_hours": 20000,
+          "typische_fehlermodi": [
+            {"modus": "Leckage Wellendichtung", "anteil_prozent": 35, "o_richtwert": 5},
+            {"modus": "Lagerschaden", "anteil_prozent": 25, "o_richtwert": 4},
+            {"modus": "Kavitation / Leistungsabfall", "anteil_prozent": 15, "o_richtwert": 4},
+            {"modus": "Verstopfung Laufrad", "anteil_prozent": 10, "o_richtwert": 3},
+            {"modus": "Wellen-/Kupplungsbruch", "anteil_prozent": 5, "o_richtwert": 2},
+            {"modus": "Sonstige", "anteil_prozent": 10, "o_richtwert": 3}
+          ]
+        },
+        "dosierpumpe_membran": {
+          "failure_rate": 30,
+          "mtbf_hours": 33000,
+          "typische_fehlermodi": [
+            {"modus": "Membranbruch / -ermuedung", "anteil_prozent": 40, "o_richtwert": 5},
+            {"modus": "Ventilversagen (Saug/Druck)", "anteil_prozent": 25, "o_richtwert": 4},
+            {"modus": "Dosiergenauigkeit ausserhalb Toleranz", "anteil_prozent": 20, "o_richtwert": 4},
+            {"modus": "Antriebsausfall", "anteil_prozent": 15, "o_richtwert": 3}
+          ]
+        },
+        "dosierpumpe_kolben": {
+          "failure_rate": 40,
+          "mtbf_hours": 25000,
+          "typische_fehlermodi": [
+            {"modus": "Kolbendichtung verschlissen", "anteil_prozent": 35, "o_richtwert": 5},
+            {"modus": "Ventilversagen", "anteil_prozent": 25, "o_richtwert": 4},
+            {"modus": "Kolbenstangenbruch", "anteil_prozent": 10, "o_richtwert": 2},
+            {"modus": "Dosiergenauigkeit", "anteil_prozent": 30, "o_richtwert": 4}
+          ]
+        }
+      }
+    },
+    "ventile": {
+      "beschreibung": "Absperr-, Regel- und Sicherheitsventile",
+      "typen": {
+        "handventil_absperr": {
+          "failure_rate": 5,
+          "mtbf_hours": 200000,
+          "typische_fehlermodi": [
+            {"modus": "Innere Leckage (Undichtheit)", "anteil_prozent": 40, "o_richtwert": 3},
+            {"modus": "Aeussere Leckage (Flansch/Stopfbuchse)", "anteil_prozent": 30, "o_richtwert": 3},
+            {"modus": "Blockiert / klemmt", "anteil_prozent": 20, "o_richtwert": 2},
+            {"modus": "Bruch / Materialversagen", "anteil_prozent": 10, "o_richtwert": 1}
+          ]
+        },
+        "regelventil_pneumatisch": {
+          "failure_rate": 25,
+          "mtbf_hours": 40000,
+          "typische_fehlermodi": [
+            {"modus": "Regelabweichung / Kennlinien-Drift", "anteil_prozent": 30, "o_richtwert": 5},
+            {"modus": "Stellantrieb-Ausfall", "anteil_prozent": 20, "o_richtwert": 3},
+            {"modus": "Innere Leckage", "anteil_prozent": 20, "o_richtwert": 4},
+            {"modus": "Stellungsregler defekt", "anteil_prozent": 15, "o_richtwert": 3},
+            {"modus": "Blockiert (Korrosion/Ablagerung)", "anteil_prozent": 15, "o_richtwert": 3}
+          ]
+        },
+        "sicherheitsventil_psv": {
+          "failure_rate": 10,
+          "mtbf_hours": 100000,
+          "demand_failure_prob": 0.01,
+          "typische_fehlermodi": [
+            {"modus": "Spricht nicht an (fail to open)", "anteil_prozent": 30, "o_richtwert": 2, "kritisch": true},
+            {"modus": "Spricht zu frueh an (premature opening)", "anteil_prozent": 25, "o_richtwert": 3},
+            {"modus": "Schliesst nicht nach Ansprechen", "anteil_prozent": 20, "o_richtwert": 3},
+            {"modus": "Leckage im geschlossenen Zustand", "anteil_prozent": 25, "o_richtwert": 4}
+          ]
+        },
+        "magnetventil": {
+          "failure_rate": 15,
+          "mtbf_hours": 65000,
+          "demand_failure_prob": 0.005,
+          "typische_fehlermodi": [
+            {"modus": "Spule durchgebrannt", "anteil_prozent": 30, "o_richtwert": 3},
+            {"modus": "Ventil klemmt (offen/geschlossen)", "anteil_prozent": 30, "o_richtwert": 3},
+            {"modus": "Innere Leckage", "anteil_prozent": 25, "o_richtwert": 3},
+            {"modus": "Aeussere Leckage", "anteil_prozent": 15, "o_richtwert": 2}
+          ]
+        }
+      }
+    },
+    "behaelter_reaktoren": {
+      "beschreibung": "Druckbehaelter, Reaktoren, Tanks",
+      "typen": {
+        "druckbehaelter": {
+          "failure_rate": 2,
+          "mtbf_hours": 500000,
+          "typische_fehlermodi": [
+            {"modus": "Flanschleckage", "anteil_prozent": 40, "o_richtwert": 4},
+            {"modus": "Korrosion / Wanddickenverlust", "anteil_prozent": 25, "o_richtwert": 3},
+            {"modus": "Rissbildung (Spannungsriss, Ermuedung)", "anteil_prozent": 15, "o_richtwert": 2},
+            {"modus": "Dichtungsversagen Mannloch/Stutzen", "anteil_prozent": 15, "o_richtwert": 3},
+            {"modus": "Bersten (katastrophal)", "anteil_prozent": 5, "o_richtwert": 1, "kritisch": true}
+          ]
+        },
+        "ruehrwerksreaktor": {
+          "failure_rate": 15,
+          "mtbf_hours": 65000,
+          "typische_fehlermodi": [
+            {"modus": "Ruehrwerksdichtung undicht", "anteil_prozent": 30, "o_richtwert": 5},
+            {"modus": "Ruehrwerk blockiert / Lagerschaden", "anteil_prozent": 20, "o_richtwert": 3},
+            {"modus": "Mantelheizung/-kuehlung Leckage", "anteil_prozent": 15, "o_richtwert": 3},
+            {"modus": "Flanschleckage", "anteil_prozent": 20, "o_richtwert": 4},
+            {"modus": "Korrosion innen", "anteil_prozent": 15, "o_richtwert": 3}
+          ]
+        },
+        "lagertank_atmosphaerisch": {
+          "failure_rate": 3,
+          "mtbf_hours": 350000,
+          "typische_fehlermodi": [
+            {"modus": "Bodenleckage", "anteil_prozent": 30, "o_richtwert": 3},
+            {"modus": "Schweissnaht-Leckage", "anteil_prozent": 25, "o_richtwert": 2},
+            {"modus": "Ueberfuellung", "anteil_prozent": 20, "o_richtwert": 3},
+            {"modus": "Korrosion / Durchrostung", "anteil_prozent": 25, "o_richtwert": 3}
+          ]
+        }
+      }
+    },
+    "waermetauscher": {
+      "beschreibung": "Rohbuendel- und Plattenwaermetauscher",
+      "typen": {
+        "rohrbuendel": {
+          "failure_rate": 8,
+          "mtbf_hours": 125000,
+          "typische_fehlermodi": [
+            {"modus": "Rohrleckage / -bruch", "anteil_prozent": 35, "o_richtwert": 3},
+            {"modus": "Verschmutzung / Fouling", "anteil_prozent": 30, "o_richtwert": 5},
+            {"modus": "Korrosion Rohre", "anteil_prozent": 20, "o_richtwert": 3},
+            {"modus": "Flansch-/Dichtungsleckage", "anteil_prozent": 15, "o_richtwert": 3}
+          ]
+        },
+        "plattenwaermetauscher": {
+          "failure_rate": 12,
+          "mtbf_hours": 85000,
+          "typische_fehlermodi": [
+            {"modus": "Plattendichtung undicht", "anteil_prozent": 45, "o_richtwert": 5},
+            {"modus": "Plattenkorrosion / -durchbruch", "anteil_prozent": 20, "o_richtwert": 3},
+            {"modus": "Verschmutzung / Fouling", "anteil_prozent": 25, "o_richtwert": 5},
+            {"modus": "Anschlussleckage", "anteil_prozent": 10, "o_richtwert": 3}
+          ]
+        }
+      }
+    },
+    "msr_technik": {
+      "beschreibung": "Mess-, Steuer- und Regelungstechnik (Sensoren, Transmitter, Regler)",
+      "typen": {
+        "temperatursensor_widerstand": {
+          "failure_rate": 5,
+          "mtbf_hours": 200000,
+          "typische_fehlermodi": [
+            {"modus": "Messwerddrift", "anteil_prozent": 35, "o_richtwert": 4},
+            {"modus": "Signalausfall (open circuit)", "anteil_prozent": 25, "o_richtwert": 3},
+            {"modus": "Schutzrohr defekt", "anteil_prozent": 20, "o_richtwert": 3},
+            {"modus": "Kurzschluss", "anteil_prozent": 20, "o_richtwert": 2}
+          ]
+        },
+        "drucktransmitter": {
+          "failure_rate": 8,
+          "mtbf_hours": 125000,
+          "demand_failure_prob": 0.008,
+          "typische_fehlermodi": [
+            {"modus": "Messwertdrift / Kalibrierabweichung", "anteil_prozent": 35, "o_richtwert": 4},
+            {"modus": "Signalausfall", "anteil_prozent": 20, "o_richtwert": 2},
+            {"modus": "Membranbruch", "anteil_prozent": 15, "o_richtwert": 2},
+            {"modus": "Uebersteuerung (Stuck High/Low)", "anteil_prozent": 15, "o_richtwert": 3},
+            {"modus": "Elektronik-Ausfall", "anteil_prozent": 15, "o_richtwert": 2}
+          ]
+        },
+        "fuellstandsmessung_radar": {
+          "failure_rate": 6,
+          "mtbf_hours": 165000,
+          "typische_fehlermodi": [
+            {"modus": "Fehlecho / Stoersignal", "anteil_prozent": 30, "o_richtwert": 4},
+            {"modus": "Signalausfall", "anteil_prozent": 25, "o_richtwert": 2},
+            {"modus": "Messwertdrift", "anteil_prozent": 25, "o_richtwert": 3},
+            {"modus": "Verschmutzung Antenne", "anteil_prozent": 20, "o_richtwert": 4}
+          ]
+        },
+        "durchflussmesser_coriolis": {
+          "failure_rate": 4,
+          "mtbf_hours": 250000,
+          "typische_fehlermodi": [
+            {"modus": "Messwertdrift", "anteil_prozent": 30, "o_richtwert": 3},
+            {"modus": "Elektronik-Ausfall", "anteil_prozent": 25, "o_richtwert": 2},
+            {"modus": "Schwingungsrohre verstopft", "anteil_prozent": 20, "o_richtwert": 3},
+            {"modus": "Nullpunkt-Verschiebung", "anteil_prozent": 25, "o_richtwert": 3}
+          ]
+        },
+        "regler_pid": {
+          "failure_rate": 3,
+          "mtbf_hours": 350000,
+          "typische_fehlermodi": [
+            {"modus": "Fehlparametrierung", "anteil_prozent": 40, "o_richtwert": 4},
+            {"modus": "Stellsignal blockiert", "anteil_prozent": 25, "o_richtwert": 2},
+            {"modus": "Reglerausgang konstant (kein Regeln)", "anteil_prozent": 20, "o_richtwert": 2},
+            {"modus": "Schwingen / Instabilitaet", "anteil_prozent": 15, "o_richtwert": 3}
+          ]
+        }
+      }
+    },
+    "sicherheitseinrichtungen": {
+      "beschreibung": "Sicherheitsgerichtete Systeme (SIS), Berstscheiben, Ex-Schutz",
+      "typen": {
+        "sis_abschaltung_sil1": {
+          "failure_rate": 5,
+          "mtbf_hours": 200000,
+          "demand_failure_prob": 0.01,
+          "typische_fehlermodi": [
+            {"modus": "Fail to operate on demand", "anteil_prozent": 40, "o_richtwert": 2, "kritisch": true},
+            {"modus": "Spurious trip (Fehlausloesung)", "anteil_prozent": 35, "o_richtwert": 4},
+            {"modus": "Teilweises Versagen", "anteil_prozent": 25, "o_richtwert": 2}
+          ]
+        },
+        "sis_abschaltung_sil2": {
+          "failure_rate": 3,
+          "mtbf_hours": 350000,
+          "demand_failure_prob": 0.001,
+          "typische_fehlermodi": [
+            {"modus": "Fail to operate on demand", "anteil_prozent": 30, "o_richtwert": 1, "kritisch": true},
+            {"modus": "Spurious trip (Fehlausloesung)", "anteil_prozent": 40, "o_richtwert": 3},
+            {"modus": "Degraded operation", "anteil_prozent": 30, "o_richtwert": 2}
+          ]
+        },
+        "berstscheibe": {
+          "failure_rate": 2,
+          "mtbf_hours": 500000,
+          "demand_failure_prob": 0.001,
+          "typische_fehlermodi": [
+            {"modus": "Vorzeitiges Bersten (unter Auslegungsdruck)", "anteil_prozent": 20, "o_richtwert": 2},
+            {"modus": "Nicht Bersten bei Ueberdruck", "anteil_prozent": 15, "o_richtwert": 1, "kritisch": true},
+            {"modus": "Korrosion / Ermuedung", "anteil_prozent": 35, "o_richtwert": 3},
+            {"modus": "Schleichende Leckage", "anteil_prozent": 30, "o_richtwert": 3}
+          ]
+        },
+        "gaswarnanlage": {
+          "failure_rate": 20,
+          "mtbf_hours": 50000,
+          "typische_fehlermodi": [
+            {"modus": "Sensordrift / Empfindlichkeitsverlust", "anteil_prozent": 35, "o_richtwert": 5},
+            {"modus": "Fehlalarm", "anteil_prozent": 25, "o_richtwert": 5},
+            {"modus": "Kein Alarm bei Gas-Praesenz", "anteil_prozent": 20, "o_richtwert": 3, "kritisch": true},
+            {"modus": "Elektronik-Ausfall", "anteil_prozent": 20, "o_richtwert": 3}
+          ]
+        }
+      }
+    },
+    "elektrische_ausruestung": {
+      "beschreibung": "Elektromotoren, Schaltanlagen, USV",
+      "typen": {
+        "elektromotor_niederspannung": {
+          "failure_rate": 10,
+          "mtbf_hours": 100000,
+          "typische_fehlermodi": [
+            {"modus": "Lagerschaden", "anteil_prozent": 30, "o_richtwert": 4},
+            {"modus": "Wicklungsschluss / Isolation", "anteil_prozent": 25, "o_richtwert": 3},
+            {"modus": "Ueberhitzung", "anteil_prozent": 20, "o_richtwert": 3},
+            {"modus": "Unwucht / Vibration", "anteil_prozent": 15, "o_richtwert": 4},
+            {"modus": "Anlauf versagt", "anteil_prozent": 10, "o_richtwert": 2}
+          ]
+        },
+        "frequenzumrichter": {
+          "failure_rate": 15,
+          "mtbf_hours": 65000,
+          "typische_fehlermodi": [
+            {"modus": "Leistungsmodul defekt", "anteil_prozent": 30, "o_richtwert": 3},
+            {"modus": "Steuerelektronik-Ausfall", "anteil_prozent": 25, "o_richtwert": 3},
+            {"modus": "Luefterausfall / Ueberhitzung", "anteil_prozent": 20, "o_richtwert": 4},
+            {"modus": "EMV-Stoerung", "anteil_prozent": 15, "o_richtwert": 3},
+            {"modus": "Parameterverlust", "anteil_prozent": 10, "o_richtwert": 2}
+          ]
+        }
+      }
+    },
+    "rohrleitungen": {
+      "beschreibung": "Rohrleitungen, Kompensatoren, Flanschverbindungen",
+      "typen": {
+        "rohrleitung_edelstahl": {
+          "failure_rate": 1,
+          "mtbf_hours": 1000000,
+          "typische_fehlermodi": [
+            {"modus": "Korrosion (Loch/Flaechenkorrosion)", "anteil_prozent": 30, "o_richtwert": 2},
+            {"modus": "Spannungsrisskorrosion", "anteil_prozent": 15, "o_richtwert": 2},
+            {"modus": "Schweissnaht-Leckage", "anteil_prozent": 20, "o_richtwert": 2},
+            {"modus": "Vibrationsermuedung", "anteil_prozent": 15, "o_richtwert": 2},
+            {"modus": "Erosion", "anteil_prozent": 20, "o_richtwert": 2}
+          ]
+        },
+        "flanschverbindung": {
+          "failure_rate": 3,
+          "mtbf_hours": 350000,
+          "typische_fehlermodi": [
+            {"modus": "Dichtungsversagen", "anteil_prozent": 50, "o_richtwert": 4},
+            {"modus": "Schrauben-Relaxation", "anteil_prozent": 25, "o_richtwert": 3},
+            {"modus": "Flanschverformung", "anteil_prozent": 15, "o_richtwert": 2},
+            {"modus": "Falsche Dichtung eingebaut", "anteil_prozent": 10, "o_richtwert": 2}
+          ]
+        },
+        "kompensator_metallbalg": {
+          "failure_rate": 12,
+          "mtbf_hours": 85000,
+          "typische_fehlermodi": [
+            {"modus": "Balgermuedung / -bruch", "anteil_prozent": 40, "o_richtwert": 4},
+            {"modus": "Korrosion aussen", "anteil_prozent": 25, "o_richtwert": 3},
+            {"modus": "Fehlbewegung (Ueberdehnung)", "anteil_prozent": 20, "o_richtwert": 3},
+            {"modus": "Leckage Schweissnaht", "anteil_prozent": 15, "o_richtwert": 2}
+          ]
+        }
+      }
+    }
+  },
+  "o_skala_zuordnung": {
+    "beschreibung": "Zuordnung der Ausfallrate (FPMH) zum O-Wert der FMEA nach AIAG-VDA",
+    "zuordnung": [
+      {"o_wert": 1, "fpmh_bis": 1, "beschreibung": "Extrem unwahrscheinlich, nahezu ausgeschlossen"},
+      {"o_wert": 2, "fpmh_bis": 3, "beschreibung": "Sehr gering, konstruktiv verhindert"},
+      {"o_wert": 3, "fpmh_bis": 8, "beschreibung": "Gering, bei ueblicher Fertigung selten"},
+      {"o_wert": 4, "fpmh_bis": 15, "beschreibung": "Maessig gering"},
+      {"o_wert": 5, "fpmh_bis": 25, "beschreibung": "Maessig, gelegentliches Auftreten"},
+      {"o_wert": 6, "fpmh_bis": 40, "beschreibung": "Maessig hoch"},
+      {"o_wert": 7, "fpmh_bis": 60, "beschreibung": "Hoch, haeufiges Auftreten"},
+      {"o_wert": 8, "fpmh_bis": 100, "beschreibung": "Sehr hoch"},
+      {"o_wert": 9, "fpmh_bis": 200, "beschreibung": "Sehr hoch, fast unvermeidlich"},
+      {"o_wert": 10, "fpmh_ab": 200, "beschreibung": "Extrem hoch, tritt sicher auf"}
+    ]
+  }
+}

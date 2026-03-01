@@ -332,8 +332,35 @@ def get_ranking_review(project_id: int, db_path=None) -> str:
 # Schritt 6: Measure Review
 # ═══════════════════════════════════════════════════════════════
 
+STOP_LABELS = {
+    "S": "Substitution",
+    "T": "Technisch",
+    "O": "Organisatorisch",
+    "P": "Persönlich",
+}
+
+STOP_ORDER = {"S": 0, "T": 1, "O": 2, "P": 3}
+
+
+def _sort_measures_by_stop(measures: list) -> list:
+    return sorted(measures, key=lambda m: STOP_ORDER.get(m.get("stop_kategorie", ""), 99))
+
+
+def _build_stop_coverage(measures: list) -> dict:
+    """Analyse which STOP categories are covered and how many measures each has."""
+    coverage = {}
+    for kat in ["S", "T", "O", "P"]:
+        kat_measures = [m for m in measures if m.get("stop_kategorie") == kat]
+        coverage[kat] = {
+            "label": STOP_LABELS[kat],
+            "vorhanden": len(kat_measures) > 0,
+            "anzahl": len(kat_measures),
+        }
+    return coverage
+
+
 def get_measure_review(project_id: int, db_path=None) -> str:
-    """Format measures with before/after comparison for human review."""
+    """Format measures with before/after comparison and STOP coverage for human review."""
     db = _db(db_path)
     fmea_data = db.get_full_fmea_data(project_id)
     db.close()
@@ -343,9 +370,26 @@ def get_measure_review(project_id: int, db_path=None) -> str:
     if not fms_with_measures:
         return "## Maßnahmen – Keine Maßnahmen definiert"
 
-    lines = ["## Maßnahmen – Vorher/Nachher-Vergleich\n"]
-    lines.append(f"**{sum(len(fm['measures']) for fm in fms_with_measures)} Maßnahmen** "
+    total_measures = sum(len(fm["measures"]) for fm in fms_with_measures)
+    lines = ["## Maßnahmen – Vorher/Nachher-Vergleich (STOP + ABE)\n"]
+    lines.append(f"**{total_measures} Maßnahmen** "
                  f"für **{len(fms_with_measures)} Fehlermodi**\n")
+
+    all_measures = [m for fm in fms_with_measures for m in fm.get("measures", [])]
+    global_coverage = _build_stop_coverage(all_measures)
+    lines.append("### STOP-Abdeckung (Gesamtprojekt)\n")
+    lines.append("| STOP-Kategorie | Abgedeckt | Anzahl |")
+    lines.append("|----------------|-----------|--------|")
+    for kat in ["S", "T", "O", "P"]:
+        c = global_coverage[kat]
+        check = "Ja" if c["vorhanden"] else "**Nein**"
+        lines.append(f"| {c['label']} ({kat}) | {check} | {c['anzahl']} |")
+    lines.append("")
+
+    missing = [STOP_LABELS[k] for k in ["S", "T", "O", "P"]
+               if not global_coverage[k]["vorhanden"]]
+    if missing:
+        lines.append(f"**Fehlende STOP-Kategorien:** {', '.join(missing)}\n")
 
     for fm in sorted(fms_with_measures, key=lambda x: x.get("rpz", 0), reverse=True):
         fid = fm.get("fehler_id", "?")
@@ -357,9 +401,26 @@ def get_measure_review(project_id: int, db_path=None) -> str:
         lines.append(f"**Vorher:** S={ra.get('S', '?')} O={ra.get('O', '?')} D={ra.get('D', '?')} "
                      f"→ RPZ={rpz_before} ({status_before.upper()})\n")
 
-        for m in fm["measures"]:
+        fm_coverage = _build_stop_coverage(fm["measures"])
+        fm_missing = [STOP_LABELS[k] for k in ["S", "T", "O", "P"]
+                      if not fm_coverage[k]["vorhanden"]]
+        if fm_missing:
+            lines.append(f"  *Keine Maßnahmen in:* {', '.join(fm_missing)}\n")
+
+        sorted_measures = _sort_measures_by_stop(fm["measures"])
+
+        current_stop = None
+        for m in sorted_measures:
+            stop_kat = m.get("stop_kategorie", "?")
+            if stop_kat != current_stop:
+                current_stop = stop_kat
+                stop_label = STOP_LABELS.get(stop_kat, stop_kat)
+                lines.append(f"  **── {stop_label} ({stop_kat}) ──**\n")
+
             abe = m.get("abe_kategorie", "?")
-            lines.append(f"  **[{abe}] {m.get('name', '?')}**")
+            iteration = m.get("iteration", 1)
+            iter_tag = f" [Iteration {iteration}]" if iteration > 1 else ""
+            lines.append(f"  **[{abe}] {m.get('name', '?')}**{iter_tag}")
             lines.append(f"  {m.get('beschreibung', '')}")
             rpz_new = m.get("rpz_neu", "?")
             status_new = m.get("rpz_status_neu", "?")
@@ -398,7 +459,7 @@ def get_validation_report(project_id: int, db_path=None) -> str:
                     f"hat keine Fehlermodi"
                 )
 
-    # 2. Plausibility: high severity without measures
+    # 2. Plausibility: high severity without measures + STOP coverage
     for fm in fmea_data:
         ra = fm.get("risk", {})
         S = ra.get("S", 0)
@@ -415,6 +476,16 @@ def get_validation_report(project_id: int, db_path=None) -> str:
             warnings.append(
                 f"{fm.get('fehler_id', '?')}: Status={rpz_status} aber keine Maßnahmen"
             )
+
+        if fm.get("measures") and rpz_status in ("kritisch", "hoch"):
+            stop_kats = {m.get("stop_kategorie") for m in fm["measures"] if m.get("stop_kategorie")}
+            missing_stop = [k for k in ["S", "T", "O", "P"] if k not in stop_kats]
+            if missing_stop:
+                missing_labels = [STOP_LABELS.get(k, k) for k in missing_stop]
+                warnings.append(
+                    f"{fm.get('fehler_id', '?')}: Status={rpz_status}, "
+                    f"fehlende STOP-Kategorien: {', '.join(missing_labels)}"
+                )
 
     # 3. S/O/D consistency: similar failure types should have similar ratings
     by_type = defaultdict(list)

@@ -1,6 +1,6 @@
 ---
 name: RiskAI Optimierung Strategie
-overview: "Umfassende Analyse und Optimierung des RiskAI-Agent: Interaktiver Human-in-the-Loop FMEA-Prozess, Korrektur der Risikoklassifizierung, optische Verbesserungen und Tooling-Empfehlungen."
+overview: "Umfassende Analyse und Optimierung des RiskAI-Agent: Interaktiver Human-in-the-Loop FMEA-Prozess, Korrektur der Risikoklassifizierung, optische Verbesserungen und Tooling-Empfehlungen. Status: Alle Kern-Todos abgeschlossen. STOP-Prinzip-Integration in separatem Plan 003 umgesetzt. Prioitaet-5-Erweiterungen (Stoffdaten, Normen-RAG, Zuverlaessigkeitsdaten) noch offen."
 todos:
   - id: interactive-workflow
     content: "Interaktiven FMEA-Workflow erstellen (workflows/fmea_analyse.md umbauen): Schritt-Review + Risiko-Walkthrough mit Human-in-the-Loop"
@@ -352,34 +352,59 @@ Meine Staerke ist das **Reasoning**: Ich kann Fehlermodi ableiten, S/O/D begruen
 
 ## 6. Konkrete naechste Schritte (priorisiert)
 
-### Prioritaet 1 -- Human-in-the-Loop (WICHTIGSTER SCHRITT)
+### Prioritaet 1 -- Human-in-the-Loop -- ERLEDIGT
 
 1. `workflows/fmea_analyse.md` umbauen: Review-Punkte nach jedem Schritt
 2. `tools/review.py` erstellen: Formatierte Review-Ausgaben + Feedback-Verarbeitung
 3. Audit-Trail im Report: Dokumentation der menschlichen Anpassungen
 
-### Prioritaet 2 -- Zentrale Konfiguration
+### Prioritaet 2 -- Zentrale Konfiguration -- ERLEDIGT
 
-1. `config/fmea_standards.py` erstellen: RPZ-Grenzen (300/200/100), S/O/D-Skalen, Farbcodes, Sonderregeln
-2. `rpz_calculator.py`, `report_generator.py` und Workflows auf zentrale Config umstellen
-3. FMEA-Sonderregeln in Config implementieren (B >= 9, E >= 9 + B >= 7)
-4. Validierungs-Workflow erstellen (`workflows/validierung.md`)
+1. `config/fmea_standards.py` erstellt: RPZ-Grenzen (300/200/100), S/O/D-Skalen, Farbcodes, Sonderregeln
+2. `rpz_calculator.py`, `report_generator.py` und Workflows auf zentrale Config umgestellt
+3. FMEA-Sonderregeln in Config implementiert (B >= 9, E >= 9 + B >= 7)
+4. Validierungs-Workflow erstellt (`workflows/validierung.md`)
 
-### Prioritaet 3 -- Optik
+### Prioritaet 3 -- Optik -- ERLEDIGT
 
 1. Risk Matrix mit farbigen Hintergrund-Zonen
 2. Cover-Seite ohne Header/Footer
-3. Fonts einbetten (Inter/Roboto)
-4. RPZ-Farben durchgaengig harmonisieren
+3. Fonts eingebettet (Inter/Roboto)
+4. RPZ-Farben durchgaengig harmonisiert
 
-### Prioritaet 4 -- Vollstaendigkeit
+### Prioritaet 4 -- Vollstaendigkeit -- ERLEDIGT
 
 1. Restrisiko-Bewertungsschritt nach Massnahmen
 2. Vollstaendigkeits-Check nach Fehleranalyse
-3. report.py entfernen (Duplikat)
+3. report.py entfernt (Duplikat)
+
+### Prioritaet 4b -- STOP-Prinzip x ABE Massnahmen -- ERLEDIGT (Plan 003)
+
+1. STOP-Prinzip (S/T/O/P) als zweite Dimension neben ABE eingefuehrt
+2. Mehrere Massnahmen pro Fehlermodus statt nur eine
+3. Iterative Feedback-Schleife: KI empfiehlt, Benutzer vertieft gezielt
+4. DB-Schema erweitert (stop_kategorie, iteration, insert_measures_batch)
+5. Export und Review mit STOP-Abdeckungsuebersicht
 
 ### Prioritaet 5 -- Erweiterungen
 
-1. Stoffdaten-Anreicherung (PubChem MCP)
-2. System-Flowchart im Report (Mermaid-Rendering)
+1. Stoffdaten-Anreicherung (PubChem MCP) -- **ERLEDIGT**
+   - Augmented-Nature/PubChem-MCP-Server installiert in `.mcp-servers/pubchem/`
+   - Konfiguriert in `.cursor/mcp.json` (projekt-lokal)
+   - 24+ Tools: GHS-Daten, Toxizitaet, Flammpunkte, CAS-Suche, Batch-Lookup
+   - PubChem API ist kostenlos, kein API-Key noetig
+2. Normen-Wissensbasis (RAG) -- **OFFEN**
+   - AIAG-VDA, IEC 61511, ATEX als durchsuchbare Vektordatenbank
+   - Erfordert RAG-MCP-Server oder lokale Vektordatenbank
+3. Zuverlaessigkeitsdaten -- **ERLEDIGT** (lokale Alternative)
+   - OREDA ist kostenpflichtig (kein freier API-Zugang)
+   - Lokale Referenzdatenbank erstellt: `tasks/Risikoanalyse/reliability_data.json`
+   - Abfrage-Tool: `tools/reliability_lookup.py` (O-Wert-Vorschlaege, kritische Fehlermodi, Equipment-Kategorien)
+   - Quellen: CCPS Guidelines, IEC 61511, IEEE Std 493, oeffentliche OREDA-Zusammenfassungen
+   - 8 Equipment-Kategorien, 25 Typen, ~100 Fehlermodi mit O-Richtwerten
+4. Diagramm-Rendering (Mermaid) -- **ERLEDIGT**
+   - `@mermaid-js/mermaid-cli` v11.12.0 global installiert (npm)
+   - Python-Tool: `tools/mermaid_renderer.py` (SVG/PNG/PDF-Export)
+   - Funktionen: `render_mermaid()`, `render_flowchart()`, `render_system_diagram()`
+   - Test-SVG erfolgreich generiert
 

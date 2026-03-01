@@ -1,6 +1,10 @@
 # Temporäre Dateien
 .tmp/
 
+# FMEA-Datenbank (liegt in data/)
+data/
+fmea.db
+
 # Python
 __pycache__/
 *.py[cod]

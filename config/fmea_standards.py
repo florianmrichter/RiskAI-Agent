@@ -18,10 +18,10 @@ RPZ_THRESHOLDS = {
 }
 
 RPZ_COLORS = {
-    "kritisch": "#dc3545",
-    "hoch":     "#ff9800",
-    "mittel":   "#ffc107",
-    "niedrig":  "#28a745",
+    "kritisch": "#F5004F",  # Vivid Pink / Brand Red
+    "hoch":     "#FD7E14",  # Orange
+    "mittel":   "#E8C547",  # Mustard Yellow
+    "niedrig":  "#00A389",  # Teal Green
 }
 
 RPZ_LABELS = {

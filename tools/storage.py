@@ -16,7 +16,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-DEFAULT_DB_DIR = Path(__file__).parent.parent / ".tmp"
+DEFAULT_DB_DIR = Path(__file__).parent.parent / "data"
 
 
 class FMEAStorage:
@@ -30,6 +30,7 @@ class FMEAStorage:
         self.conn.execute("PRAGMA journal_mode=WAL")
         self.conn.execute("PRAGMA foreign_keys=ON")
         self._create_tables()
+        self._migrate_measures_table()
 
     def _create_tables(self):
         self.conn.executescript("""
@@ -131,6 +132,7 @@ class FMEAStorage:
             failure_mode_id INTEGER NOT NULL,
             name TEXT NOT NULL,
             abe_kategorie TEXT NOT NULL,
+            stop_kategorie TEXT CHECK(stop_kategorie IN ('S','T','O','P')),
             beschreibung TEXT NOT NULL,
             ziel TEXT,
             S_neu INTEGER CHECK(S_neu BETWEEN 1 AND 10),
@@ -139,9 +141,25 @@ class FMEAStorage:
             rpz_neu INTEGER,
             rpz_status_neu TEXT,
             begruendung TEXT,
+            iteration INTEGER DEFAULT 1,
             FOREIGN KEY (failure_mode_id) REFERENCES failure_modes(id)
         );
         """)
+        self.conn.commit()
+
+    def _migrate_measures_table(self):
+        """Add stop_kategorie and iteration columns to existing measures tables."""
+        cursor = self.conn.execute("PRAGMA table_info(measures)")
+        existing_cols = {row[1] for row in cursor.fetchall()}
+        if "stop_kategorie" not in existing_cols:
+            self.conn.execute(
+                "ALTER TABLE measures ADD COLUMN stop_kategorie TEXT "
+                "CHECK(stop_kategorie IN ('S','T','O','P'))"
+            )
+        if "iteration" not in existing_cols:
+            self.conn.execute(
+                "ALTER TABLE measures ADD COLUMN iteration INTEGER DEFAULT 1"
+            )
         self.conn.commit()
 
     # ── Project CRUD ──
@@ -365,24 +383,47 @@ class FMEAStorage:
     # ── Measure CRUD ──
 
     def insert_measure(self, failure_mode_id: int, name: str, abe_kategorie: str,
-                       beschreibung: str, ziel: str = None,
+                       beschreibung: str, stop_kategorie: str = None,
+                       ziel: str = None,
                        S_neu: int = None, O_neu: int = None, D_neu: int = None,
                        rpz_neu: int = None, rpz_status_neu: str = None,
-                       begruendung: str = None) -> int:
+                       begruendung: str = None, iteration: int = 1) -> int:
         if rpz_neu is None and all(v is not None for v in [S_neu, O_neu, D_neu]):
             rpz_neu = S_neu * O_neu * D_neu
         if rpz_status_neu is None and rpz_neu is not None:
             rpz_status_neu = self._classify_rpz(rpz_neu)
         cur = self.conn.execute(
             """INSERT INTO measures 
-               (failure_mode_id, name, abe_kategorie, beschreibung, ziel,
-                S_neu, O_neu, D_neu, rpz_neu, rpz_status_neu, begruendung)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            (failure_mode_id, name, abe_kategorie, beschreibung, ziel,
-             S_neu, O_neu, D_neu, rpz_neu, rpz_status_neu, begruendung)
+               (failure_mode_id, name, abe_kategorie, stop_kategorie, beschreibung, ziel,
+                S_neu, O_neu, D_neu, rpz_neu, rpz_status_neu, begruendung, iteration)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (failure_mode_id, name, abe_kategorie, stop_kategorie, beschreibung, ziel,
+             S_neu, O_neu, D_neu, rpz_neu, rpz_status_neu, begruendung, iteration)
         )
         self.conn.commit()
         return cur.lastrowid
+
+    def insert_measures_batch(self, failure_mode_id: int, measures: list) -> list:
+        """Insert multiple measures for a single failure mode. Returns list of IDs."""
+        ids = []
+        for m in measures:
+            mid = self.insert_measure(
+                failure_mode_id=failure_mode_id,
+                name=m["name"],
+                abe_kategorie=m["abe_kategorie"],
+                stop_kategorie=m.get("stop_kategorie"),
+                beschreibung=m["beschreibung"],
+                ziel=m.get("ziel"),
+                S_neu=m.get("S_neu"),
+                O_neu=m.get("O_neu"),
+                D_neu=m.get("D_neu"),
+                rpz_neu=m.get("rpz_neu"),
+                rpz_status_neu=m.get("rpz_status_neu"),
+                begruendung=m.get("begruendung"),
+                iteration=m.get("iteration", 1),
+            )
+            ids.append(mid)
+        return ids
 
     def get_measures(self, failure_mode_id: int) -> list:
         rows = self.conn.execute(

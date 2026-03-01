@@ -8,8 +8,11 @@ Für jede Funktion: Fehlermodi identifizieren, Ursachen mit Herkunft und Präven
 - Komponente: `komp_id`, `name`, `typ`, `parameters`
 - Kontext: `lean_context` (Prozessbedingungen, Design-Limits, Stoffe, Sensoren, Sicherheitseinrichtungen)
 - Fehlervorlagen: Output von `tools/failure_templates.py`
+- Zuverlässigkeitsdaten: Output von `tools/reliability_lookup.py`
 
 ## Vorbereitung
+
+### 1. Fehlervorlagen laden
 
 ```python
 from tools.failure_templates import get_templates_for_component, format_templates_for_prompt
@@ -21,6 +24,45 @@ templates = get_templates_for_component(
 )
 template_text = format_templates_for_prompt(templates)
 ```
+
+### 2. Zuverlässigkeitsdaten laden (Pflicht)
+
+Für jede Komponente die passenden Equipment-Typen aus der Reliability-DB abfragen. Die Ergebnisse dienen als **datengestützte Grundlage** für die O-Bewertung.
+
+```python
+from tools.reliability_lookup import ReliabilityDB
+
+rdb = ReliabilityDB()
+
+# Passenden Equipment-Typ bestimmen (Mapping Komponenten-Typ → Reliability-Typ)
+# Beispiele: prozess → "ruehrwerksreaktor"/"druckbehaelter", thermisch → "rohrbuendel",
+#            mechanisch → "kreiselpumpe", elektrisch → "drucktransmitter"/"temperatursensor_widerstand",
+#            sicherheit → "sicherheitsventil_psv"/"berstscheibe"/"sis_abschaltung_sil2"
+info = rdb.get_equipment_info("ruehrwerksreaktor")
+failure_modes = rdb.get_failure_modes("ruehrwerksreaktor")
+
+# O-Richtwert für spezifischen Fehlermodus abfragen
+o_suggestion = rdb.suggest_o_value(equipment_type="ruehrwerksreaktor", failure_mode="Flanschleckage")
+# → {"o_wert": 4, "begruendung": "...", "quelle": "Reliability Reference DB"}
+
+# O-Richtwert über Ausfallrate (FPMH) abfragen
+o_by_rate = rdb.suggest_o_value(failure_rate_fpmh=15)
+
+# Kritische Fehlermodi für Vollständigkeitscheck
+critical = rdb.get_critical_failure_modes("sicherheitsventil_psv")
+```
+
+**Mapping-Tabelle Komponententyp → Reliability-DB-Typen:**
+
+| Komponententyp | Typische Reliability-DB-Typen |
+|---|---|
+| prozess (Reaktor/Behälter) | `ruehrwerksreaktor`, `druckbehaelter`, `lagertank_atmosphaerisch` |
+| thermisch | `rohrbuendel`, `plattenwaermetauscher` |
+| mechanisch | `kreiselpumpe`, `dosierpumpe_membran` |
+| elektrisch/msr | `temperatursensor_widerstand`, `drucktransmitter`, `fuellstandsmessung_radar`, `durchflussmesser_coriolis`, `regler_pid` |
+| sicherheit | `sicherheitsventil_psv`, `berstscheibe`, `sis_abschaltung_sil1`, `sis_abschaltung_sil2`, `gaswarnanlage` |
+| dosierung | `dosierpumpe_membran`, `dosierpumpe_kolben` |
+| rohrleitungen | `rohrleitung_edelstahl`, `flanschverbindung`, `kompensator_metallbalg` |
 
 ## Analyse-Regeln
 
@@ -76,8 +118,21 @@ Aus dem `lean_context` die vorhandenen Sensoren und Sicherheitseinrichtungen zuo
 | Kennzahl | Bewertung | Begründung |
 |----------|-----------|------------|
 | **S** (1-10) | Maximum der 4 Schadensdimensionen | Kausalitätskette erklären |
-| **O** (1-10) | Eintrittswahrscheinlichkeit | 3-Säulen: Komplexität, Umgebung, Design-Absicherung |
+| **O** (1-10) | Eintrittswahrscheinlichkeit | **Reliability-DB als Ausgangswert**, dann Anpassung durch Controls und Kontext |
 | **D** (1-10) | Entdeckung VOR Schadenseintritt | Prüfmittel, Ort, Zeitpunkt nennen |
+
+#### O-Bewertung mit Reliability-DB (Pflicht)
+
+Die O-Bewertung MUSS die Zuverlässigkeitsdaten aus `tools/reliability_lookup.py` berücksichtigen:
+
+1. **Ausgangswert ermitteln:** `rdb.suggest_o_value(equipment_type=..., failure_mode=...)` liefert den statistischen O-Richtwert basierend auf publizierten Ausfallraten (CCPS, IEEE, OREDA-basiert)
+2. **Anpassen:** Den Richtwert anhand des konkreten Kontexts anpassen:
+   - **Senkung** bei: SIL-Klassifizierung, Redundanz, günstige Betriebsbedingungen, neues Equipment
+   - **Erhöhung** bei: Aggressiven Medien, hohen Temperaturen/Drücken, fehlender Wartung, Alter
+3. **Dokumentieren:** In `begruendung_O` immer den Reliability-DB-Richtwert nennen und die Anpassung begründen
+
+**Beispiel:**
+> "O=3: Reliability-DB Richtwert für Flanschleckage bei Druckbehältern ist O=4 (40% aller Ausfälle). Reduziert auf O=3 durch SIL-1 Druckregelung PIC-402 und jährliche Dichtheitsprüfung."
 
 ## Output-Format (JSON)
 
@@ -177,3 +232,5 @@ db.insert_risk_assessment(fm_db_id, S=..., O=..., D=...,
 - Alle 4 Schadensdimensionen bewertet
 - Bestehende Controls aus dem Kontext korrekt zugeordnet
 - S/O/D-Begründungen referenzieren konkrete Anlagendaten (IDs, Werte)
+- **O-Bewertung MUSS Reliability-DB-Richtwert referenzieren** (Quelle + Anpassungsbegründung)
+- Kritische Fehlermodi aus der Reliability-DB wurden auf Vollständigkeit geprüft

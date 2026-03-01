@@ -256,39 +256,69 @@ def _create_causes_sheet(wb, full_data):
     ws.column_dimensions["H"].width = 50
 
 
+STOP_ORDER = {"S": 0, "T": 1, "O": 2, "P": 3}
+
+STOP_LABELS = {
+    "S": "Substitution",
+    "T": "Technisch",
+    "O": "Organisatorisch",
+    "P": "Persönlich",
+}
+
+
+def _sort_measures_by_stop(measures: list) -> list:
+    """Sort measures by STOP hierarchy (S before T before O before P)."""
+    return sorted(measures, key=lambda m: STOP_ORDER.get(m.get("stop_kategorie", ""), 99))
+
+
 def _create_measures_sheet(wb, full_data):
     ws = wb.create_sheet("Maßnahmen")
 
     headers = [
         "Fehler-ID", "Fehlermodus", "Komponente",
         "RPZ vorher", "Status vorher",
-        "Maßnahme", "ABE-Kategorie", "Beschreibung",
+        "STOP", "Maßnahme", "ABE-Kategorie", "Beschreibung",
         "S neu", "O neu", "D neu", "RPZ neu", "Status neu",
-        "Begründung"
+        "Begründung", "Iteration"
     ]
     for i, h in enumerate(headers, 1):
         ws.cell(row=1, column=i, value=h)
     _style_header(ws, 1, len(headers))
 
+    stop_fill = {
+        "S": PatternFill(start_color="D5E8D4", end_color="D5E8D4", fill_type="solid"),
+        "T": PatternFill(start_color="DAE8FC", end_color="DAE8FC", fill_type="solid"),
+        "O": PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid"),
+        "P": PatternFill(start_color="F8CECC", end_color="F8CECC", fill_type="solid"),
+    }
+
     row = 2
     for entry in full_data:
         risk = entry.get("risk") or {}
-        for measure in entry.get("measures", []):
+        measures = _sort_measures_by_stop(entry.get("measures", []))
+        for measure in measures:
             ws.cell(row=row, column=1, value=entry.get("fehler_id", ""))
             ws.cell(row=row, column=2, value=entry.get("fehlermodus", ""))
             ws.cell(row=row, column=3, value=entry.get("komponente", ""))
             ws.cell(row=row, column=4, value=risk.get("rpz", entry.get("rpz", "")))
             ws.cell(row=row, column=5, value=risk.get("rpz_status", entry.get("rpz_status", "")))
-            ws.cell(row=row, column=6, value=measure.get("name", ""))
-            ws.cell(row=row, column=7, value=measure.get("abe_kategorie", ""))
-            ws.cell(row=row, column=8, value=measure.get("beschreibung", ""))
-            ws.cell(row=row, column=9, value=measure.get("S_neu", ""))
-            ws.cell(row=row, column=10, value=measure.get("O_neu", ""))
-            ws.cell(row=row, column=11, value=measure.get("D_neu", ""))
-            ws.cell(row=row, column=12, value=measure.get("rpz_neu", ""))
+
+            stop_kat = measure.get("stop_kategorie", "")
+            stop_cell = ws.cell(row=row, column=6,
+                                value=STOP_LABELS.get(stop_kat, stop_kat))
+            if stop_kat in stop_fill:
+                stop_cell.fill = stop_fill[stop_kat]
+
+            ws.cell(row=row, column=7, value=measure.get("name", ""))
+            ws.cell(row=row, column=8, value=measure.get("abe_kategorie", ""))
+            ws.cell(row=row, column=9, value=measure.get("beschreibung", ""))
+            ws.cell(row=row, column=10, value=measure.get("S_neu", ""))
+            ws.cell(row=row, column=11, value=measure.get("O_neu", ""))
+            ws.cell(row=row, column=12, value=measure.get("D_neu", ""))
+            ws.cell(row=row, column=13, value=measure.get("rpz_neu", ""))
 
             rpz_status_neu = measure.get("rpz_status_neu", "")
-            status_cell = ws.cell(row=row, column=13, value=rpz_status_neu)
+            status_cell = ws.cell(row=row, column=14, value=rpz_status_neu)
             if rpz_status_neu in RPZ_COLORS:
                 status_cell.fill = PatternFill(
                     start_color=RPZ_COLORS[rpz_status_neu],
@@ -296,14 +326,16 @@ def _create_measures_sheet(wb, full_data):
                     fill_type="solid"
                 )
 
-            ws.cell(row=row, column=14, value=measure.get("begruendung", ""))
+            ws.cell(row=row, column=15, value=measure.get("begruendung", ""))
+            ws.cell(row=row, column=16, value=measure.get("iteration", 1))
             row += 1
 
     for col in range(1, len(headers) + 1):
         ws.column_dimensions[get_column_letter(col)].width = 18
-    ws.column_dimensions["F"].width = 35
-    ws.column_dimensions["H"].width = 50
-    ws.column_dimensions["N"].width = 50
+    ws.column_dimensions["F"].width = 16
+    ws.column_dimensions["G"].width = 35
+    ws.column_dimensions["I"].width = 50
+    ws.column_dimensions["O"].width = 50
 
 
 def export_fmea(project_id: int, output_path: str = None, db_path: str = None,
