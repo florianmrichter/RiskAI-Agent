@@ -589,15 +589,52 @@
       </div>
       {% endif %}
 
-      {# Controls #}
+      {# Controls (ausführlich) #}
       {% if fm.controls %}
       <div class="risk-sub-section">
         <div class="risk-sub-title">Bestehende Controls</div>
-        <div class="pill-list">
-          {% for ctrl in fm.controls %}
-          <span class="pill"><strong>[{{ ctrl.wirkung }}]</strong> {{ ctrl.name }} ({{ ctrl.typ }})</span>
-          {% endfor %}
+        <table class="compact-table">
+          <thead><tr><th>Wirkung</th><th>Name</th><th>Typ</th><th>Beschreibung</th><th>Beeinflusst</th></tr></thead>
+          <tbody>
+            {% for ctrl in fm.controls %}
+            <tr>
+              <td><span class="abe-badge {{ 'A' if ctrl.wirkung == 'A' else ('B' if ctrl.wirkung == 'B' else 'E') }}">{{ ctrl.wirkung }}</span></td>
+              <td style="font-weight:600;">{{ ctrl.name }}</td>
+              <td>{{ ctrl.typ }}</td>
+              <td>{{ ctrl.beschreibung or '–' }}</td>
+              <td>{{ ctrl.beeinflusst or '–' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+
+      {# Maßnahmen (inline bei Risikobewertung) #}
+      {% if measures %}
+      <div class="risk-sub-section">
+        <div class="risk-sub-title">Maßnahmen zur Risikoreduktion</div>
+        {% for m in measures %}
+        <div class="measure-card">
+          <div class="measure-header">
+            <div style="display:flex;align-items:center;gap:2mm;">
+              <span class="abe-badge {{ m.abe_kategorie }}">{{ m.abe_kategorie }}</span>
+              <span style="font-weight:600;font-size:0.82rem;">{{ m.name }}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:3mm;">
+              {% for sk, sl in [('S_neu','S'),('O_neu','O'),('D_neu','D')] %}
+                {% if m.get(sk) and m[sk] != fm.get(sl) %}
+                <span class="reduction-arrow">{{ sl }}: {{ fm.get(sl, '?') }}→{{ m[sk] }}</span>
+                {% endif %}
+              {% endfor %}
+              {% if m.rpz_neu %}
+              <span class="badge-outline {{ m.rpz_status_neu or 'niedrig' }}">RPZ' {{ m.rpz_neu }}</span>
+              {% endif %}
+            </div>
+          </div>
+          <p style="font-size:0.78rem;color:var(--color-text-secondary);margin:0;">{{ m.beschreibung }}</p>
         </div>
+        {% endfor %}
       </div>
       {% endif %}
 
@@ -708,7 +745,40 @@
   </tbody>
 </table>
 
-<h3 class="mt-lg">B. Glossar</h3>
+<h3 class="mt-lg">B. Maßnahmen-Checkliste</h3>
+<p class="mb-md">Gesamtübersicht aller definierten Maßnahmen zur systematischen Abarbeitung.</p>
+<table class="checklist-table">
+  <thead>
+    <tr>
+      <th style="width:5mm;">☐</th>
+      <th>Fehler-ID</th>
+      <th>Kat.</th>
+      <th>Maßnahme</th>
+      <th>RPZ vorher</th>
+      <th>RPZ nachher</th>
+      <th>Verantwortlich</th>
+      <th>Termin</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for fm in fmea_sorted %}
+      {% for m in fm.get('measures', []) %}
+      <tr>
+        <td style="text-align:center;">☐</td>
+        <td style="font-weight:600;font-size:0.72rem;">{{ fm.fehler_id }}</td>
+        <td><span class="abe-badge {{ m.abe_kategorie }}">{{ m.abe_kategorie }}</span></td>
+        <td style="font-size:0.75rem;">{{ m.name }}</td>
+        <td style="text-align:center;"><span class="badge badge-{{ fm.rpz_status }}">{{ fm.rpz }}</span></td>
+        <td style="text-align:center;">{% if m.rpz_neu %}<span class="badge badge-{{ m.rpz_status_neu or 'niedrig' }}">{{ m.rpz_neu }}</span>{% else %}–{% endif %}</td>
+        <td style="font-size:0.72rem;color:var(--color-text-muted);"></td>
+        <td style="font-size:0.72rem;color:var(--color-text-muted);"></td>
+      </tr>
+      {% endfor %}
+    {% endfor %}
+  </tbody>
+</table>
+
+<h3 class="mt-lg">C. Glossar</h3>
 <table class="glossary-table">
   <thead><tr><th>Begriff</th><th>Beschreibung</th></tr></thead>
   <tbody>

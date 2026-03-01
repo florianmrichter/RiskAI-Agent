@@ -157,8 +157,62 @@ def get_function_review(project_id: int, component_id: int = None, db_path=None)
 # Schritt 4: Risk Review (einzelner Fehlermodus)
 # ═══════════════════════════════════════════════════════════════
 
+def _format_sod_with_neighbors(value: int, scale: dict, label: str) -> list:
+    """Format a S/O/D value with its neighboring scale values for context.
+    Shows current value plus one above and one below so the reviewer
+    can quickly judge if the rating should be higher or lower."""
+    lines = []
+    info = scale.get(value, ("?", "?"))
+
+    below = value - 1
+    above = value + 1
+
+    if below >= 1:
+        b_info = scale.get(below, ("?", "?"))
+        lines.append(f"    ↓ {label}={below}: {b_info[0]} – {b_info[1]}")
+    lines.append(f"  → **{label} = {value}**: {info[0]} – {info[1]}")
+    if above <= 10:
+        a_info = scale.get(above, ("?", "?"))
+        lines.append(f"    ↑ {label}={above}: {a_info[0]} – {a_info[1]}")
+
+    return lines
+
+
+def _identify_rpz_driver(S: int, O: int, D: int) -> str:
+    """Identify which factor contributes most to the RPZ and explain why.
+    The 'driver' is the factor whose reduction would most effectively
+    lower the overall RPZ."""
+    factors = {"S": S, "O": O, "D": D}
+    driver_key = max(factors, key=factors.get)
+    driver_val = factors[driver_key]
+
+    driver_labels = {
+        "S": "Bedeutung (S)",
+        "O": "Auftreten (O)",
+        "D": "Entdeckung (D)",
+    }
+    driver_explanations = {
+        "S": f"Die Schwere der Auswirkung (S={driver_val}) ist der größte Einzelfaktor. "
+             "S lässt sich meist nur durch konstruktive Änderungen senken.",
+        "O": f"Die Auftretenswahrscheinlichkeit (O={driver_val}) treibt das Risiko. "
+             "Vermeidungsmaßnahmen (Kat. A) können O direkt reduzieren.",
+        "D": f"Die Entdeckungswahrscheinlichkeit (D={driver_val}) ist der Haupttreiber. "
+             "Bessere Prüfungen oder Überwachung (Kat. B) können D senken.",
+    }
+
+    if driver_val == max(factors.values()) and list(factors.values()).count(driver_val) > 1:
+        tied = [k for k, v in factors.items() if v == driver_val]
+        tied_labels = [driver_labels[k] for k in tied]
+        return (f"Mehrere Faktoren gleich hoch ({', '.join(tied_labels)} = {driver_val}). "
+                "Maßnahmen sollten bevorzugt O oder D adressieren, da S konstruktionsbedingt "
+                "oft schwer änderbar ist.")
+
+    return driver_explanations[driver_key]
+
+
 def get_risk_review(project_id: int, fehler_id: str = None, db_path=None) -> str:
-    """Format a single failure mode for detailed S/O/D review."""
+    """Format a single failure mode for detailed S/O/D review.
+    Includes neighboring scale values and driver explanation."""
     db = _db(db_path)
 
     if fehler_id:
@@ -200,7 +254,8 @@ def get_risk_review(project_id: int, fehler_id: str = None, db_path=None) -> str
         if controls:
             lines.append("**Bestehende Controls:**")
             for ctrl in controls:
-                lines.append(f"  - [{ctrl['wirkung']}] {ctrl['name']} ({ctrl['typ']})")
+                lines.append(f"  - [{ctrl['wirkung']}] {ctrl['name']} ({ctrl['typ']})"
+                             f"{' – ' + ctrl['beschreibung'] if ctrl.get('beschreibung') else ''}")
             lines.append("")
 
         if ra:
@@ -208,22 +263,24 @@ def get_risk_review(project_id: int, fehler_id: str = None, db_path=None) -> str
             rpz = ra["rpz"]
             status = ra["rpz_status"]
 
-            s_info = S_SCALE.get(S, ("?", "?"))
-            o_info = O_SCALE.get(O, ("?", "?"))
-            d_info = D_SCALE.get(D, ("?", "?"))
-
             lines.append("**Risikobewertung:**")
-            lines.append(f"  - **S = {S}** ({s_info[0]}): {s_info[1]}")
+            lines.append("")
+            lines.extend(_format_sod_with_neighbors(S, S_SCALE, "S"))
             if ra.get("begruendung_S"):
                 lines.append(f"    Begründung: {ra['begruendung_S']}")
-            lines.append(f"  - **O = {O}** ({o_info[0]}): {o_info[1]}")
+            lines.append("")
+            lines.extend(_format_sod_with_neighbors(O, O_SCALE, "O"))
             if ra.get("begruendung_O"):
                 lines.append(f"    Begründung: {ra['begruendung_O']}")
-            lines.append(f"  - **D = {D}** ({d_info[0]}): {d_info[1]}")
+            lines.append("")
+            lines.extend(_format_sod_with_neighbors(D, D_SCALE, "D"))
             if ra.get("begruendung_D"):
                 lines.append(f"    Begründung: {ra['begruendung_D']}")
 
             lines.append(f"\n  **RPZ = {rpz} ({status.upper()})**")
+
+            lines.append(f"\n  **Treiber-Analyse:** {_identify_rpz_driver(S, O, D)}")
+
             if ra.get("override_applied"):
                 lines.append(f"  Override: {ra['override_applied']}")
 

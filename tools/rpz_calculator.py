@@ -22,16 +22,23 @@ from config.fmea_standards import (
 
 def check_safety_overrides(failure_mode_data: dict) -> tuple:
     """
-    Check if safety overrides apply based on context keywords.
+    Check if safety overrides apply based on the failure mode itself.
+    Only searches in fehlermodus description, fehlerart, and component name/type --
+    NOT in the full lean_context (which always contains plant-wide substance data).
     Returns (new_S_value, override_label) or (None, None) if no override.
     """
-    context_text = json.dumps(failure_mode_data, ensure_ascii=False).lower()
+    relevant_fields = " ".join([
+        failure_mode_data.get("fehlermodus", ""),
+        failure_mode_data.get("fehlerart", ""),
+        failure_mode_data.get("komponente", ""),
+        failure_mode_data.get("typ", ""),
+    ]).lower()
 
     highest_override = None
     highest_min_S = 0
 
     for rule in SAFETY_OVERRIDES:
-        if any(kw in context_text for kw in rule["keywords"]):
+        if any(kw in relevant_fields for kw in rule["keywords"]):
             if rule["min_S"] > highest_min_S:
                 highest_min_S = rule["min_S"]
                 highest_override = rule["label"]

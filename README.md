@@ -59,6 +59,19 @@ pip install -r requirements.txt
 - Safety-Guard-System für automatische Risiko-Overrides
 - ABE-Hierarchie für Maßnahmen (Abstellen → Begrenzen → Erkennen)
 
+## Berichts-Features
+
+- **Detaillierte Risiko-Cards** mit S/O/D-Bewertung, Ursachen, Folgen, Controls und Maßnahmen an einem Ort
+- **Ausführliche Controls-Tabelle** mit Beschreibung und Wirkungsbereich statt reiner Pill-Badges
+- **Maßnahmen-Checkliste** im Anhang zur systematischen Abarbeitung
+- **Visualisierungen**: Donut-Chart, Risikomatrix, Treemap (vorher/nachher), RPZ-Vergleichs-Balkendiagramm
+- **Review-Tool mit S/O/D-Skala-Kontext**: zeigt Nachbarwerte zur besseren Einschätzung
+- **Treiber-Analyse**: erklärt welcher Faktor (S, O oder D) das Risiko dominiert und wie man ihn adressiert
+
+## Tasks
+
+- **Risikoanalyse**: Anlagendaten in `tasks/Risikoanalyse/anlagendaten.json`, FMEA-Config in `tasks/Risikoanalyse/` (JSON).
+
 ## Status
 
-**In aktiver Entwicklung** — Phase 1 (Fundament) abgeschlossen, Phase 2 (Analyse-Kern) in Arbeit.
+**In aktiver Entwicklung** — POC für Synthesereaktor R-101 erfolgreich abgeschlossen. Anlagendaten als JSON; Templates und Tools (Review, RPZ) aktualisiert.
