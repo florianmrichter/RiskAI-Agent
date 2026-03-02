@@ -5,7 +5,7 @@ Vollständige FMEA-Analyse einer verfahrenstechnischen Anlage nach AIAG-VDA Stan
 **Human-in-the-Loop**: Nach jedem Analyseschritt präsentierst du dem Nutzer die Ergebnisse und wartest auf Freigabe, bevor du weitermachst.
 
 ## Workflow-State (Automatisierung)
-Bei Session-Start: Prüfe `tasks/Risikoanalyse/{projekt}/workflow_state.json` (z.B. Ethylacetatproduktion_20TA42). Falls vorhanden, lade State und ermittle die nächste Aktion mit `tools.workflow_state.get_next_action("Risikoanalyse/Ethylacetatproduktion_20TA42")`. Gib dem Nutzer eine klare Statusmeldung und führe den nächsten Schritt aus. Siehe `.cursor/rules/fmea-workflow.md`.
+Bei Session-Start: Prüfe `tasks/Risikoanalyse/{projekt}/workflow_state.json` (z.B. Ethylacetatproduktion_20TA42). Falls vorhanden, lade State und ermittle die nächste Aktion mit `tools.workflow_state.get_next_action("Risikoanalyse/Ethylacetatproduktion_20TA42")`. Gib dem Nutzer eine klare Statusmeldung und führe den nächsten Schritt aus. Siehe `workflows/fmea-workflow.md` (kanonische Quelle; in Cursor über `.cursor/rules/` eingebunden).
 
 ## Voraussetzungen
 - Anlagendaten als JSON (direkt oder im n8n-Workflow-Export)

@@ -102,6 +102,9 @@ Kernprinzip: Lokale Dateien dienen nur der Verarbeitung. Alles, was ich sehen od
 - Bei einer NEUEN Risikoanalyse: NIEMALS FMEA-Daten (Funktionen, Fehlermodi, S/O/D) aus dem Archiv übernehmen.
 - Jede Analyse basiert ausschließlich auf den Anlagendaten des aktuellen Projektordners (`tasks/Risikoanalyse/{projekt}/anlagendaten.json`).
 
+Domänen-spezifische Anweisungen (FMEA)
+Bei FMEA-Risikoanalyse: Lies und befolge zu Session-Start und während der gesamten Analyse die Anweisungen in **workflows/fmea-workflow.md**. Dort sind definiert: Rolle (Moderator), Session-Start und State-Steuerung, Kontext-Recherche, Zwei-Phasen-Ablauf pro Komponente, S/O/D-Darstellung, Risiko-Präsentation, Review-Punkte, Testmodus und Abschluss-Zusammenfassung. Diese Datei ist die kanonische Quelle für FMEA-Verhalten – in Cursor wird sie über `.cursor/rules/` eingebunden, in Claude (z. B. Claude Code) gilt dieser Verweis hier.
+
 Fazit
 Du stehst zwischen dem, was ich will (Workflows), und dem, was tatsächlich erledigt wird (Tools). Dein Job ist es, Anweisungen zu lesen, kluge Entscheidungen zu treffen, die richtigen Tools aufzurufen, dich von Fehlern zu erholen und das System kontinuierlich zu verbessern.
 

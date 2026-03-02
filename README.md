@@ -44,6 +44,8 @@ RiskAI-Agent/
 └── requirements.txt # Python-Abhängigkeiten
 ```
 
+**Agent-Anweisungen:** Generisches WAT-Framework in `CLAUDE.md`; FMEA-spezifische Regeln (Moderation, Testmodus, S/O/D) in `workflows/fmea-workflow.md` (in Cursor per Symlink unter `.cursor/rules/` eingebunden, in Claude über den Verweis in CLAUDE.md).
+
 **Indizes (Übersichten):**
 - [workflows/README.md](workflows/README.md) – Index aller Workflows und zugehörige Tools
 - [tools/README.md](tools/README.md) – Index aller Tools mit Zweck und Status
@@ -195,7 +197,7 @@ struktur → fmea → rpz_validierung → massnahmen → report
 
 ### Testmodus (Passwort: Wunschpunsch)
 
-Für vollständige Testläufe: Gib das Passwort ein (steht in `.env` unter `FMEA_TESTMODE_PASSWORD`, Standard: `Wunschpunsch`). Der Agent führt die Risikoanalyse dann **autonom** durch – keine Rückfragen, alle Maßnahmen automatisch übernommen. Ziel: Ergebnisprüfung. Siehe `.cursor/rules/fmea-workflow.md`.
+Für vollständige Testläufe: Gib das Passwort ein (steht in `.env` unter `FMEA_TESTMODE_PASSWORD`, Standard: `Wunschpunsch`). Der Agent führt die Risikoanalyse dann **autonom** durch – keine Rückfragen, alle Maßnahmen automatisch übernommen. Ziel: Ergebnisprüfung. Siehe `workflows/fmea-workflow.md` (in Cursor über `.cursor/rules/` eingebunden).
 
 ### Abschluss-Zusammenfassung
 

@@ -40,6 +40,7 @@ Ablauf aus Sicht des Haupt-SOPs:
 
 ## Dateien
 
+- **fmea-workflow.md** – Kanonische FMEA-Agent-Regeln (Moderation, Session-Start, Testmodus, S/O/D, Ablauf). In CLAUDE.md referenziert; in Cursor über `.cursor/rules/` (Symlink) eingebunden.
 - **fmea_analyse.md** – Einstieg: Gesamtablauf mit Review-Punkten nach jedem Schritt
 - **funktionsanalyse.md** – Regeln für Haupt-/Nebenfunktionen und Anforderungen
 - **fehleranalyse.md** – Fehlermodi, Ursachen, Folgen, Controls, S/O/D-Bewertung
