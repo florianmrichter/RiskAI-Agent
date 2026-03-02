@@ -11,7 +11,7 @@ Führt Schritte 1-7 durch:
   7. Report generieren
 
 Usage:
-    python tools/run_full_fmea.py [--project-id 1] [--json tasks/Risikoanalyse/Ethylacetatproduktion_20TA41/anlagendaten.json]
+    python tools/run_full_fmea.py --task-folder Risikoanalyse/Ethylacetatproduktion_20TA42 [--project-id 1] [--json PATH] [--output-dir PATH]
 """
 
 import argparse
@@ -211,12 +211,14 @@ def step6_massnahmen(project_id: int, db_path: str = None):
 
 
 def main():
+    base = Path(__file__).parent.parent
     ap = argparse.ArgumentParser()
     ap.add_argument("--project-id", type=int, default=1)
-    ap.add_argument("--json", default="tasks/Risikoanalyse/Ethylacetatproduktion_20TA41/anlagendaten.json")
-    ap.add_argument("--output-dir", default="tasks/Risikoanalyse/Ethylacetatproduktion_20TA41")
+    ap.add_argument("--task-folder", required=True, help="z.B. Risikoanalyse/Ethylacetatproduktion_20TA42")
+    ap.add_argument("--json", default=None, help="Pfad zu anlagendaten.json (default: tasks/{task_folder}/anlagendaten.json)")
+    ap.add_argument("--output-dir", default=None, help="Output-Verzeichnis (default: tasks/{task_folder})")
     args = ap.parse_args()
-    json_path = Path(__file__).parent.parent / args.json
+    json_path = base / (args.json or f"tasks/{args.task_folder}/anlagendaten.json")
     if not json_path.exists():
         print(f"Fehler: {json_path} nicht gefunden.")
         sys.exit(1)
@@ -239,12 +241,13 @@ def main():
     nm = step6_massnahmen(ctx["project_id"])
     print(f"      {nm} Maßnahmen ergänzt")
     print("\n[7] Report generieren...")
-    out_dir = Path(__file__).parent.parent / args.output_dir
+    out_dir = base / (args.output_dir or f"tasks/{args.task_folder}")
     out_dir.mkdir(parents=True, exist_ok=True)
     anlage = ctx["plant_data"].get("bezeichnung", "Report").replace(" ", "_")
     pdf_path = generate_report(
         ctx["project_id"],
         output_path=str(out_dir / f"FMEA_Bericht_{anlage}_{ctx['plant_data'].get('teilanlage_nr', '')}.pdf"),
+        task_folder=args.task_folder,
     )
     print(f"      Report: {pdf_path}")
     print("\n" + "=" * 60)

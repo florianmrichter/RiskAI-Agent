@@ -29,6 +29,10 @@ Thumbs.db
 # IDEs
 .vscode/
 .idea/
+
+# Cursor / MCP
+.cursor/
+.mcp-servers/
 *.swp
 *.swo
 *~

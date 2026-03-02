@@ -373,11 +373,12 @@ def _rpz_color(status: str) -> str:
 def _load_plant_data(path: str = None, task_folder: str = None) -> dict:
     """Load plant data from JSON or RTF file."""
     tasks_root = Path(__file__).parent.parent / "tasks"
-    base = tasks_root / (task_folder or "Risikoanalyse/Ethylacetatproduktion_20TA41")
-
     if path:
         candidates = [Path(path)]
     else:
+        if not task_folder:
+            raise ValueError("task_folder erforderlich wenn path nicht angegeben")
+        base = tasks_root / task_folder
         candidates = [
             base / "anlagendaten.json",
             base / "Anlagendaten.json",
@@ -421,7 +422,7 @@ def _load_plant_data(path: str = None, task_folder: str = None) -> dict:
 # Main Entry Point
 # ═══════════════════════════════════════════════════════════════
 
-def generate_report(project_id: int, output_path: str = None, db_path: str = None) -> str:
+def generate_report(project_id: int, output_path: str = None, task_folder: str = None, db_path: str = None) -> str:
     """Generate the FMEA PDF report for a given project."""
 
     db = FMEAStorage(db_path)
@@ -521,7 +522,9 @@ def generate_report(project_id: int, output_path: str = None, db_path: str = Non
                 best_reduction = max(reductions)
                 avg_reduction = round(sum(reductions) / len(reductions))
 
-        task_folder = project.get("task_folder") or "Risikoanalyse/Ethylacetatproduktion_20TA41"
+        task_folder = task_folder or project.get("task_folder")
+        if not task_folder:
+            raise ValueError("task_folder erforderlich – weder übergeben noch in Projekt gespeichert")
         plant_data = _load_plant_data(task_folder=task_folder)
 
         # Jinja2 rendering
@@ -579,7 +582,7 @@ def generate_report(project_id: int, output_path: str = None, db_path: str = Non
         project_name = project.get("name") or ""
         anlage_name = project.get("anlage_name") or ""
         # Format: "Anlagenname (Teilanlage) – Risikoanalyse"
-        # e.g. "Ethylacetat-Anlage (20TA41) – Risikoanalyse"
+        # e.g. "Ethylacetat-Anlage (20TA42) – Risikoanalyse"
         header_right_text = f"{project_name} ({anlage_name}) – Risikoanalyse" if anlage_name else f"{project_name} – Risikoanalyse"
 
         outfit_style = _get_outfit_font_style()
@@ -627,6 +630,10 @@ def generate_report(project_id: int, output_path: str = None, db_path: str = Non
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python tools/report_generator.py <project_id> [output_path]")
+        print("Usage: python tools/report_generator.py <project_id> [output_path] [task_folder]")
         sys.exit(1)
-    generate_report(int(sys.argv[1]), sys.argv[2] if len(sys.argv) > 2 else None)
+    generate_report(
+        int(sys.argv[1]),
+        sys.argv[2] if len(sys.argv) > 2 else None,
+        task_folder=sys.argv[3] if len(sys.argv) > 3 else None,
+    )

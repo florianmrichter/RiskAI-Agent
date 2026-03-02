@@ -5,7 +5,7 @@ Vollständige FMEA-Analyse einer verfahrenstechnischen Anlage nach AIAG-VDA Stan
 **Human-in-the-Loop**: Nach jedem Analyseschritt präsentierst du dem Nutzer die Ergebnisse und wartest auf Freigabe, bevor du weitermachst.
 
 ## Workflow-State (Automatisierung)
-Bei Session-Start: Prüfe `tasks/Risikoanalyse/{projekt}/workflow_state.json` (z.B. Ethylacetatproduktion_20TA41). Falls vorhanden, lade State und ermittle die nächste Aktion mit `tools.workflow_state.get_next_action("Risikoanalyse/Ethylacetatproduktion_20TA41")`. Gib dem Nutzer eine klare Statusmeldung und führe den nächsten Schritt aus. Siehe `.cursor/rules/fmea-workflow.md`.
+Bei Session-Start: Prüfe `tasks/Risikoanalyse/{projekt}/workflow_state.json` (z.B. Ethylacetatproduktion_20TA42). Falls vorhanden, lade State und ermittle die nächste Aktion mit `tools.workflow_state.get_next_action("Risikoanalyse/Ethylacetatproduktion_20TA42")`. Gib dem Nutzer eine klare Statusmeldung und führe den nächsten Schritt aus. Siehe `.cursor/rules/fmea-workflow.md`.
 
 ## Voraussetzungen
 - Anlagendaten als JSON (direkt oder im n8n-Workflow-Export)
@@ -71,7 +71,7 @@ components = analyze_structure(plant_data)
 save_components_to_db(components, project_id)
 # State initialisieren für Workflow-Automatisierung:
 from tools.workflow_state import init_state_from_structure
-init_state_from_structure("Risikoanalyse/Ethylacetatproduktion_20TA41", project_id, [c["komp_id"] for c in components])
+init_state_from_structure("Risikoanalyse/Ethylacetatproduktion_20TA42", project_id, [c["komp_id"] for c in components])
 ```
 
 ### REVIEW nach Schritt 2
@@ -106,7 +106,7 @@ Für jede Komponente: Lies `workflows/funktionsanalyse.md` und führe die Analys
 **WICHTIG – Keine generische Logik:**
 - Jede Komponente wird EINZELN und explizit analysiert
 - Keine Template-basierte Erzeugung von Funktionen
-- Definitionen werden in `tasks/Risikoanalyse/{projekt}/fmea_explicit.py` ergänzt und mit `tools/insert_fmea_explicit.py` eingespielt (task_folder="Risikoanalyse/Ethylacetatproduktion_20TA41")
+- Definitionen werden in `tasks/Risikoanalyse/{projekt}/fmea_explicit.py` ergänzt und mit `tools/insert_fmea_explicit.py` eingespielt (task_folder="Risikoanalyse/Ethylacetatproduktion_20TA42")
 
 **Kontext-Management:**
 - Verarbeite Komponenten EINZELN oder in kleinen Gruppen (max. 5)
@@ -147,7 +147,7 @@ Für jede Funktion: Lies `workflows/fehleranalyse.md` und führe die Analyse dur
 - Jeder Fehlermodus wird EINZELN und explizit analysiert
 - Keine generischen Fehlermodi (z.B. „Bedienfehler“, „Kennzeichnungsfehler“ als Platzhalter)
 - S/O/D mit spezifischer Begründung pro Fehlermodus
-- Definitionen in `tasks/Risikoanalyse/{projekt}/fmea_explicit.py`, Einspielung mit `tools/insert_fmea_explicit.py` (task_folder="Risikoanalyse/Ethylacetatproduktion_20TA41")
+- Definitionen in `tasks/Risikoanalyse/{projekt}/fmea_explicit.py`, Einspielung mit `tools/insert_fmea_explicit.py` (task_folder="Risikoanalyse/Ethylacetatproduktion_20TA42")
 
 **Vorbereitung:**
 1. Lade Fehlervorlagen: `from tools.failure_templates import get_templates_for_component`

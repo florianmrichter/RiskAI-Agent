@@ -27,7 +27,9 @@ def apply_all_explicit_measures(project_id: int = 2, task_folder: str = None, db
     Wendet explizit definierte Maßnahmen an.
     Delegiert an run_generate_measures (lädt aus tasks/{task_folder}/measures_explicit oder config).
     """
-    result = run_generate_measures(project_id, task_folder or "Risikoanalyse/Ethylacetatproduktion_20TA41", db_path)
+    if not task_folder:
+        raise ValueError("task_folder erforderlich")
+    result = run_generate_measures(project_id, task_folder, db_path)
     return {"applied": result["inserted"], "skipped": result["skipped"], "missing": result["missing"]}
 
 
@@ -35,7 +37,7 @@ if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("--project-id", type=int, default=2)
-    ap.add_argument("--task-folder", default="Risikoanalyse/Ethylacetatproduktion_20TA41")
+    ap.add_argument("--task-folder", required=True, help="z.B. Risikoanalyse/Ethylacetatproduktion_20TA42")
     args = ap.parse_args()
     result = apply_all_explicit_measures(args.project_id, task_folder=args.task_folder)
     print("Maßnahmen angewendet:", result["applied"])

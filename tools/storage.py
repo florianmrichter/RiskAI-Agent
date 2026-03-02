@@ -4,7 +4,7 @@ FMEA Storage Layer -- SQLite CRUD for all 9 entities.
 Usage:
     from tools.storage import FMEAStorage
     db = FMEAStorage("path/to/fmea.db")
-    project_id = db.create_project("Ethylacetat-Anlage", "20TA41")
+    project_id = db.create_project("Beispiel-Anlage", "20TA42", task_folder="Risikoanalyse/Beispielprojekt")
 """
 
 import sqlite3
@@ -32,6 +32,9 @@ class FMEAStorage:
         self._create_tables()
         self._migrate_measures_table()
         self._migrate_projects_task_folder()
+        self._migrate_failure_modes_extended()
+        self._migrate_current_controls_einschraenkung()
+        self._migrate_measures_hinweis()
 
     def _create_tables(self):
         self.conn.executescript("""
@@ -174,6 +177,40 @@ class FMEAStorage:
             )
         self.conn.commit()
 
+    def _migrate_failure_modes_extended(self):
+        """Add kontext_beschreibung and controls_einschraenkung to failure_modes."""
+        cursor = self.conn.execute("PRAGMA table_info(failure_modes)")
+        existing_cols = {row[1] for row in cursor.fetchall()}
+        if "kontext_beschreibung" not in existing_cols:
+            self.conn.execute(
+                "ALTER TABLE failure_modes ADD COLUMN kontext_beschreibung TEXT"
+            )
+        if "controls_einschraenkung" not in existing_cols:
+            self.conn.execute(
+                "ALTER TABLE failure_modes ADD COLUMN controls_einschraenkung TEXT"
+            )
+        self.conn.commit()
+
+    def _migrate_current_controls_einschraenkung(self):
+        """Add einschraenkung column to current_controls."""
+        cursor = self.conn.execute("PRAGMA table_info(current_controls)")
+        existing_cols = {row[1] for row in cursor.fetchall()}
+        if "einschraenkung" not in existing_cols:
+            self.conn.execute(
+                "ALTER TABLE current_controls ADD COLUMN einschraenkung TEXT"
+            )
+        self.conn.commit()
+
+    def _migrate_measures_hinweis(self):
+        """Add hinweis column to measures."""
+        cursor = self.conn.execute("PRAGMA table_info(measures)")
+        existing_cols = {row[1] for row in cursor.fetchall()}
+        if "hinweis" not in existing_cols:
+            self.conn.execute(
+                "ALTER TABLE measures ADD COLUMN hinweis TEXT"
+            )
+        self.conn.commit()
+
     # ── Project CRUD ──
 
     def create_project(self, name: str, anlage_name: str = None, task_folder: str = None) -> int:
@@ -263,10 +300,14 @@ class FMEAStorage:
     # ── FailureMode CRUD ──
 
     def insert_failure_mode(self, function_id: int, fehler_id: str,
-                            fehlermodus: str, fehlerart: str) -> int:
+                            fehlermodus: str, fehlerart: str,
+                            kontext_beschreibung: str = None,
+                            controls_einschraenkung: str = None) -> int:
         cur = self.conn.execute(
-            "INSERT INTO failure_modes (function_id, fehler_id, fehlermodus, fehlerart) VALUES (?, ?, ?, ?)",
-            (function_id, fehler_id, fehlermodus, fehlerart)
+            """INSERT INTO failure_modes
+               (function_id, fehler_id, fehlermodus, fehlerart, kontext_beschreibung, controls_einschraenkung)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            (function_id, fehler_id, fehlermodus, fehlerart, kontext_beschreibung, controls_einschraenkung)
         )
         self.conn.commit()
         return cur.lastrowid
@@ -280,6 +321,28 @@ class FMEAStorage:
     def get_failure_mode_by_fehler_id(self, fehler_id: str) -> dict:
         row = self.conn.execute("SELECT * FROM failure_modes WHERE fehler_id = ?", (fehler_id,)).fetchone()
         return dict(row) if row else None
+
+    def update_failure_mode_report_fields(self, fehler_id: str,
+                                          kontext_beschreibung: str = None,
+                                          controls_einschraenkung: str = None) -> bool:
+        """Update kontext_beschreibung and/or controls_einschraenkung for existing failure mode."""
+        updates = []
+        values = []
+        if kontext_beschreibung is not None:
+            updates.append("kontext_beschreibung = ?")
+            values.append(kontext_beschreibung)
+        if controls_einschraenkung is not None:
+            updates.append("controls_einschraenkung = ?")
+            values.append(controls_einschraenkung)
+        if not updates:
+            return False
+        values.append(fehler_id)
+        self.conn.execute(
+            f"UPDATE failure_modes SET {', '.join(updates)} WHERE fehler_id = ?",
+            values
+        )
+        self.conn.commit()
+        return self.conn.total_changes > 0
 
     # ── FailureCause CRUD ──
 
@@ -383,12 +446,13 @@ class FMEAStorage:
 
     def insert_current_control(self, failure_mode_id: int, name: str, typ: str,
                                wirkung: str, sil_level: str = None,
-                               beschreibung: str = None, beeinflusst: str = None) -> int:
+                               beschreibung: str = None, beeinflusst: str = None,
+                               einschraenkung: str = None) -> int:
         cur = self.conn.execute(
             """INSERT INTO current_controls 
-               (failure_mode_id, name, typ, wirkung, sil_level, beschreibung, beeinflusst)
-               VALUES (?, ?, ?, ?, ?, ?, ?)""",
-            (failure_mode_id, name, typ, wirkung, sil_level, beschreibung, beeinflusst)
+               (failure_mode_id, name, typ, wirkung, sil_level, beschreibung, beeinflusst, einschraenkung)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+            (failure_mode_id, name, typ, wirkung, sil_level, beschreibung, beeinflusst, einschraenkung)
         )
         self.conn.commit()
         return cur.lastrowid
@@ -406,7 +470,7 @@ class FMEAStorage:
                        ziel: str = None,
                        S_neu: int = None, O_neu: int = None, D_neu: int = None,
                        rpz_neu: int = None, rpz_status_neu: str = None,
-                       begruendung: str = None, iteration: int = 1) -> int:
+                       begruendung: str = None, hinweis: str = None, iteration: int = 1) -> int:
         if rpz_neu is None and all(v is not None for v in [S_neu, O_neu, D_neu]):
             rpz_neu = S_neu * O_neu * D_neu
         if rpz_status_neu is None and rpz_neu is not None:
@@ -414,10 +478,10 @@ class FMEAStorage:
         cur = self.conn.execute(
             """INSERT INTO measures 
                (failure_mode_id, name, abe_kategorie, stop_kategorie, beschreibung, ziel,
-                S_neu, O_neu, D_neu, rpz_neu, rpz_status_neu, begruendung, iteration)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                S_neu, O_neu, D_neu, rpz_neu, rpz_status_neu, begruendung, hinweis, iteration)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (failure_mode_id, name, abe_kategorie, stop_kategorie, beschreibung, ziel,
-             S_neu, O_neu, D_neu, rpz_neu, rpz_status_neu, begruendung, iteration)
+             S_neu, O_neu, D_neu, rpz_neu, rpz_status_neu, begruendung, hinweis, iteration)
         )
         self.conn.commit()
         return cur.lastrowid
@@ -439,6 +503,7 @@ class FMEAStorage:
                 rpz_neu=m.get("rpz_neu"),
                 rpz_status_neu=m.get("rpz_status_neu"),
                 begruendung=m.get("begruendung"),
+                hinweis=m.get("hinweis"),
                 iteration=m.get("iteration", 1),
             )
             ids.append(mid)
@@ -449,6 +514,15 @@ class FMEAStorage:
             "SELECT * FROM measures WHERE failure_mode_id = ?", (failure_mode_id,)
         ).fetchall()
         return [dict(r) for r in rows]
+
+    def update_measure_hinweis(self, failure_mode_id: int, name: str, hinweis: str) -> bool:
+        """Update hinweis for a measure by failure_mode_id and name."""
+        self.conn.execute(
+            "UPDATE measures SET hinweis = ? WHERE failure_mode_id = ? AND name = ?",
+            (hinweis, failure_mode_id, name)
+        )
+        self.conn.commit()
+        return self.conn.total_changes > 0
 
     # ── Query Helpers ──
 

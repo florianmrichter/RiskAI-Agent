@@ -40,8 +40,14 @@ RiskAI-Agent/
 ├── data/            # SQLite-Datenbank fmea.db (gitignored)
 ├── archive/         # Archivierte Analyse-Läufe
 ├── .tmp/            # Temporäre Verarbeitungsdateien (gitignored)
+├── .env.example     # Vorlage für .env (API-Keys, FMEA_TESTMODE_PASSWORD)
 └── requirements.txt # Python-Abhängigkeiten
 ```
+
+**Indizes (Übersichten):**
+- [workflows/README.md](workflows/README.md) – Index aller Workflows und zugehörige Tools
+- [tools/README.md](tools/README.md) – Index aller Tools mit Zweck und Status
+- [config/README.md](config/README.md) – Config-Struktur (Standards, Vorlagen, Wissen)
 
 ## Setup
 
@@ -53,6 +59,7 @@ pip install -r requirements.txt
 
 - Python 3.10+
 - API-Schlüssel in `.env` (siehe `claude.md` für Details)
+- Optional: `.env` aus `.env.example` kopieren – enthält u.a. `FMEA_TESTMODE_PASSWORD` für den Testmodus
 
 ## Standards
 
@@ -77,10 +84,10 @@ pip install -r requirements.txt
 
 | Situation | Aktion |
 |-----------|--------|
-| **Kompletter Neustart** (DB löschen, leere Configs) | `python tools/init_fmea_fresh.py --reset --task-folder Risikoanalyse/Ethylacetatproduktion_20TA41` |
+| **Kompletter Neustart** (DB löschen, leere Configs) | `python tools/init_fmea_fresh.py --task-folder Risikoanalyse/Ethylacetatproduktion_20TA42 --reset` |
 | **Neues Projekt** (DB existiert noch nicht, Task-Ordner neu) | `python tools/init_fmea_fresh.py --task-folder Risikoanalyse/NeuesProjekt` |
 | **FMEA zurücksetzen** (nur ein Projekt, DB bleibt) | `python tools/clear_fmea_for_project.py Risikoanalyse/Ethylacetatproduktion_20TA42 --reset-files` |
-| **Fortsetzen** (workflow_state.json vorhanden) | Agent startet, liest State, ermittelt nächste Aktion mit `get_next_action("Risikoanalyse/Ethylacetatproduktion_20TA41")` |
+| **Fortsetzen** (workflow_state.json vorhanden) | Agent startet, liest State, ermittelt nächste Aktion mit `get_next_action("Risikoanalyse/Ethylacetatproduktion_20TA42")` |
 
 ### Phasen-Reihenfolge
 
@@ -183,8 +190,16 @@ struktur → fmea → rpz_validierung → massnahmen → report
 
 - **Session-Start:** Agent prüft `workflow_state.json`, ruft `get_next_action(task_folder)` aus `tools/workflow_state.py` auf
 - **Nächste Aktion:** `init_structure` \| `analyze_fmea` \| `rpz_validierung` \| `apply_measures` \| `generate_report`
-- **Maßnahmen aus measures_explicit anwenden:** `python tools/apply_explicit_measures.py` (projektabhängig)
-- **Checklist aktualisieren:** `python tools/update_checklist.py Risikoanalyse/Ethylacetatproduktion_20TA41`
+- **Maßnahmen aus measures_explicit anwenden:** `python tools/apply_explicit_measures.py --task-folder Risikoanalyse/Ethylacetatproduktion_20TA42`
+- **Checklist aktualisieren:** `python tools/update_checklist.py Risikoanalyse/Ethylacetatproduktion_20TA42`
+
+### Testmodus (Passwort: Wunschpunsch)
+
+Für vollständige Testläufe: Gib das Passwort ein (steht in `.env` unter `FMEA_TESTMODE_PASSWORD`, Standard: `Wunschpunsch`). Der Agent führt die Risikoanalyse dann **autonom** durch – keine Rückfragen, alle Maßnahmen automatisch übernommen. Ziel: Ergebnisprüfung. Siehe `.cursor/rules/fmea-workflow.md`.
+
+### Abschluss-Zusammenfassung
+
+Am Ende jeder Risikoanalyse gibt der Agent eine kurze Zusammenfassung aus: Komponenten, Fehlermodi, Maßnahmen, Status DB/Report.
 
 ## Tasks
 
@@ -204,3 +219,5 @@ Jeder Projektordner enthält: `anlagendaten.json`, `fmea_explicit.py`, `measures
 ## Status
 
 **In aktiver Entwicklung** — **Frische Bewertung pro Analyse:** Agent analysiert jede Komponente neu, schreibt in `fmea_explicit.py`, Einspielung mit `tools/insert_fmea_explicit.py`. Maßnahmen: `tools/generate_measures.py` nutzt projektspezifische Generatoren aus `tasks/{task_folder}/measures_explicit.py` (oder `config/measures_explicit.py`); Fehlermodi ohne Generator werden vom Agent über `insert_measures_for_fehlermodus` eingespielt.
+
+**Cleanup (2026-03-02):** `insert_testmode_measures.py` entfernt – Maßnahmen liegen nun in `tasks/.../measures_explicit.py` und werden über `generate_measures.py` eingespielt. PoC-Skripte (`poc_run.py`, `setup_poc.py`) nach `archive/poc_scripts_2026-03-02/` verschoben. **Defaults neutralisiert:** `task_folder` ist bei allen Tools Pflichtparameter (kein projektspezifischer Standard mehr).

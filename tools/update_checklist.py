@@ -9,9 +9,9 @@ Liest den Projektstand ausschließlich aus der Datenbank:
 Kein Abgleich mit fmea_explicit – frische Bewertung pro Analyse.
 
 Usage:
-    python tools/update_checklist.py Risikoanalyse/Ethylacetatproduktion_20TA41
+    python tools/update_checklist.py Risikoanalyse/Ethylacetatproduktion_20TA42
     from tools.update_checklist import update_checklist
-    update_checklist("Risikoanalyse/Ethylacetatproduktion_20TA41")
+    update_checklist("Risikoanalyse/Ethylacetatproduktion_20TA42")
 """
 
 import sys
@@ -105,6 +105,10 @@ def _write_empty_checklist(task_folder: str) -> str:
 
 
 if __name__ == "__main__":
-    task = sys.argv[1] if len(sys.argv) > 1 else "Risikoanalyse/Ethylacetatproduktion_20TA41"
+    if len(sys.argv) < 2:
+        print("Usage: python tools/update_checklist.py <task_folder>")
+        print("  z.B. python tools/update_checklist.py Risikoanalyse/Ethylacetatproduktion_20TA42")
+        sys.exit(1)
+    task = sys.argv[1]
     out = update_checklist(task)
     print(f"Checklist geschrieben: {out}")

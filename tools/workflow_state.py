@@ -7,8 +7,8 @@ beim Session-Start den nächsten offenen Schritt zu ermitteln.
 
 Usage:
     from tools.workflow_state import load_state, get_next_action, mark_component_done
-    state = load_state("Risikoanalyse/Ethylacetatproduktion_20TA41")
-    action = get_next_action("Risikoanalyse/Ethylacetatproduktion_20TA41")
+    state = load_state("Risikoanalyse/Ethylacetatproduktion_20TA42")
+    action = get_next_action("Risikoanalyse/Ethylacetatproduktion_20TA42")
 """
 
 import json
@@ -201,7 +201,7 @@ def _default_state(task_folder: str) -> dict:
 if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser()
-    ap.add_argument("task_folder", default="Risikoanalyse/Ethylacetatproduktion_20TA41", nargs="?")
+    ap.add_argument("task_folder", help="z.B. Risikoanalyse/Ethylacetatproduktion_20TA42")
     ap.add_argument("--action", action="store_true", help="Zeige nächste Aktion")
     args = ap.parse_args()
     if args.action:

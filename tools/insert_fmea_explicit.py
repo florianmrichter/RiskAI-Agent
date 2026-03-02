@@ -9,7 +9,7 @@ explizit definiert sein.
 Usage:
     from tools.insert_fmea_explicit import insert_fmea_for_component
     from tools.fmea_loader import get_fmea_for_component
-    insert_fmea_for_component(project_id, "<komp_id>", task_folder="Risikoanalyse/Ethylacetatproduktion_20TA41")
+    insert_fmea_for_component(project_id, "<komp_id>", task_folder="Risikoanalyse/Ethylacetatproduktion_20TA42")
     # oder mit expliziten Daten:
     insert_fmea_for_component(project_id, "<komp_id>", fmea_data=my_data)
 """
@@ -56,10 +56,11 @@ def insert_fmea_for_component(
                     "kosten": ("Stufe", "Beschreibung"),
                 },
                 "controls": [
-                    {"name": "TIC-401", "typ": "Sensor", "wirkung": "B", "sil_level": "SIL-1", "beschreibung": "...", "beeinflusst": "D"}
+                    {"name": "TIC-401", "typ": "Sensor", "wirkung": "B", "sil_level": "SIL-1", "beschreibung": "...", "beeinflusst": "D", "einschraenkung": "..."}
                 ],
                 "S": 8, "O": 3, "D": 5,
-                "begruendung_S": "...", "begruendung_O": "...", "begruendung_D": "..."
+                "begruendung_S": "...", "begruendung_O": "...", "begruendung_D": "...",
+                "kontext_beschreibung": "...", "controls_einschraenkung": "..."
             }
         ]
     }
@@ -113,6 +114,8 @@ def insert_fmea_for_component(
             fehler_id,
             fm["fehlermodus"],
             fm["fehlerart"],
+            kontext_beschreibung=fm.get("kontext_beschreibung"),
+            controls_einschraenkung=fm.get("controls_einschraenkung"),
         )
         stats["failure_modes"] += 1
 
@@ -149,6 +152,7 @@ def insert_fmea_for_component(
                 ctrl.get("sil_level"),
                 ctrl.get("beschreibung"),
                 ctrl.get("beeinflusst"),
+                ctrl.get("einschraenkung"),
             )
 
         db.insert_risk_assessment(

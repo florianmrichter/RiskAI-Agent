@@ -9,8 +9,7 @@ bereitstellen. Folgt workflows/massnahmen.md: STOP-Prinzip (S/T/O/P) und ABE-Hie
 Für neue Projekte: tasks/{task_folder}/measures_explicit.py anlegen mit get_measures_for_fehlermodus.
 
 Usage:
-    python tools/generate_measures.py --project-id 1
-    python tools/generate_measures.py --project-id 1 --task-folder Risikoanalyse/Ethylacetatproduktion_20TA41
+    python tools/generate_measures.py --project-id 1 --task-folder Risikoanalyse/Ethylacetatproduktion_20TA42
 """
 
 import sys
@@ -87,7 +86,7 @@ def main():
 
     ap = argparse.ArgumentParser(description="Maßnahmen für Fehlermodi mit RPZ>=100 generieren")
     ap.add_argument("--project-id", type=int, default=None, help="Projekt-ID (default: aus workflow_state)")
-    ap.add_argument("--task-folder", default="Risikoanalyse/Ethylacetatproduktion_20TA41")
+    ap.add_argument("--task-folder", required=True, help="z.B. Risikoanalyse/Ethylacetatproduktion_20TA42")
     ap.add_argument("--db-path", default=None)
     args = ap.parse_args()
 

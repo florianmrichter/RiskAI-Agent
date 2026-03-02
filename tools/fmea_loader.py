@@ -6,8 +6,8 @@ Ermöglicht projektspezifische Config-Dateien pro task_folder.
 
 Usage:
     from tools.fmea_loader import get_fmea_for_component, load_measures_module
-    fmea_data = get_fmea_for_component("Risikoanalyse/Ethylacetatproduktion_20TA41", "<komp_id>")
-    mod = load_measures_module("Risikoanalyse/Ethylacetatproduktion_20TA41")
+    fmea_data = get_fmea_for_component("Risikoanalyse/Ethylacetatproduktion_20TA42", "<komp_id>")
+    mod = load_measures_module("Risikoanalyse/Ethylacetatproduktion_20TA42")
 """
 
 import importlib.util
@@ -37,7 +37,7 @@ def load_measures_module(task_folder: str):
 
 def _load_module(task_folder: str, module_name: str):
     """Lädt ein Python-Modul aus tasks/{task_folder}/{module_name}.py.
-    task_folder kann Pfad sein, z.B. Risikoanalyse/Ethylacetatproduktion_20TA41."""
+    task_folder kann Pfad sein, z.B. Risikoanalyse/Ethylacetatproduktion_20TA42."""
     path = TASKS_ROOT / task_folder / f"{module_name}.py"
     if not path.exists():
         return None

@@ -10,7 +10,7 @@ Kompletter Neustart der FMEA-Analyse.
 6. Generiert checklist.md
 
 Usage:
-    python tools/init_fmea_fresh.py [--reset] [--task-folder Risikoanalyse/Ethylacetatproduktion_20TA41]
+    python tools/init_fmea_fresh.py --task-folder Risikoanalyse/Ethylacetatproduktion_20TA42 [--reset]
 """
 
 import argparse
@@ -68,7 +68,7 @@ def get_measures_for_fehlermodus(fehler_id: str, fehlermodus: str, komponente: s
 def main():
     ap = argparse.ArgumentParser(description="FMEA komplett von vorne starten")
     ap.add_argument("--reset", action="store_true", help="DB löschen und neu anlegen")
-    ap.add_argument("--task-folder", default="Risikoanalyse/Ethylacetatproduktion_20TA41")
+    ap.add_argument("--task-folder", required=True, help="z.B. Risikoanalyse/Ethylacetatproduktion_20TA42")
     ap.add_argument("--json", default=None, help="Pfad zu anlagendaten.json (default: tasks/{task_folder}/anlagendaten.json)")
     args = ap.parse_args()
 

@@ -3,7 +3,7 @@
 FMEA-Analyse – KEINE generische Logik.
 
 Funktionen und Fehlermodi werden ausschließlich explizit pro Komponente in
-config/fmea_explicit.py definiert. Der Agent führt die Einzelfall-Analyse durch
+tasks/{task_folder}/fmea_explicit.py definiert. Der Agent führt die Einzelfall-Analyse durch
 und ergänzt die Definitionen. tools/insert_fmea_explicit.py fügt sie in die DB ein.
 
 Dieses Skript enthält nur noch Hilfsfunktionen (z.B. _get_component_item für
@@ -36,14 +36,14 @@ def _get_component_item(plant_data: dict, komp_id: str) -> dict:
 
 
 # ─── Keine generische Erzeugung mehr ───
-# Funktionen und Fehlermodi werden ausschließlich in config/fmea_explicit.py
+# Funktionen und Fehlermodi werden ausschließlich in tasks/{task_folder}/fmea_explicit.py
 # pro Komponente definiert und mit tools/insert_fmea_explicit.py eingefügt.
 # Der Agent führt die Einzelfall-Analyse Schritt für Schritt durch.
 
 
 if __name__ == "__main__":
     print("FMEA-Analyse erfolgt ausschließlich über explizite Definitionen.")
-    print("1. Agent analysiert Komponente einzeln (tasks/Risikoanalyse/Ethylacetatproduktion_20TA41/anlagendaten.json)")
-    print("2. Definition in config/fmea_explicit.py ergänzen")
+    print("1. Agent analysiert Komponente einzeln (tasks/Risikoanalyse/Ethylacetatproduktion_20TA42/anlagendaten.json)")
+    print("2. Definition in tasks/{task_folder}/fmea_explicit.py ergänzen")
     print("3. tools/insert_fmea_explicit.py ausführen")
-    print("4. tools/apply_explicit_measures.py für Maßnahmen")
+    print("4. tools/generate_measures.py oder insert_measures_for_fehlermodus für Maßnahmen")
