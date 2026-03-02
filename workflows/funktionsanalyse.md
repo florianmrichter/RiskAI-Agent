@@ -8,6 +8,8 @@ Für jede Komponente: Haupt- und Nebenfunktionen identifizieren, messbare Anford
 - `parameters` (spezifische Kennwerte der Komponente)
 - `lean_context` (Systemkontext: Prozessbedingungen, Design-Limits, Stoffe, Sensoren)
 
+**Quelle:** Ausschließlich die Anlagendaten des aktuellen Projekts. NIEMALS aus `archive/` oder anderen Projekten übernehmen.
+
 ## Regeln
 
 ### 1. Hauptfunktion (genau 1 pro Komponente)

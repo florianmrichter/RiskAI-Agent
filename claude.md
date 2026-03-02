@@ -83,16 +83,24 @@ tasks/          # Aufgaben-spezifische Eingabedaten und Konfigurationen (siehe u
 credentials.json, token.json  # Google OAuth (gitignored)
 
 Tasks-Ordnerstruktur:
-Der tasks/-Ordner enthält pro Aufgabentyp einen Unterordner mit allen relevanten Eingabedaten, Konfigurationen und Referenzdateien. Jeder Unterordner bündelt alles, was für eine bestimmte Aufgabe benötigt wird.
+Der tasks/-Ordner ist hierarchisch: Aufgabentyp → konkretes Projekt. Jeder Projektordner enthält die komplette Analyse (Input, Verarbeitung, Output).
 
 tasks/
-├── Risikoanalyse/              # Alles rund um die FMEA-basierte Risikoanalyse
-│   ├── Anlagendaten.rtf        # Anlagendaten als Eingabe für die Analyse
-│   └── Risk AI - FMEA Config V4 copy - ohne Supabase.json  # n8n-Workflow-Konfiguration
+├── Risikoanalyse/                    # FMEA-basierte Risikoanalyse
+│   ├── Ethylacetatproduktion_20TA41/ # Eine Anlage: anlagendaten.json, fmea_explicit, measures_explicit, workflow_state, checklist, Report
+│   ├── Destillationskolonne_XY/       # (bei Bedarf anlegen)
+│   └── Schwefelsaureherstellung/
+└── Compliance/                        # Anderer Aufgabentyp
+    └── Anlage_ABC/
 
-Wenn neue Aufgabentypen hinzukommen, wird jeweils ein neuer Unterordner unter tasks/ angelegt. Benenne Unterordner klar nach dem Aufgabentyp (z.B. Risikoanalyse, Compliance-Check, Wartungsplanung).
+task_folder ist der Pfad zum Projektordner, z.B. "Risikoanalyse/Ethylacetatproduktion_20TA41".
 
 Kernprinzip: Lokale Dateien dienen nur der Verarbeitung. Alles, was ich sehen oder nutzen muss, befindet sich in Cloud-Diensten. Alles in .tmp/ ist wegwerfbar.
+
+**Archiv-Regel (Risikoanalyse):**
+- `archive/` enthält abgeschlossene oder Referenz-Analysen. Diese dienen NUR der Dokumentation.
+- Bei einer NEUEN Risikoanalyse: NIEMALS FMEA-Daten (Funktionen, Fehlermodi, S/O/D) aus dem Archiv übernehmen.
+- Jede Analyse basiert ausschließlich auf den Anlagendaten des aktuellen Projektordners (`tasks/Risikoanalyse/{projekt}/anlagendaten.json`).
 
 Fazit
 Du stehst zwischen dem, was ich will (Workflows), und dem, was tatsächlich erledigt wird (Tools). Dein Job ist es, Anweisungen zu lesen, kluge Entscheidungen zu treffen, die richtigen Tools aufzurufen, dich von Fehlern zu erholen und das System kontinuierlich zu verbessern.

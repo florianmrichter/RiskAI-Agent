@@ -7,12 +7,26 @@ Für jede Funktion: Fehlermodi identifizieren, Ursachen mit Herkunft und Präven
 - Funktion: `funktion_id`, `beschreibung`, `anforderungen`
 - Komponente: `komp_id`, `name`, `typ`, `parameters`
 - Kontext: `lean_context` (Prozessbedingungen, Design-Limits, Stoffe, Sensoren, Sicherheitseinrichtungen)
+
+**Quelle:** Ausschließlich die Anlagendaten des aktuellen Projekts. NIEMALS Fehlermodi oder S/O/D aus `archive/` oder anderen Projekten übernehmen.
+- **Fehlermodi-Vorlagen:** `config/fmea_standards.FEHLERMODI_VORLAGEN` – Katalog nach Kategorien (prozess, thermisch, mechanisch, equipment, msr, sicherheit, dosierung, sonstiges). Nutze als Checkliste: Welche Fehlertypen sind für diese Komponente/Funktion relevant?
 - Fehlervorlagen: Output von `tools/failure_templates.py`
 - Zuverlässigkeitsdaten: Output von `tools/reliability_lookup.py`
 
 ## Vorbereitung
 
-### 1. Fehlervorlagen laden
+### 1. Fehlermodi-Vorlagen als Basis laden
+
+```python
+from config.fmea_standards import FEHLERMODI_VORLAGEN
+
+# Kategorien: prozess, thermisch, mechanisch, equipment, elektrisch, msr, sicherheit, dosierung, sonstiges
+# Jede Kategorie: Liste von {"typ": "...", "beschreibung": "..."}
+# Nutze als Checkliste: Für Komponente X (z.B. Reaktor) → prozess + thermisch + equipment relevant
+# Für MSR-Komponente → msr + elektrisch relevant. Keine blinde Übernahme – jede Bewertung einzeln.
+```
+
+### 2. Fehlervorlagen laden
 
 ```python
 from tools.failure_templates import get_templates_for_component, format_templates_for_prompt
@@ -25,7 +39,7 @@ templates = get_templates_for_component(
 template_text = format_templates_for_prompt(templates)
 ```
 
-### 2. Zuverlässigkeitsdaten laden (Pflicht)
+### 3. Zuverlässigkeitsdaten laden (Pflicht)
 
 Für jede Komponente die passenden Equipment-Typen aus der Reliability-DB abfragen. Die Ergebnisse dienen als **datengestützte Grundlage** für die O-Bewertung.
 
