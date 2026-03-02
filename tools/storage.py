@@ -31,6 +31,7 @@ class FMEAStorage:
         self.conn.execute("PRAGMA foreign_keys=ON")
         self._create_tables()
         self._migrate_measures_table()
+        self._migrate_projects_task_folder()
 
     def _create_tables(self):
         self.conn.executescript("""
@@ -39,7 +40,8 @@ class FMEAStorage:
             name TEXT NOT NULL,
             anlage_name TEXT,
             datum TEXT NOT NULL,
-            status TEXT DEFAULT 'in_progress'
+            status TEXT DEFAULT 'in_progress',
+            task_folder TEXT
         );
 
         CREATE TABLE IF NOT EXISTS components (
@@ -162,18 +164,35 @@ class FMEAStorage:
             )
         self.conn.commit()
 
+    def _migrate_projects_task_folder(self):
+        """Add task_folder column to projects table."""
+        cursor = self.conn.execute("PRAGMA table_info(projects)")
+        existing_cols = {row[1] for row in cursor.fetchall()}
+        if "task_folder" not in existing_cols:
+            self.conn.execute(
+                "ALTER TABLE projects ADD COLUMN task_folder TEXT"
+            )
+        self.conn.commit()
+
     # ── Project CRUD ──
 
-    def create_project(self, name: str, anlage_name: str = None) -> int:
+    def create_project(self, name: str, anlage_name: str = None, task_folder: str = None) -> int:
         cur = self.conn.execute(
-            "INSERT INTO projects (name, anlage_name, datum) VALUES (?, ?, ?)",
-            (name, anlage_name, datetime.now().isoformat())
+            "INSERT INTO projects (name, anlage_name, datum, task_folder) VALUES (?, ?, ?, ?)",
+            (name, anlage_name, datetime.now().isoformat(), task_folder)
         )
         self.conn.commit()
         return cur.lastrowid
 
     def get_project(self, project_id: int) -> dict:
         row = self.conn.execute("SELECT * FROM projects WHERE id = ?", (project_id,)).fetchone()
+        return dict(row) if row else None
+
+    def get_project_by_task_folder(self, task_folder: str) -> dict:
+        row = self.conn.execute(
+            "SELECT * FROM projects WHERE task_folder = ? ORDER BY id DESC LIMIT 1",
+            (task_folder,)
+        ).fetchone()
         return dict(row) if row else None
 
     def update_project_status(self, project_id: int, status: str):
@@ -446,6 +465,25 @@ class FMEAStorage:
             WHERE c.project_id = ? AND ra.rpz >= ?
             ORDER BY ra.rpz DESC
         """, (project_id, min_rpz)).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_failure_modes_needing_measures(self, project_id: int) -> list:
+        """
+        Returns failure modes that need measures: RPZ >= 100 OR rpz_status in ('hoch', 'kritisch').
+        Ensures Sonderregel-Fälle (z.B. S>=9 → hoch trotz RPZ<100) werden berücksichtigt.
+        """
+        rows = self.conn.execute("""
+            SELECT fm.*, ra.S, ra.O, ra.D, ra.rpz, ra.rpz_status,
+                   f.funktion_id, f.beschreibung as funktion_beschreibung,
+                   c.komp_id, c.name as komponente, c.typ as komponenten_typ, c.system_name
+            FROM failure_modes fm
+            JOIN functions f ON fm.function_id = f.id
+            JOIN components c ON f.component_id = c.id
+            JOIN risk_assessments ra ON ra.failure_mode_id = fm.id
+            WHERE c.project_id = ?
+              AND (ra.rpz >= 100 OR ra.rpz_status IN ('hoch', 'kritisch'))
+            ORDER BY ra.rpz DESC, ra.rpz_status DESC
+        """, (project_id,)).fetchall()
         return [dict(r) for r in rows]
 
     def get_full_fmea_data(self, project_id: int) -> list:

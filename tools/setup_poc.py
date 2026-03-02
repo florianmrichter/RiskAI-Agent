@@ -22,7 +22,7 @@ def setup_poc():
         pid = 1
 
     # 2. Load Plant Data
-    json_path = Path("tasks/Risikoanalyse/anlagendaten.json")
+    json_path = Path("tasks/Risikoanalyse/Ethylacetatproduktion_20TA41/anlagendaten.json")
     if not json_path.exists():
         print(f"Error: {json_path} not found")
         return

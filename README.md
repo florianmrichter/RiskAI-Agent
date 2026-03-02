@@ -181,9 +181,9 @@ struktur → fmea → rpz_validierung → massnahmen → report
 
 ### Workflow-Automatisierung
 
-- **Session-Start:** Agent prüft `workflow_state.json`, ruft `get_next_action(task_folder)` auf
+- **Session-Start:** Agent prüft `workflow_state.json`, ruft `get_next_action(task_folder)` aus `tools/workflow_state.py` auf
 - **Nächste Aktion:** `init_structure` \| `analyze_fmea` \| `rpz_validierung` \| `apply_measures` \| `generate_report`
-- **Cursor Rule:** `.cursor/rules/fmea-workflow.md` steuert das Agent-Verhalten
+- **Maßnahmen aus measures_explicit anwenden:** `python tools/apply_explicit_measures.py` (projektabhängig)
 - **Checklist aktualisieren:** `python tools/update_checklist.py Risikoanalyse/Ethylacetatproduktion_20TA41`
 
 ## Tasks
@@ -191,7 +191,8 @@ struktur → fmea → rpz_validierung → massnahmen → report
 ```
 tasks/
 ├── Risikoanalyse/                    # FMEA-basierte Risikoanalyse
-│   ├── Ethylacetatproduktion_20TA41/ # Eine konkrete Analyse
+│   ├── Ethylacetatproduktion_20TA41/ # Ethylacetat-Anlage
+│   ├── Ethylacetatproduktion_20TA42/ # Ethylacetat-Anlage (Variante)
 │   ├── Destillationskolonne_XY/       # (bei Bedarf anlegen)
 │   └── Schwefelsaureherstellung/     # (bei Bedarf anlegen)
 └── Compliance/                        # (anderer Aufgabentyp)

@@ -1,5 +1,8 @@
 # Maßnahmenoptimierung -- SOP
 
+## WICHTIG: Keine generische Maßnahmen-Logik
+Maßnahmen werden **ausschließlich durch Einzelfall-Analyse** definiert. Kein Keyword-Matching, keine Fallback-Platzhalter. Der Agent analysiert jeden Fehlermodus mit RPZ >= 100 einzeln und formuliert konkrete, komponentenspezifische Maßnahmen. **Frische Bewertung:** Keine Wiederverwendung vordefinierter Maßnahmen aus früheren Analysen.
+
 ## Ziel
 Für Fehlermodi mit RPZ >= 100 (mittel/hoch/kritisch): Mehrere Maßnahmen nach dem **STOP-Prinzip** und der **ABE-Hierarchie** entwickeln, Restrisiko pro Maßnahme bewerten, und dem Benutzer zur Auswahl vorlegen.
 
@@ -10,13 +13,21 @@ Für Fehlermodi mit RPZ >= 100 (mittel/hoch/kritisch): Mehrere Maßnahmen nach d
 - Bestehende Controls: Welche Sensorik/Sicherheitseinrichtungen sind bereits vorhanden?
 - Anlagenkontext: Prozessbedingungen, Stoffe, Design-Limits
 
-## Laden der relevanten Fehlermodi
+## Ablauf: Fehlermodi laden → Generieren/Analysieren → Einspielen
 
+1. **Fehlermodi laden** (RPZ >= 100 oder Status hoch/kritisch):
 ```python
 from tools.storage import FMEAStorage
 db = FMEAStorage()
-high_risk = db.get_all_failure_modes_with_rpz(project_id, min_rpz=100)
+high_risk = db.get_failure_modes_needing_measures(project_id)
+db.close()
 ```
+
+2. **Maßnahmen generieren:** `python tools/generate_measures.py --project-id 1` lädt projektspezifische Generatoren aus `tasks/{task_folder}/measures_explicit.py` oder `config/measures_explicit.py`. Fehlermodi ohne Generator bleiben für Agent-Analyse.
+
+3. **Pro Fehlermodus ohne Generator:** Agent analysiert (STOP, ABE, S_neu/O_neu/D_neu), erstellt Maßnahmen-Liste
+
+4. **Einspielen** mit `tools/insert_measures.insert_measures_for_fehlermodus` (Agent übergibt Daten direkt)
 
 ## Zweidimensionale Klassifizierung: ABE x STOP
 
@@ -128,7 +139,7 @@ Nach der initialen Generierung:
 
 ```json
 {
-  "fehler_id": "KOMP-001-F1-FM1",
+  "fehler_id": "<fehler_id>",
   "massnahmen": [
     {
       "name": "Ersatz von Ethanol durch weniger flüchtigen Ester",
@@ -195,7 +206,7 @@ Bei Benutzer-Feedback "Mehr in Kategorie T":
 
 ```json
 {
-  "fehler_id": "KOMP-001-F1-FM1",
+  "fehler_id": "<fehler_id>",
   "neue_massnahmen": [
     {
       "name": "Automatische Druckentlastung über PSV mit Auffangbehälter",
@@ -227,35 +238,33 @@ Bei Benutzer-Feedback "Mehr in Kategorie T":
 
 ## Speichern
 
+**Tool:** `tools/insert_measures.insert_measures_for_fehlermodus` – Agent übergibt Maßnahmen-Daten direkt, kein Lesen aus Config.
+
 ```python
-from tools.storage import FMEAStorage
-db = FMEAStorage()
+from tools.insert_measures import insert_measures_for_fehlermodus
 
-# Einzelne Maßnahme speichern
-db.insert_measure(
-    failure_mode_id=fm_db_id,
-    name="Redundanter Drucktransmitter PT-402b",
-    abe_kategorie="B",
-    stop_kategorie="T",
-    beschreibung="...",
-    ziel="D",
-    S_neu=8, O_neu=3, D_neu=1,
-    begruendung="...",
-    iteration=1
-)
-
-# Mehrere Maßnahmen auf einmal speichern
 massnahmen = [
     {
-        "name": "...", "abe_kategorie": "A", "stop_kategorie": "S",
-        "beschreibung": "...", "ziel": "O",
-        "S_neu": 8, "O_neu": 2, "D_neu": 3,
-        "begruendung": "...", "iteration": 1
+        "name": "Redundanter Drucktransmitter PT-402b",
+        "abe_kategorie": "B",
+        "stop_kategorie": "T",
+        "beschreibung": "Installation eines zweiten unabhängigen Drucktransmitters (1oo2-Auswertung)...",
+        "ziel": "D",
+        "S_neu": 8, "O_neu": 3, "D_neu": 1,
+        "begruendung": "D sinkt von 3 auf 1: Zweiter Transmitter erkennt Drucküberschreitung zuverlässiger.",
+        "iteration": 1
     },
     # ... weitere Maßnahmen
 ]
-db.insert_measures_batch(failure_mode_id=fm_db_id, measures=massnahmen)
+result = insert_measures_for_fehlermodus(
+    project_id=project_id,
+    fehler_id="<fehler_id>",
+    measures=massnahmen
+)
+# result = {"inserted": n}
 ```
+
+Optional: Agent kann Maßnahmen in `tasks/{task_folder}/measures_explicit.py` dokumentieren (Audit-Trail), bevor er `insert_measures_for_fehlermodus` aufruft. Kein automatisches Lesen durch Tools.
 
 ## Qualitätskriterien
 - ABE-Hierarchie eingehalten (A vor B vor E)

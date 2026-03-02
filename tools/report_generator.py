@@ -227,11 +227,11 @@ def _render_treemap_single(fmea_data: list, with_measures: bool, title: str,
         fid = fm.get("fehler_id", "?")
         short = "-".join(fid.split("-")[-2:])
         if with_measures and fm.get("measures"):
-            best = min(fm["measures"], key=lambda m: (m.get("rpz_neu") or 9999))
-            rpz = best.get("rpz_neu") or fm.get("rpz", 1)
+            best = min(fm["measures"], key=lambda m: int(m.get("rpz_neu") or 9999))
+            rpz = int(best.get("rpz_neu") or fm.get("rpz", 1))
             st = best.get("rpz_status_neu") or fm.get("rpz_status", "niedrig")
         else:
-            rpz, st = fm.get("rpz", 1), fm.get("rpz_status", "niedrig")
+            rpz, st = int(fm.get("rpz", 1)), fm.get("rpz_status", "niedrig")
         items.append({"short": short, "rpz": max(rpz, 5),
                       "color": RPZ_HEX.get(st, "#AAA"), "status": st})
     items.sort(key=lambda x: -x["rpz"])
@@ -370,9 +370,10 @@ def _rpz_color(status: str) -> str:
 # Plant Data Loader (RTF → JSON)
 # ═══════════════════════════════════════════════════════════════
 
-def _load_plant_data(path: str = None) -> dict:
+def _load_plant_data(path: str = None, task_folder: str = None) -> dict:
     """Load plant data from JSON or RTF file."""
-    base = Path(__file__).parent.parent / "tasks" / "Risikoanalyse"
+    tasks_root = Path(__file__).parent.parent / "tasks"
+    base = tasks_root / (task_folder or "Risikoanalyse/Ethylacetatproduktion_20TA41")
 
     if path:
         candidates = [Path(path)]
@@ -520,7 +521,8 @@ def generate_report(project_id: int, output_path: str = None, db_path: str = Non
                 best_reduction = max(reductions)
                 avg_reduction = round(sum(reductions) / len(reductions))
 
-        plant_data = _load_plant_data()
+        task_folder = project.get("task_folder") or "Risikoanalyse/Ethylacetatproduktion_20TA41"
+        plant_data = _load_plant_data(task_folder=task_folder)
 
         # Jinja2 rendering
         env = Environment(loader=FileSystemLoader(str(template_dir)), autoescape=False)
