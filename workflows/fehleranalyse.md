@@ -160,6 +160,7 @@ Die O-Bewertung MUSS die Zuverlässigkeitsdaten aus `tools/reliability_lookup.py
       "fehler_id": "KOMP-001-F1-FM1",
       "fehlermodus": "Überdruck im Reaktor über 6 bar (Design-Limit)",
       "fehlerart": "Prozess",
+      "kontext_beschreibung": "Der Reaktor wird bei exothermer Reaktion über den Heizmantel temperiert. Wenn die Kühlung ausfällt oder die Heizung nicht abgeregelt wird, steigt der Druck. Folge: Bersten in Ex-Zone 1.",
       "causes": [
         {
           "ursache_id": "KOMP-001-F1-FM1-UC1",
@@ -182,6 +183,7 @@ Die O-Bewertung MUSS die Zuverlässigkeitsdaten aus `tools/reliability_lookup.py
         "anlage": {"stufe": "Totalausfall", "beschreibung": "Stillstand 4 Wochen für Behältertausch und Neuabnahme"},
         "kosten": {"stufe": "Bis 500.000 €", "beschreibung": "Behälter + Charge + Reinigung + behördliche Abnahme"}
       },
+      "controls_einschraenkung": "PIC-402 reagiert erst bei Druckanstieg; keine präventive Temperaturverriegelung.",
       "current_controls": [
         {
           "name": "PIC-402",
@@ -189,7 +191,8 @@ Die O-Bewertung MUSS die Zuverlässigkeitsdaten aus `tools/reliability_lookup.py
           "wirkung": "B",
           "sil_level": "SIL-1",
           "beschreibung": "Drucktransmitter mit PID-Regelung, Messbereich -1 bis 8 bar",
-          "beeinflusst": "D"
+          "beeinflusst": "D",
+          "einschraenkung": "Keine Abschaltung bei Überschreitung, nur Alarm"
         },
         {
           "name": "PSV-410",
@@ -221,7 +224,9 @@ Nach jeder analysierten Funktion sofort in die DB:
 from tools.storage import FMEAStorage
 db = FMEAStorage()
 
-fm_db_id = db.insert_failure_mode(function_id=..., fehler_id="...", fehlermodus="...", fehlerart="...")
+fm_db_id = db.insert_failure_mode(function_id=..., fehler_id="...", fehlermodus="...", fehlerart="...",
+                       kontext_beschreibung=fm.get("kontext_beschreibung"),
+                       controls_einschraenkung=fm.get("controls_einschraenkung"))
 
 for cause in causes:
     db.insert_failure_cause(fm_db_id, cause["ursache_id"], cause["beschreibung"],
@@ -233,7 +238,7 @@ db.insert_failure_effect(fm_db_id, mensch_stufe=..., mensch_beschreibung=..., ..
 for ctrl in current_controls:
     db.insert_current_control(fm_db_id, ctrl["name"], ctrl["typ"], ctrl["wirkung"],
                               ctrl.get("sil_level"), ctrl.get("beschreibung"),
-                              ctrl.get("beeinflusst"))
+                              ctrl.get("beeinflusst"), ctrl.get("einschraenkung"))
 
 db.insert_risk_assessment(fm_db_id, S=..., O=..., D=...,
                           begruendung_S=..., begruendung_O=..., begruendung_D=...)

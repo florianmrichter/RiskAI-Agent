@@ -2,8 +2,8 @@
   "project_id": 1,
   "task_folder": "Risikoanalyse/Ethylacetatproduktion_20TA42",
   "phase": "fmea",
-  "current_komp_id": null,
-  "last_updated": "2026-03-02T19:18:16.462029",
+  "current_komp_id": "KOMP-007",
+  "last_updated": "2026-03-02T20:59:49.083687",
   "phases": {
     "struktur": "done",
     "fmea": "in_progress",
@@ -13,31 +13,31 @@
   },
   "components": {
     "KOMP-001": {
-      "fmea": "pending",
+      "fmea": "done",
       "measures": "pending"
     },
     "KOMP-002": {
-      "fmea": "pending",
+      "fmea": "done",
       "measures": "pending"
     },
     "KOMP-003": {
-      "fmea": "pending",
+      "fmea": "done",
       "measures": "pending"
     },
     "KOMP-004": {
-      "fmea": "pending",
+      "fmea": "done",
       "measures": "pending"
     },
     "KOMP-005": {
-      "fmea": "pending",
+      "fmea": "done",
       "measures": "pending"
     },
     "KOMP-006": {
-      "fmea": "pending",
+      "fmea": "done",
       "measures": "pending"
     },
     "KOMP-007": {
-      "fmea": "pending",
+      "fmea": "done",
       "measures": "pending"
     },
     "KOMP-008": {

@@ -2,13 +2,13 @@
 
 | KOMP-ID | Name | FMEA | Maßnahmen |
 |---------|------|------|-----------|
-| KOMP-001 | Synthesereaktor R-101 | offen | offen |
-| KOMP-002 | Heizmantel HM-101 | offen | offen |
-| KOMP-003 | Kühlmantel KM-101 | offen | offen |
-| KOMP-004 | Rührwerk RW-101 | offen | offen |
-| KOMP-005 | Destillationskolonne K-101 | offen | offen |
-| KOMP-006 | Kondensator KD-101 | offen | offen |
-| KOMP-007 | Kondensator KD-102 | offen | offen |
+| KOMP-001 | Synthesereaktor R-101 | ✓ | ✓ |
+| KOMP-002 | Heizmantel HM-101 | ✓ | ✓ |
+| KOMP-003 | Kühlmantel KM-101 | ✓ | ✓ |
+| KOMP-004 | Rührwerk RW-101 | ✓ | ✓ |
+| KOMP-005 | Destillationskolonne K-101 | ✓ | ✓ |
+| KOMP-006 | Kondensator KD-101 | ✓ | ✓ |
+| KOMP-007 | Kondensator KD-102 | ✓ | ✓ |
 | KOMP-008 | Destillatvorlage DV-101 | offen | offen |
 | KOMP-009 | Destillatvorlage DV-102 | offen | offen |
 | KOMP-010 | TIC-401 | offen | offen |

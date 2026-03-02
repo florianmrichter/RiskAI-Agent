@@ -119,8 +119,7 @@
   <a href="#chart-rpz-vergleich" class="toc-item toc-sub"><span class="toc-text">RPZ-Verteilung – 6 Visualisierungen</span></a>
   <a href="#chart-treemap" class="toc-item toc-sub"><span class="toc-text">Risiko-Treemap</span></a>
   <a href="#sec-5" class="toc-item"><span class="toc-num">5</span><span class="toc-text">Detaillierte Risiko-Dokumentation</span></a>
-  <a href="#sec-6" class="toc-item"><span class="toc-num">6</span><span class="toc-text">Maßnahmenplan</span></a>
-  <a href="#sec-7" class="toc-item"><span class="toc-num">7</span><span class="toc-text">Anhang</span></a>
+  <a href="#sec-6" class="toc-item"><span class="toc-num">6</span><span class="toc-text">Anhang</span></a>
 </div>
 
 </div>
@@ -791,6 +790,14 @@
     {# ── Card Body ── #}
     <div class="risk-card-body">
 
+      {# Worum geht es? #}
+      {% if fm.kontext_beschreibung %}
+      <div class="risk-sub-section">
+        <div class="risk-sub-title">Worum geht es?</div>
+        <p>{{ fm.kontext_beschreibung }}</p>
+      </div>
+      {% endif %}
+
       {# SOD Cards #}
       <div class="sod-row">
         {% for key, val, css, label_text, info in sod_data(fm) %}
@@ -800,6 +807,9 @@
           <div class="sod-bar-track"><div class="sod-bar-fill" style="width:{{ (val / 10 * 100)|int }}%;"></div></div>
           <div class="sod-criterion">{{ info[0] }}</div>
           <div class="sod-example">{{ info[1] }}</div>
+          {% if fm.risk and fm.risk.get('begruendung_' ~ key) %}
+          <div class="sod-begruendung">{{ fm.risk['begruendung_' ~ key] }}</div>
+          {% endif %}
           {% if best_measure %}
             {% set new_key = {'S':'S_neu','O':'O_neu','D':'D_neu'}[key] %}
             {% set nv = best_measure.get(new_key) %}
@@ -846,7 +856,7 @@
       <div class="risk-sub-section">
         <div class="risk-sub-title">Fehlerursachen</div>
         <table>
-          <thead><tr><th>ID</th><th>Beschreibung</th><th>Herkunft</th><th>Präv.-Phase</th></tr></thead>
+          <thead><tr><th>ID</th><th>Beschreibung</th><th>Herkunft</th><th>Präv.-Phase</th><th>Präv.-Hinweis</th></tr></thead>
           <tbody>
             {% for c in fm.causes %}
             <tr>
@@ -854,6 +864,7 @@
               <td>{{ c.beschreibung }}</td>
               <td>{{ c.herkunft }}</td>
               <td>{{ c.praeventionsphase }}</td>
+              <td>{{ c.praeventionshinweis or '–' }}</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -882,7 +893,7 @@
       <div class="risk-sub-section">
         <div class="risk-sub-title">Bestehende Controls</div>
         <table class="compact-table">
-          <thead><tr><th>Wirkung</th><th>Name</th><th>Typ</th><th>Beschreibung</th><th>Beeinflusst</th></tr></thead>
+          <thead><tr><th>Wirkung</th><th>Name</th><th>Typ</th><th>Beschreibung</th><th>Beeinflusst</th><th>Einschränkung</th></tr></thead>
           <tbody>
             {% for ctrl in fm.controls %}
             <tr>
@@ -891,10 +902,14 @@
               <td>{{ ctrl.typ }}</td>
               <td>{{ ctrl.beschreibung or '–' }}</td>
               <td>{{ ctrl.beeinflusst or '–' }}</td>
+              <td>{{ ctrl.einschraenkung or '–' }}</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
+        {% if fm.controls_einschraenkung %}
+        <div class="controls-einschraenkung">Einschränkung: {{ fm.controls_einschraenkung }}</div>
+        {% endif %}
       </div>
       {% endif %}
 
@@ -924,6 +939,12 @@
             </div>
           </div>
           <p style="font-size:0.55rem;color:var(--color-text-secondary);margin:0;line-height:1.3;">{{ m.beschreibung }}</p>
+          {% if m.begruendung %}
+          <div class="measure-reasoning">{{ m.begruendung }}</div>
+          {% endif %}
+          {% if m.hinweis %}
+          <div class="measure-hinweis">{{ m.hinweis }}</div>
+          {% endif %}
         </div>
         {% endfor %}
       </div>
@@ -935,90 +956,25 @@
 {% endfor %}
 
 
-{# ═══════════════════════  6. MASSNAHMENPLAN  ═══════════════════════ #}
+{# ═══════════════════════  6. ANHANG  ═══════════════════════ #}
 </div>
 <div class="page-break"></div>
 <div class="content">
 
 <div class="section-header" id="sec-6">
   <span class="section-number">6</span>
-  <span class="section-title">Maßnahmenplan</span>
+  <span class="section-title">Anhang</span>
 </div>
 
-{% set items_with_measures = fmea_data|selectattr('measures')|list %}
-{% if not items_with_measures %}
-<p>Keine Maßnahmen erforderlich – alle identifizierten Fehlermodi liegen unterhalb der definierten Risikoschwellen.</p>
-{% else %}
 <p>
-  Der Maßnahmenplan fasst alle definierten Risikominderungsmaßnahmen zusammen.
-  Für <strong>{{ items_with_measures|length }}</strong> Fehlermodi wurden insgesamt
-  <strong>{{ total_measures }}</strong> Maßnahmen erarbeitet. Jede Maßnahme wird nach
-  zwei Dimensionen klassifiziert:
+  Der Anhang enthält den RPZ-Vergleich (Vorher/Nachher), eine erweiterte Maßnahmentabelle
+  zum Herauskopieren und zur systematischen Nachverfolgung sowie ein Glossar der
+  verwendeten Fachbegriffe. Die vollständige Risikoübersicht mit S/O/D-Bewertungen
+  befindet sich als klickbares Inhaltsverzeichnis zu Beginn von Kapitel 5.
 </p>
-<p>
-  Die <strong>ABE-Hierarchie</strong> beschreibt die <em>Wirkungsebene</em> der Maßnahme:
-  Vermeidung (A) – verhindert das Auftreten des Fehlers,
-  Entdeckung (B) – verbessert die Erkennung vor Schadenseintritt,
-  Abschwächung (E) – reduziert die Auswirkungen im Fehlerfall.
-  Vermeidungsmaßnahmen haben grundsätzlich Vorrang.
-</p>
-<p>
-  Das <strong>STOP-Prinzip</strong> beschreibt die <em>Art</em> der Maßnahme in absteigender
-  Wirksamkeit: Substitution (Gefährdung eliminieren) → Technisch (Schutzeinrichtungen) →
-  Organisatorisch (Verfahren und Schulungen) → Persönlich (PSA als letzte Verteidigungslinie).
-  {% if report_context.stop_coverage %}
-  Verteilung der {{ total_measures }} Maßnahmen: {{ report_context.stop_coverage.get('S', 0) }}× Substitution,
-  {{ report_context.stop_coverage.get('T', 0) }}× Technisch,
-  {{ report_context.stop_coverage.get('O', 0) }}× Organisatorisch,
-  {{ report_context.stop_coverage.get('P', 0) }}× Persönlich.
-  {% endif %}
-</p>
-
-{% for fm in items_with_measures %}
-<div class="card avoid-break">
-  <div class="card-header">
-    <div>
-      <span style="font-weight:700;color:var(--color-text-primary);">{{ fm.fehler_id }}</span>
-      <span style="margin-left:2mm;">{{ fm.fehlermodus }}</span>
-    </div>
-    <span class="badge badge-{{ fm.rpz_status }}">RPZ {{ fm.rpz }}</span>
-  </div>
-
-  {% for m in fm.measures|sort(attribute='stop_kategorie') %}
-  <div class="measure-card">
-    <div class="measure-header">
-      <div style="display:flex;align-items:center;gap:2mm;">
-        <span class="abe-badge {{ m.abe_kategorie }}">{{ abe_labels.get(m.abe_kategorie, m.abe_kategorie) }}</span>
-        {% if m.stop_kategorie and stop_icons %}
-        <span class="stop-badge stop-{{ m.stop_kategorie }}"><span class="stop-icon">{{ stop_icons.get(m.stop_kategorie, '') }}</span>{{ stop_labels.get(m.stop_kategorie, m.stop_kategorie) }}</span>
-        {% endif %}
-        <span style="font-weight:600;font-size:0.85rem;">{{ m.name }}</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:3mm;">
-        {% for sk, sl in [('S_neu','S'),('O_neu','O'),('D_neu','D')] %}
-          {% if m.get(sk) %}
-          <span class="reduction-arrow">{{ sl }}→{{ m[sk] }}</span>
-          {% endif %}
-        {% endfor %}
-        {% if m.rpz_neu %}
-        <span class="badge-outline {{ m.rpz_status_neu or 'niedrig' }}">RPZ' {{ m.rpz_neu }}</span>
-        {% endif %}
-      </div>
-    </div>
-    <p style="font-size:0.82rem;color:var(--color-text-secondary);margin:0;">{{ m.beschreibung }}</p>
-    {% if m.begruendung %}
-    <div class="measure-reasoning">{{ m.begruendung }}</div>
-    {% endif %}
-  </div>
-  {% endfor %}
-</div>
-{% endfor %}
 
 {% if comparison_img %}
-</div>
-<div class="page-break"></div>
-<div class="content">
-<h3>RPZ-Vergleich: Vorher vs. Nachher</h3>
+<h3 id="chart-rpz-vorher-nachher">A. RPZ-Vergleich: Vorher vs. Nachher</h3>
 <p>
   Das folgende Diagramm zeigt für jeden Fehlermodus mit Maßnahmen den RPZ-Wert vor und nach
   Maßnahmenumsetzung. Die Differenz zwischen den Balken entspricht der erwarteten Risikoreduktion.
@@ -1032,37 +988,20 @@
 </div>
 {% endif %}
 
-{% endif %}
-
-
-{# ═══════════════════════  7. ANHANG  ═══════════════════════ #}
-</div>
-<div class="page-break"></div>
-<div class="content">
-
-<div class="section-header" id="sec-7">
-  <span class="section-number">7</span>
-  <span class="section-title">Anhang</span>
-</div>
-
-<p>
-  Der Anhang enthält eine vereinfachte Maßnahmentabelle zum Herauskopieren und
-  zur systematischen Nachverfolgung sowie ein Glossar der verwendeten Fachbegriffe.
-  Die vollständige Risikoübersicht mit S/O/D-Bewertungen befindet sich als klickbares
-  Inhaltsverzeichnis zu Beginn von Kapitel 5.
-</p>
-
-<h3>A. Maßnahmentabelle (zum Herauskopieren)</h3>
+<h3 class="{% if comparison_img %}mt-lg{% endif %}">{% if comparison_img %}B.{% else %}A.{% endif %} Maßnahmentabelle (zum Herauskopieren)</h3>
 <p class="mb-md" style="font-size:0.8rem;color:var(--color-text-muted);">
-  Kompakte Übersicht aller {{ total_measures }} Maßnahmen – zum Einfügen in Tracking-Systeme,
+  Erweiterte Übersicht aller {{ total_measures }} Maßnahmen – zum Einfügen in Tracking-Systeme,
   E-Mails oder Projektmanagement-Tools.
 </p>
-<table class="appendix-measures-table">
+<table class="appendix-measures-table appendix-measures-extended">
   <thead>
     <tr>
       <th>Fehler-ID</th>
       <th>Maßnahme</th>
       <th>Typ</th>
+      <th>Beschreibung</th>
+      <th>Begründung</th>
+      <th>Hinweis</th>
       <th style="text-align:center;">RPZ<br>vorher</th>
       <th style="text-align:center;">RPZ<br>nachher</th>
     </tr>
@@ -1074,6 +1013,9 @@
         <td style="font-weight:600;white-space:nowrap;">{{ fm.fehler_id }}</td>
         <td>{{ m.name }}</td>
         <td style="white-space:nowrap;">{{ m.stop_kategorie or '–' }} / {{ m.abe_kategorie or '–' }}</td>
+        <td style="font-size:0.75rem;">{{ m.beschreibung or '–' }}</td>
+        <td style="font-size:0.72rem;color:var(--color-text-muted);">{{ m.begruendung or '–' }}</td>
+        <td style="font-size:0.72rem;white-space:nowrap;">{{ m.hinweis or '–' }}</td>
         <td style="text-align:center;">{{ fm.rpz }}</td>
         <td style="text-align:center;">{{ m.rpz_neu or '–' }}</td>
       </tr>
@@ -1082,7 +1024,7 @@
   </tbody>
 </table>
 
-<h3 class="mt-lg">B. Glossar</h3>
+<h3 class="mt-lg">{% if comparison_img %}C.{% else %}B.{% endif %} Glossar</h3>
 <table class="glossary-table">
   <thead><tr><th>Begriff</th><th>Beschreibung</th></tr></thead>
   <tbody>
