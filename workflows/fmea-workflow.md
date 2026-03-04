@@ -33,8 +33,12 @@ Bei Session-Start:
 ## Tools
 - `tools/workflow_state.get_next_action("Risikoanalyse/Ethylacetatproduktion_20TA42")` – nächste Aktion
 - `tools/workflow_state.init_state_from_structure(...)` – nach Strukturanalyse
-- `tools/insert_fmea_explicit.insert_fmea_for_component(project_id, komp_id, task_folder="Risikoanalyse/Ethylacetatproduktion_20TA42")` – FMEA einspielen
+- `tools/insert_fmea_explicit.insert_fmea_for_component(project_id, komp_id, task_folder="...")` – FMEA einspielen
 - `tools/update_checklist.update_checklist("Risikoanalyse/Ethylacetatproduktion_20TA42")` – Checkliste aktualisieren
+- `tools/generate_measures.py --task-folder "..."` – Maßnahmen aus measures_explicit.py für RPZ ≥ 100 einspielen
+- `tools/report_generator.generate_report(project_id, task_folder="...")` – FMEA-PDF erzeugen
+
+**Regel: Nach Maßnahmen immer Report.** Nach jedem Einspielen von Maßnahmen (über `generate_measures` oder `insert_measures_for_fehlermodus`) den FMEA-Report **sofort neu generieren**, damit das PDF die aktuellen Maßnahmen enthält. Kein Abschluss der Maßnahmenphase ohne Report-Update.
 
 ## Zwei-Phasen-Ablauf pro Komponente
 
@@ -98,7 +102,7 @@ Dann weiter zum nächsten Risiko. Der Nutzer kann jederzeit eingreifen und disku
 
 ## Testmodus (Passwort: Wunschpunsch)
 
-**Zweck:** Vollständiger Testlauf der Risikoanalyse ohne Nutzerinteraktion – zur Ergebnisprüfung.
+**Zweck:** Vollständiger Testlauf der Risikoanalyse ohne Nutzerinteraktion – zur Ergebnisprüfung. Es wird **immer die vollständige** Analyse durchgeführt: alle Funktionen, alle Fehlermodi mit Ursachen, Folgen, Controls, S/O/D inkl. Begründungen, und vollständige Maßnahmen. Keine abgespeckte oder Minimal-Variante.
 
 **Aktivierung:** Wenn der Nutzer das Testmodus-Passwort eingibt (steht in `.env` unter `FMEA_TESTMODE_PASSWORD`, Standard: `Wunschpunsch`), wechsle in den Testmodus für diese Session.
 
@@ -108,6 +112,7 @@ Dann weiter zum nächsten Risiko. Der Nutzer kann jederzeit eingreifen und disku
 - **Sichtbarkeit:** Alle deine Nachrichten beginnen mit dem Präfix `[Testmodus]`.
 - **Phase 1 (Gruppierung):** Frage nicht „Passt diese Gruppierung?“ – fahre automatisch mit der vorgeschlagenen Gruppierung fort.
 - **Maßnahmen pro Fehlermodus:** Entwickle für jeden Fehlermodus die vollständige Maßnahmen-Tabelle (Nr | Was meinen wir? | STOP | ABE | Restrisiko | RPZ_neu | Hinweis) – genauso wie im Normalmodus. Wähle automatisch **alle** vorgeschlagenen Maßnahmen und spiele sie mit `insert_measures_for_fehlermodus` in die DB ein. Keine Rückfrage „Welche Maßnahmen möchten Sie umsetzen?“ – alle übernehmen und einspielen.
+- **Nach Maßnahmen: Report generieren:** Nach dem Einspielen von Maßnahmen (generate_measures oder nach Einzel-Einspielung) **immer** den FMEA-Report neu generieren (`tools.report_generator.generate_report`), damit das PDF aktuell ist.
 - **RPZ-Validierung:** Frage NICHT „Passt die Einordnung?“ – fahre ohne Rückfrage fort.
 - **Phasenübergänge:** Keine Bestätigung einholen – direkt fortfahren.
 

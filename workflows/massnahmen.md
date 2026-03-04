@@ -29,6 +29,13 @@ db.close()
 
 4. **Einspielen** mit `tools/insert_measures.insert_measures_for_fehlermodus` (Agent übergibt Daten direkt)
 
+5. **Report neu generieren (Pflicht):** Nach jedem Einspielen von Maßnahmen – ob über `generate_measures` oder manuell über `insert_measures_for_fehlermodus` – den FMEA-Report sofort neu erzeugen, damit das PDF die aktuellen Maßnahmen enthält:
+   ```python
+   from tools.report_generator import generate_report
+   generate_report(project_id, task_folder="Risikoanalyse/Ethylacetatproduktion_20TA42")
+   ```
+   Ohne diesen Schritt ist die Maßnahmenphase nicht abgeschlossen.
+
 ## Zweidimensionale Klassifizierung: ABE x STOP
 
 Jede Maßnahme wird auf zwei Achsen klassifiziert:

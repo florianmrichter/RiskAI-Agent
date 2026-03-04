@@ -1,204 +1,204 @@
 {
   "project_id": 1,
   "task_folder": "Risikoanalyse/Ethylacetatproduktion_20TA42",
-  "phase": "fmea",
-  "current_komp_id": "KOMP-007",
-  "last_updated": "2026-03-02T20:59:49.083687",
+  "phase": "report",
+  "current_komp_id": "KOMP-047",
+  "last_updated": "2026-03-02T22:40:10.736593",
   "phases": {
     "struktur": "done",
-    "fmea": "in_progress",
-    "rpz_validierung": "pending",
-    "massnahmen": "pending",
-    "report": "pending"
+    "fmea": "done",
+    "rpz_validierung": "done",
+    "massnahmen": "done",
+    "report": "done"
   },
   "components": {
     "KOMP-001": {
       "fmea": "done",
-      "measures": "pending"
+      "measures": "done"
     },
     "KOMP-002": {
       "fmea": "done",
-      "measures": "pending"
+      "measures": "done"
     },
     "KOMP-003": {
       "fmea": "done",
-      "measures": "pending"
+      "measures": "done"
     },
     "KOMP-004": {
       "fmea": "done",
-      "measures": "pending"
+      "measures": "done"
     },
     "KOMP-005": {
       "fmea": "done",
-      "measures": "pending"
+      "measures": "done"
     },
     "KOMP-006": {
       "fmea": "done",
-      "measures": "pending"
+      "measures": "done"
     },
     "KOMP-007": {
       "fmea": "done",
-      "measures": "pending"
+      "measures": "done"
     },
     "KOMP-008": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-009": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-010": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-011": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-012": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-013": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-014": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-015": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-016": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-017": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-018": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-019": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-020": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-021": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-022": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-023": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-024": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-025": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-026": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-027": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-028": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-029": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-030": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-031": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-032": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-033": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-034": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-035": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-036": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-037": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-038": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-039": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-040": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-041": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-042": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-043": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-044": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-045": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-046": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     },
     "KOMP-047": {
-      "fmea": "pending",
-      "measures": "pending"
+      "fmea": "done",
+      "measures": "done"
     }
   }
 }

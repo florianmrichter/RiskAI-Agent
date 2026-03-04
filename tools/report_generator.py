@@ -322,24 +322,27 @@ def _render_treemap_pair(fmea_data: list, tmp_dir: str) -> str:
 
 
 def _render_rpz_comparison(fmea_data: list, tmp_dir: str):
+    """RPZ-Vergleich: Nur die vollständige Fehlermodus-ID (z.B. KOMP-001-F2-FM1) auf der Y-Achse."""
     items = [fm for fm in fmea_data if fm.get("measures")]
     if not items:
         return None
     items.sort(key=lambda x: x.get("rpz", 0), reverse=True)
     labels, before, after = [], [], []
     for fm in items:
-        labels.append("-".join(fm.get("fehler_id", "?").split("-")[-2:]))
+        # Nur vollständige ID, kein Komponentenname und kein Fehlermodus-Text
+        labels.append(str(fm.get("fehler_id") or "?"))
         before.append(fm.get("rpz", 0))
         best = min(fm["measures"], key=lambda m: (m.get("rpz_neu") or 9999))
         after.append(best.get("rpz_neu") or fm.get("rpz", 0))
     y = np.arange(len(labels))
     h = 0.35
-    fig, ax = plt.subplots(figsize=(8, max(3, len(labels) * 0.6 + 1)))
+    fig, ax = plt.subplots(figsize=(10, max(3, len(labels) * 0.5 + 1)))
     ax.barh(y + h / 2, before, h, label="Vorher", color="#F5004F", alpha=0.85)
     ax.barh(y - h / 2, after, h, label="Nachher", color="#00A389", alpha=0.85)
     ax.axvline(x=100, color="#E8C547", linestyle="--", linewidth=1.2, alpha=0.7, label="Grenzwert 100")
     ax.set(yticks=y, xlabel="RPZ")
-    ax.set_yticklabels(labels, fontsize=9)
+    ax.set_yticklabels(labels, fontsize=8)
+    plt.subplots_adjust(left=0.28)
     ax.xaxis.label.set(fontsize=11, fontweight="bold")
     ax.set_title("RPZ-Vergleich: Vorher vs. Nachher", fontsize=12, fontweight="bold", pad=12, color="#1F2937")
     ax.legend(loc="lower right", fontsize=8)

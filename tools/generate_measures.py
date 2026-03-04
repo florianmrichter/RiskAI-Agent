@@ -6,8 +6,6 @@ Lädt projektspezifische Maßnahmen-Generatoren aus tasks/{task_folder}/measures
 oder config/measures_explicit.py. Die geladene Datei muss get_measures_for_fehlermodus(fehler_id, fehlermodus, komponente)
 bereitstellen. Folgt workflows/massnahmen.md: STOP-Prinzip (S/T/O/P) und ABE-Hierarchie (A/B/E).
 
-Für neue Projekte: tasks/{task_folder}/measures_explicit.py anlegen mit get_measures_for_fehlermodus.
-
 Usage:
     python tools/generate_measures.py --project-id 1 --task-folder Risikoanalyse/Ethylacetatproduktion_20TA42
 """

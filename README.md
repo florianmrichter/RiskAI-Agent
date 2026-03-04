@@ -76,7 +76,7 @@ pip install -r requirements.txt
 - **Detaillierte Risiko-Cards** mit S/O/D-Bewertung, Ursachen, Folgen, Controls und Maßnahmen an einem Ort
 - **Ausführliche Controls-Tabelle** mit Beschreibung und Wirkungsbereich statt reiner Pill-Badges
 - **Maßnahmen-Checkliste** im Anhang zur systematischen Abarbeitung
-- **Visualisierungen**: Donut-Chart, Risikomatrix, Treemap (vorher/nachher), RPZ-Vergleich, 6-Chart-Typen-Vergleich
+- **Visualisierungen**: Donut-Chart, Risikomatrix, Treemap (vorher/nachher), RPZ-Vergleich (Y-Achse: vollständige Fehlermodus-ID, z. B. KOMP-017-F1-FM2), 6-Chart-Typen-Vergleich
 - **Review-Tool mit S/O/D-Skala-Kontext**: zeigt Nachbarwerte zur besseren Einschätzung
 - **Treiber-Analyse**: erklärt welcher Faktor (S, O oder D) das Risiko dominiert und wie man ihn adressiert
 
@@ -159,7 +159,7 @@ struktur → fmea → rpz_validierung → massnahmen → report
 | **A: Generator** | `tasks/{task_folder}/measures_explicit.py` oder `config/measures_explicit.py` hat `get_measures_for_fehlermodus` und liefert Maßnahmen für den Fehlermodus | Tool | `python tools/generate_measures.py --project-id 1` lädt das Modul, ruft für jeden Fehlermodus `get_measures_for_fehlermodus(fehler_id, fehlermodus, komponente)` auf, spielt über `insert_measures_for_fehlermodus` ein |
 | **B: Agent** | Kein Generator für den Fehlermodus (Modul liefert `[]`) | Agent | Analysiert Fehlermodus (STOP-Prinzip, ABE-Hierarchie), erstellt Maßnahmen-Liste, ruft `insert_measures_for_fehlermodus(project_id, fehler_id, measures)` auf |
 
-**Typischer Ablauf:** Zuerst `generate_measures.py` ausführen. Fehlermodi ohne Generator werden ausgegeben – der Agent analysiert diese und ruft `insert_measures_for_fehlermodus` auf.
+**Typischer Ablauf:** Zuerst `generate_measures.py` ausführen. Fehlermodi ohne Generator werden ausgegeben – der Agent analysiert diese und ruft `insert_measures_for_fehlermodus` auf. **Nach jedem Einspielen von Maßnahmen** den FMEA-Report neu generieren (`report_generator.generate_report`), sonst ist die Maßnahmenphase nicht abgeschlossen.
 
 **Dateien:** `tasks/{task_folder}/measures_explicit.py` (projektspezifisch, optional) oder `config/measures_explicit.py` (Fallback)
 
