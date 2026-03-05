@@ -35,6 +35,7 @@ class FMEAStorage:
         self._migrate_failure_modes_extended()
         self._migrate_current_controls_einschraenkung()
         self._migrate_measures_hinweis()
+        self._migrate_measures_cost_speed()
 
     def _create_tables(self):
         self.conn.executescript("""
@@ -209,6 +210,17 @@ class FMEAStorage:
             self.conn.execute(
                 "ALTER TABLE measures ADD COLUMN hinweis TEXT"
             )
+        self.conn.commit()
+
+    def _migrate_measures_cost_speed(self):
+        """Add umsetzbarkeit_klasse, umsetzbarkeit_hinweis, kosten_klasse, kosten_hinweis to measures."""
+        cursor = self.conn.execute("PRAGMA table_info(measures)")
+        existing_cols = {row[1] for row in cursor.fetchall()}
+        for col in ("umsetzbarkeit_klasse", "umsetzbarkeit_hinweis", "kosten_klasse", "kosten_hinweis"):
+            if col not in existing_cols:
+                self.conn.execute(
+                    f"ALTER TABLE measures ADD COLUMN {col} TEXT"
+                )
         self.conn.commit()
 
     # ── Project CRUD ──
@@ -470,7 +482,9 @@ class FMEAStorage:
                        ziel: str = None,
                        S_neu: int = None, O_neu: int = None, D_neu: int = None,
                        rpz_neu: int = None, rpz_status_neu: str = None,
-                       begruendung: str = None, hinweis: str = None, iteration: int = 1) -> int:
+                       begruendung: str = None, hinweis: str = None, iteration: int = 1,
+                       umsetzbarkeit_klasse: str = None, umsetzbarkeit_hinweis: str = None,
+                       kosten_klasse: str = None, kosten_hinweis: str = None) -> int:
         if rpz_neu is None and all(v is not None for v in [S_neu, O_neu, D_neu]):
             rpz_neu = S_neu * O_neu * D_neu
         if rpz_status_neu is None and rpz_neu is not None:
@@ -478,10 +492,12 @@ class FMEAStorage:
         cur = self.conn.execute(
             """INSERT INTO measures 
                (failure_mode_id, name, abe_kategorie, stop_kategorie, beschreibung, ziel,
-                S_neu, O_neu, D_neu, rpz_neu, rpz_status_neu, begruendung, hinweis, iteration)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                S_neu, O_neu, D_neu, rpz_neu, rpz_status_neu, begruendung, hinweis, iteration,
+                umsetzbarkeit_klasse, umsetzbarkeit_hinweis, kosten_klasse, kosten_hinweis)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (failure_mode_id, name, abe_kategorie, stop_kategorie, beschreibung, ziel,
-             S_neu, O_neu, D_neu, rpz_neu, rpz_status_neu, begruendung, hinweis, iteration)
+             S_neu, O_neu, D_neu, rpz_neu, rpz_status_neu, begruendung, hinweis, iteration,
+             umsetzbarkeit_klasse, umsetzbarkeit_hinweis, kosten_klasse, kosten_hinweis)
         )
         self.conn.commit()
         return cur.lastrowid
@@ -505,6 +521,10 @@ class FMEAStorage:
                 begruendung=m.get("begruendung"),
                 hinweis=m.get("hinweis"),
                 iteration=m.get("iteration", 1),
+                umsetzbarkeit_klasse=m.get("umsetzbarkeit_klasse"),
+                umsetzbarkeit_hinweis=m.get("umsetzbarkeit_hinweis"),
+                kosten_klasse=m.get("kosten_klasse"),
+                kosten_hinweis=m.get("kosten_hinweis"),
             )
             ids.append(mid)
         return ids

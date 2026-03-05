@@ -832,6 +832,15 @@
           <div class="rpz-status-badge" style="background:{{ rpz_color(status) }}20;color:{{ rpz_color(status) }};">{{ status|upper }}</div>
           {% if best_measure and best_measure.rpz_neu and best_measure.rpz_neu != fm.rpz %}
           <div class="rpz-soll">SOLL: {{ best_measure.rpz_neu }}</div>
+          {% if report_context.target_threshold is defined %}
+          <div class="rpz-soll-hint" style="font-size:0.55rem;color:var(--color-text-muted);margin-top:1px;">
+            {% if best_measure.rpz_neu < report_context.target_threshold %}
+            Unter Grenzwert {{ report_context.target_threshold }} (niedrig) mit dieser Maßnahme erreichbar.
+            {% else %}
+            SOLL = RPZ nach wirksamster Einzelmaßnahme. Unter Grenzwert {{ report_context.target_threshold }} (niedrig) nur bei Kombination mehrerer Maßnahmen erreichbar.
+            {% endif %}
+          </div>
+          {% endif %}
           {% endif %}
         </div>
       </div>
@@ -918,16 +927,22 @@
       <div class="risk-sub-section">
         <div class="risk-sub-title">Maßnahmen zur Risikoreduktion</div>
         {% for m in measures|sort(attribute='stop_kategorie') %}
-        <div class="measure-card">
+        <div class="measure-card{% if m.is_recommended %} measure-recommended{% endif %}">
           <div class="measure-header">
-            <div style="display:flex;align-items:center;gap:2mm;">
+            <div style="display:flex;align-items:center;gap:2mm;flex-wrap:wrap;">
               <span class="abe-badge {{ m.abe_kategorie }}">{{ abe_labels.get(m.abe_kategorie, m.abe_kategorie) }}</span>
               {% if m.stop_kategorie and stop_icons %}
               <span class="stop-badge stop-{{ m.stop_kategorie }}"><span class="stop-icon">{{ stop_icons.get(m.stop_kategorie, '') }}</span>{{ stop_labels.get(m.stop_kategorie, m.stop_kategorie) }}</span>
               {% endif %}
               <span style="font-weight:600;font-size:0.62rem;">{{ m.name }}</span>
+              {% if m.under_threshold and report_context.target_threshold is defined %}
+              <span class="badge-under-threshold" style="font-size:0.55rem;padding:2px 5px;background:#00A38920;color:#00A389;border-radius:3px;font-weight:600;">Unter Grenzwert {{ report_context.target_threshold }}</span>
+              {% endif %}
+              {% if m.is_recommended %}
+              <span class="badge-recommended" style="font-size:0.55rem;padding:2px 5px;background:#2C2C5420;color:#2C2C54;border-radius:3px;font-weight:600;">Empfohlen</span>
+              {% endif %}
             </div>
-            <div style="display:flex;align-items:center;gap:2mm;">
+            <div style="display:flex;align-items:center;gap:2mm;flex-wrap:wrap;">
               {% for sk, sl in [('S_neu','S'),('O_neu','O'),('D_neu','D')] %}
                 {% if m.get(sk) and m[sk] != fm.get(sl) %}
                 <span class="reduction-arrow">{{ sl }}: {{ fm.get(sl, '?') }}→{{ m[sk] }}</span>
@@ -939,6 +954,11 @@
             </div>
           </div>
           <p style="font-size:0.55rem;color:var(--color-text-secondary);margin:0;line-height:1.3;">{{ m.beschreibung }}</p>
+          {% if m.umsetzbarkeit_display or m.kosten_display %}
+          <div class="measure-cost-speed" style="font-size:0.55rem;color:var(--color-text-muted);margin-top:2px;">
+            {% if m.umsetzbarkeit_display %}⚡ {{ m.umsetzbarkeit_display }}{% endif %}{% if m.umsetzbarkeit_display and m.kosten_display %} · {% endif %}{% if m.kosten_display %}💰 {{ m.kosten_display }}{% endif %}
+          </div>
+          {% endif %}
           {% if m.begruendung %}
           <div class="measure-reasoning">{{ m.begruendung }}</div>
           {% endif %}

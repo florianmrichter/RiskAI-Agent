@@ -31,6 +31,10 @@ RPZ_LABELS = {
     "niedrig":  "Monitoring",
 }
 
+# Zielschwelle: RPZ unter diesem Wert gilt als "niedrig" (akzeptables Restrisiko).
+# Wird für SOLL-Erklärung und "Unter Grenzwert"-Badge im Report genutzt.
+RPZ_TARGET_THRESHOLD = 100
+
 
 def classify_rpz(rpz: int) -> str:
     """Classify an RPZ value into a risk category."""
@@ -246,6 +250,37 @@ FEHLERMODI_VORLAGEN = {
 
 
 # ═══════════════════════════════════════════════════════════════
+# Measure Recommendation & Cost/Speed Classes
+# ═══════════════════════════════════════════════════════════════
+
+# Empfehlungsmethode: "lexicographic" (Grenzwert → Reduktion → Kosten → Zeit)
+# oder "weighted_score" (gewichteter Score aus Reduktion, Kosten, Umsetzbarkeit).
+MEASURE_RECOMMENDATION_METHOD = "lexicographic"
+
+MEASURE_WEIGHTS = {
+    "reduction": 0.5,
+    "cost": 0.25,
+    "speed": 0.25,
+}
+
+# Klassen für Umsetzungszeit (1 = schnell = beste, 3 = langfristig).
+UMSETZBARKEIT_KLASSEN = ("schnell", "mittelfristig", "langfristig")
+UMSETZBARKEIT_LABELS = {
+    "schnell": "Schnell umsetzbar",
+    "mittelfristig": "Mittelfristig umsetzbar",
+    "langfristig": "Langfristig umsetzbar",
+}
+
+# Klassen für Kosten (1 = gering = beste, 3 = hoch).
+KOSTEN_KLASSEN = ("gering", "mittel", "hoch")
+KOSTEN_LABELS = {
+    "gering": "Geringe Kosten",
+    "mittel": "Mittlere Kosten",
+    "hoch": "Hohe Kosten",
+}
+
+
+# ═══════════════════════════════════════════════════════════════
 # Cause Origin & Prevention Phase Categories
 # ═══════════════════════════════════════════════════════════════
 
@@ -267,8 +302,15 @@ PREVENTION_PHASES = [
 
 FMEA_CONFIG = {
     "rpz_thresholds": RPZ_THRESHOLDS,
+    "rpz_target_threshold": RPZ_TARGET_THRESHOLD,
     "rpz_colors": RPZ_COLORS,
     "rpz_labels": RPZ_LABELS,
+    "measure_recommendation_method": MEASURE_RECOMMENDATION_METHOD,
+    "measure_weights": MEASURE_WEIGHTS,
+    "umsetzbarkeit_klassen": UMSETZBARKEIT_KLASSEN,
+    "umsetzbarkeit_labels": UMSETZBARKEIT_LABELS,
+    "kosten_klassen": KOSTEN_KLASSEN,
+    "kosten_labels": KOSTEN_LABELS,
     "special_rules": SPECIAL_RULES,
     "safety_overrides": SAFETY_OVERRIDES,
     "scales": {

@@ -76,6 +76,8 @@ pip install -r requirements.txt
 - **Detaillierte Risiko-Cards** mit S/O/D-Bewertung, Ursachen, Folgen, Controls und Maßnahmen an einem Ort
 - **Ausführliche Controls-Tabelle** mit Beschreibung und Wirkungsbereich statt reiner Pill-Badges
 - **Maßnahmen-Checkliste** im Anhang zur systematischen Abarbeitung
+- **SOLL-Erklärung & Grenzwert:** Konfigurierbare Zielschwelle (z. B. 100); im Report Hinweis, ob SOLL unter Grenzwert erreichbar ist oder nur mit mehreren Maßnahmen
+- **Maßnahmen-Priorisierung:** „Empfohlene“ Maßnahme pro Fehlermodus (lexikographisch: Reduktion → Umsetzbarkeit → Kosten); Badges „Unter Grenzwert“ und „Empfohlen“; Anzeige von Umsetzbarkeit/Kosten (Klasse + optionaler Hinweis) aus Config/DB
 - **Visualisierungen**: Donut-Chart, Risikomatrix, Treemap (vorher/nachher), RPZ-Vergleich (Y-Achse: vollständige Fehlermodus-ID, z. B. KOMP-017-F1-FM2), 6-Chart-Typen-Vergleich
 - **Review-Tool mit S/O/D-Skala-Kontext**: zeigt Nachbarwerte zur besseren Einschätzung
 - **Treiber-Analyse**: erklärt welcher Faktor (S, O oder D) das Risiko dominiert und wie man ihn adressiert

@@ -39,6 +39,13 @@ from config.fmea_standards import (
     RPZ_COLORS as RPZ_HEX,
     RPZ_THRESHOLDS,
     RPZ_LABELS,
+    RPZ_TARGET_THRESHOLD,
+    MEASURE_RECOMMENDATION_METHOD,
+    MEASURE_WEIGHTS,
+    UMSETZBARKEIT_KLASSEN,
+    UMSETZBARKEIT_LABELS,
+    KOSTEN_KLASSEN,
+    KOSTEN_LABELS,
     classify_rpz,
     apply_special_rules,
 )
@@ -78,6 +85,91 @@ def _get_outfit_font_style():
 STOP_ORDER = {"S": 0, "T": 1, "O": 2, "P": 3}
 STOP_LABELS = {"S": "Substitution", "T": "Technisch", "O": "Organisatorisch", "P": "Persönlich"}
 STOP_ICONS = {"S": "↻", "T": "⚙", "O": "☰", "P": "👤"}
+
+
+def _parse_measure_klassen(m: dict) -> tuple:
+    """Return (umsetzbarkeit_klasse, kosten_klasse) from measure. Uses DB fields or parses hinweis."""
+    u = m.get("umsetzbarkeit_klasse")
+    k = m.get("kosten_klasse")
+    hinweis = (m.get("hinweis") or "").lower()
+    if not u and hinweis:
+        if "schnell umsetzbar" in hinweis or "schnell umsetzb" in hinweis:
+            u = "schnell"
+        elif "mittelfristig" in hinweis:
+            u = "mittelfristig"
+        elif "langfristig" in hinweis or "höherer aufwand" in hinweis or "hoher aufwand" in hinweis:
+            u = "langfristig"
+        elif "moderater aufwand" in hinweis:
+            u = "mittelfristig"
+    if not k and hinweis:
+        if "gering" in hinweis:
+            k = "gering"
+        elif "moderat" in hinweis or "mittel" in hinweis:
+            k = "mittel"
+        elif "hoch" in hinweis or "höher" in hinweis:
+            k = "hoch"
+    return (u or "mittelfristig", k or "mittel")
+
+
+def _measure_umsetzbarkeit_display(m: dict) -> str:
+    """Display string for Umsetzbarkeit: Klasse (+ optional expliziter Hinweis)."""
+    u, _ = _parse_measure_klassen(m)
+    label = UMSETZBARKEIT_LABELS.get(u, u)
+    hint = m.get("umsetzbarkeit_hinweis") or ""
+    return f"{label} ({hint})" if hint else label
+
+
+def _measure_kosten_display(m: dict) -> str:
+    """Display string for Kosten: Klasse (+ optional expliziter Hinweis)."""
+    _, k = _parse_measure_klassen(m)
+    label = KOSTEN_LABELS.get(k, k)
+    hint = m.get("kosten_hinweis") or ""
+    return f"{label} ({hint})" if hint else label
+
+
+def _recommended_measure(fm: dict, target_threshold: int, method: str, weights: dict):
+    """Return the recommended measure for this failure mode, or None if no measures."""
+    measures = fm.get("measures") or []
+    if not measures:
+        return None
+    rpz_ist = fm.get("rpz") or 0
+
+    def under_threshold(m):
+        r = m.get("rpz_neu")
+        return (r is not None and int(r) < target_threshold) if r else False
+
+    def reduction(m):
+        r = m.get("rpz_neu")
+        return (rpz_ist - int(r)) if r is not None else 0
+
+    def cost_ord(m):
+        _, k = _parse_measure_klassen(m)
+        return KOSTEN_KLASSEN.index(k) if k in KOSTEN_KLASSEN else 1
+
+    def speed_ord(m):
+        u, _ = _parse_measure_klassen(m)
+        return UMSETZBARKEIT_KLASSEN.index(u) if u in UMSETZBARKEIT_KLASSEN else 1
+
+    if method == "weighted_score":
+        max_red = max((reduction(m) for m in measures), default=1) or 1
+        scores = []
+        for m in measures:
+            red_norm = min(1.0, reduction(m) / max_red)
+            if under_threshold(m):
+                red_norm = 1.0
+            cost_norm = 1.0 - (cost_ord(m) / 2.0)
+            speed_norm = 1.0 - (speed_ord(m) / 2.0)
+            sc = (weights.get("reduction", 0.5) * red_norm +
+                  weights.get("cost", 0.25) * cost_norm +
+                  weights.get("speed", 0.25) * speed_norm)
+            scores.append((sc, m))
+        scores.sort(key=lambda x: -x[0])
+        return scores[0][1] if scores else None
+
+    key = lambda m: (not under_threshold(m), -reduction(m), cost_ord(m), speed_ord(m))
+    sorted_measures = sorted(measures, key=key)
+    return sorted_measures[0] if sorted_measures else None
+
 
 LOGO_SVG_SMALL = """<svg style="height:6mm;width:auto;" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
 <!-- Antenna -->
@@ -481,9 +573,20 @@ def generate_report(project_id: int, output_path: str = None, task_folder: str =
         def _stop_sort_key(m):
             return STOP_ORDER.get(m.get("stop_kategorie", ""), 99)
 
+        target_threshold = RPZ_TARGET_THRESHOLD
+        recommendation_method = MEASURE_RECOMMENDATION_METHOD
+        recommendation_weights = MEASURE_WEIGHTS
+
         for fm in fmea_data:
             if fm.get("measures"):
                 fm["measures"] = sorted(fm["measures"], key=_stop_sort_key)
+                recommended = _recommended_measure(fm, target_threshold, recommendation_method, recommendation_weights)
+                for m in fm["measures"]:
+                    rpz_neu = m.get("rpz_neu")
+                    m["under_threshold"] = rpz_neu is not None and int(rpz_neu) < target_threshold
+                    m["is_recommended"] = recommended is m
+                    m["umsetzbarkeit_display"] = _measure_umsetzbarkeit_display(m)
+                    m["kosten_display"] = _measure_kosten_display(m)
 
             S, O, D = fm.get("S", 0), fm.get("O", 0), fm.get("D", 0)
             rpz = fm.get("rpz", S * O * D)
@@ -566,6 +669,8 @@ def generate_report(project_id: int, output_path: str = None, task_folder: str =
             func_details=func_details,
             abe_labels={"A": "Vermeidung", "B": "Entdeckung", "E": "Abschwächung"},
             report_context={
+                "target_threshold": target_threshold,
+                "target_threshold_label": f"{target_threshold} (niedrig)",
                 "special_rule_count": special_rule_count,
                 "stop_coverage": stop_coverage,
                 "max_rpz": max_rpz,
