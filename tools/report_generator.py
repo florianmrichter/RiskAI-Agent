@@ -451,7 +451,10 @@ def generate_report(project_id: int, output_path: str = None, task_folder: str =
     db.close()
 
     if output_path is None:
-        out_dir = Path(__file__).parent.parent / ".tmp"
+        if task_folder:
+            out_dir = Path(__file__).parent.parent / "tasks" / task_folder
+        else:
+            out_dir = Path(__file__).parent.parent / ".tmp"
         out_dir.mkdir(parents=True, exist_ok=True)
         output_path = str(out_dir / f"FMEA_Bericht_{project.get('anlage_name', 'Report')}.pdf")
 
