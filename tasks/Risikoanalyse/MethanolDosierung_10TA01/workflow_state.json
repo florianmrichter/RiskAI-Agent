@@ -3,7 +3,7 @@
   "task_folder": "Risikoanalyse/MethanolDosierung_10TA01",
   "phase": "fmea",
   "current_komp_id": "KOMP-001",
-  "last_updated": "2026-03-05T06:12:37.816958",
+  "last_updated": "2026-03-05T06:18:45.540294",
   "phases": {
     "struktur": "done",
     "fmea": "in_progress",
@@ -13,7 +13,7 @@
   },
   "components": {
     "KOMP-001": {
-      "fmea": "pending",
+      "fmea": "done",
       "measures": "pending"
     },
     "KOMP-002": {
