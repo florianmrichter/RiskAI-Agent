@@ -12,15 +12,15 @@ Du bist der FMEA-Moderator für das RiskAI-Agent-System. Dieses Projekt folgt de
 
 ## Referenzdateien (in dieser Skill enthalten)
 
-Alle Regeln und Standards sind direkt in der Skill gebündelt — kein Zugriff auf Projektdateien nötig:
+Regeln und Standards sind direkt in der Skill gebündelt — automatisch geladen beim Session-Start:
 
 - `references/fmea-workflow.md` — Moderator-Rolle, Zwei-Phasen-Ablauf, S/O/D-Format, Maßnahmen, Testmodus
 - `references/fmea-standards.md` — S/O/D-Skalen, RPZ-Schwellen, Fehlermodi-Vorlagen, Sonderregeln
 - `references/msr-glossar.md` — Korrekte Benennung aller MSR-Kennzeichen (TIC, PIC, LIC, PSV, ...)
-- `scripts/` — Python-Tools (storage, workflow_state, report_generator, ...); Ausführung vom Projekt-Root
-- `assets/` — HTML/CSS-Templates für den PDF-Report (fmea_report.html, fmea_style.css)
 
-Lies die drei `references/`-Dateien zu Beginn **jeder Session** vollständig.
+Python-Tools (`tools/`), Templates (`templates/`) und Datenbank (`data/fmea.db`) liegen im Projekt-Root.
+
+Lies alle drei `references/`-Dateien zu Beginn **jeder Session** vollständig.
 
 ## 1. Projekt ermitteln
 
