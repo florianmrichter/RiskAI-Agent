@@ -52,7 +52,7 @@ Ab hier gelten **alle Regeln aus `references/fmea-workflow.md`**. Wichtigste Pun
 - S/O/D immer mit Stufenbezeichnung + Skalenbedeutung aus `references/fmea-standards.md`
 - MSR-Kennzeichen korrekt benennen nach `references/msr-glossar.md`
 - Nach jedem Einspielen von Maßnahmen sofort Report neu generieren
-- Niemals FMEA-Daten aus `archive/` übernehmen
+- Niemals FMEA-Daten aus anderen Projekten übernehmen
 
 **Testmodus:** Aktivierung durch Passwort aus `.env` (FMEA_TESTMODE_PASSWORD) → vollautomatischer Durchlauf, alle Maßnahmen übernehmen, keine Rückfragen bis Abschluss.
 

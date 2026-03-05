@@ -38,13 +38,13 @@ RiskAI-Agent/
 ├── plans/           # Architektur- und Strategiepläne
 ├── tasks/           # Aufgaben-spezifische Eingabedaten
 ├── data/            # SQLite-Datenbank fmea.db (gitignored)
-├── archive/         # Archivierte Analyse-Läufe
+├── .claude/skills/  # Claude Code Skills (fmea-risikoanalyse, anlagendaten-interview)
 ├── .tmp/            # Temporäre Verarbeitungsdateien (gitignored)
 ├── .env.example     # Vorlage für .env (API-Keys, FMEA_TESTMODE_PASSWORD)
 └── requirements.txt # Python-Abhängigkeiten
 ```
 
-**Agent-Anweisungen:** Generisches WAT-Framework in `CLAUDE.md`; FMEA-spezifische Regeln (Moderation, Testmodus, S/O/D) in `workflows/fmea-workflow.md` (in Cursor per Symlink unter `.cursor/rules/` eingebunden, in Claude über den Verweis in CLAUDE.md).
+**Agent-Anweisungen:** Generisches WAT-Framework in `CLAUDE.md`; FMEA-spezifische Regeln in den Claude Code Skills unter `.claude/skills/` (Moderator-Rolle, S/O/D-Skalen, MSR-Glossar werden automatisch geladen). Quell-SOPs bleiben kanonisch in `workflows/`.
 
 **Indizes (Übersichten):**
 - [workflows/README.md](workflows/README.md) – Index aller Workflows und zugehörige Tools
@@ -132,7 +132,7 @@ struktur → fmea → rpz_validierung → massnahmen → report
 
 **Wichtig:** fmea_explicit.py ist **Output** – der Agent füllt sie bei jeder Analyse. Bei Neustart mit `--reset` wird sie geleert.
 
-**Archiv-Regel:** Jede Risikoanalyse ist NEU. NIEMALS FMEA-Daten aus `archive/` oder anderen Projekten übernehmen. Einzige Quelle: `anlagendaten.json` des aktuellen Projekts.
+**Analyse-Regel:** Jede Risikoanalyse ist NEU. Niemals FMEA-Daten aus anderen Projekten übernehmen. Einzige Quelle: `anlagendaten.json` des aktuellen Projekts.
 
 ---
 
@@ -197,7 +197,7 @@ struktur → fmea → rpz_validierung → massnahmen → report
 
 ### Testmodus (Passwort: Wunschpunsch)
 
-Für vollständige Testläufe: Gib das Passwort ein (steht in `.env` unter `FMEA_TESTMODE_PASSWORD`, Standard: `Wunschpunsch`). Der Agent führt die Risikoanalyse dann **autonom** durch – keine Rückfragen, alle Maßnahmen automatisch übernommen. Ziel: Ergebnisprüfung. Siehe `workflows/fmea-workflow.md` (in Cursor über `.cursor/rules/` eingebunden).
+Für vollständige Testläufe: Gib das Passwort ein (steht in `.env` unter `FMEA_TESTMODE_PASSWORD`, Standard: `Wunschpunsch`). Der Agent führt die Risikoanalyse dann **autonom** durch – keine Rückfragen, alle Maßnahmen automatisch übernommen. Ziel: Ergebnisprüfung. Regeln im Skill `.claude/skills/fmea-risikoanalyse/references/fmea-workflow.md`.
 
 ### Abschluss-Zusammenfassung
 
@@ -222,4 +222,4 @@ Jeder Projektordner enthält: `anlagendaten.json`, `fmea_explicit.py`, `measures
 
 **In aktiver Entwicklung** — **Frische Bewertung pro Analyse:** Agent analysiert jede Komponente neu, schreibt in `fmea_explicit.py`, Einspielung mit `tools/insert_fmea_explicit.py`. Maßnahmen: `tools/generate_measures.py` nutzt projektspezifische Generatoren aus `tasks/{task_folder}/measures_explicit.py` (oder `config/measures_explicit.py`); Fehlermodi ohne Generator werden vom Agent über `insert_measures_for_fehlermodus` eingespielt.
 
-**Cleanup (2026-03-02):** `insert_testmode_measures.py` entfernt – Maßnahmen liegen nun in `tasks/.../measures_explicit.py` und werden über `generate_measures.py` eingespielt. PoC-Skripte (`poc_run.py`, `setup_poc.py`) nach `archive/poc_scripts_2026-03-02/` verschoben. **Defaults neutralisiert:** `task_folder` ist bei allen Tools Pflichtparameter (kein projektspezifischer Standard mehr).
+**Cleanup (2026-03-05):** `archive/` entfernt (PoC-Reste). `.claude/commands/` durch Claude Code Skills in `.claude/skills/` ersetzt. Skill-Bundle ist self-contained: Moderator-Regeln, S/O/D-Skalen und MSR-Glossar sind direkt in `references/` gebündelt.
