@@ -1,0 +1,157 @@
+{
+  "teilanlage_nr": "10TA01",
+  "bezeichnung": "Methanol-Lager- und Dosieranlage",
+  "location": {
+    "site": "Chemiewerk Nord",
+    "building": "Lagerhalle A",
+    "room": "Tankraum T1",
+    "floor": "EG",
+    "area": "Lager- und Dosiertechnik",
+    "isOutdoor": false
+  },
+  "processDescription": {
+    "description": "Lagerung von Methanol in einem Erdtank (10 m³) und Dosierung in nachgelagerte Prozesse mittels Membranpumpen. Betriebsdruck max. 4 bar, Umgebungstemperatur. Ex-Zone 1 im Tankraum, Ex-Zone 2 im Pumpenraum.",
+    "operatingMode": "Kontinuierlich",
+    "purpose": "Bereitstellung und Dosierung von Methanol (> 99 %) als Reaktionsedukt und Lösungsmittel für nachgelagerte Syntheseprozesse.",
+    "additionalNotes": "Anlage unterliegt der 12. BImSchV (Störfall-Verordnung), Grundpflichten. Ex-Zone 1 im Tankraum, Ex-Zone 2 im Pumpenbereich. Zutritt nur für unterwiesenes Personal."
+  },
+  "systems": [
+    {
+      "name": "Lagertank T-101",
+      "type": "main",
+      "description": "Erdtank für Methanol, 10 m³ Nennvolumen, Stahl, erdvergraben mit Domschacht",
+      "location": {
+        "site": "Chemiewerk Nord",
+        "building": "Lagerhalle A",
+        "room": "Tankraum T1",
+        "floor": "EG",
+        "area": "Lager- und Dosiertechnik",
+        "isOutdoor": false
+      },
+      "parameters": {
+        "Nennvolumen": "10000 L",
+        "Material": "Stahl S235JR, Innenbeschichtung EP",
+        "MaxFüllvolumen": "9000 L",
+        "ExZone": "Zone 1"
+      },
+      "designData": [
+        { "key": "MinTemperatur", "label": "Min. Temperatur", "value": "-20", "unit": "°C" },
+        { "key": "MaxTemperatur", "label": "Max. Temperatur", "value": "50", "unit": "°C" },
+        { "key": "MinDruck", "label": "Min. Druck (relativ)", "value": "-0.05", "unit": "bar" },
+        { "key": "MaxDruck", "label": "Max. Druck (relativ)", "value": "0.5", "unit": "bar" },
+        { "key": "Nennvolumen", "label": "Nennvolumen", "value": "10000", "unit": "L" },
+        { "key": "Material", "label": "Material", "value": "Stahl S235JR, Innenbeschichtung EP", "unit": "" }
+      ],
+      "processConditions": {
+        "Betriebstemperatur": "15 °C",
+        "MinBetriebstemperatur": "-10 °C",
+        "MaxBetriebstemperatur": "35 °C",
+        "Betriebsdruck": "0 bar (atmosphärisch)",
+        "MinBetriebsdruck": "0 bar",
+        "MaxBetriebsdruck": "0.1 bar"
+      }
+    },
+    {
+      "name": "Dosierpumpe P-101",
+      "type": "auxiliary",
+      "description": "Membranpumpe zur Dosierung von Methanol, elektrisch angetrieben, Ex-geschützt",
+      "location": {
+        "site": "Chemiewerk Nord",
+        "building": "Lagerhalle A",
+        "room": "Pumpenraum P1",
+        "floor": "EG",
+        "area": "Pumpentechnik",
+        "isOutdoor": false
+      },
+      "parameters": {
+        "Förderleistung": "50 L/h",
+        "MaxDruck": "4 bar",
+        "Antrieb": "Elektromotor, Ex-e, 0.37 kW",
+        "ExZone": "Zone 2"
+      },
+      "designData": [
+        { "key": "MaxDruck", "label": "Max. Betriebsdruck", "value": "4", "unit": "bar" },
+        { "key": "Förderleistung", "label": "Nenndurchfluss", "value": "50", "unit": "L/h" },
+        { "key": "Material", "label": "Werkstoff fördernd", "value": "PTFE / Edelstahl 1.4571", "unit": "" }
+      ],
+      "processConditions": {
+        "Betriebsdruck": "2 bar",
+        "MaxBetriebsdruck": "4 bar",
+        "Betriebstemperatur": "15 °C"
+      }
+    },
+    {
+      "name": "MSR- und Sicherheitstechnik",
+      "type": "instrumentation",
+      "description": "Füllstandsmessung, Grenzwertschalter, Leckageerkennung, Notabschaltventil",
+      "location": {
+        "site": "Chemiewerk Nord",
+        "building": "Lagerhalle A",
+        "room": "Schaltschrank MSR",
+        "floor": "EG",
+        "area": "MSR-Technik",
+        "isOutdoor": false
+      },
+      "parameters": {
+        "SIL": "SIL 1",
+        "Schutzfunktionen": "Hochstandabschaltung, Leckageabschaltung, Gaswarnanlage"
+      },
+      "designData": [],
+      "processConditions": {}
+    }
+  ],
+  "substances": [
+    {
+      "name": "Methanol",
+      "casNr": "67-56-1",
+      "wgk": "2",
+      "ghs": ["GHS02", "GHS06", "GHS08"],
+      "flashpoint": "11 °C",
+      "boilingPoint": "64.7 °C",
+      "explosionLimits": { "lower": "6.0 %", "upper": "36.5 %" },
+      "maxQuantity": "9000 L",
+      "aggregate": "flüssig",
+      "remarks": "Leichtentzündlich, akut toxisch (oral, dermal, inhalativ), ZNS-schädigend (Erblindung). 12. BImSchV relevant ab 500 t."
+    }
+  ],
+  "msrComponents": [
+    {
+      "tag": "LIC-101",
+      "description": "Füllstandsregler Tank T-101",
+      "type": "Füllstandsmessung",
+      "location": "Domschacht T-101",
+      "safetyFunction": false
+    },
+    {
+      "tag": "LSHH-101",
+      "description": "Hochstand-Grenzwertschalter Tank T-101 (SIL 1)",
+      "type": "Grenzwertschalter",
+      "location": "Domschacht T-101",
+      "safetyFunction": true,
+      "sil": "SIL 1"
+    },
+    {
+      "tag": "XV-101",
+      "description": "Notabschaltventil Tankauslass",
+      "type": "Absperrarmatur (pneumatisch, Federschluss)",
+      "location": "Tankauslass T-101",
+      "safetyFunction": true,
+      "sil": "SIL 1"
+    },
+    {
+      "tag": "GW-101",
+      "description": "Gaswarngerät Methanol im Tankraum",
+      "type": "Gasdetektor",
+      "location": "Tankraum T1",
+      "safetyFunction": true,
+      "sil": "SIL 1"
+    },
+    {
+      "tag": "PI-101",
+      "description": "Druckanzeige Dosierpumpe P-101 Auslass",
+      "type": "Druckmessung",
+      "location": "Pumpenauslass P-101",
+      "safetyFunction": false
+    }
+  ]
+}
