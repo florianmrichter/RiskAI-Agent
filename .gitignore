@@ -1,6 +1,9 @@
 # Temporäre Dateien
 .tmp/
 
+# Skill-Entwicklungs-Artefakte (Iterations-Snapshots, Eval-Ergebnisse)
+.claude/skills/*-workspace/
+
 # FMEA-Datenbank (liegt in data/)
 data/
 fmea.db
