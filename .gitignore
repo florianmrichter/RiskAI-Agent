@@ -4,6 +4,9 @@
 # Skill-Entwicklungs-Artefakte (Iterations-Snapshots, Eval-Ergebnisse)
 .claude/skills/*-workspace/
 
+# Durchgeführte Analysen (projektspezifische Daten, nicht im Repo)
+tasks/
+
 # FMEA-Datenbank (liegt in data/)
 data/
 fmea.db
