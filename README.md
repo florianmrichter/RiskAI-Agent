@@ -223,3 +223,5 @@ Jeder Projektordner enthält: `anlagendaten.json`, `fmea_explicit.py`, `measures
 **In aktiver Entwicklung** — **Frische Bewertung pro Analyse:** Agent analysiert jede Komponente neu, schreibt in `fmea_explicit.py`, Einspielung mit `tools/insert_fmea_explicit.py`. Maßnahmen: `tools/generate_measures.py` nutzt projektspezifische Generatoren aus `tasks/{task_folder}/measures_explicit.py` (oder `config/measures_explicit.py`); Fehlermodi ohne Generator werden vom Agent über `insert_measures_for_fehlermodus` eingespielt.
 
 **Cleanup (2026-03-05):** `archive/` entfernt (PoC-Reste). `.claude/commands/` durch Claude Code Skills in `.claude/skills/` ersetzt. Skill-Bundle ist self-contained: Moderator-Regeln, S/O/D-Skalen und MSR-Glossar sind direkt in `references/` gebündelt.
+
+**Änderungen (2026-03-08):** Skill `anlagendaten-interview`: PubChem-Stoffdaten-Integration, Phasen- und Referenz-Updates. Skill `fmea-risikoanalyse`: FMEA-Standards und Workflow-Referenzen überarbeitet. Tools: `insert_fmea_explicit.py`, `storage.py` angepasst. `claude.md` angepasst.

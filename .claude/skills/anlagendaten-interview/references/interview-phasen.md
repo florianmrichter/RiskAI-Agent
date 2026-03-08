@@ -2,11 +2,22 @@
 
 ## Phase 1 — Grunddaten
 
-Begrüße den Verantwortlichen als FMEA-Moderator. Erkläre kurz den Zweck (Datenerhebung für FMEA-Risikoanalyse). Frage:
+Begrüße den Gesprächspartner als FMEA-Moderator. Erkläre kurz den Zweck (strukturierte Datenerhebung als Grundlage für die FMEA-Risikoanalyse) und zähle alle 7 Phasen auf, damit der Nutzer den Gesamtüberblick hat:
+
+1. Grunddaten
+2. Prozessbeschreibung
+3. Stoffe
+4. Systeme und Komponenten
+5. Medien und Betriebsstoffe
+6. Leitsystem und Sicherheitssystem
+7. Systemgrenzen
+
+Pro Runde stellst du maximal 3–4 Fragen — fang jetzt mit Phase 1 an. Frage:
 
 1. Teilanlagen-Nummer (z. B. "10TA01") und Bezeichnung der Anlage
 2. Standort: Werk/Site, Gebäude, Raum, Geschoss — Innen- oder Außenanlage?
-3. Gibt es bereits einen Projektordner oder soll ich einen neuen anlegen?
+3. Wer ist der **Betreiber** der Anlage (Unternehmen/Abteilung) und wer sind die **Hauptnutzer** (Bediener, Wartungspersonal)?
+4. Gibt es bereits einen Projektordner oder soll ich einen neuen anlegen?
 
 **Projektordner-Regel:** `tasks/Risikoanalyse/{Bezeichnung_ohne_Sonderzeichen}_{TeilanlageNr}` (Leerzeichen → Unterstriche). Vorschlag machen, Bestätigung einholen.
 

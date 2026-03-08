@@ -259,8 +259,13 @@ class FMEAStorage:
         ).fetchall()
         return [self._parse_component(r) for r in rows]
 
-    def get_component_by_komp_id(self, komp_id: str) -> dict:
-        row = self.conn.execute("SELECT * FROM components WHERE komp_id = ?", (komp_id,)).fetchone()
+    def get_component_by_komp_id(self, komp_id: str, project_id: int = None) -> dict:
+        if project_id is not None:
+            row = self.conn.execute(
+                "SELECT * FROM components WHERE komp_id = ? AND project_id = ?", (komp_id, project_id)
+            ).fetchone()
+        else:
+            row = self.conn.execute("SELECT * FROM components WHERE komp_id = ?", (komp_id,)).fetchone()
         return self._parse_component(row) if row else None
 
     def _parse_component(self, row) -> dict:
@@ -274,13 +279,16 @@ class FMEAStorage:
     def insert_function(self, component_id: int, funktion_id: str, typ: str,
                         beschreibung: str, anforderungen: list = None) -> int:
         cur = self.conn.execute(
-            """INSERT INTO functions (component_id, funktion_id, typ, beschreibung, anforderungen_json)
+            """INSERT OR IGNORE INTO functions (component_id, funktion_id, typ, beschreibung, anforderungen_json)
                VALUES (?, ?, ?, ?, ?)""",
             (component_id, funktion_id, typ, beschreibung,
              json.dumps(anforderungen or [], ensure_ascii=False))
         )
         self.conn.commit()
-        return cur.lastrowid
+        if cur.lastrowid:
+            return cur.lastrowid
+        row = self.conn.execute("SELECT id FROM functions WHERE funktion_id = ?", (funktion_id,)).fetchone()
+        return row[0] if row else None
 
     def get_functions(self, component_id: int) -> list:
         rows = self.conn.execute(
@@ -304,13 +312,16 @@ class FMEAStorage:
                             kontext_beschreibung: str = None,
                             controls_einschraenkung: str = None) -> int:
         cur = self.conn.execute(
-            """INSERT INTO failure_modes
+            """INSERT OR IGNORE INTO failure_modes
                (function_id, fehler_id, fehlermodus, fehlerart, kontext_beschreibung, controls_einschraenkung)
                VALUES (?, ?, ?, ?, ?, ?)""",
             (function_id, fehler_id, fehlermodus, fehlerart, kontext_beschreibung, controls_einschraenkung)
         )
         self.conn.commit()
-        return cur.lastrowid
+        if cur.lastrowid:
+            return cur.lastrowid
+        row = self.conn.execute("SELECT id FROM failure_modes WHERE fehler_id = ?", (fehler_id,)).fetchone()
+        return row[0] if row else None
 
     def get_failure_modes(self, function_id: int) -> list:
         rows = self.conn.execute(

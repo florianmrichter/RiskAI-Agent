@@ -8,12 +8,21 @@ Kanonische Quelle: `config/fmea_standards.py`. Diese Datei ist eine lesbare Kopi
 
 RPZ = S × O × D
 
-| Stufe | Ab RPZ | Maßnahme | Farbe |
+| Stufe | RPZ-Bereich | Maßnahme | Farbe |
 |---|---|---|---|
 | kritisch | ≥ 300 | Sofortige Maßnahme | #F5004F |
-| hoch | ≥ 200 | Maßnahme zeitnah umsetzen | #FD7E14 |
-| mittel | ≥ 100 | Maßnahme planen | #E8C547 |
-| niedrig | < 100 | Monitoring | #00A389 |
+| hoch | 200 ≤ RPZ < 300 | Maßnahme zeitnah umsetzen | #FD7E14 |
+| mittel | 100 ≤ RPZ < 200 | Maßnahme planen | #E8C547 |
+| niedrig | RPZ < 100 | Monitoring | #00A389 |
+
+**Klassifizierungsregel:** Die Stufe ist diejenige, deren Bereich den berechneten RPZ-Wert enthält.
+
+**Beispiele:**
+
+- RPZ = 168 → **mittel** (100 ≤ 168 < 200)
+- RPZ = 200 → **hoch** (200 ≤ 200 < 300)
+- RPZ = 84 → **niedrig** (84 < 100)
+- RPZ = 315 → **kritisch** (315 ≥ 300)
 
 **Zielwert:** RPZ < 100 gilt als akzeptables Restrisiko.
 
@@ -93,6 +102,27 @@ Diese Regeln überschreiben die RPZ-Einstufung unabhängig vom berechneten Wert:
 
 Für jede Komponente prüfen, welche Typen relevant sind. Keine generische Übernahme — S/O/D immer individuell bewerten.
 
+**Dokumentationspflicht:** Alle 9 Kategorien müssen pro Komponente durchgegangen werden. Nicht-relevante Kategorien oder einzelne Typen darin sind explizit mit Begründung zu dokumentieren:
+> „nicht relevant — [Begründung, z.B.: kein rotierendes Equipment / keine thermische Prozessführung / kein Druckbehälter]"
+
+Kein Typ darf stillschweigend übergangen werden. Die Dokumentation nicht-relevanter Fehlermodi ist der Nachweis, dass man sich darüber Gedanken gemacht hat.
+
+### Pflicht-Checkliste: Utility-Schnittstellen (Lesson Learned)
+
+**Bei jeder Komponente explizit prüfen, welche externen Versorgungsmedien / Utilities angebunden sind:**
+
+| Utility | Zu prüfende Fehlermodi |
+|---|---|
+| Thermostat / Heiz-Kühlsystem | Überhitzung (unkontrolliertes Heizen), Untertemperatur (Thermoschock), Totalausfall (kein Temperatursollwert) |
+| Eiswasser / Kühlwasser | Ausfall → Kondensatverlust, Dampfaustritt, Druckaufbau |
+| Stickstoff (N₂) | Ausfall → Verlust Inertisierung; Überdruck → Druckstoß; Unterschreitung Grenzdruck |
+| Abluft | Ausfall / Verstopfung → Druckaufbau oder unkontrollierte Emission |
+| Elektrische Versorgung | Ausfall → Stillstand aktiver Komponenten (Pumpen, Rührwerke, Regler) |
+
+**Regel:** Jede Utility, die im `connectedSystems`-Feld (upstream/downstream) oder in `utilities` der `anlagendaten.json` gelistet ist, muss als eigener Fehlermodus oder explizit als "nicht relevant — Begründung" dokumentiert werden. Kein Utility darf ohne Prüfung übergangen werden.
+
+**Hintergrund:** Temperaturfehler wurden bei der Confidence-Anlage (20TA24) initial nicht erfasst, weil der Lauda-Thermostat als internes PU-Element betrachtet wurde — obwohl er eine externe Utility-Schnittstelle darstellt (analog zu Eiswasser am Kondensator).
+
 ### Prozess
 | Typ | Beschreibung |
 |---|---|
@@ -103,23 +133,23 @@ Für jede Komponente prüfen, welche Typen relevant sind. Keine generische Über
 | Mehr Druck (High Pressure) | Überschreitung des zulässigen Betriebsdrucks (PS), Gefahr des Berstens oder Ansprechen von Sicherheitseinrichtungen. |
 | Weniger Druck (Low Pressure/Vacuum) | Unterschreitung des Mindestdrucks, Gefahr der Kavitation oder Implosion bei nicht vakuumfesten Apparaten. |
 | Konzentrationsabweichung | Falsches stöchiometrisches Verhältnis, führt zu Nebenreaktionen, Ausbeuteverlust oder thermischer Instabilität. |
-| Phasentrennung / Entmischung | Ungewollte Bildung von Schichten, führt zu Fehlmessungen oder lokalen Reaktions-Hotspots. |
+| Phasentrennung / Entmischung | Ungewollte Bildung von Schichten (z.B. Emulsionsbruch), führt zu Fehlmessungen oder lokalen Reaktions-Hotspots. |
 | Verschleppung / Kontamination | Eintrag von Fremdstoffen oder Rückständen aus Vorchargen, die als Katalysator oder Inhibitor wirken. |
 
 ### Thermisch
 | Typ | Beschreibung |
 |---|---|
 | Mehr Temperatur (High Temperature) | Beschleunigung exothermer Reaktionen (Runaway-Gefahr), thermische Zersetzung des Mediums oder Materialerweichung. |
-| Weniger Temperatur (Low Temperature) | Einfrieren von Medien, Auskristallisation (Blockade), Viskositätsanstieg oder Sprödbruch von Werkstoffen. |
+| Weniger Temperatur (Low Temperature) | Einfrieren von Medien, Auskristallisation (Blockade), Viskositätsanstieg (Pumpenüberlastung) oder Sprödbruch von Werkstoffen. |
 | Thermischer Schock | Extreme Temperaturgradienten führen zu Spannungsrissen in Emaille-Auskleidungen oder Schweißnähten. |
 | Verlust der Wärmeabfuhr | Ausfall des Kühlmediums oder Fouling, führt zu unkontrolliertem Temperaturanstieg. |
-| Lokale Überhitzung (Hot Spot) | Ungleichmäßige Wärmeverteilung, führt zu lokalem Materialversagen. |
+| Lokale Überhitzung (Hot Spot) | Ungleichmäßige Wärmeverteilung, z.B. durch defekte Rührwerke oder Wandbeläge, führt zu lokalem Materialversagen. |
 
 ### Mechanisch
 | Typ | Beschreibung |
 |---|---|
-| Erosion / Abrasion | Materialabtrag durch feststoffhaltige Medien oder hohe Strömungsgeschwindigkeiten. |
-| Kavitation | Dampfblasenbildung und schlagartige Kondensation, führt zu Materialzerstörung. |
+| Erosion / Abrasion | Materialabtrag durch feststoffhaltige Medien oder hohe Strömungsgeschwindigkeiten, führt zu Wandstärkenunterschreitung. |
+| Kavitation | Dampfblasenbildung und schlagartige Kondensation, führt zu Materialzerstörung an Laufrädern und Ventilsitzen. |
 | Vibration / Resonanz | Mechanische Schwingungen führen zu Ermüdungsbrüchen an Kleinstutzen und Verschraubungen. |
 | Äußere Leckage (Integritätsverlust) | Versagen von Flanschdichtungen oder Stopfbuchsen, Medienaustritt in die Umwelt. |
 | Innere Leckage (Bypass) | Durchbruch an Wärmetauscherrohren oder defekte Ventilsitze, prozessinterne Vermischung. |
@@ -132,12 +162,12 @@ Für jede Komponente prüfen, welche Typen relevant sind. Keine generische Über
 | Verstopfung / Blockade | Verschluss von Filtern, Sieben oder Rohrleitungen. |
 | Gleitringdichtungsversagen | Ausfall der Wellenabdichtung an rotierendem Equipment. |
 | Innere Beschädigung (Einbauten) | Bruch von Stromstörern, Füllkörpern oder Filterkerzen. |
-| Vakuumverlust | Eindringen von Falschluft in evakuierte Systeme. |
+| Vakuumverlust | Eindringen von Falschluft in evakuierte Systeme, beeinträchtigt Siedepunkte oder führt zu explosiven Gemischen. |
 
 ### Elektrisch
 | Typ | Beschreibung |
 |---|---|
-| Vollständiger Spannungsausfall (Blackout) | Absturz aller aktiven Komponenten, Anlage in undefinierten Zustand. |
+| Vollständiger Spannungsausfall (Blackout) | Absturz aller aktiven Komponenten, Übergang der Anlage in den undefinierten Zustand. |
 | Spannungseinbruch (Brownout) | Kurzzeitige Unterspannung, unkontrollierte Resets oder Abfallen von Schützen. |
 | Phasenausfall / Asymmetrie | Unregelmäßige Versorgung von Drehstrommotoren, Überhitzung und Wicklungsschäden. |
 | EMV-Einkopplung | Elektromagnetische Störsignale auf Signalleitungen, sporadische Fehlmessungen. |
@@ -146,7 +176,7 @@ Für jede Komponente prüfen, welche Typen relevant sind. Keine generische Über
 ### MSR
 | Typ | Beschreibung |
 |---|---|
-| Eingefrorener Messwert (Frozen Value) | Sensor liefert konstanten Wert trotz Prozessänderung, Regelung reagiert nicht. |
+| Eingefrorener Messwert (Frozen Value) | Sensor liefert konstanten Wert trotz Prozessänderung (z.B. durch verstopfte Impulsleitung), Regelung reagiert nicht. |
 | Messwertdrift | Schleichende Kalibrierungsabweichung, unbemerktes Verlassen des optimalen Betriebspunkts. |
 | Signalrauschen / Spikes | Instabile Signale, hohe mechanische Belastung der Aktoren. |
 | Aktor-Blockade (Stuck-at) | Stellventil oder Klappe klemmt mechanisch, Reglerausgang ohne Wirkung. |

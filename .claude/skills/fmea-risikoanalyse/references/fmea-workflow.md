@@ -14,8 +14,9 @@ Du führst den Nutzer aktiv durch die Risikoanalyse. Nimm ihn an die Hand – fr
 - **Nicht bei jedem Teilschritt nachfragen:** Komponenten-Analysen, Einspielungen, Checklist-Updates – einfach durchziehen und kurz bestätigen.
 
 Bei Session-Start:
-1. **Kontext-Recherche:** Anlagendaten laden, Prozesstyp/Stoffe/Branche ermitteln. Kurze Recherche zu typischen Gefahren, Regulierung, Fachbegriffen. Neues Wissen in `config/wissen/{domaene}.md` speichern. Bei unbekannten Begriffen während der Analyse: erneut recherchieren.
-2. Prüfe ob `tasks/Risikoanalyse/{projekt}/workflow_state.json` existiert (z.B. Ethylacetatproduktion_20TA42)
+1. **S/O/D Referenzkarte bereitstellen:** Teile dem Nutzer mit, dass die Bewertungsskalen unter `.claude/skills/fmea-risikoanalyse/references/sod-referenzkarte.md` verfügbar sind — zum Ausdrucken oder auf einem zweiten Bildschirm. Kurz die RPZ-Einstufung und Sonderregeln nennen.
+2. **Kontext-Recherche:** Anlagendaten laden, Prozesstyp/Stoffe/Branche ermitteln. Kurze Recherche zu typischen Gefahren, Regulierung, Fachbegriffen. Neues Wissen in `config/wissen/{domaene}.md` speichern. Bei unbekannten Begriffen während der Analyse: erneut recherchieren.
+3. Prüfe ob `tasks/Risikoanalyse/{projekt}/workflow_state.json` existiert (z.B. Ethylacetatproduktion_20TA42)
 3. Falls nein: Struktur initialisieren (Anlagendaten laden, Komponenten in DB), State anlegen, dann mit nächstem Schritt fortfahren
 4. Falls ja: Lade State, ermittle nächsten offenen Schritt, führe ihn aus (außer bei Entscheidungspunkten)
 5. Speichere den aktualisierten State nach jedem abgeschlossenen Schritt
@@ -43,10 +44,14 @@ Bei Session-Start:
 ## Zwei-Phasen-Ablauf pro Komponente
 
 **Phase 1: Fehlermodi sammeln und gruppieren**
-1. Alle möglichen Fehlermodi auflisten (basierend auf Funktionen, `config/fmea_standards.FEHLERMODI_VORLAGEN`, Anlagendaten)
-2. Gruppierung vorschlagen: Welche Fehlermodi sind thematisch verwandt und können zusammengefasst werden?
-3. Nach Freigabe: Gruppierung durchführen, Ursachen aus den ursprünglichen Fehlermodi in die konsolidierten übernehmen
-4. Finale Liste präsentieren
+1. **Checklisten-Durchgang:** Gehe alle 9 FM-Kategorien aus `fmea-standards.md` systematisch durch (Prozess, Thermisch, Mechanisch, Equipment, Elektrisch, MSR, Sicherheit, Dosierung, Sonstiges). Für jede Kategorie und jeden Typ darin prüfen:
+   - **Relevant** → Als Fehlermodus aufnehmen (inkl. High/Low-Varianten bei Stoffstrom, Temperatur, Druck)
+   - **Nicht relevant** → Explizit dokumentieren mit Begründung (z.B. „Dosierung: nicht relevant — keine Dosieranlage")
+   Keine Kategorie darf stillschweigend übersprungen werden.
+2. Zusätzlich Utility-Pflichtcheckliste abarbeiten (N₂, Abluft, Kühlwasser, Thermostat, Elektro — sofern angebunden)
+3. Gruppierung vorschlagen: Welche Fehlermodi sind thematisch verwandt und können zusammengefasst werden?
+4. Nach Freigabe: Gruppierung durchführen, Ursachen aus den ursprünglichen Fehlermodi in die konsolidierten übernehmen
+5. Finale Liste präsentieren
 
 **Phase 2: Fehlermodi einzeln durchgehen**
 - Jeden Fehlermodus nacheinander: Ursachen, Folgen, S/O/D (mit vollständiger Erklärung), **Maßnahmen direkt danach**

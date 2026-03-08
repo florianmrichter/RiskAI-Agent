@@ -74,7 +74,7 @@ def insert_fmea_for_component(
         raise ValueError(f"Keine FMEA-Daten für {komp_id}. Bitte task_folder angeben oder fmea_data übergeben.")
 
     db = FMEAStorage(db_path)
-    comp = db.get_component_by_komp_id(komp_id)
+    comp = db.get_component_by_komp_id(komp_id, project_id=project_id)
     if not comp:
         db.close()
         raise ValueError(f"Komponente {komp_id} nicht gefunden")
