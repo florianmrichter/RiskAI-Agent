@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FMEA Report — Institutional · Teal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --accent: #1A5C55;
+    --accent-light: #D0E4E2;
+    --accent-pale: #EAF3F2;
+    --accent-mid: #236B63;
+    --text: #1C1C1C;
+    --text-muted: #4A5E5C;
+    --border: #C8DAD8;
+    --bg: #FFFFFF;
+    --bg-subtle: #F5FAF9;
+    --status-hoch: #B8220E;
+    --status-mittel: #B8760A;
+    --status-niedrig: #1A5C55;
+    --font-serif: 'Libre Baskerville', Georgia, serif;
+    --font-sans: 'Source Sans 3', system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text);
+    background: #D8E6E4;
+    padding: 32px 0;
+  }
+
+  .page {
+    width: 794px;
+    min-height: 1123px;
+    background: var(--bg);
+    margin: 0 auto;
+    padding: 0 0 64px 0;
+    border-top: 4px solid var(--accent);
+  }
+
+  /* ── Page Header ── */
+  .page-header {
+    padding: 26px 52px 20px 52px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-header-eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .page-header-title {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  .page-header-sub {
+    display: flex;
+    gap: 28px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .page-header-sub span strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* ── Section separators ── */
+  .section-sep {
+    height: 1px;
+    background: var(--accent);
+    margin: 0 0 12px 0;
+    opacity: 0.25;
+  }
+
+  .section-label {
+    font-family: var(--font-sans);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--accent);
+    opacity: 0.2;
+  }
+
+  /* ── Content ── */
+  .content {
+    padding: 0 52px;
+  }
+
+  /* ── FM Card ── */
+  .fm-card {
+    margin-top: 30px;
+    border: 1px solid var(--border);
+  }
+
+  .fm-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--accent);
+    background: var(--bg-subtle);
+  }
+
+  .fm-card-id {
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .fm-card-title {
+    font-family: var(--font-serif);
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .fm-card-funktion {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .status-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border: 1.5px solid currentColor;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .status-mittel { color: var(--status-mittel); }
+  .status-hoch   { color: var(--status-hoch); }
+  .status-niedrig { color: var(--status-niedrig); }
+
+  .fm-card-body {
+    padding: 22px 20px;
+  }
+
+  /* ── Narrative ── */
+  .narrative {
+    font-family: var(--font-serif);
+    font-size: 12.5px;
+    font-style: italic;
+    color: #2A3A38;
+    line-height: 1.8;
+    padding: 14px 16px;
+    background: var(--bg-subtle);
+    border-left: 3px solid var(--accent-light);
+    margin-bottom: 26px;
+  }
+
+  /* ── SOD Dot Scale ── */
+  .sod-section { margin-bottom: 26px; }
+
+  .sod-grid {
+    display: grid;
+    grid-template-columns: 1fr 20px 1fr 20px 1fr;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .sod-operator {
+    text-align: center;
+    font-family: var(--font-serif);
+    font-size: 18px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sod-item {
+    padding: 14px 12px 12px 12px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .sod-item-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .sod-dot-number {
+    font-family: var(--font-serif);
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+
+  .sod-dots {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .sod-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .sod-dot-filled {
+    background: var(--accent);
+  }
+
+  .sod-dot-empty {
+    background: transparent;
+    border: 1.5px solid var(--accent-light);
+  }
+
+  .sod-dots-labels {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 1px;
+    margin-bottom: 10px;
+  }
+
+  .sod-dots-labels span {
+    font-size: 8px;
+    color: var(--text-muted);
+  }
+
+  .sod-criterion {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    text-align: center;
+    margin-bottom: 3px;
+  }
+
+  .sod-soll {
+    font-size: 9px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-top: 5px;
+    background: var(--accent-pale);
+    padding: 2px 7px;
+  }
+
+  /* ── RPZ Box ── */
+  .rpz-box {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    background: var(--bg-subtle);
+    margin-bottom: 26px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .rpz-number {
+    font-family: var(--font-serif);
+    font-size: 52px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .rpz-divider {
+    width: 1px;
+    height: 52px;
+    background: var(--border);
+  }
+
+  .rpz-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .rpz-class {
+    font-family: var(--font-serif);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--status-mittel);
+    margin-bottom: 2px;
+  }
+
+  .rpz-detail {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .rpz-soll {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* ── Tables ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-bottom: 26px;
+  }
+
+  thead th {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-align: left;
+    padding: 7px 8px;
+    border-bottom: 1.5px solid var(--accent);
+    background: var(--accent-pale);
+  }
+
+  tbody td {
+    padding: 7px 8px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .td-id {
+    font-weight: 700;
+    font-size: 11px;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .td-typ {
+    font-size: 11px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  /* ── Wirkung Badges ── */
+  .wirkung {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    display: inline-block;
+  }
+
+  .wirkung-praev {
+    background: var(--accent);
+    color: #FFFFFF;
+  }
+
+  .wirkung-reak {
+    background: #D4D4D4;
+    color: #5A5A5A;
+  }
+
+  /* ── Fehlerfolgen Grid ── */
+  .folgen-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 26px;
+  }
+
+  .folge-item {
+    border-top: 2px solid var(--accent-light);
+    padding: 10px 12px;
+    background: var(--bg-subtle);
+  }
+
+  .folge-category {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 5px;
+  }
+
+  .folge-text {
+    font-size: 11.5px;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 5px;
+  }
+
+  .folge-schwere {
+    font-size: 9.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .schwere-hoch   { color: var(--status-hoch); }
+  .schwere-mittel { color: var(--status-mittel); }
+
+  /* ── Maßnahmen ── */
+  .massnahme-card {
+    border: 1px solid var(--border);
+    margin-bottom: 10px;
+    padding: 12px 14px;
+    border-left: 3px solid var(--accent-light);
+  }
+
+  .massnahme-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+  }
+
+  .massnahme-id {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+  }
+
+  .massnahme-kat {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    background: var(--accent);
+    color: #FFFFFF;
+    text-transform: uppercase;
+  }
+
+  .massnahme-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+
+  .massnahme-delta {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+
+  .delta-item {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .delta-arrow {
+    color: var(--status-niedrig);
+    font-weight: 700;
+  }
+
+  .massnahme-rpz-new {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent-pale);
+    border: 1px solid var(--accent-light);
+    padding: 4px 10px;
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+
+  .rpz-new-val {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .massnahme-note {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .tags {
+    margin-top: 14px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-size: 9.5px;
+    color: var(--accent);
+    border: 1px solid var(--accent-light);
+    background: var(--accent-pale);
+    padding: 2px 8px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── FM-T02 Compressed ── */
+  .sonderregel-box {
+    background: #FFF8F0;
+    border-left: 3px solid #B8760A;
+    padding: 10px 14px;
+    font-size: 11px;
+    color: #7A4D00;
+    margin: 14px 0;
+    line-height: 1.5;
+  }
+
+  .sonderregel-label {
+    font-weight: 700;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+    display: block;
+    color: #9A6000;
+  }
+
+  .sod-mini-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .sod-mini-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    background: var(--bg-subtle);
+  }
+
+  .sod-mini-lbl {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .sod-mini-val {
+    font-family: var(--font-serif);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1.1;
+  }
+
+  .sod-mini-op {
+    font-size: 18px;
+    color: var(--text-muted);
+    font-family: var(--font-serif);
+  }
+
+  .rpz-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    background: var(--bg-subtle);
+    margin-left: auto;
+    border-left: 3px solid var(--border);
+  }
+
+  .rpz-mini-val {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--status-hoch);
+  }
+
+  .section-block { margin-bottom: 26px; }
+
+  /* dot helper for building inline dot scales */
+  .sod-dots-outer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Page Header — 4px teal top border via border-top on .page -->
+  <div class="page-header">
+    <div class="page-header-eyebrow">FMEA-Risikoanalyse · Reaktor R-101 · Rev. 1 · 09. März 2026</div>
+    <div class="page-header-title">Fehlergruppe: Temperaturregelung</div>
+    <div class="page-header-sub">
+      <span><strong>Anlage:</strong> Reaktor R-101</span>
+      <span><strong>Funktion:</strong> Reaktortemperatur auf 85 °C ± 2 °C regeln</span>
+      <span><strong>Variante:</strong> Institutional · Teal</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══════════ FM-T01 ══════════ -->
+    <div class="fm-card">
+      <div class="fm-card-header">
+        <div>
+          <div class="fm-card-id">FM-T01</div>
+          <div class="fm-card-title">Temperatursensor fällt aus</div>
+          <div class="fm-card-funktion">Funktion: Reaktortemperatur regeln</div>
+        </div>
+        <div class="status-badge status-mittel">Mittel</div>
+      </div>
+
+      <div class="fm-card-body">
+
+        <!-- Narrative -->
+        <div class="section-block">
+          <div class="section-label">Fehlerbeschreibung</div>
+          <div class="narrative">
+            Ein Ausfall des Temperatursensors (Thermoelement TE-101) führt dazu, dass der Regler keine validen Messwerte mehr erhält. Der Regelkreis bricht zusammen. Unkontrollierte exotherme Reaktionen können einsetzen, wenn kein redundanter Sensor rechtzeitig eingreift.
+          </div>
+        </div>
+
+        <!-- SOD Dot Scales -->
+        <div class="section-block sod-section">
+          <div class="section-label">SOD-Bewertung</div>
+          <div class="sod-grid">
+
+            <!-- S -->
+            <div class="sod-item">
+              <div class="sod-item-label">S — Schwere</div>
+              <div class="sod-dot-number">8</div>
+              <div class="sod-dots-outer">
+                <div class="sod-dots">
+                  <div class="sod-dot sod-dot-filled"></div>
+                  <div class="sod-dot sod-dot-filled"></div>
+                  <div class="sod-dot sod-dot-filled"></div>
+                  <div class="sod-dot sod-dot-filled"></div>
+                  <div class="sod-dot sod-dot-filled"></div>
+                  <div class="sod-dot sod-dot-filled"></div>
+                  <div class="sod-dot sod-dot-filled"></div>
+                  <div class="sod-dot sod-dot-filled"></div>
+                  <div class="sod-dot sod-dot-empty"></div>
+                  <div class="sod-dot sod-dot-empty"></div>
+                </div>
+                <div class="sod-dots-labels">
+                  <span>1</span>
+                  <span>10</span>
+                </div>
+              </div>
+              <div class="sod-criterion">Schwerer Anlagenschaden oder erhebliche Personengefährdung</div>
+              <div class="sod-criterion" style="font-style:italic; font-size:10px; color:#888;">Bsp.: Exotherme Reaktion, Druckstoß</div>
+              <div class="sod-soll">SOLL ≤ 7</div>
+            </div>
+
+            <div class="sod-operator">×</div>
+
+            <!-- O -->
+            <div class="sod-item">
+              <div class="sod-item-label">O — Auftreten</div>
+              <div class="sod-dot-number">3</div>
+              <div class="sod-dots-outer">
+                <div class="sod-dots">
+                  <div class="sod-dot sod-dot-filled"></div>
+                  <div class="sod-dot sod-dot-filled"></div>
+                  <div class="sod-dot sod-dot-filled"></div>
+                  <div class="sod-dot sod-dot-empty"></div>
+                  <div class="sod-dot sod-dot-empty"></div>
+                  <div class="sod-dot sod-dot-empty"></div>
+                  <div class="sod-dot sod-dot-empty"></div>
+                  <div class="sod-dot sod-dot-empty"></div>
+                  <div class="sod-dot sod-dot-empty"></div>
+                  <div class="sod-dot sod-dot-empty"></div>
+                </div>
+                <div class="sod-dots-labels">
+                  <span>1</span>
+                  <span>10</span>
+                </div>
+              </div>
+              <div class="sod-criterion">Gelegentliches Auftreten, ca. 1× pro Jahr</div>
+              <div class="sod-criterion" style="font-style:italic; font-size:10px; color:#888;">Bsp.: Alterungsausfall an Thermoelement</div>
+              <div class="sod-soll">SOLL ≤ 2</div>
+            </div>
+
+            <div class="sod-operator">×</div>
+
+            <!-- D -->
+            <div class="sod-item">
+              <div class="sod-item-label">D — Entdeckung</div>
+              <div class="sod-dot-number">4</div>
+              <div class="sod-dots-outer">
+                <div class="sod-dots">
+                  <div class="sod-dot sod-dot-filled"></div>
+                  <div class="sod-dot sod-dot-filled"></div>
+                  <div class="sod-dot sod-dot-filled"></div>
+                  <div class="sod-dot sod-dot-filled"></div>
+                  <div class="sod-dot sod-dot-empty"></div>
+                  <div class="sod-dot sod-dot-empty"></div>
+                  <div class="sod-dot sod-dot-empty"></div>
+                  <div class="sod-dot sod-dot-empty"></div>
+                  <div class="sod-dot sod-dot-empty"></div>
+                  <div class="sod-dot sod-dot-empty"></div>
+                </div>
+                <div class="sod-dots-labels">
+                  <span>1</span>
+                  <span>10</span>
+                </div>
+              </div>
+              <div class="sod-criterion">Mäßige Erkennung durch Prozessüberwachung</div>
+              <div class="sod-criterion" style="font-style:italic; font-size:10px; color:#888;">Bsp.: Alarm erst bei Grenzwertüberschreitung</div>
+              <div class="sod-soll">SOLL ≤ 3</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- RPZ -->
+        <div class="section-block">
+          <div class="section-label">Risikoprioritätszahl (RPZ)</div>
+          <div class="rpz-box">
+            <div class="rpz-number">96</div>
+            <div class="rpz-divider"></div>
+            <div>
+              <span class="rpz-label">Klassifikation</span>
+              <div class="rpz-class">MITTEL</div>
+              <div class="rpz-detail">50 ≤ RPZ &lt; 125</div>
+              <div class="rpz-soll">SOLL-RPZ: ≤ 42</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fehlerursachen -->
+        <div class="section-block">
+          <div class="section-label">Fehlerursachen</div>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:90px">ID</th>
+                <th>Ursache</th>
+                <th style="width:110px">Typ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="td-id">U-T01-1</td>
+                <td>Leitungsbruch am Thermoelement durch Schwingungsbelastung</td>
+                <td class="td-typ">Mechanisch</td>
+              </tr>
+              <tr>
+                <td class="td-id">U-T01-2</td>
+                <td>Korrosion an Klemmverbindung durch Prozessmedium</td>
+                <td class="td-typ">Chemisch</td>
+              </tr>
+              <tr>
+                <td class="td-id">U-T01-3</td>
+                <td>Falsche Kalibrierung bei letzter Wartung</td>
+                <td class="td-typ">Human Factors</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Fehlerfolgen -->
+        <div class="section-block">
+          <div class="section-label">Fehlerfolgen</div>
+          <div class="folgen-grid">
+            <div class="folge-item">
+              <div class="folge-category">Mensch</div>
+              <div class="folge-text">Verletzungsgefahr durch unkontrollierte Exotherme, Verbrennungen möglich</div>
+              <div class="folge-schwere schwere-hoch">Schweregrad: Hoch</div>
+            </div>
+            <div class="folge-item">
+              <div class="folge-category">Umwelt</div>
+              <div class="folge-text">Emission flüchtiger Lösungsmittel bei Überdruckventil-Öffnung</div>
+              <div class="folge-schwere schwere-mittel">Schweregrad: Mittel</div>
+            </div>
+            <div class="folge-item">
+              <div class="folge-category">Anlage</div>
+              <div class="folge-text">Überhitzung Reaktorwandung, mögliche Rissbildung</div>
+              <div class="folge-schwere schwere-hoch">Schweregrad: Hoch</div>
+            </div>
+            <div class="folge-item">
+              <div class="folge-category">Kosten</div>
+              <div class="folge-text">Produktionsausfall 12–24 h + Reparaturkosten ca. 15.000 €</div>
+              <div class="folge-schwere schwere-mittel">Schweregrad: Mittel</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="section-block">
+          <div class="section-label">Bestehende Controls</div>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:80px">ID</th>
+                <th>Beschreibung</th>
+                <th style="width:90px">Typ</th>
+                <th style="width:90px">Wirkung</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="td-id">C-T01-1</td>
+                <td>Temperaturalarm bei &gt; 90 °C im DCS</td>
+                <td class="td-typ">Detektion</td>
+                <td><span class="wirkung wirkung-reak">Reaktiv</span></td>
+              </tr>
+              <tr>
+                <td class="td-id">C-T01-2</td>
+                <td>Halbjährliche Kalibrierprüfung</td>
+                <td class="td-typ">Prävention</td>
+                <td><span class="wirkung wirkung-praev">Präventiv</span></td>
+              </tr>
+              <tr>
+                <td class="td-id">C-T01-3</td>
+                <td>Sicherheitsabsperrventil SV-201</td>
+                <td class="td-typ">Detektion</td>
+                <td><span class="wirkung wirkung-reak">Reaktiv</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Maßnahmen -->
+        <div class="section-block">
+          <div class="section-label">Maßnahmen</div>
+
+          <div class="massnahme-card">
+            <div class="massnahme-header">
+              <div class="massnahme-id">M-T01-1</div>
+              <div class="massnahme-kat">ABE</div>
+            </div>
+            <div class="massnahme-title">Redundanten Sensor PT-102 (Typ K) installieren</div>
+            <div class="massnahme-delta">
+              <span class="delta-item">S: 8 <span class="delta-arrow">→</span> 6</span>
+              <span class="delta-item">O: 3 <span class="delta-arrow">→</span> 2</span>
+              <span class="delta-item">D: 4 <span class="delta-arrow">→</span> 2</span>
+            </div>
+            <div class="massnahme-rpz-new">
+              <span>RPZ' =</span>
+              <span class="rpz-new-val">24</span>
+              <span style="font-size:10px; color:var(--accent); font-weight:600; text-transform:uppercase; letter-spacing:0.08em;">Niedrig</span>
+            </div>
+            <div class="massnahme-note">Umsetzung bis Q2 2025 — Freigabe ausstehend</div>
+          </div>
+
+          <div class="massnahme-card">
+            <div class="massnahme-header">
+              <div class="massnahme-id">M-T01-2</div>
+              <div class="massnahme-kat">STOP</div>
+            </div>
+            <div class="massnahme-title">SIL-2-Temperaturbegrenzer TL-401 nachrüsten</div>
+            <div class="massnahme-delta">
+              <span class="delta-item">D: 4 <span class="delta-arrow">→</span> 1</span>
+            </div>
+            <div class="massnahme-note">Investitionsantrag eingereicht</div>
+          </div>
+
+          <div class="tags">
+            <span class="tag">#Redundanz</span>
+            <span class="tag">#SIL</span>
+            <span class="tag">#Sensor</span>
+            <span class="tag">#Temperatur</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════ FM-T02 ══════════ -->
+    <div class="fm-card" style="margin-top:22px">
+      <div class="fm-card-header">
+        <div>
+          <div class="fm-card-id">FM-T02</div>
+          <div class="fm-card-title">Übertemperatur durch Heizkreisausfall</div>
+          <div class="fm-card-funktion">Funktion: Reaktortemperatur regeln</div>
+        </div>
+        <div class="status-badge status-hoch">Hoch</div>
+      </div>
+
+      <div class="fm-card-body">
+
+        <div class="sod-mini-row">
+          <div class="sod-mini-item">
+            <span class="sod-mini-lbl">S</span>
+            <span class="sod-mini-val">9</span>
+          </div>
+          <div class="sod-mini-op">×</div>
+          <div class="sod-mini-item">
+            <span class="sod-mini-lbl">O</span>
+            <span class="sod-mini-val">2</span>
+          </div>
+          <div class="sod-mini-op">×</div>
+          <div class="sod-mini-item">
+            <span class="sod-mini-lbl">D</span>
+            <span class="sod-mini-val">3</span>
+          </div>
+          <div style="flex:1"></div>
+          <div class="rpz-mini">
+            <span style="font-size:9px; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.1em;">RPZ</span>
+            <span class="rpz-mini-val">54</span>
+            <span class="status-badge status-hoch" style="font-size:9px; padding:2px 7px;">Hoch</span>
+          </div>
+        </div>
+
+        <div class="sonderregel-box">
+          <span class="sonderregel-label">Sonderregel — Automatisch Hoch</span>
+          AIAG-VDA §4.2 — S=9 überschreitet Schwellenwert. Status automatisch HOCH, unabhängig von RPZ-Klassifikation.
+        </div>
+
+        <div>
+          <div class="section-label">Maßnahme</div>
+          <div class="massnahme-card" style="margin-bottom:0">
+            <div class="massnahme-header">
+              <div class="massnahme-id">M-T02-1</div>
+              <div class="massnahme-kat">STOP</div>
+            </div>
+            <div class="massnahme-title">Sicherheitsabsperrventil SV-301 (SIL 2) nachrüsten</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

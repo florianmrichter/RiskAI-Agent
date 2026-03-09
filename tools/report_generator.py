@@ -425,7 +425,7 @@ def _load_plant_data(path: str = None, task_folder: str = None) -> dict:
 # Main Entry Point
 # ═══════════════════════════════════════════════════════════════
 
-def generate_report(project_id: int, output_path: str = None, task_folder: str = None, db_path: str = None) -> str:
+def generate_report(project_id: int, output_path: str = None, task_folder: str = None, db_path: str = None, css_name: str = "fmea_style.css") -> str:
     """Generate the FMEA PDF report for a given project."""
 
     db = FMEAStorage(db_path)
@@ -537,7 +537,7 @@ def generate_report(project_id: int, output_path: str = None, task_folder: str =
         env = Environment(loader=FileSystemLoader(str(template_dir)), autoescape=False)
         template = env.get_template("fmea_report.html")
 
-        css_file = template_dir / "fmea_style.css"
+        css_file = template_dir / css_name
 
         html_content = template.render(
             css_path=css_file.as_uri(),

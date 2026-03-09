@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FMEA Report – Design 6: Consulting Sidebar</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #F8F9FB;
+  --white:    #FFFFFF;
+  --accent:   #0040FF;
+  --dark:     #1A1A2E;
+  --mid:      #5B6577;
+  --muted:    #9BA5B4;
+  --border:   #DDE3EC;
+  --hoch:     #D97706;
+  --mittel:   #2563EB;
+  --niedrig:  #059669;
+  --sidebar-bg: #EEF2FF;
+}
+
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 400;
+  background: #E8ECF2;
+  display: flex;
+  justify-content: center;
+  padding: 32px 16px;
+  color: var(--dark);
+}
+
+.page {
+  width: 794px;
+  min-height: 1123px;
+  background: var(--bg);
+  position: relative;
+}
+
+/* ── PAGE HEADER ── */
+.page-header {
+  background: var(--white);
+  border-left: 4px solid var(--accent);
+  padding: 28px 36px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.page-header__meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.page-header__project {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+
+.page-header__title {
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--dark);
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+}
+
+.page-header__stats {
+  display: flex;
+  gap: 24px;
+}
+
+.stat-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--mid);
+}
+
+.stat-chip__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.stat-chip__val {
+  font-weight: 600;
+  color: var(--dark);
+}
+
+/* ── SECTION LABEL ── */
+.section-label {
+  padding: 10px 36px;
+  background: var(--bg);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── FM CARD ── */
+.fm-card {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  border-bottom: 2px solid var(--border);
+}
+
+/* ── SIDEBAR ── */
+.fm-sidebar {
+  background: var(--sidebar-bg);
+  border-right: 1px solid #C7D3F0;
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sidebar-block__label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+/* SOD rows */
+.sod-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.sod-row:last-child { margin-bottom: 0; }
+
+.sod-row__letter {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.sod-row__letter--s { background: #FDECEA; color: #C0392B; }
+.sod-row__letter--o { background: #FEF9E7; color: #D68910; }
+.sod-row__letter--d { background: #E8F8F5; color: #1E8449; }
+
+.sod-row__content { flex: 1; }
+
+.sod-row__nums {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 3px;
+}
+
+.sod-row__num {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--dark);
+  line-height: 1;
+}
+
+.sod-row__soll {
+  font-size: 10px;
+  color: var(--niedrig);
+  font-weight: 500;
+}
+
+.sod-row__bar-bg {
+  height: 3px;
+  background: #C7D3F0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.sod-row__bar-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+.sod-row__bar-fill--s { background: #C0392B; }
+.sod-row__bar-fill--o { background: #D68910; }
+.sod-row__bar-fill--d { background: #1E8449; }
+
+.sod-row__crit {
+  font-size: 9px;
+  color: var(--mid);
+  margin-top: 2px;
+}
+
+/* RPZ display */
+.rpz-display {
+  text-align: center;
+  padding: 14px 0;
+}
+
+.rpz-display__num {
+  font-size: 48px;
+  font-weight: 600;
+  color: var(--dark);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.rpz-display__label {
+  font-size: 9px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+  margin-top: 2px;
+}
+
+.rpz-display__pill {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.rpz-display__soll {
+  font-size: 10px;
+  color: var(--niedrig);
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+.pill--mittel { background: #DBEAFE; color: var(--mittel); }
+.pill--hoch   { background: #FEF3C7; color: var(--hoch); }
+.pill--niedrig{ background: #D1FAE5; color: var(--niedrig); }
+
+/* ── FM MAIN ── */
+.fm-main {
+  background: var(--white);
+  padding: 22px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Function context bar */
+.func-bar {
+  background: #F0F4FF;
+  border-left: 3px solid var(--accent);
+  padding: 7px 12px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  color: var(--mid);
+  line-height: 1.5;
+}
+
+.func-bar span { color: var(--accent); font-weight: 400; }
+
+/* FM title row */
+.fm-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.fm-id {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.fm-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--dark);
+  letter-spacing: -0.01em;
+}
+
+/* Narrative */
+.narrative {
+  background: var(--bg);
+  border-left: 2px solid var(--border);
+  padding: 10px 14px;
+}
+
+.narrative__heading {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.narrative__text {
+  font-size: 11.5px;
+  line-height: 1.65;
+  color: var(--mid);
+  font-weight: 300;
+}
+
+/* Tables */
+.content-section__title {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #C7D3F0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+thead th {
+  background: var(--bg);
+  padding: 6px 8px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--mid);
+  border-bottom: 1px solid var(--border);
+}
+
+tbody tr { border-bottom: 1px solid #EEF2F8; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:nth-child(even) td { background: #F8F9FB; }
+
+tbody td {
+  padding: 7px 8px;
+  color: var(--dark);
+  line-height: 1.4;
+  vertical-align: top;
+}
+
+td.muted { color: var(--muted); }
+td.mono  { font-family: 'IBM Plex Mono', monospace; font-size: 10px; }
+
+/* Wirkung badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge--praev     { background: #FEF3C7; color: var(--hoch); }
+.badge--entdeckung{ background: #DBEAFE; color: var(--mittel); }
+.badge--tech      { background: #D1FAE5; color: var(--niedrig); }
+.badge--org       { background: #F3E8FF; color: #7C3AED; }
+
+/* Fehlerfolgen grid */
+.folgen-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.folgen-cell {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.folgen-cell__label {
+  font-size: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.folgen-cell__text {
+  font-size: 10px;
+  line-height: 1.45;
+  color: var(--dark);
+}
+
+/* Maßnahmen card */
+.massnahme-card {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--niedrig);
+  border-radius: 0 4px 4px 0;
+  padding: 12px 14px;
+  background: var(--white);
+}
+
+.massnahme-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.massnahme-badges {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.massnahme-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dark);
+  margin: 0 0 6px;
+}
+
+.massnahme-delta {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.massnahme-delta__sod {
+  font-size: 10px;
+  color: var(--mid);
+  font-family: 'IBM Plex Mono', monospace;
+  white-space: nowrap;
+  margin-bottom: 4px;
+}
+
+.massnahme-delta__rpz {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.massnahme-body__desc {
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--mid);
+  margin-bottom: 6px;
+}
+
+.massnahme-body__note {
+  font-size: 10px;
+  font-style: italic;
+  color: var(--muted);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.massnahme-tags {
+  display: flex;
+  gap: 6px;
+}
+
+.tag {
+  font-size: 9px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  color: var(--mid);
+}
+
+/* FM-T02 compressed card */
+.fm-compressed {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  opacity: 0.85;
+}
+
+.fm-compressed-sidebar {
+  background: var(--sidebar-bg);
+  border-right: 1px solid #C7D3F0;
+  padding: 14px 20px;
+}
+
+.fm-compressed-main {
+  padding: 14px 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.fm-compressed-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.fm-compressed-meta {
+  font-size: 10px;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  margin-top: 3px;
+}
+
+.sonderregel-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #FEF3C7;
+  border: 1px solid #FDE68A;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--hoch);
+  margin-top: 6px;
+}
+
+/* PAGE FOOTER */
+.page-footer {
+  padding: 14px 36px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--white);
+}
+
+.page-footer__text {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.page-footer__accent {
+  width: 30px;
+  height: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="page-header__meta">FMEA Risikoanalyse — Reaktor R-101 — 20TA24</div>
+    <div class="page-header__project">20TA24-KOMP-003 / fmea-report-v2.1</div>
+    <div class="page-header__title">Temperaturregelung</div>
+    <div class="page-header__stats">
+      <div class="stat-chip"><span class="stat-chip__dot"></span><span class="stat-chip__val">2</span>&nbsp;Fehlermodi</div>
+      <div class="stat-chip"><span class="stat-chip__dot"></span>Max RPZ&nbsp;<span class="stat-chip__val">96</span></div>
+      <div class="stat-chip"><span class="stat-chip__dot"></span><span class="stat-chip__val">1</span>&nbsp;Sonderregel</div>
+      <div class="stat-chip"><span class="stat-chip__dot"></span><span class="stat-chip__val">2</span>&nbsp;Maßnahmen</div>
+    </div>
+  </div>
+
+  <div class="section-label">Fehlermodus FM-T01</div>
+
+  <!-- FM-T01 CARD -->
+  <div class="fm-card">
+
+    <!-- SIDEBAR -->
+    <div class="fm-sidebar">
+
+      <!-- SOD -->
+      <div>
+        <div class="sidebar-block__label">Bewertung S · O · D</div>
+
+        <div class="sod-row">
+          <div class="sod-row__letter sod-row__letter--s">S</div>
+          <div class="sod-row__content">
+            <div class="sod-row__nums">
+              <div class="sod-row__num">8</div>
+            </div>
+            <div class="sod-row__bar-bg">
+              <div class="sod-row__bar-fill sod-row__bar-fill--s" style="width:80%"></div>
+            </div>
+            <div class="sod-row__crit">Hoch — Bedeutung</div>
+          </div>
+        </div>
+
+        <div class="sod-row">
+          <div class="sod-row__letter sod-row__letter--o">O</div>
+          <div class="sod-row__content">
+            <div class="sod-row__nums">
+              <div class="sod-row__num">3</div>
+              <div class="sod-row__soll">↓ 2</div>
+            </div>
+            <div class="sod-row__bar-bg">
+              <div class="sod-row__bar-fill sod-row__bar-fill--o" style="width:30%"></div>
+            </div>
+            <div class="sod-row__crit">Gering — Auftreten</div>
+          </div>
+        </div>
+
+        <div class="sod-row">
+          <div class="sod-row__letter sod-row__letter--d">D</div>
+          <div class="sod-row__content">
+            <div class="sod-row__nums">
+              <div class="sod-row__num">4</div>
+              <div class="sod-row__soll">↓ 2</div>
+            </div>
+            <div class="sod-row__bar-bg">
+              <div class="sod-row__bar-fill sod-row__bar-fill--d" style="width:40%"></div>
+            </div>
+            <div class="sod-row__crit">Mäßig — Entdeckung</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RPZ -->
+      <div class="rpz-display">
+        <div class="sidebar-block__label">Risikoprioritätszahl</div>
+        <div class="rpz-display__num">96</div>
+        <div class="rpz-display__label">RPZ aktuell</div>
+        <div class="rpz-display__pill pill--mittel">Mittel</div>
+        <div class="rpz-display__soll">Ziel nach Maßnahme: 32</div>
+      </div>
+
+      <!-- Ursachen compact -->
+      <div>
+        <div class="sidebar-block__label">Fehlerursachen</div>
+        <div style="font-size:10px; color:var(--mid); line-height:1.55;">
+          <div style="padding:5px 0; border-bottom:1px solid #C7D3F0;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:var(--muted);">FM-T01-U1</span><br>
+            Leitungsbruch durch Vibration am Flansch
+          </div>
+          <div style="padding:5px 0;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:var(--muted);">FM-T01-U2</span><br>
+            Korrosion am Schutzrohr des Thermoelements
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="fm-main">
+
+      <!-- Function bar -->
+      <div class="func-bar">
+        <span>20TA24-KOMP-003-F1</span> · HAUPTFUNKTION · Temperatur im Reaktor R-101 kontinuierlich messen und regeln · <span>Reaktor R-101</span>
+      </div>
+
+      <!-- Title row -->
+      <div class="fm-title-row">
+        <div>
+          <div class="fm-id">FM-T01</div>
+          <div class="fm-title">Temperatursensor fällt aus</div>
+        </div>
+        <div class="rpz-display__pill pill--mittel" style="margin-top:4px;">Status: Mittel</div>
+      </div>
+
+      <!-- Narrative -->
+      <div class="narrative">
+        <div class="narrative__heading">Worum geht es?</div>
+        <div class="narrative__text">Thermoelement TI-201 erfasst die Reaktortemperatur kontinuierlich. Bei Leitungsbruch oder Sensorausfall fehlt das Messsignal; der DCS erkennt den Ausfall und gibt Alarm. Ohne redundante Messung kann die Temperaturregelung nicht aufrechterhalten werden — das Risiko einer unkontrollierten Exotherme steigt.</div>
+      </div>
+
+      <!-- Fehlerfolgen -->
+      <div class="content-section">
+        <div class="content-section__title">Fehlerfolgen</div>
+        <div class="folgen-grid">
+          <div class="folgen-cell">
+            <div class="folgen-cell__label">Mensch</div>
+            <div class="folgen-cell__text">Verbrennungsgefahr bei Exotherme; Notabschaltung erforderlich</div>
+          </div>
+          <div class="folgen-cell">
+            <div class="folgen-cell__label">Umwelt</div>
+            <div class="folgen-cell__text">Geringe Auswirkung, geschlossenes System; kein Stoffaustritt erwartet</div>
+          </div>
+          <div class="folgen-cell">
+            <div class="folgen-cell__label">Anlage</div>
+            <div class="folgen-cell__text">Produktionsstopp R-101, 2–4 Tage außer Betrieb; Schaden am Reaktorinhalt möglich</div>
+          </div>
+          <div class="folgen-cell">
+            <div class="folgen-cell__label">Kosten</div>
+            <div class="folgen-cell__text">15.000–40.000 € (Reparatur, Produktionsverlust, Entsorgung)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bestehende Controls -->
+      <div class="content-section">
+        <div class="content-section__title">Bestehende Controls</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Wirkung</th>
+              <th>Name</th>
+              <th>Typ</th>
+              <th>Beschreibung</th>
+              <th>Beeinflusst</th>
+              <th>Einschränkung</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge--praev">P</span></td>
+              <td>Temperaturbegrenzer TI-202</td>
+              <td class="muted">Technisch</td>
+              <td>Unabhängiger Begrenzer am Reaktormantel</td>
+              <td class="mono">O</td>
+              <td class="muted">Kein automatischer Abschalter</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--entdeckung">Entdeckung</span></td>
+              <td>DCS-Signalüberwachung</td>
+              <td class="muted">Organisatorisch</td>
+              <td>DCS meldet Signalausfall, Bediener alarmiert</td>
+              <td class="mono">D</td>
+              <td class="muted">Kein Automatikeingriff; nur bei Besetzung</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Fehlerursachen table -->
+      <div class="content-section">
+        <div class="content-section__title">Fehlerursachen — Detail</div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Beschreibung</th>
+              <th>Herkunft</th>
+              <th>Präv.-Phase</th>
+              <th>Präv.-Hinweis</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">FM-T01-U1</td>
+              <td>Leitungsbruch durch Vibration am Flansch</td>
+              <td class="muted">Betrieb</td>
+              <td class="muted">Fertigung</td>
+              <td class="muted">–</td>
+            </tr>
+            <tr>
+              <td class="mono">FM-T01-U2</td>
+              <td>Korrosion am Schutzrohr des Thermoelements</td>
+              <td class="muted">Wartung</td>
+              <td class="muted">Wartung</td>
+              <td class="muted">–</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Maßnahmen -->
+      <div class="content-section">
+        <div class="content-section__title">Maßnahmen</div>
+        <div class="massnahme-card">
+          <div class="massnahme-header">
+            <div class="massnahme-badges">
+              <span class="badge badge--entdeckung">Entdeckung</span>
+              <span class="badge badge--tech">Technisch</span>
+            </div>
+            <div class="massnahme-delta">
+              <div class="massnahme-delta__sod">O: 3→2 &nbsp; D: 4→2</div>
+              <div class="massnahme-delta__rpz">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600;">RPZ' 32</span>
+                <span class="badge badge--niedrig">Niedrig</span>
+              </div>
+            </div>
+          </div>
+          <div class="massnahme-title">Redundanter Temperatursensor PT-102 installieren (SIL 1)</div>
+          <div class="massnahme-body__desc">Zweiter unabhängiger Pt100-Sensor mit direkter SPS-Auswertung und automatischer Abschaltung bei Signalkonflikt oder Grenzwertüberschreitung.</div>
+          <div class="massnahme-body__note">O sinkt 3→2: Redundanz macht Ausfall beider Sensoren unwahrscheinlich. D sinkt 4→2: Automatische Abschaltung ersetzt manuelle Reaktion. RPZ: 96→32.</div>
+          <div class="massnahme-tags">
+            <span class="tag">schnell umsetzbar</span>
+            <span class="tag">mittlere Investition</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /fm-card FM-T01 -->
+
+  <div class="section-label">Fehlermodus FM-T02</div>
+
+  <!-- FM-T02 COMPRESSED -->
+  <div class="fm-compressed">
+    <div class="fm-compressed-sidebar">
+      <div class="sidebar-block__label" style="font-size:9px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); margin-bottom:8px;">SOD Übersicht</div>
+      <div style="display:flex; gap:10px; margin-bottom:10px;">
+        <div style="text-align:center;">
+          <div style="font-size:18px; font-weight:600; color:#C0392B;">9</div>
+          <div style="font-size:8px; color:var(--muted);">S</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:18px; font-weight:600; color:#D68910;">2</div>
+          <div style="font-size:8px; color:var(--muted);">O</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:18px; font-weight:600; color:#1E8449;">3</div>
+          <div style="font-size:8px; color:var(--muted);">D</div>
+        </div>
+        <div style="text-align:center; margin-left:8px; padding-left:8px; border-left:1px solid #C7D3F0;">
+          <div style="font-size:18px; font-weight:600; color:var(--dark);">54</div>
+          <div style="font-size:8px; color:var(--muted);">RPZ</div>
+        </div>
+      </div>
+      <div class="sonderregel-note">⚠ Sonderregel S ≥ 9</div>
+    </div>
+    <div class="fm-compressed-main">
+      <div>
+        <div class="fm-id" style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); margin-bottom:3px;">FM-T02</div>
+        <div class="fm-compressed-title">Übertemperatur durch Heizkreisausfall</div>
+        <div class="fm-compressed-meta">S=9 · O=2 · D=3 · RPZ=54 · Sonderregel aktiv</div>
+      </div>
+      <span class="badge badge--hoch" style="background:#FEF3C7; color:var(--hoch); font-size:10px; padding:4px 12px;">HOCH</span>
+    </div>
+  </div>
+
+  <!-- PAGE FOOTER -->
+  <div class="page-footer">
+    <div class="page-footer__text">FMEA Risikoanalyse · Reaktor R-101 · 20TA24 · Erstellt 2026-03-08</div>
+    <div class="page-footer__accent"></div>
+    <div class="page-footer__text">Design 6 — Consulting Sidebar</div>
+  </div>
+
+</div>
+</body>
+</html>

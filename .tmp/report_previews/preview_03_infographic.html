@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design 3 – Infographic Editorial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --coral: #E8472A;
+    --coral-light: #FDF0ED;
+    --coral-mid: #F4816A;
+    --dark: #1C1917;
+    --mid: #44403C;
+    --muted: #A8A29E;
+    --divider: #E7E5E4;
+    --bg: #FAFAF9;
+    --white: #FFFFFF;
+
+    --hoch: #D97706;
+    --hoch-bg: #FFFBEB;
+    --mittel: #2563EB;
+    --mittel-bg: #EFF6FF;
+    --niedrig: #059669;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #E7E5E4;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .page {
+    width: 794px;
+    min-height: 1123px;
+    background: var(--bg);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    background: var(--coral);
+    padding: 28px 52px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .masthead-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: white;
+    letter-spacing: -0.02em;
+  }
+
+  .masthead-meta {
+    font-size: 10px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.08em;
+    text-align: right;
+  }
+
+  /* ── COVER BAND ── */
+  .cover-band {
+    background: var(--white);
+    padding: 44px 52px 36px;
+    border-bottom: 3px solid var(--coral);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: end;
+  }
+
+  .cover-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--coral);
+    margin-bottom: 10px;
+  }
+
+  .cover-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 52px;
+    font-weight: 900;
+    color: var(--dark);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 12px;
+  }
+
+  .cover-deck {
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--mid);
+    line-height: 1.5;
+    max-width: 380px;
+    font-style: italic;
+  }
+
+  /* FACTBOX KACHELN */
+  .factboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .factbox {
+    background: var(--bg);
+    border: 1px solid var(--divider);
+    padding: 12px 18px;
+    min-width: 130px;
+    text-align: center;
+  }
+
+  .factbox-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 34px;
+    font-weight: 900;
+    color: var(--dark);
+    line-height: 1;
+    display: block;
+  }
+
+  .factbox-num.red { color: var(--coral); }
+  .factbox-num.amber { color: var(--hoch); }
+
+  .factbox-label {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ── STORY SECTION ── */
+  .story-section {
+    padding: 36px 52px;
+    flex: 1;
+  }
+
+  .story-section-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--divider);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* STORY BAND */
+  .story-band {
+    margin-bottom: 32px;
+    position: relative;
+  }
+
+  .story-band-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .band-id {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--white);
+    background: var(--dark);
+    padding: 4px 9px;
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+  }
+
+  .band-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--dark);
+    flex: 1;
+  }
+
+  .band-status {
+    padding: 4px 10px;
+    border-radius: 2px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    font-weight: 400;
+    flex-shrink: 0;
+  }
+
+  .band-status.mittel {
+    background: var(--mittel-bg);
+    color: var(--mittel);
+    border: 1px solid rgba(37,99,235,0.2);
+  }
+
+  .band-status.hoch {
+    background: var(--hoch-bg);
+    color: var(--hoch);
+    border: 1px solid rgba(217,119,6,0.2);
+  }
+
+  /* FLOW CHAIN */
+  .flow-chain {
+    display: grid;
+    grid-template-columns: 1fr 28px 1fr 28px 1fr 28px 1fr;
+    align-items: stretch;
+    gap: 0;
+    background: var(--white);
+    border: 1px solid var(--divider);
+  }
+
+  .flow-node {
+    padding: 16px 16px;
+  }
+
+  .flow-node-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .flow-icon {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 7px;
+    flex-shrink: 0;
+  }
+
+  .flow-icon.ursache { background: #FEE2E2; color: #EF4444; }
+  .flow-icon.fehler { background: var(--coral-light); color: var(--coral); }
+  .flow-icon.auswirkung { background: #FEF9C3; color: #CA8A04; }
+  .flow-icon.massnahme { background: #D1FAE5; color: #059669; }
+
+  .flow-node-text {
+    font-size: 12px;
+    color: var(--dark);
+    line-height: 1.45;
+    font-weight: 400;
+  }
+
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--divider);
+    background: var(--bg);
+  }
+
+  .flow-arrow svg {
+    width: 16px; height: 16px;
+    fill: var(--muted);
+  }
+
+  /* SOD INLINE */
+  .sod-inline {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 10px 16px;
+    background: var(--bg);
+    border: 1px solid var(--divider);
+    border-top: none;
+    align-items: center;
+  }
+
+  .sod-chip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--mid);
+  }
+
+  .sod-chip-letter {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .sod-chip-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--dark);
+    line-height: 1;
+  }
+
+  .sod-sep { color: var(--divider); font-size: 18px; }
+
+  .rpz-inline {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .rpz-inline-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .rpz-inline-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .rpz-inline-val.mittel { color: var(--mittel); }
+  .rpz-inline-val.hoch { color: var(--hoch); }
+
+  .sonderregel-note {
+    margin-top: 6px;
+    padding: 7px 16px;
+    background: #FFFBEB;
+    border: 1px solid rgba(217,119,6,0.2);
+    font-size: 10.5px;
+    color: #92400E;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .story-divider {
+    height: 1px;
+    background: var(--divider);
+    margin: 28px 0;
+  }
+
+  /* FOOTER */
+  .page-footer {
+    border-top: 3px solid var(--coral);
+    padding: 14px 52px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--white);
+  }
+
+  .footer-left {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .footer-right {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- MASTHEAD -->
+  <div class="masthead">
+    <div class="masthead-brand">RiskAI</div>
+    <div class="masthead-meta">FMEA-Risikoanalyse<br>Ethylacetatproduktion 20TA41</div>
+  </div>
+
+  <!-- COVER BAND -->
+  <div class="cover-band">
+    <div>
+      <div class="cover-eyebrow">Fehlergruppe 03 · Reaktor R-101</div>
+      <div class="cover-headline">Temperatur-<br>regelung</div>
+      <div class="cover-deck">2 Fehlermodi identifiziert — einer durch AIAG-VDA Sonderregel auf Hochrisiko eingestuft. Redundante Sensorik und Sicherheitsabsperrung als Gegenmaßnahmen vorgesehen.</div>
+    </div>
+    <div class="factboxes">
+      <div class="factbox">
+        <span class="factbox-num">2</span>
+        <div class="factbox-label">Fehlermodi</div>
+      </div>
+      <div class="factbox">
+        <span class="factbox-num red">96</span>
+        <div class="factbox-label">Max. RPZ</div>
+      </div>
+      <div class="factbox">
+        <span class="factbox-num amber">1</span>
+        <div class="factbox-label">Sonderregel</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STORY SECTION -->
+  <div class="story-section">
+    <div class="story-section-title">
+      <span>Detaillierte Fehlermodi</span>
+      <span>2 Einträge</span>
+    </div>
+
+    <!-- FM-T01 -->
+    <div class="story-band">
+      <div class="story-band-header">
+        <div class="band-id">FM-T01</div>
+        <div class="band-title">Temperatursensor fällt aus</div>
+        <div class="band-status mittel">Mittel</div>
+      </div>
+
+      <div class="flow-chain">
+        <div class="flow-node">
+          <div class="flow-node-label">
+            <span class="flow-icon ursache">U</span>
+            Ursache
+          </div>
+          <div class="flow-node-text">Leitungsbruch an Thermoelement TI-201</div>
+        </div>
+        <div class="flow-arrow">
+          <svg viewBox="0 0 16 16"><path d="M3 8h8M8 5l3 3-3 3"/></svg>
+        </div>
+        <div class="flow-node">
+          <div class="flow-node-label">
+            <span class="flow-icon fehler">F</span>
+            Fehlermodus
+          </div>
+          <div class="flow-node-text">Temperatursensor fällt aus — kein Messsignal an DCS</div>
+        </div>
+        <div class="flow-arrow">
+          <svg viewBox="0 0 16 16"><path d="M3 8h8M8 5l3 3-3 3"/></svg>
+        </div>
+        <div class="flow-node">
+          <div class="flow-node-label">
+            <span class="flow-icon auswirkung">A</span>
+            Auswirkung
+          </div>
+          <div class="flow-node-text">Unkontrollierte Exotherme möglich</div>
+        </div>
+        <div class="flow-arrow">
+          <svg viewBox="0 0 16 16"><path d="M3 8h8M8 5l3 3-3 3"/></svg>
+        </div>
+        <div class="flow-node">
+          <div class="flow-node-label">
+            <span class="flow-icon massnahme">M</span>
+            Maßnahme
+          </div>
+          <div class="flow-node-text">Redundanter Sensor PT-102 (SIL 1)</div>
+        </div>
+      </div>
+
+      <div class="sod-inline">
+        <div class="sod-chip">
+          <span class="sod-chip-letter">S</span>
+          <span class="sod-chip-num">8</span>
+        </div>
+        <div class="sod-sep">·</div>
+        <div class="sod-chip">
+          <span class="sod-chip-letter">O</span>
+          <span class="sod-chip-num">3</span>
+        </div>
+        <div class="sod-sep">·</div>
+        <div class="sod-chip">
+          <span class="sod-chip-letter">D</span>
+          <span class="sod-chip-num">4</span>
+        </div>
+        <div class="sod-sep">·</div>
+        <div class="sod-chip" style="font-size:10px; color:var(--muted)">S × O × D =</div>
+        <div class="rpz-inline">
+          <span class="rpz-inline-label">RPZ</span>
+          <span class="rpz-inline-val mittel">96</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="story-divider"></div>
+
+    <!-- FM-T02 -->
+    <div class="story-band">
+      <div class="story-band-header">
+        <div class="band-id">FM-T02</div>
+        <div class="band-title">Übertemperatur durch Heizkreisausfall</div>
+        <div class="band-status hoch">Hoch ⚠</div>
+      </div>
+
+      <div class="flow-chain">
+        <div class="flow-node">
+          <div class="flow-node-label">
+            <span class="flow-icon ursache">U</span>
+            Ursache
+          </div>
+          <div class="flow-node-text">Stellventil klemmt in Stellung „auf"</div>
+        </div>
+        <div class="flow-arrow">
+          <svg viewBox="0 0 16 16"><path d="M3 8h8M8 5l3 3-3 3"/></svg>
+        </div>
+        <div class="flow-node">
+          <div class="flow-node-label">
+            <span class="flow-icon fehler">F</span>
+            Fehlermodus
+          </div>
+          <div class="flow-node-text">Übertemperatur, Heizkreis läuft unkontrolliert</div>
+        </div>
+        <div class="flow-arrow">
+          <svg viewBox="0 0 16 16"><path d="M3 8h8M8 5l3 3-3 3"/></svg>
+        </div>
+        <div class="flow-node">
+          <div class="flow-node-label">
+            <span class="flow-icon auswirkung">A</span>
+            Auswirkung
+          </div>
+          <div class="flow-node-text">Materialzersetzung, Druckanstieg</div>
+        </div>
+        <div class="flow-arrow">
+          <svg viewBox="0 0 16 16"><path d="M3 8h8M8 5l3 3-3 3"/></svg>
+        </div>
+        <div class="flow-node">
+          <div class="flow-node-label">
+            <span class="flow-icon massnahme">M</span>
+            Maßnahme
+          </div>
+          <div class="flow-node-text">Sicherheitsabsperrventil SV-301 (SIL 2)</div>
+        </div>
+      </div>
+
+      <div class="sod-inline">
+        <div class="sod-chip">
+          <span class="sod-chip-letter">S</span>
+          <span class="sod-chip-num">9</span>
+        </div>
+        <div class="sod-sep">·</div>
+        <div class="sod-chip">
+          <span class="sod-chip-letter">O</span>
+          <span class="sod-chip-num">2</span>
+        </div>
+        <div class="sod-sep">·</div>
+        <div class="sod-chip">
+          <span class="sod-chip-letter">D</span>
+          <span class="sod-chip-num">3</span>
+        </div>
+        <div class="sod-sep">·</div>
+        <div class="sod-chip" style="font-size:10px; color:var(--muted)">S × O × D =</div>
+        <div class="rpz-inline">
+          <span class="rpz-inline-label">RPZ</span>
+          <span class="rpz-inline-val hoch">54</span>
+        </div>
+      </div>
+
+      <div class="sonderregel-note">
+        ⚠ AIAG-VDA Sonderregel: Schweregrad S=9 stuft Status automatisch auf Hoch hoch — unabhängig vom RPZ-Wert (54).
+      </div>
+    </div>
+
+  </div><!-- /story-section -->
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <div class="footer-left">Vertraulich — Nicht zur Weitergabe</div>
+    <div class="footer-right">14 / 38</div>
+  </div>
+
+</div>
+</body>
+</html>

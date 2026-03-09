@@ -1,5 +1,7 @@
-# Temporäre Dateien
-.tmp/
+# Temporäre Dateien (Ausnahme: report_previews für Design-Exploration)
+.tmp/*
+!.tmp/report_previews/
+!.tmp/report_previews/**
 
 # Skill-Entwicklungs-Artefakte (Iterations-Snapshots, Eval-Ergebnisse)
 .claude/skills/*-workspace/

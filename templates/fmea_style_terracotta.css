@@ -1,0 +1,137 @@
+/* ═══════════════════════════════════════════════════════════════
+   FMEA Report — Terracotta Design Override
+   Basiert auf fmea_style.css, überschreibt Farben + Schriften
+   Designsprache: Warm Authority · Terracotta (Preview 05c)
+   ═══════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('./fmea_style.css');
+
+/* ── Override Design Tokens ── */
+:root {
+  /* Fonts: Cormorant Garamond (Headings) + Plus Jakarta Sans (Body) */
+  --font-heading: 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+
+  /* Primary brand color → Terracotta */
+  --color-primary:      #A0522D;   /* Terracotta main accent       */
+  --color-primary-dark: #7A3A1E;   /* Deeper terracotta            */
+
+  /* Secondary (was Navy #2C2C54) → Dark warm brown for headings  */
+  --color-indigo: #3B1F0C;
+
+  /* Backgrounds stay white */
+  --color-bg: #FFFFFF;
+  --color-surface: #FFFFFF;
+
+  /* Text: slightly warmer tone */
+  --color-text-primary:   #1C1208;
+  --color-text-secondary: #5C4033;
+  --color-text-muted:     #9B8B7E;
+
+  /* Borders: warm not cool */
+  --color-border:       #E8DDD5;
+  --color-border-light: #F4EDEA;
+
+  /* Accent (was teal) → muted sage to complement terracotta */
+  --color-teal:    #4A7C59;
+  --color-success: #4A7C59;
+
+  /* Warning stays amber, slightly warmer */
+  --color-warning: #C8914A;
+  --color-error:   #A0522D;
+
+  /* SOD card palette → unified warm terracotta tones */
+  --sod-s-bg:     #FDF6F1;
+  --sod-s-border: #D4956A;
+  --sod-s-text:   #7A3A1E;
+  --sod-s-bar:    #A0522D;
+
+  --sod-o-bg:     #FDF3EC;
+  --sod-o-border: #C9805A;
+  --sod-o-text:   #6B2E12;
+  --sod-o-bar:    #B5622E;
+
+  --sod-d-bg:     #FEF8F3;
+  --sod-d-border: #D9A07A;
+  --sod-d-text:   #8B4A22;
+  --sod-d-bar:    #C07850;
+
+  /* STOP-Prinzip badges: harmonised warm tones */
+  --stop-s-bg:     #F5EEF8; --stop-s-text: #6B3A7D; --stop-s-border: #C9A8DC;
+  --stop-t-bg:     #EAF2FB; --stop-t-text: #1A5276;  --stop-t-border: #A9CCE3;
+  --stop-o-bg:     #EAF9F0; --stop-o-text: #1A6B3A;  --stop-o-border: #A2D9B1;
+  --stop-p-bg:     #FEF9EE; --stop-p-text: #7D5A0C;  --stop-p-border: #F0D48A;
+}
+
+/* ── Cover: terracotta gradient bar ── */
+.cover::before {
+  background: linear-gradient(90deg, #A0522D 0%, #3B1F0C 100%);
+}
+
+.cover-divider {
+  background: linear-gradient(90deg, #A0522D, #C8914A);
+}
+
+/* ── Section header: terracotta accent line ── */
+.section-header {
+  border-left-color: #A0522D;
+}
+
+/* ── Badge color corrections ── */
+.badge-mittel  { background: rgba(200, 145, 74, 0.15); color: #7D4A10; border-color: rgba(200, 145, 74, 0.4); }
+.badge-hoch    { background: rgba(160, 82, 45, 0.12);  color: #7A3A1E; border-color: rgba(160, 82, 45, 0.35); }
+.badge-kritisch{ background: rgba(90, 20, 10, 0.12);   color: #5A140A; border-color: rgba(90, 20, 10, 0.35); }
+.badge-niedrig { background: rgba(74, 124, 89, 0.12);  color: #2A5E38; border-color: rgba(74, 124, 89, 0.35); }
+
+/* ── FM-card border (left accent by status) ── */
+.risk-card.hoch     { border-left-color: #A0522D; }
+.risk-card.kritisch { border-left-color: #5A140A; }
+.risk-card.mittel   { border-left-color: #C8914A; }
+.risk-card.niedrig  { border-left-color: #4A7C59; }
+
+/* ── Special-rule box ── */
+.special-rule-box {
+  border-color: rgba(160, 82, 45, 0.35);
+  background:   rgba(160, 82, 45, 0.06);
+}
+
+/* ── Narrative / info-box ── */
+.info-box {
+  border-left-color: #A0522D;
+  background: #FDF6F1;
+}
+
+/* ── TOC links ── */
+.toc-num { color: #A0522D; }
+.toc-item:hover .toc-text { color: #A0522D; }
+
+/* ── Table header row ── */
+thead th {
+  background: #F4EDEA;
+  color: #3B1F0C;
+}
+
+/* ── Top risk chips on cover ── */
+.cover-risk-chip.kritisch { background: rgba(90, 20, 10, 0.12);  color: #5A140A; }
+.cover-risk-chip.hoch     { background: rgba(160, 82, 45, 0.15); color: #7A3A1E; }
+.cover-risk-chip.mittel   { background: rgba(200, 145, 74, 0.15);color: #7D4A10; }
+.cover-risk-chip.niedrig  { background: rgba(74, 124, 89, 0.12); color: #2A5E38; }
+
+/* ── Typography refinements for serif headings ── */
+h1, h2, h3, h4 {
+  font-style: normal;
+  letter-spacing: -0.01em;
+}
+h1 { font-size: 2.4rem; }
+h2 { font-size: 1.6rem; }
+h3 { font-size: 1.2rem; }
+
+.cover-title    { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 700; }
+.cover-subtitle { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+.cover-logo-title { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 700; }
+
+/* ── Section header number bubble ── */
+.section-number {
+  background: #A0522D;
+}

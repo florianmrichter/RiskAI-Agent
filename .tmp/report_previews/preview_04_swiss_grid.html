@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design 4 – Swiss Grid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&family=Barlow+Semi+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0A0A0A;
+    --dark: #1A1A1A;
+    --mid: #555555;
+    --light: #AAAAAA;
+    --divider: #DDDDDD;
+    --bg: #F4F4F2;
+    --white: #FFFFFF;
+    --red: #E63946;
+    --red-dark: #C1121F;
+
+    --hoch: #E63946;
+    --mittel: #1D3557;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #CCCCCA;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    font-family: 'Barlow', sans-serif;
+  }
+
+  .page {
+    width: 794px;
+    min-height: 1123px;
+    background: var(--white);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── TOP BLACK BAND ── */
+  .top-band {
+    background: var(--black);
+    display: grid;
+    grid-template-columns: 160px 1fr auto;
+    align-items: stretch;
+    border-bottom: 3px solid var(--red);
+  }
+
+  .top-brand {
+    background: var(--red);
+    padding: 22px 24px;
+    display: flex;
+    align-items: center;
+  }
+
+  .top-brand-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .top-title {
+    padding: 18px 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .top-title-main {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .top-title-sub {
+    font-family: 'Barlow', sans-serif;
+    font-size: 10px;
+    font-weight: 300;
+    color: var(--light);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .top-meta {
+    padding: 18px 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    border-left: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .top-meta-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--red);
+    line-height: 1;
+  }
+
+  .top-meta-label {
+    font-family: 'Barlow', sans-serif;
+    font-size: 8px;
+    font-weight: 300;
+    color: var(--light);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  /* ── METRICS ROW ── */
+  .metrics-row {
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr 1px 1fr 1px 1fr;
+    border-bottom: 1px solid var(--divider);
+    background: var(--bg);
+  }
+
+  .metric-cell {
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .metric-divider {
+    background: var(--divider);
+  }
+
+  .metric-num-large {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 42px;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--black);
+  }
+
+  .metric-num-large.red { color: var(--red); }
+
+  .metric-text {
+    flex: 1;
+  }
+
+  .metric-text-label {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--light);
+    line-height: 1;
+  }
+
+  .metric-text-desc {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--mid);
+    margin-top: 3px;
+    line-height: 1.3;
+  }
+
+  /* ── COLUMN HEADERS ── */
+  .col-headers {
+    display: grid;
+    grid-template-columns: 120px 1fr 52px 52px 52px 80px 90px;
+    border-bottom: 2px solid var(--black);
+    background: var(--black);
+  }
+
+  .col-head {
+    padding: 10px 14px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--light);
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .col-head:last-child { border-right: none; }
+  .col-head.center { text-align: center; }
+
+  /* ── FM ROW ── */
+  .fm-rows {
+    flex: 1;
+  }
+
+  .fm-row {
+    display: grid;
+    grid-template-columns: 120px 1fr 52px 52px 52px 80px 90px;
+    border-bottom: 1px solid var(--divider);
+    min-height: 120px;
+  }
+
+  .fm-row:last-child { border-bottom: none; }
+
+  .fm-row.hoch { background: #FFFDF0; }
+  .fm-row.mittel { background: #F8FAFF; }
+
+  .fm-row-cell {
+    padding: 18px 14px;
+    border-right: 1px solid var(--divider);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .fm-row-cell:last-child { border-right: none; }
+
+  /* ID CELL */
+  .cell-id {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--black);
+    letter-spacing: 0.05em;
+  }
+
+  .cell-component {
+    font-size: 9px;
+    color: var(--light);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* MAIN CELL */
+  .cell-main-title {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--black);
+    line-height: 1.25;
+    margin-bottom: 8px;
+  }
+
+  .cell-ursache, .cell-auswirkung {
+    font-size: 10.5px;
+    color: var(--mid);
+    line-height: 1.4;
+    margin-bottom: 4px;
+    display: flex;
+    gap: 5px;
+  }
+
+  .cell-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--light);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .cell-massnahme {
+    margin-top: 8px;
+    padding: 6px 8px;
+    background: rgba(0,0,0,0.04);
+    font-size: 10px;
+    color: var(--dark);
+    line-height: 1.4;
+    border-left: 2px solid var(--red);
+  }
+
+  /* SOD CELLS */
+  .cell-sod {
+    text-align: center;
+    align-items: center;
+  }
+
+  .sod-big-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--black);
+  }
+
+  .sod-bar {
+    width: 24px;
+    height: 3px;
+    background: var(--divider);
+    margin: 4px auto 0;
+    border-radius: 1px;
+    overflow: hidden;
+  }
+
+  .sod-bar-inner {
+    height: 100%;
+    background: var(--red);
+  }
+
+  /* RPZ CELL */
+  .cell-rpz {
+    align-items: center;
+    text-align: center;
+    background: rgba(0,0,0,0.02);
+  }
+
+  .rpz-big {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 44px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .rpz-big.mittel { color: var(--mittel); }
+  .rpz-big.hoch { color: var(--red); }
+
+  .rpz-eq {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    color: var(--light);
+    margin-top: 2px;
+  }
+
+  /* STATUS CELL */
+  .cell-status {
+    align-items: center;
+  }
+
+  .status-block {
+    padding: 8px 10px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .status-block.mittel {
+    background: var(--mittel);
+  }
+
+  .status-block.hoch {
+    background: var(--red);
+  }
+
+  .status-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--white);
+  }
+
+  .sonderregel-marker {
+    margin-top: 6px;
+    padding: 4px 6px;
+    background: rgba(230,57,70,0.08);
+    border: 1px solid rgba(230,57,70,0.2);
+    font-size: 8px;
+    color: var(--red-dark);
+    letter-spacing: 0.05em;
+    text-align: center;
+  }
+
+  /* ── FOOTER ── */
+  .page-footer {
+    display: grid;
+    grid-template-columns: 160px 1fr auto;
+    border-top: 3px solid var(--red);
+    background: var(--black);
+  }
+
+  .footer-left {
+    padding: 12px 24px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--light);
+    display: flex;
+    align-items: center;
+    border-right: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .footer-mid {
+    padding: 12px 24px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 9px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+  }
+
+  .footer-right {
+    padding: 12px 24px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--red);
+    letter-spacing: 0.1em;
+    display: flex;
+    align-items: center;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- TOP BLACK BAND -->
+  <div class="top-band">
+    <div class="top-brand">
+      <div class="top-brand-text">Risk AI</div>
+    </div>
+    <div class="top-title">
+      <div class="top-title-main">Temperaturregelung — Reaktor R-101</div>
+      <div class="top-title-sub">FMEA-Risikoanalyse · Ethylacetatproduktion 20TA41 · Fehlergruppe 03</div>
+    </div>
+    <div class="top-meta">
+      <div class="top-meta-num">03</div>
+      <div class="top-meta-label">von 12 Gruppen</div>
+    </div>
+  </div>
+
+  <!-- METRICS ROW -->
+  <div class="metrics-row">
+    <div class="metric-cell">
+      <div class="metric-num-large">2</div>
+      <div class="metric-text">
+        <div class="metric-text-label">Fehlermodi</div>
+        <div class="metric-text-desc">In dieser Gruppe</div>
+      </div>
+    </div>
+    <div class="metric-divider"></div>
+    <div class="metric-cell">
+      <div class="metric-num-large red">96</div>
+      <div class="metric-text">
+        <div class="metric-text-label">Höchster RPZ</div>
+        <div class="metric-text-desc">FM-T01</div>
+      </div>
+    </div>
+    <div class="metric-divider"></div>
+    <div class="metric-cell">
+      <div class="metric-num-large red">1</div>
+      <div class="metric-text">
+        <div class="metric-text-label">Sonderregel</div>
+        <div class="metric-text-desc">AIAG-VDA S≥9</div>
+      </div>
+    </div>
+    <div class="metric-divider"></div>
+    <div class="metric-cell">
+      <div class="metric-num-large">2</div>
+      <div class="metric-text">
+        <div class="metric-text-label">Maßnahmen</div>
+        <div class="metric-text-desc">Geplant</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLUMN HEADERS -->
+  <div class="col-headers">
+    <div class="col-head">ID</div>
+    <div class="col-head">Fehlermodus / Ursache / Auswirkung / Maßnahme</div>
+    <div class="col-head center">S</div>
+    <div class="col-head center">O</div>
+    <div class="col-head center">D</div>
+    <div class="col-head center">RPZ</div>
+    <div class="col-head center">Status</div>
+  </div>
+
+  <!-- FM ROWS -->
+  <div class="fm-rows">
+
+    <!-- FM-T01 -->
+    <div class="fm-row mittel">
+      <div class="fm-row-cell">
+        <div class="cell-id">FM-T01</div>
+        <div class="cell-component">Reaktor R-101</div>
+      </div>
+      <div class="fm-row-cell">
+        <div class="cell-main-title">Temperatursensor fällt aus</div>
+        <div class="cell-ursache">
+          <span class="cell-label">U</span>
+          <span>Leitungsbruch an Thermoelement TI-201</span>
+        </div>
+        <div class="cell-auswirkung">
+          <span class="cell-label">A</span>
+          <span>Unkontrollierte Exotherme möglich, Produktqualität gefährdet</span>
+        </div>
+        <div class="cell-massnahme">M: Redundanter Sensor PT-102 installieren (SIL 1)</div>
+      </div>
+      <div class="fm-row-cell cell-sod">
+        <div class="sod-big-num">8</div>
+        <div class="sod-bar"><div class="sod-bar-inner" style="width:80%"></div></div>
+      </div>
+      <div class="fm-row-cell cell-sod">
+        <div class="sod-big-num">3</div>
+        <div class="sod-bar"><div class="sod-bar-inner" style="width:30%"></div></div>
+      </div>
+      <div class="fm-row-cell cell-sod">
+        <div class="sod-big-num">4</div>
+        <div class="sod-bar"><div class="sod-bar-inner" style="width:40%"></div></div>
+      </div>
+      <div class="fm-row-cell cell-rpz">
+        <div class="rpz-big mittel">96</div>
+        <div class="rpz-eq">8×3×4</div>
+      </div>
+      <div class="fm-row-cell cell-status">
+        <div class="status-block mittel">
+          <div class="status-text">Mittel</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FM-T02 -->
+    <div class="fm-row hoch">
+      <div class="fm-row-cell">
+        <div class="cell-id">FM-T02</div>
+        <div class="cell-component">Reaktor R-101</div>
+      </div>
+      <div class="fm-row-cell">
+        <div class="cell-main-title">Übertemperatur durch Heizkreisausfall</div>
+        <div class="cell-ursache">
+          <span class="cell-label">U</span>
+          <span>Stellventil klemmt in Stellung „auf", Heizkreis unkontrolliert</span>
+        </div>
+        <div class="cell-auswirkung">
+          <span class="cell-label">A</span>
+          <span>Materialzersetzung, Druckanstieg über Auslegungsgrenze</span>
+        </div>
+        <div class="cell-massnahme">M: Sicherheitsabsperrventil SV-301 (SIL 2)</div>
+      </div>
+      <div class="fm-row-cell cell-sod">
+        <div class="sod-big-num">9</div>
+        <div class="sod-bar"><div class="sod-bar-inner" style="width:90%"></div></div>
+      </div>
+      <div class="fm-row-cell cell-sod">
+        <div class="sod-big-num">2</div>
+        <div class="sod-bar"><div class="sod-bar-inner" style="width:20%"></div></div>
+      </div>
+      <div class="fm-row-cell cell-sod">
+        <div class="sod-big-num">3</div>
+        <div class="sod-bar"><div class="sod-bar-inner" style="width:30%"></div></div>
+      </div>
+      <div class="fm-row-cell cell-rpz">
+        <div class="rpz-big hoch">54</div>
+        <div class="rpz-eq">9×2×3</div>
+      </div>
+      <div class="fm-row-cell cell-status">
+        <div class="status-block hoch">
+          <div class="status-text">Hoch</div>
+        </div>
+        <div class="sonderregel-marker">Sonderregel S≥9</div>
+      </div>
+    </div>
+
+  </div><!-- /fm-rows -->
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <div class="footer-left">Vertraulich</div>
+    <div class="footer-mid">FMEA-Bericht · Ethylacetatproduktion 20TA41 · © RiskAI</div>
+    <div class="footer-right">14 / 38</div>
+  </div>
+
+</div>
+</body>
+</html>
