@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FMEA Report – Tiered Layout Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #F5F2EE;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      color: #2C2C2C;
+      padding: 24px;
+    }
+
+    .report-wrapper {
+      width: 794px;
+      margin: 0 auto;
+      background: #fff;
+    }
+
+    /* ── Report Header ──────────────────────────────────────── */
+    .report-header {
+      background: #fff;
+      border-bottom: 3px solid #A0522D;
+      padding: 28px 32px 20px;
+    }
+    .report-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .report-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: #1A1A1A;
+      letter-spacing: 0.01em;
+      line-height: 1.2;
+    }
+    .report-subtitle {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px;
+      font-weight: 400;
+      color: #A0522D;
+      letter-spacing: 0.04em;
+      margin-top: 3px;
+    }
+    .report-meta {
+      text-align: right;
+      font-size: 10px;
+      color: #888;
+      line-height: 1.7;
+    }
+    .report-meta strong {
+      color: #555;
+      font-weight: 600;
+    }
+
+    /* ── Function Group Header ──────────────────────────────── */
+    .function-group {
+      margin: 0;
+    }
+    .function-group-header {
+      background: #FAFAF9;
+      border-top: 1px solid #E8E0D8;
+      border-bottom: 1px solid #E8E0D8;
+      padding: 10px 32px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .function-group-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #A0522D;
+    }
+    .function-group-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: #1A1A1A;
+    }
+    .function-group-eq {
+      font-size: 10px;
+      color: #999;
+    }
+
+    /* ── Status Colors ──────────────────────────────────────── */
+    .status-kritisch { color: #7D2020; background: #FDF2F2; border-color: #C89090; }
+    .status-hoch     { color: #8B3A10; background: #FDF5EF; border-color: #D4A07A; }
+    .status-mittel   { color: #7A5A0C; background: #FEF9EE; border-color: #C8A84A; }
+    .status-niedrig  { color: #2A5E38; background: #F0F7F2; border-color: #88B89A; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: 1px solid;
+    }
+
+    /* ── Full Card (Tier 1) ─────────────────────────────────── */
+    .card-full {
+      border-left: 4px solid;
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      border-bottom: 1px solid #EDE8E2;
+    }
+    .card-full.hoch   { border-left-color: #D4A07A; }
+    .card-full.mittel { border-left-color: #C8A84A; }
+
+    .card-header {
+      padding: 12px 28px 10px 24px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .card-header-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      flex: 1;
+    }
+    .card-fm-id {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 11px;
+      font-weight: 600;
+      color: #A0522D;
+      white-space: nowrap;
+      padding-top: 1px;
+    }
+    .card-fm-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1A1A1A;
+      line-height: 1.25;
+    }
+    .card-status-block {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .rpz-display {
+      font-size: 10px;
+      color: #888;
+    }
+    .rpz-display span {
+      font-weight: 700;
+      color: #444;
+    }
+
+    .card-narrative {
+      padding: 0 28px 10px 24px;
+      font-size: 11px;
+      color: #555;
+      line-height: 1.55;
+      font-style: italic;
+      border-bottom: 1px solid #F0EBE5;
+    }
+
+    /* SOD Section */
+    .sod-section {
+      padding: 10px 28px 8px 24px;
+    }
+    .sod-section-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #A0522D;
+      margin-bottom: 7px;
+    }
+    .sod-row {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+    }
+    .sod-item {
+      flex: 1;
+      background: #FAFAF9;
+      border: 1px solid #EDE8E2;
+      border-radius: 4px;
+      padding: 8px 10px;
+      position: relative;
+    }
+    .sod-operator {
+      display: flex;
+      align-items: center;
+      padding: 0 6px;
+      color: #BDB0A5;
+      font-size: 13px;
+      font-weight: 300;
+    }
+    .sod-type-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .sod-type {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #A0522D;
+    }
+    .sod-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #1A1A1A;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .sod-criterion {
+      font-size: 10px;
+      color: #444;
+      line-height: 1.35;
+      margin-bottom: 3px;
+      font-weight: 500;
+    }
+    .sod-example {
+      font-size: 9.5px;
+      color: #777;
+      line-height: 1.35;
+      margin-bottom: 3px;
+      font-style: italic;
+    }
+    .sod-begruendung {
+      font-size: 9.5px;
+      color: #555;
+      line-height: 1.35;
+      margin-bottom: 4px;
+    }
+    .sod-soll {
+      font-size: 9px;
+      color: #999;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .soll-tag {
+      display: inline-block;
+      padding: 1px 5px;
+      border-radius: 2px;
+      font-size: 8.5px;
+      font-weight: 600;
+      border: 1px solid;
+    }
+    .soll-missed { color: #8B3A10; background: #FDF5EF; border-color: #D4A07A; }
+    .soll-met    { color: #2A5E38; background: #F0F7F2; border-color: #88B89A; }
+
+    .sod-rpz-result {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 24px;
+      background: #FAFAF9;
+      border-top: 1px solid #EDE8E2;
+      border-bottom: 1px solid #EDE8E2;
+    }
+    .rpz-calc {
+      font-size: 11px;
+      color: #555;
+    }
+    .rpz-calc strong {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #1A1A1A;
+    }
+    .sonderregel-note {
+      font-size: 9.5px;
+      color: #8B3A10;
+      background: #FDF5EF;
+      border: 1px solid #D4A07A;
+      border-radius: 3px;
+      padding: 2px 7px;
+      margin-left: 4px;
+    }
+
+    /* Causes & Effects */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border-top: 1px solid #F0EBE5;
+    }
+    .two-col-section {
+      padding: 8px 14px 8px 24px;
+    }
+    .two-col-section:last-child {
+      padding-left: 14px;
+      border-left: 1px solid #F0EBE5;
+    }
+    .section-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #A0522D;
+      margin-bottom: 5px;
+    }
+    .cause-item {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 3px;
+      align-items: flex-start;
+    }
+    .cause-id {
+      font-size: 9px;
+      font-weight: 600;
+      color: #A0522D;
+      white-space: nowrap;
+      padding-top: 0.5px;
+    }
+    .cause-text {
+      font-size: 10px;
+      color: #444;
+      line-height: 1.35;
+    }
+    .cause-type {
+      display: inline-block;
+      font-size: 8px;
+      color: #888;
+      background: #F2EDE8;
+      border-radius: 2px;
+      padding: 0px 4px;
+      margin-left: 3px;
+    }
+
+    .effect-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 2.5px;
+      padding: 2px 0;
+      border-bottom: 1px dotted #EDE8E2;
+    }
+    .effect-row:last-child { border-bottom: none; }
+    .effect-label {
+      font-size: 10px;
+      color: #555;
+    }
+    .effect-value {
+      font-size: 9.5px;
+      font-weight: 500;
+    }
+    .effect-hoch   { color: #8B3A10; }
+    .effect-mittel { color: #7A5A0C; }
+
+    /* Controls */
+    .controls-section {
+      padding: 8px 28px 8px 24px;
+      border-top: 1px solid #F0EBE5;
+    }
+    .control-item {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 3px;
+      align-items: flex-start;
+    }
+    .control-id {
+      font-size: 9px;
+      font-weight: 600;
+      color: #A0522D;
+      white-space: nowrap;
+      padding-top: 0.5px;
+    }
+    .control-text {
+      font-size: 10px;
+      color: #444;
+      line-height: 1.35;
+    }
+    .control-tag {
+      display: inline-block;
+      font-size: 8px;
+      color: #666;
+      background: #F2EDE8;
+      border: 1px solid #DDD3C8;
+      border-radius: 2px;
+      padding: 0px 4px;
+      margin-left: 3px;
+    }
+    .control-reaktiv  { color: #8B3A10; background: #FDF5EF; border-color: #D4A07A; }
+    .control-praev    { color: #2A5E38; background: #F0F7F2; border-color: #88B89A; }
+
+    /* Measures */
+    .measures-section {
+      padding: 8px 28px 10px 24px;
+      border-top: 1px solid #F0EBE5;
+      background: #FDFCFB;
+    }
+    .measure-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: #fff;
+      border: 1px solid #EDE8E2;
+      border-radius: 4px;
+      padding: 7px 10px;
+    }
+    .measure-arrow {
+      color: #A0522D;
+      font-size: 14px;
+      line-height: 1;
+      flex-shrink: 0;
+      padding-top: 1px;
+    }
+    .measure-content { flex: 1; }
+    .measure-id-title {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 3px;
+    }
+    .measure-id {
+      font-size: 9px;
+      font-weight: 700;
+      color: #A0522D;
+    }
+    .measure-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #1A1A1A;
+    }
+    .measure-type-tag {
+      font-size: 8.5px;
+      font-weight: 600;
+      color: #8B3A10;
+      background: #FDF5EF;
+      border: 1px solid #D4A07A;
+      border-radius: 2px;
+      padding: 0px 5px;
+    }
+    .measure-delta {
+      font-size: 10px;
+      color: #555;
+    }
+    .measure-delta strong { font-weight: 600; color: #2A5E38; }
+    .measure-delta .rpz-new {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #2A5E38;
+    }
+
+    /* ── Tier Separator ─────────────────────────────────────── */
+    .tier-separator {
+      margin: 0;
+      padding: 12px 32px;
+      background: #F7F4F0;
+      border-top: 1px solid #E4DDD6;
+      border-bottom: 1px solid #E4DDD6;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .tier-sep-line {
+      flex: 1;
+      height: 1px;
+      background: #CFC7BC;
+    }
+    .tier-sep-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #999;
+      white-space: nowrap;
+    }
+
+    /* ── Compact Card (Tier 2) ──────────────────────────────── */
+    .card-compact {
+      border-left: 3px solid #88B89A;
+      margin: 0;
+      background: #fff;
+      border-bottom: 1px solid #EDE8E2;
+    }
+
+    .compact-header {
+      padding: 8px 24px 6px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .compact-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .compact-fm-id {
+      font-size: 10px;
+      font-weight: 600;
+      color: #2A5E38;
+      white-space: nowrap;
+    }
+    .compact-fm-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1A1A1A;
+    }
+
+    .compact-sod-row {
+      padding: 0 24px 0 20px;
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+    }
+    .compact-sod-item {
+      flex: 1;
+      background: #F8FBF9;
+      border: 1px solid #C8DDD0;
+      border-radius: 3px;
+      padding: 5px 8px;
+    }
+    .compact-sod-operator {
+      display: flex;
+      align-items: center;
+      padding: 0 4px;
+      color: #BDB0A5;
+      font-size: 12px;
+      font-weight: 300;
+    }
+    .compact-sod-type {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #2A5E38;
+      margin-bottom: 1px;
+    }
+    .compact-sod-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #1A1A1A;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    .compact-sod-criterion {
+      font-size: 9px;
+      color: #444;
+      line-height: 1.3;
+      margin-bottom: 1px;
+      font-weight: 500;
+    }
+    .compact-sod-begruendung {
+      font-size: 8.5px;
+      color: #666;
+      line-height: 1.3;
+      font-style: italic;
+      margin-bottom: 2px;
+    }
+    .compact-sod-soll {
+      font-size: 8px;
+      color: #888;
+    }
+    .compact-soll-met {
+      display: inline-block;
+      padding: 0px 4px;
+      border-radius: 2px;
+      font-size: 8px;
+      font-weight: 600;
+      color: #2A5E38;
+      background: #F0F7F2;
+      border: 1px solid #88B89A;
+    }
+
+    .compact-rpz-result {
+      display: flex;
+      align-items: center;
+      padding: 4px 8px;
+      background: #F8FBF9;
+      border: 1px solid #C8DDD0;
+      border-radius: 3px;
+      gap: 5px;
+      flex-shrink: 0;
+      align-self: center;
+      margin: 0 4px;
+    }
+    .compact-rpz-eq {
+      font-size: 9px;
+      color: #888;
+    }
+    .compact-rpz-val {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: #2A5E38;
+      line-height: 1;
+    }
+    .compact-rpz-label {
+      font-size: 8px;
+      color: #2A5E38;
+      font-weight: 600;
+    }
+
+    .compact-sod-wrapper {
+      display: flex;
+      align-items: center;
+      padding: 0 24px 5px 20px;
+      gap: 0;
+    }
+
+    .compact-note {
+      padding: 4px 20px 3px;
+      font-size: 10px;
+      color: #555;
+      line-height: 1.4;
+    }
+    .compact-note strong {
+      color: #2A5E38;
+      font-weight: 600;
+    }
+
+    .compact-footer {
+      padding: 4px 20px 7px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .compact-meta {
+      font-size: 9px;
+      color: #AAA;
+    }
+    .compact-meta span {
+      display: inline-block;
+      background: #F5F5F3;
+      border: 1px solid #E5E0DB;
+      border-radius: 2px;
+      padding: 1px 6px;
+      margin-right: 4px;
+    }
+    .compact-collapse-hint {
+      font-size: 8.5px;
+      color: #CCC;
+      font-style: italic;
+    }
+
+    /* ── Report Footer ──────────────────────────────────────── */
+    .report-footer {
+      padding: 10px 32px;
+      border-top: 1px solid #E8E0D8;
+      background: #FAFAF9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-note {
+      font-size: 9px;
+      color: #AAA;
+    }
+    .footer-accent {
+      font-size: 9px;
+      color: #A0522D;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+<div class="report-wrapper">
+
+  <!-- Report Header -->
+  <div class="report-header">
+    <div class="report-header-top">
+      <div>
+        <div class="report-title">FMEA Risikoanalyse</div>
+        <div class="report-subtitle">Reaktor R-101 · Druckregelung</div>
+      </div>
+      <div class="report-meta">
+        <div><strong>Dokument</strong> FMEA-2024-R101-001</div>
+        <div><strong>Stand</strong> 09. März 2026</div>
+        <div><strong>Revision</strong> Entwurf v1.0</div>
+        <div><strong>Standard</strong> AIAG-VDA FMEA 1st Ed.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Function Group -->
+  <div class="function-group">
+    <div class="function-group-header">
+      <span class="function-group-label">Funktionsgruppe</span>
+      <span class="function-group-title">Druckregelung</span>
+      <span class="function-group-eq">— Reaktor R-101</span>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- TIER 1 CARDS (HOCH / MITTEL) -->
+    <!-- ════════════════════════════════════════════════════════ -->
+
+    <!-- FM-D01 — HOCH -->
+    <div class="card-full hoch">
+      <div class="card-header">
+        <div class="card-header-left">
+          <span class="card-fm-id">FM-D01</span>
+          <span class="card-fm-title">Druckentlastungsventil öffnet nicht</span>
+        </div>
+        <div class="card-status-block">
+          <span class="badge status-hoch">HOCH</span>
+          <span class="rpz-display">RPZ = <span>72</span></span>
+        </div>
+      </div>
+
+      <div class="card-narrative">
+        Das Sicherheitsventil PRV-201 ist die letzte Schutzbarriere bei Überdruckereignissen. Ein Versagen im geschlossenen Zustand kann zur unkontrollierten Druckentwicklung bis zum Bersten des Reaktors führen.
+      </div>
+
+      <!-- SOD -->
+      <div class="sod-section">
+        <div class="sod-section-label">Bewertungskette S × O × D</div>
+        <div class="sod-row">
+          <!-- S -->
+          <div class="sod-item">
+            <div class="sod-type-row">
+              <span class="sod-type">Schwere (S)</span>
+            </div>
+            <div class="sod-value">9</div>
+            <div class="sod-criterion">Sicherheitsrelevantes Versagen mit möglichen Personenschäden</div>
+            <div class="sod-example">Bsp.: Bersten des Reaktors, Verletzung von Personal</div>
+            <div class="sod-begruendung">Reaktorwandung bei Überdruckereignis ohne Entlastung gefährdet</div>
+            <div class="sod-soll">
+              <span class="soll-tag soll-missed">SOLL ≤ 8 ✗</span>
+            </div>
+          </div>
+          <div class="sod-operator">×</div>
+          <!-- O -->
+          <div class="sod-item">
+            <div class="sod-type-row">
+              <span class="sod-type">Auftreten (O)</span>
+            </div>
+            <div class="sod-value">2</div>
+            <div class="sod-criterion">Seltenes Auftreten (&lt;1×/2 Jahre)</div>
+            <div class="sod-example">Bsp.: Mechanische Verklemmung durch Korrosion</div>
+            <div class="sod-begruendung">PRV wird halbjährlich geprüft, Korrosionsschutz vorhanden</div>
+            <div class="sod-soll">
+              <span class="soll-tag soll-missed">SOLL ≤ 1 ✗</span>
+            </div>
+          </div>
+          <div class="sod-operator">×</div>
+          <!-- D -->
+          <div class="sod-item">
+            <div class="sod-type-row">
+              <span class="sod-type">Entdeckung (D)</span>
+            </div>
+            <div class="sod-value">4</div>
+            <div class="sod-criterion">Mäßige Erkennung</div>
+            <div class="sod-example">Bsp.: Druckanstieg im DCS sichtbar ab 5 bar Überschreitung</div>
+            <div class="sod-begruendung">Kein direkter Ventil-Positionssensor</div>
+            <div class="sod-soll">
+              <span class="soll-tag soll-missed">SOLL ≤ 3 ✗</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RPZ Result row -->
+      <div class="sod-rpz-result">
+        <span class="rpz-calc">RPZ = 9 × 2 × 4 = <strong>72</strong></span>
+        <span class="sonderregel-note">⚑ Sonderregel: S = 9 → Status automatisch HOCH (AIAG-VDA §4.2)</span>
+      </div>
+
+      <!-- Causes + Effects -->
+      <div class="two-col">
+        <div class="two-col-section">
+          <div class="section-label">Fehlerursachen</div>
+          <div class="cause-item">
+            <span class="cause-id">U-D01-1</span>
+            <span class="cause-text">Korrosion an Ventilsitz <span class="cause-type">Chemisch</span></span>
+          </div>
+          <div class="cause-item">
+            <span class="cause-id">U-D01-2</span>
+            <span class="cause-text">Fremdkörper in Sitzfläche <span class="cause-type">Mechanisch</span></span>
+          </div>
+        </div>
+        <div class="two-col-section">
+          <div class="section-label">Fehlerfolgen</div>
+          <div class="effect-row">
+            <span class="effect-label">Mensch</span>
+            <span class="effect-value effect-hoch">Verletzungsgefahr durch Druckwelle · hoch</span>
+          </div>
+          <div class="effect-row">
+            <span class="effect-label">Umwelt</span>
+            <span class="effect-value effect-mittel">Freisetzung Prozessmedium · mittel</span>
+          </div>
+          <div class="effect-row">
+            <span class="effect-label">Anlage</span>
+            <span class="effect-value effect-hoch">Totalausfall Reaktor · hoch</span>
+          </div>
+          <div class="effect-row">
+            <span class="effect-label">Kosten</span>
+            <span class="effect-value effect-hoch">&gt; 100.000 € · hoch</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-section">
+        <div class="section-label">Überwachungsmaßnahmen (ist)</div>
+        <div class="control-item">
+          <span class="control-id">C-D01-1</span>
+          <span class="control-text">Druckalarm PAH-201 bei 8 bar <span class="control-tag control-reaktiv">Detektion · REAKTIV</span></span>
+        </div>
+        <div class="control-item">
+          <span class="control-id">C-D01-2</span>
+          <span class="control-text">Jährliche PRV-Prüfung <span class="control-tag control-praev">Prävention · PRÄVENTIV</span></span>
+        </div>
+      </div>
+
+      <!-- Measures -->
+      <div class="measures-section">
+        <div class="section-label">Empfohlene Maßnahmen</div>
+        <div class="measure-item">
+          <div class="measure-arrow">→</div>
+          <div class="measure-content">
+            <div class="measure-id-title">
+              <span class="measure-id">M-D01-1</span>
+              <span class="measure-title">Ventil-Positionssensor nachrüsten</span>
+              <span class="measure-type-tag">STOP/T</span>
+            </div>
+            <div class="measure-delta">
+              Verbesserung: D: 4 → <strong>2</strong> &nbsp;|&nbsp; RPZ: 72 → <span class="rpz-new">36</span>
+              &nbsp;<span class="badge status-niedrig" style="font-size:8px;padding:1px 6px;">NIEDRIG</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- end FM-D01 -->
+
+    <!-- FM-D02 — MITTEL -->
+    <div class="card-full mittel">
+      <div class="card-header">
+        <div class="card-header-left">
+          <span class="card-fm-id">FM-D02</span>
+          <span class="card-fm-title">Druckmessung zeigt falschen Wert</span>
+        </div>
+        <div class="card-status-block">
+          <span class="badge status-mittel">MITTEL</span>
+          <span class="rpz-display">RPZ = <span>96</span></span>
+        </div>
+      </div>
+
+      <div class="card-narrative">
+        Fehlerhafte Druckmessung durch Messumformer PT-201 verhindert rechtzeitige Erkennung von Druckanomalie.
+      </div>
+
+      <!-- SOD -->
+      <div class="sod-section">
+        <div class="sod-section-label">Bewertungskette S × O × D</div>
+        <div class="sod-row">
+          <!-- S -->
+          <div class="sod-item">
+            <div class="sod-type-row">
+              <span class="sod-type">Schwere (S)</span>
+            </div>
+            <div class="sod-value">6</div>
+            <div class="sod-criterion">Erhebliche Betriebsstörung</div>
+            <div class="sod-example">Bsp.: Fehlregelung führt zu Prozessabweichung</div>
+            <div class="sod-begruendung">Falscher Druckwert führt zu Fehlregelung</div>
+            <div class="sod-soll">
+              <span class="soll-tag soll-missed">SOLL ≤ 5 ✗</span>
+            </div>
+          </div>
+          <div class="sod-operator">×</div>
+          <!-- O -->
+          <div class="sod-item">
+            <div class="sod-type-row">
+              <span class="sod-type">Auftreten (O)</span>
+            </div>
+            <div class="sod-value">4</div>
+            <div class="sod-criterion">Gelegentlich, 1–2× / Jahr</div>
+            <div class="sod-example">Bsp.: Membranfehler am Messumformer</div>
+            <div class="sod-begruendung">Membranfehler am Messumformer bekannt</div>
+            <div class="sod-soll">
+              <span class="soll-tag soll-missed">SOLL ≤ 3 ✗</span>
+            </div>
+          </div>
+          <div class="sod-operator">×</div>
+          <!-- D -->
+          <div class="sod-item">
+            <div class="sod-type-row">
+              <span class="sod-type">Entdeckung (D)</span>
+            </div>
+            <div class="sod-value">4</div>
+            <div class="sod-criterion">Mäßige Erkennung</div>
+            <div class="sod-example">Bsp.: Kein automatischer Messwertvergleich</div>
+            <div class="sod-begruendung">Plausibilitätsprüfung nicht implementiert</div>
+            <div class="sod-soll">
+              <span class="soll-tag soll-missed">SOLL ≤ 2 ✗</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sod-rpz-result">
+        <span class="rpz-calc">RPZ = 6 × 4 × 4 = <strong>96</strong></span>
+        <span style="font-size:9.5px;color:#7A5A0C;background:#FEF9EE;border:1px solid #C8A84A;border-radius:3px;padding:2px 7px;margin-left:4px;">
+          Schwelle: 50 ≤ RPZ &lt; 100 → MITTEL
+        </span>
+      </div>
+
+      <!-- Causes + Effects -->
+      <div class="two-col">
+        <div class="two-col-section">
+          <div class="section-label">Fehlerursachen</div>
+          <div class="cause-item">
+            <span class="cause-id">U-D02-1</span>
+            <span class="cause-text">Membrandefekt PT-201 <span class="cause-type">Mechanisch</span></span>
+          </div>
+          <div class="cause-item">
+            <span class="cause-id">U-D02-2</span>
+            <span class="cause-text">Kondensatansammlung im Impulsleitrohr <span class="cause-type">Prozesstechnisch</span></span>
+          </div>
+        </div>
+        <div class="two-col-section">
+          <div class="section-label">Fehlerfolgen</div>
+          <div class="effect-row">
+            <span class="effect-label">Mensch</span>
+            <span class="effect-value">Kein direktes Risiko</span>
+          </div>
+          <div class="effect-row">
+            <span class="effect-label">Anlage</span>
+            <span class="effect-value effect-mittel">Fehlregelung Druckregelkreis · mittel</span>
+          </div>
+          <div class="effect-row">
+            <span class="effect-label">Produkt</span>
+            <span class="effect-value effect-mittel">Spezifikationsabweichung möglich · mittel</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-section">
+        <div class="section-label">Überwachungsmaßnahmen (ist)</div>
+        <div class="control-item">
+          <span class="control-id">C-D02-1</span>
+          <span class="control-text">Routineprüfung Messumformer vierteljährlich <span class="control-tag control-praev">Prävention · PRÄVENTIV</span></span>
+        </div>
+      </div>
+
+      <!-- Measures -->
+      <div class="measures-section">
+        <div class="section-label">Empfohlene Maßnahmen</div>
+        <div class="measure-item">
+          <div class="measure-arrow">→</div>
+          <div class="measure-content">
+            <div class="measure-id-title">
+              <span class="measure-id">M-D02-1</span>
+              <span class="measure-title">Redundanten Druckmesser PT-202 installieren</span>
+              <span class="measure-type-tag">ABE</span>
+            </div>
+            <div class="measure-delta">
+              Verbesserung: O: 4 → <strong>2</strong>, D: 4 → <strong>2</strong> &nbsp;|&nbsp; RPZ: 96 → <span class="rpz-new">24</span>
+              &nbsp;<span class="badge status-niedrig" style="font-size:8px;padding:1px 6px;">NIEDRIG</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- end FM-D02 -->
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- TIER SEPARATOR -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <div class="tier-separator">
+      <div class="tier-sep-line"></div>
+      <div class="tier-sep-label">Unkritische Fehlermodi (NIEDRIG) — vollständig bewertet</div>
+      <div class="tier-sep-line"></div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- TIER 2 CARDS (NIEDRIG — compact) -->
+    <!-- ════════════════════════════════════════════════════════ -->
+
+    <!-- FM-D03 — NIEDRIG -->
+    <div class="card-compact">
+      <div class="compact-header">
+        <div class="compact-header-left">
+          <span class="compact-fm-id">FM-D03</span>
+          <span class="compact-fm-title">Druckschwankung durch Pumpenanlauf</span>
+        </div>
+        <span class="badge status-niedrig">NIEDRIG</span>
+      </div>
+
+      <div class="compact-sod-wrapper">
+        <!-- S -->
+        <div class="compact-sod-item">
+          <div class="compact-sod-type">S</div>
+          <div class="compact-sod-value">4</div>
+          <div class="compact-sod-criterion">Geringfügige Betriebsstörung</div>
+          <div class="compact-sod-begruendung">Kurzzeitige Schwankung ohne Systemgefährdung</div>
+          <div class="compact-sod-soll"><span class="compact-soll-met">SOLL ≤ 4 ✓</span></div>
+        </div>
+        <div class="compact-sod-operator">×</div>
+        <!-- O -->
+        <div class="compact-sod-item">
+          <div class="compact-sod-type">O</div>
+          <div class="compact-sod-value">3</div>
+          <div class="compact-sod-criterion">Gelegentlich</div>
+          <div class="compact-sod-begruendung">Bekanntes Anlaufverhalten, durch SPS gedämpft</div>
+          <div class="compact-sod-soll"><span class="compact-soll-met">SOLL ≤ 3 ✓</span></div>
+        </div>
+        <div class="compact-sod-operator">×</div>
+        <!-- D -->
+        <div class="compact-sod-item">
+          <div class="compact-sod-type">D</div>
+          <div class="compact-sod-value">3</div>
+          <div class="compact-sod-criterion">Gute Erkennung</div>
+          <div class="compact-sod-begruendung">Trendüberwachung im SCADA aktiv</div>
+          <div class="compact-sod-soll"><span class="compact-soll-met">SOLL ≤ 3 ✓</span></div>
+        </div>
+        <div class="compact-sod-operator">=</div>
+        <!-- RPZ Result -->
+        <div class="compact-rpz-result">
+          <div>
+            <div class="compact-rpz-eq">RPZ</div>
+            <div class="compact-rpz-val">36</div>
+            <div class="compact-rpz-label">NIEDRIG</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="compact-note">
+        <strong>Unkritisch:</strong> Alle S/O/D-SOLL-Werte bereits erfüllt. Kein Handlungsbedarf.
+      </div>
+      <div class="compact-footer">
+        <div class="compact-meta">
+          <span>2 Ursachen</span><span>0 Maßnahmen</span>
+        </div>
+        <span class="compact-collapse-hint">Details auf Anfrage verfügbar</span>
+      </div>
+    </div><!-- end FM-D03 -->
+
+    <!-- FM-D04 — NIEDRIG -->
+    <div class="card-compact">
+      <div class="compact-header">
+        <div class="compact-header-left">
+          <span class="compact-fm-id">FM-D04</span>
+          <span class="compact-fm-title">Leckage an Flanschverbindung (&lt; 1 l/h)</span>
+        </div>
+        <span class="badge status-niedrig">NIEDRIG</span>
+      </div>
+
+      <div class="compact-sod-wrapper">
+        <div class="compact-sod-item">
+          <div class="compact-sod-type">S</div>
+          <div class="compact-sod-value">3</div>
+          <div class="compact-sod-criterion">Geringfügig, kein Personenrisiko</div>
+          <div class="compact-sod-begruendung">Leckagerate im sicheren Bereich gemäß TA Luft</div>
+          <div class="compact-sod-soll"><span class="compact-soll-met">SOLL ≤ 4 ✓</span></div>
+        </div>
+        <div class="compact-sod-operator">×</div>
+        <div class="compact-sod-item">
+          <div class="compact-sod-type">O</div>
+          <div class="compact-sod-value">4</div>
+          <div class="compact-sod-criterion">Gelegentlich</div>
+          <div class="compact-sod-begruendung">Alterung der Flanschdichtungen bekannt</div>
+          <div class="compact-sod-soll"><span class="compact-soll-met">SOLL ≤ 4 ✓</span></div>
+        </div>
+        <div class="compact-sod-operator">×</div>
+        <div class="compact-sod-item">
+          <div class="compact-sod-type">D</div>
+          <div class="compact-sod-value">2</div>
+          <div class="compact-sod-criterion">Sehr gute Erkennung</div>
+          <div class="compact-sod-begruendung">Gasmessgerät GAS-001 im Direktumfeld</div>
+          <div class="compact-sod-soll"><span class="compact-soll-met">SOLL ≤ 3 ✓</span></div>
+        </div>
+        <div class="compact-sod-operator">=</div>
+        <div class="compact-rpz-result">
+          <div>
+            <div class="compact-rpz-eq">RPZ</div>
+            <div class="compact-rpz-val">24</div>
+            <div class="compact-rpz-label">NIEDRIG</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="compact-note">
+        <strong>Unkritisch:</strong> Leckagemengen unterhalb TA-Luft-Schwellenwert. Gasdetektion vorhanden.
+      </div>
+      <div class="compact-footer">
+        <div class="compact-meta">
+          <span>2 Ursachen</span><span>0 Maßnahmen</span>
+        </div>
+        <span class="compact-collapse-hint">Details auf Anfrage verfügbar</span>
+      </div>
+    </div><!-- end FM-D04 -->
+
+    <!-- FM-D05 — NIEDRIG -->
+    <div class="card-compact">
+      <div class="compact-header">
+        <div class="compact-header-left">
+          <span class="compact-fm-id">FM-D05</span>
+          <span class="compact-fm-title">Temperaturgradient bei Hochfahren</span>
+        </div>
+        <span class="badge status-niedrig">NIEDRIG</span>
+      </div>
+
+      <div class="compact-sod-wrapper">
+        <div class="compact-sod-item">
+          <div class="compact-sod-type">S</div>
+          <div class="compact-sod-value">5</div>
+          <div class="compact-sod-criterion">Mittlere Betriebsstörung</div>
+          <div class="compact-sod-begruendung">Thermischer Stress auf Leitungen, keine Personengefährdung</div>
+          <div class="compact-sod-soll"><span class="compact-soll-met">SOLL ≤ 5 ✓</span></div>
+        </div>
+        <div class="compact-sod-operator">×</div>
+        <div class="compact-sod-item">
+          <div class="compact-sod-type">O</div>
+          <div class="compact-sod-value">2</div>
+          <div class="compact-sod-criterion">Selten</div>
+          <div class="compact-sod-begruendung">Hochfahrprozedur SOP-007 definiert Temperaturrampe</div>
+          <div class="compact-sod-soll"><span class="compact-soll-met">SOLL ≤ 3 ✓</span></div>
+        </div>
+        <div class="compact-sod-operator">×</div>
+        <div class="compact-sod-item">
+          <div class="compact-sod-type">D</div>
+          <div class="compact-sod-value">2</div>
+          <div class="compact-sod-criterion">Sehr gute Erkennung</div>
+          <div class="compact-sod-begruendung">Kontinuierliche Temperaturüberwachung SCADA</div>
+          <div class="compact-sod-soll"><span class="compact-soll-met">SOLL ≤ 3 ✓</span></div>
+        </div>
+        <div class="compact-sod-operator">=</div>
+        <div class="compact-rpz-result">
+          <div>
+            <div class="compact-rpz-eq">RPZ</div>
+            <div class="compact-rpz-val">20</div>
+            <div class="compact-rpz-label">NIEDRIG</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="compact-note">
+        <strong>Unkritisch:</strong> SOP-007 stellt kontrolliertes Hochfahren sicher. Monitoring vorhanden.
+      </div>
+      <div class="compact-footer">
+        <div class="compact-meta">
+          <span>1 Ursache</span><span>0 Maßnahmen</span>
+        </div>
+        <span class="compact-collapse-hint">Details auf Anfrage verfügbar</span>
+      </div>
+    </div><!-- end FM-D05 -->
+
+  </div><!-- end function-group -->
+
+  <!-- Report Footer -->
+  <div class="report-footer">
+    <span class="footer-note">Dieses Dokument ist ein Entwurf. Nicht zur Freigabe bestimmt.</span>
+    <span class="footer-accent">RiskAI · FMEA Engine v2</span>
+  </div>
+
+</div><!-- end report-wrapper -->
+</body>
+</html>

@@ -120,6 +120,7 @@
   <a href="#chart-treemap" class="toc-item toc-sub"><span class="toc-text">Risiko-Treemap</span></a>
   <a href="#sec-5" class="toc-item"><span class="toc-num">5</span><span class="toc-text">Detaillierte Risiko-Dokumentation</span></a>
   <a href="#sec-6" class="toc-item"><span class="toc-num">6</span><span class="toc-text">Anhang</span></a>
+  <a href="#sec-6" class="toc-item toc-sub"><span class="toc-text">6.0 Abkürzungsverzeichnis</span></a>
 </div>
 
 </div>
@@ -213,7 +214,8 @@
 </div>
 
 <p>
-  Die vorliegende Analyse basiert auf der FMEA-Methodik nach AIAG-VDA (1. Auflage, 2019).
+  Die vorliegende Fehlermöglichkeits- und Einflussanalyse (FMEA) basiert auf der Methodik nach
+  AIAG-VDA (Automotive Industry Action Group – Verband der Automobilindustrie, 1. Auflage, 2019).
   Dieses Verfahren ist der internationale Standard für systematische Risikoanalysen in der
   Automobil-, Prozess- und Anlagentechnik. Im Unterschied zu älteren FMEA-Ansätzen integriert
   der AIAG-VDA-Standard eine durchgängige Verknüpfung von Struktur-, Funktions- und
@@ -221,11 +223,12 @@
   bis zur betroffenen Komponente und Funktion.
 </p>
 <p>
-  Die Risikobewertung erfolgt über drei Dimensionen: <strong>Bedeutung (Severity, S)</strong> bewertet
-  die Schwere der Fehlerauswirkung auf einer Skala von 1–10. <strong>Auftreten (Occurrence, O)</strong>
-  schätzt die Wahrscheinlichkeit des Fehlereintritts ein, gestützt auf Zuverlässigkeitsdaten und
-  Betriebserfahrung. <strong>Entdeckung (Detection, D)</strong> bewertet die Fähigkeit bestehender
-  Prüf- und Überwachungsmaßnahmen, den Fehler vor Eintritt der Auswirkung zu erkennen.
+  Die Risikobewertung erfolgt über drei Dimensionen:
+  <strong>Bedeutung (Severity, S)</strong> bewertet die Schwere der Fehlerauswirkung auf einer Skala von 1–10.
+  <strong>Auftreten (Occurrence, O)</strong> schätzt die Wahrscheinlichkeit des Fehlereintritts ein,
+  gestützt auf publizierte Ausfallratendaten und Betriebserfahrung.
+  <strong>Entdeckung (Detection, D)</strong> bewertet die Fähigkeit bestehender Prüf- und
+  Überwachungsmaßnahmen, den Fehler vor Eintritt der Auswirkung zu erkennen.
   Das Produkt S × O × D ergibt die Risikoprioritätszahl (RPZ, Wertebereich 1–1000).
 </p>
 
@@ -237,11 +240,39 @@
 </p>
 <ol class="steps-list">
   <li><span class="step-name">Strukturanalyse</span><span class="step-desc">Zerlegung der Anlage in Einzelkomponenten mit Systemkontext – ermöglicht die gezielte Zuordnung von Funktionen und Fehlern zu konkreten Baugruppen und Betriebsmitteln.</span></li>
-  <li><span class="step-name">Funktionsanalyse</span><span class="step-desc">Identifikation der Haupt- und Nebenfunktionen jeder Komponente – bildet die Grundlage für die systematische Ableitung möglicher Funktionsverluste und Fehlfunktionen.</span></li>
-  <li><span class="step-name">Fehleranalyse</span><span class="step-desc">Ermittlung von Fehlermodi, deren Ursachen (inkl. Herkunft und Präventionsphase), Folgen für vor- und nachgelagerte Systeme sowie bestehende Prüf- und Kontrollmaßnahmen.</span></li>
-  <li><span class="step-name">Risikobewertung</span><span class="step-desc">Quantitative Bewertung jedes Fehlermodus nach Severity, Occurrence und Detection. Die RPZ-Berechnung ermöglicht eine objektive Priorisierung der Risiken.</span></li>
-  <li><span class="step-name">Maßnahmenoptimierung</span><span class="step-desc">Definition risikomindernder Maßnahmen nach der ABE-Hierarchie (Vermeidung vor Entdeckung vor Abschwächung) und dem STOP-Prinzip (Substitution → Technisch → Organisatorisch → Persönlich). Jede Maßnahme wird mit einer Nachbewertung versehen.</span></li>
+  <li><span class="step-name">Domänenrecherche</span><span class="step-desc">Sichtung verfahrenstechnischer Grundlagen, relevanter Gefährdungen und geltender Vorschriften (z.&#8239;B. 12.&#8239;BImSchV, ATEX) für den spezifischen Prozess. Neues Domänenwissen wird projektbegleitend dokumentiert und für zukünftige Analysen verfügbar gemacht.</span></li>
+  <li><span class="step-name">Systematische Fehleridentifikation</span><span class="step-desc">Für jede Komponente werden alle 9 Fehlermodi-Kategorien geprüft (vollständige Checkliste – keine Kategorie wird stillschweigend ausgelassen; nicht anwendbare Kategorien werden mit Begründung dokumentiert).</span></li>
+  <li><span class="step-name">Funktionsanalyse &amp; Fehleranalyse</span><span class="step-desc">Identifikation der Haupt- und Nebenfunktionen sowie Ermittlung von Fehlermodi, deren Ursachen, Folgen für vor- und nachgelagerte Systeme und bestehende Kontrollmaßnahmen.</span></li>
+  <li><span class="step-name">Risikobewertung S/O/D</span><span class="step-desc">Quantitative Bewertung jedes Fehlermodus nach Bedeutung (S), Auftreten (O) und Entdeckung (D). Die O-Einstufung wird mit publizierten Ausfallratendaten (CCPS, OREDA, IEC) abgeglichen. Die Risikoprioritätszahl (RPZ) ermöglicht eine objektive Priorisierung.</span></li>
+  <li><span class="step-name">Maßnahmenoptimierung</span><span class="step-desc">Definition risikomindernder Maßnahmen nach dem STOP-Prinzip (Substitution – Technisch – Organisatorisch – Persönlich) und der ABE-Hierarchie (Abschaffend – Begrenzend – Entdeckend). Jede Maßnahme wird mit einem neu berechneten Restrisiko (RPZ_neu) versehen.</span></li>
 </ol>
+<div class="info-box" style="margin-top:4mm;">
+  <strong>KI-gestützte Analyse:</strong> Die Analyse wird computergestützt unter Einsatz von
+  KI-Assistenztechnologie durchgeführt. Alle Bewertungen und Maßnahmen werden durch den
+  verantwortlichen Ingenieur überprüft und freigegeben.
+</div>
+
+<h4 class="mt-lg">Normative Grundlagen und Datenquellen</h4>
+<p>Die Analyse stützt sich auf folgende Normen, Richtlinien und Zuverlässigkeitsdatenbanken:</p>
+<table>
+  <thead><tr><th>Norm / Quelle</th><th>Anwendungsbereich</th></tr></thead>
+  <tbody>
+    <tr><td>AIAG-VDA FMEA (1.&nbsp;Auflage, 2019)</td><td>Methodischer Rahmen, S/O/D-Systematik, Sonderregeln</td></tr>
+    <tr><td>CCPS Guidelines for Process Equipment Reliability Data (AIChE)</td><td>Referenz-Ausfallraten für Prozessanlagen</td></tr>
+    <tr><td>IEC 61511 / IEC 61508</td><td>Safety Integrity Level (SIL)-Zuverlässigkeitsdaten, sicherheitsgerichtete Systeme</td></tr>
+    <tr><td>IEEE Std 493 (Gold Book)</td><td>Allgemeine Equipment-Zuverlässigkeitsdaten</td></tr>
+    <tr><td>OREDA (öffentlich zugängliche Zusammenfassungen)</td><td>Ausfallraten für Prozess- und Offshore-Anlagen</td></tr>
+    <tr><td>VDI 4006</td><td>Zuverlässigkeit in der Verfahrenstechnik</td></tr>
+  </tbody>
+</table>
+<div class="special-rule-box" style="margin-top:3mm;">
+  <span class="special-rule-icon">ℹ</span>
+  <div class="special-rule-content">
+    <div class="special-rule-desc">Die angegebenen Ausfallraten sind Orientierungswerte auf Basis veröffentlichter Industrie-Daten.
+    Für sicherheitskritische Entscheidungen sind herstellerspezifische Zuverlässigkeitsdaten und
+    betriebliche Erfahrungswerte heranzuziehen.</div>
+  </div>
+</div>
 
 {% for scale_key, scale_title, info_dict in scales %}
 <h4 class="mt-lg">Bewertungsskala: {{ scale_title }}</h4>
@@ -260,13 +291,41 @@
 <table>
   <thead><tr><th>Bereich</th><th>Klassifizierung</th><th>Maßnahme erforderlich</th></tr></thead>
   <tbody>
-    <tr><td>≥ 200</td><td><span class="badge badge-kritisch">Kritisch</span></td><td>Sofortige Maßnahme</td></tr>
-    <tr><td>≥ 125</td><td><span class="badge badge-hoch">Hoch</span></td><td>Maßnahme zeitnah umsetzen</td></tr>
-    <tr><td>≥ 50</td><td><span class="badge badge-mittel">Mittel</span></td><td>Maßnahme planen</td></tr>
-    <tr><td>&lt; 50</td><td><span class="badge badge-niedrig">Niedrig</span></td><td>Monitoring</td></tr>
+    <tr><td>≥ 300</td><td><span class="badge badge-kritisch">Kritisch</span></td><td>Sofortige Maßnahme erforderlich</td></tr>
+    <tr><td>≥ 200</td><td><span class="badge badge-hoch">Hoch</span></td><td>Maßnahme zeitnah umsetzen</td></tr>
+    <tr><td>≥ 100</td><td><span class="badge badge-mittel">Mittel</span></td><td>Maßnahme planen</td></tr>
+    <tr><td>&lt; 100</td><td><span class="badge badge-niedrig">Niedrig</span></td><td>Monitoring ausreichend</td></tr>
   </tbody>
 </table>
 
+
+<h4 class="mt-lg">Datenbasis der O-Bewertung (Ausfallraten)</h4>
+<p>
+  Die Einstufung des Auftretens (O) basiert auf publizierten Ausfallraten in der Einheit
+  <strong>FPMH (Failures Per Million Hours – Ausfälle pro Million Betriebsstunden)</strong>.
+  Die folgende Tabelle zeigt die Zuordnung von FPMH-Werten zu O-Stufen nach AIAG-VDA:
+</p>
+<table>
+  <thead><tr><th>O</th><th>FPMH ≤</th><th>Häufigkeitsbeschreibung</th></tr></thead>
+  <tbody>
+    <tr><td class="scale-num">1</td><td>1</td><td>Extrem unwahrscheinlich, nahezu ausgeschlossen</td></tr>
+    <tr><td class="scale-num">2</td><td>3</td><td>Sehr gering, konstruktiv oder betrieblich verhindert</td></tr>
+    <tr><td class="scale-num">3</td><td>8</td><td>Gering, bei üblicher Betriebsführung selten</td></tr>
+    <tr><td class="scale-num">4</td><td>15</td><td>Mäßig gering</td></tr>
+    <tr><td class="scale-num">5</td><td>25</td><td>Mäßig, gelegentliches Auftreten</td></tr>
+    <tr><td class="scale-num">6</td><td>40</td><td>Mäßig hoch</td></tr>
+    <tr><td class="scale-num">7</td><td>60</td><td>Hoch, häufiges Auftreten</td></tr>
+    <tr><td class="scale-num">8</td><td>100</td><td>Sehr hoch</td></tr>
+    <tr><td class="scale-num">9</td><td>200</td><td>Sehr hoch, fast unvermeidlich</td></tr>
+    <tr><td class="scale-num">10</td><td>&gt; 200</td><td>Extrem hoch, tritt mit Sicherheit auf</td></tr>
+  </tbody>
+</table>
+<p style="font-size:0.82rem; color:var(--color-text-muted); margin-top:2mm;">
+  <em>Beispiele:</em> Kreiselpumpe (50 FPMH, typisch) → O&nbsp;=&nbsp;5 (gelegentlich) &nbsp;|&nbsp;
+  Drucktransmitter (8 FPMH) → O&nbsp;=&nbsp;3 (gering) &nbsp;|&nbsp;
+  Sicherheitsventil PSV (10 FPMH) → O&nbsp;=&nbsp;4 (mäßig gering).
+  Quelle: CCPS / OREDA / IEC 61511.
+</p>
 
 <h4 class="mt-lg">Sonderregeln (AIAG-VDA Overrides)</h4>
 <p>Unabhängig vom rechnerischen RPZ-Wert können Sonderregeln den Risikostatus anheben.
@@ -295,6 +354,33 @@
   </div>
 </div>
 
+<h4 class="mt-lg">Fehlermodi-Systematik — 9 Kategorien</h4>
+<p>
+  Für jede Anlage und jede Komponente werden systematisch alle 9 Fehlermodi-Kategorien geprüft.
+  Dieses strukturierte Vorgehen stellt sicher, dass keine Fehlerklasse übersehen wird.
+</p>
+<table>
+  <thead><tr><th>#</th><th>Kategorie</th><th>Typische Fehlermodi (Beispiele)</th></tr></thead>
+  <tbody>
+    <tr><td class="scale-num">1</td><td>Prozess</td><td>Über-/Unterstrom, Rückstrom, Druckabweichung, Konzentrationsabweichung, Phasentrennung</td></tr>
+    <tr><td class="scale-num">2</td><td>Thermisch</td><td>Überhitzung, Unterkühlung, thermischer Schock, Verlust der Wärmeabfuhr, lokale Überhitzung (Hot Spot)</td></tr>
+    <tr><td class="scale-num">3</td><td>Mechanisch</td><td>Erosion, Kavitation, Vibration/Resonanz, externe Leckage, interne Leckage (Bypass), Materialermüdung</td></tr>
+    <tr><td class="scale-num">4</td><td>Equipment</td><td>Fouling/Belagbildung, Verstopfung, Gleitringdichtungsversagen, Beschädigung von Einbauten, Vakuumverlust</td></tr>
+    <tr><td class="scale-num">5</td><td>Elektrisch</td><td>Vollständiger Spannungsausfall, Spannungseinbruch, Phasenausfall, elektromagnetische Einkopplung (EMV), Erdschluss</td></tr>
+    <tr><td class="scale-num">6</td><td>Mess-, Steuer- und Regelungstechnik (MSR)</td><td>Messwertdrift, eingefrorener Messwert, Signalrauschen, Aktor-Blockade, Logikfehler, Kommunikationsabriss (Busfehler)</td></tr>
+    <tr><td class="scale-num">7</td><td>Sicherheitseinrichtungen</td><td>Sicherheitsventil (PSV) öffnet nicht, Frühauslösung, Ausfall der Inertisierung, Flammendurchschlag, Fehlauslösung Not-Halt</td></tr>
+    <tr><td class="scale-num">8</td><td>Dosierung</td><td>Überdosierung, Unterdosierung, falsche Dosierreihenfolge, Gasblasen im Dosierstrom</td></tr>
+    <tr><td class="scale-num">9</td><td>Sonstiges</td><td>Bedienfehler, Fehlkennzeichnung von Leitungen/Ventilen, externe Einwirkung (mechanisch, Umwelt)</td></tr>
+  </tbody>
+</table>
+<div class="special-rule-box" style="margin-top:3mm;">
+  <span class="special-rule-icon">ℹ</span>
+  <div class="special-rule-content">
+    <div class="special-rule-desc">Nicht anwendbare Kategorien werden explizit mit Begründung dokumentiert – keine stillschweigende Auslassung.
+    Besonderes Augenmerk gilt externen Versorgungsschnittstellen (Kühlwasser, Stickstoff, Elektrik), die als potenzielle Fehlerquellen stets explizit geprüft werden.</div>
+  </div>
+</div>
+
 <h4 class="mt-lg">STOP-Prinzip (Maßnahmen-Hierarchie)</h4>
 <p>Die Maßnahmen werden nach dem STOP-Prinzip klassifiziert, das die Wirksamkeit in absteigender Reihenfolge priorisiert:</p>
 <table>
@@ -306,6 +392,36 @@
     <tr><td style="text-align:center;"><span class="stop-badge stop-P"><span class="stop-icon">👤</span>P</span></td><td>Persönlich</td><td>Persönliche Schutzausrüstung (PSA)</td><td>Schutzbrille, Handschuhe, Atemschutz</td></tr>
   </tbody>
 </table>
+
+<h4 class="mt-lg">ABE-Hierarchie (Wirkungstyp der Maßnahmen)</h4>
+<p>
+  Jede Maßnahme wird zusätzlich zum STOP-Prinzip nach ihrer Wirkungsweise eingestuft
+  (Abschaffend – Begrenzend – Entdeckend, kurz ABE):
+</p>
+<table>
+  <thead><tr><th>Stufe</th><th>Bezeichnung</th><th>Wirkung der Maßnahme</th></tr></thead>
+  <tbody>
+    <tr>
+      <td style="text-align:center; font-weight:800; font-size:1.1rem;">A</td>
+      <td><strong>Abschaffend</strong></td>
+      <td>Der Fehlermodus wird vollständig beseitigt – das Auftreten wird konstruktiv oder verfahrenstechnisch unmöglich gemacht (O → nicht anwendbar).</td>
+    </tr>
+    <tr>
+      <td style="text-align:center; font-weight:800; font-size:1.1rem;">B</td>
+      <td><strong>Begrenzend</strong></td>
+      <td>Die Auswirkung oder Häufigkeit des Fehlermodus wird reduziert – Bedeutung (S_neu) oder Auftreten (O_neu) sinken im Vergleich zur Ausgangsbewertung.</td>
+    </tr>
+    <tr>
+      <td style="text-align:center; font-weight:800; font-size:1.1rem;">E</td>
+      <td><strong>Entdeckend</strong></td>
+      <td>Die Wahrscheinlichkeit der Fehlererkennung wird verbessert – Entdeckung (D_neu) sinkt. Der Fehlermodus selbst bleibt bestehen, wird aber frühzeitiger detektiert.</td>
+    </tr>
+  </tbody>
+</table>
+<p style="font-size:0.82rem; color:var(--color-text-muted); margin-top:2mm;">
+  Maßnahmen der Stufe A (Abschaffend) werden gegenüber B und E bevorzugt.
+  Stufe E gilt als letztes Mittel, wenn Abschaffen und Begrenzen nicht möglich sind.
+</p>
 
 {# ═══════════════════════  3. ANLAGENBESCHREIBUNG  ═══════════════════════ #}
 </div>
@@ -967,11 +1083,34 @@
 </div>
 
 <p>
-  Der Anhang enthält den RPZ-Vergleich (Vorher/Nachher), eine erweiterte Maßnahmentabelle
-  zum Herauskopieren und zur systematischen Nachverfolgung sowie ein Glossar der
-  verwendeten Fachbegriffe. Die vollständige Risikoübersicht mit S/O/D-Bewertungen
-  befindet sich als klickbares Inhaltsverzeichnis zu Beginn von Kapitel 5.
+  Der Anhang enthält das Abkürzungsverzeichnis, den RPZ-Vergleich (Vorher/Nachher),
+  eine erweiterte Maßnahmentabelle sowie ein Glossar der verwendeten Fachbegriffe.
+  Die vollständige Risikoübersicht mit S/O/D-Bewertungen befindet sich in Kapitel 5.
 </p>
+
+<h3>6.0 Abkürzungsverzeichnis</h3>
+<table>
+  <thead><tr><th>Abkürzung</th><th>Bedeutung</th></tr></thead>
+  <tbody>
+    <tr><td><strong>ABE</strong></td><td>Abschaffend – Begrenzend – Entdeckend (Wirkungstyp-Klassifikation für Maßnahmen)</td></tr>
+    <tr><td><strong>AIAG-VDA</strong></td><td>Automotive Industry Action Group – Verband der Automobilindustrie (Herausgeber des FMEA-Standards)</td></tr>
+    <tr><td><strong>ATEX</strong></td><td>Atmosphères Explosibles – EU-Richtlinie für Geräte und Schutzsysteme in explosionsgefährdeten Bereichen</td></tr>
+    <tr><td><strong>BImSchV</strong></td><td>Bundes-Immissionsschutzverordnung (12. BImSchV = Störfall-Verordnung)</td></tr>
+    <tr><td><strong>CCPS</strong></td><td>Center for Chemical Process Safety (Division der AIChE – American Institute of Chemical Engineers)</td></tr>
+    <tr><td><strong>D</strong></td><td>Entdeckung / Detection – Bewertungsdimension der FMEA (Skala 1–10, 1 = sicher entdeckt)</td></tr>
+    <tr><td><strong>FMEA</strong></td><td>Fehlermöglichkeits- und Einflussanalyse (engl. Failure Mode and Effects Analysis)</td></tr>
+    <tr><td><strong>FPMH</strong></td><td>Failures Per Million Hours – Ausfälle pro Million Betriebsstunden (Einheit für Ausfallraten)</td></tr>
+    <tr><td><strong>MSR</strong></td><td>Mess-, Steuer- und Regelungstechnik</td></tr>
+    <tr><td><strong>MTBF</strong></td><td>Mean Time Between Failures – mittlere Betriebsdauer zwischen zwei Ausfällen</td></tr>
+    <tr><td><strong>O</strong></td><td>Auftreten / Occurrence – Bewertungsdimension der FMEA (Skala 1–10, 1 = extrem selten)</td></tr>
+    <tr><td><strong>OREDA</strong></td><td>Offshore and Onshore Reliability Data – internationale Ausfallratendatenbank für Prozessanlagen</td></tr>
+    <tr><td><strong>PSV</strong></td><td>Pressure Safety Valve – Sicherheitsventil / Überdruckventil</td></tr>
+    <tr><td><strong>RPZ</strong></td><td>Risikoprioritätszahl = S × O × D (Wertebereich 1–1000)</td></tr>
+    <tr><td><strong>S</strong></td><td>Bedeutung / Severity – Bewertungsdimension der FMEA (Skala 1–10, 10 = Todesfälle)</td></tr>
+    <tr><td><strong>SIL</strong></td><td>Safety Integrity Level – Sicherheits-Integritätsstufe nach IEC 61508/61511 (SIL 1–4)</td></tr>
+    <tr><td><strong>STOP</strong></td><td>Substitution – Technisch – Organisatorisch – Persönlich (Maßnahmen-Hierarchie)</td></tr>
+  </tbody>
+</table>
 
 {% if comparison_img %}
 <h3 id="chart-rpz-vorher-nachher">A. RPZ-Vergleich: Vorher vs. Nachher</h3>

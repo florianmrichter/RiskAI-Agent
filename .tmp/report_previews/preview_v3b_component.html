@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FMEA Report v3b — Komponentenweise Gliederung</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:             #F7F8FA;
+  --surface:        #FFFFFF;
+  --border:         #E5E7EB;
+  --text-primary:   #111827;
+  --text-secondary: #6B7280;
+  --text-muted:     #9CA3AF;
+  --brand:          #1E3A5F;
+  --brand-light:    #EFF4FB;
+  --risk-kritisch:    #DC2626;
+  --risk-hoch:        #EA580C;
+  --risk-mittel:      #CA8A04;
+  --risk-niedrig:     #16A34A;
+  --risk-kritisch-bg: rgba(220,38,38,0.06);
+  --risk-hoch-bg:     rgba(234,88,12,0.06);
+  --risk-mittel-bg:   rgba(202,138,4,0.06);
+  --risk-niedrig-bg:  rgba(22,163,74,0.06);
+  --sidebar-w: 228px;
+  --radius:    6px;
+  --shadow:    0 1px 3px rgba(0,0,0,0.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; color: var(--text-primary); background: var(--bg); }
+
+.cover { min-height: 100vh; background: var(--brand); display: flex; flex-direction: column; padding: 56px 64px; }
+.cover-logo { display: flex; align-items: center; gap: 10px; margin-bottom: auto; }
+.cover-logo-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.12); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.cover-logo-name { font-size: 15px; font-weight: 700; color: rgba(255,255,255,0.9); }
+.cover-body { margin-bottom: 64px; }
+.cover-label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 20px; }
+.cover-title { font-size: 38px; font-weight: 700; color: #FFF; line-height: 1.2; margin-bottom: 12px; max-width: 560px; }
+.cover-subtitle { font-size: 16px; color: rgba(255,255,255,0.55); margin-bottom: 40px; }
+.cover-meta { display: flex; gap: 32px; flex-wrap: wrap; margin-bottom: 40px; }
+.cover-meta-item { display: flex; flex-direction: column; gap: 4px; }
+.cover-meta-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+.cover-meta-value { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.85); }
+.cover-stats { display: flex; gap: 12px; flex-wrap: wrap; }
+.cover-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.12); }
+.cover-chip .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+.app-shell { display: flex; min-height: 100vh; }
+
+.sidebar { width: var(--sidebar-w); flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; }
+.sidebar-header { padding: 20px 20px 16px; border-bottom: 1px solid var(--border); }
+.sidebar-logo { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.sidebar-logo-icon { width: 26px; height: 26px; background: var(--brand); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: white; }
+.sidebar-logo-name { font-size: 12px; font-weight: 700; color: var(--brand); }
+.sidebar-project { font-size: 12px; font-weight: 600; color: var(--text-primary); line-height: 1.4; }
+.sidebar-project-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+.sidebar-nav { flex: 1; padding: 16px 12px; }
+.nav-section { margin-bottom: 6px; }
+.nav-section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); padding: 6px 8px 4px; }
+.nav-link { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 5px; font-size: 12.5px; color: var(--text-secondary); text-decoration: none; }
+.nav-link:hover { background: var(--bg); color: var(--text-primary); }
+.nav-link.active { background: var(--brand-light); color: var(--brand); font-weight: 600; }
+.nav-sub-link { display: flex; align-items: center; gap: 7px; padding: 4px 8px 4px 22px; border-radius: 5px; font-size: 11.5px; color: var(--text-secondary); text-decoration: none; }
+.nav-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.sidebar-risks { padding: 16px 12px; border-top: 1px solid var(--border); }
+.sidebar-risks-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; padding: 0 8px; }
+.risk-counter-row { display: flex; align-items: center; justify-content: space-between; padding: 5px 8px; border-radius: 5px; }
+.risk-counter-left { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-secondary); }
+.risk-counter-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.risk-counter-n { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+
+.main { flex: 1; max-width: 960px; padding: 40px 40px 80px; }
+.page-section { margin-bottom: 48px; }
+.section-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--border); }
+.section-num { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--brand); margin-bottom: 6px; }
+.section-title { font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.section-desc { font-size: 13px; color: var(--text-secondary); }
+
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+.kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+.kpi-value { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+.kpi-label { font-size: 11.5px; color: var(--text-secondary); }
+.kpi-card.danger .kpi-value { color: var(--risk-kritisch); }
+.kpi-card.warning .kpi-value { color: var(--risk-hoch); }
+.kpi-card.ok .kpi-value { color: var(--risk-niedrig); }
+
+.rpz-dist { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px; box-shadow: var(--shadow); }
+.rpz-dist-title { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+.rpz-dist-bar { display: flex; height: 12px; border-radius: 6px; overflow: hidden; gap: 2px; margin-bottom: 10px; }
+.rpz-dist-seg { border-radius: 3px; }
+.rpz-dist-legend { display: flex; gap: 20px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); }
+.legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+.top5-table { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+.top5-header { display: grid; grid-template-columns: 70px 1fr 80px 90px 110px; padding: 10px 20px; background: var(--bg); border-bottom: 1px solid var(--border); }
+.top5-header-cell { font-size: 10.5px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-muted); }
+.top5-row { display: grid; grid-template-columns: 70px 1fr 80px 90px 110px; padding: 12px 20px; border-bottom: 1px solid var(--border); align-items: center; }
+.top5-row:last-child { border-bottom: none; }
+.top5-row:hover { background: #FAFBFC; }
+.top5-cell { font-size: 13px; color: var(--text-primary); }
+.top5-cell.id { font-size: 11px; font-weight: 700; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.top5-cell.rpz { font-weight: 700; font-variant-numeric: tabular-nums; text-align: center; }
+.top5-cell.center { text-align: center; }
+
+.risk-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+.risk-badge .bdot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.risk-badge.kritisch { background: var(--risk-kritisch-bg); color: var(--risk-kritisch); border: 1px solid rgba(220,38,38,0.2); }
+.risk-badge.hoch     { background: var(--risk-hoch-bg);     color: var(--risk-hoch);     border: 1px solid rgba(234,88,12,0.2); }
+.risk-badge.mittel   { background: var(--risk-mittel-bg);   color: var(--risk-mittel);   border: 1px solid rgba(202,138,4,0.2); }
+.risk-badge.niedrig  { background: var(--risk-niedrig-bg);  color: var(--risk-niedrig);  border: 1px solid rgba(22,163,74,0.2); }
+.risk-badge.kritisch .bdot { background: var(--risk-kritisch); }
+.risk-badge.hoch     .bdot { background: var(--risk-hoch); }
+.risk-badge.mittel   .bdot { background: var(--risk-mittel); }
+.risk-badge.niedrig  .bdot { background: var(--risk-niedrig); }
+
+/* Component Block */
+.component-block { margin-bottom: 48px; }
+.component-header { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--brand); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 20px; box-shadow: var(--shadow); }
+.component-header-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+.component-title-row { display: flex; align-items: center; gap: 12px; }
+.component-icon { width: 40px; height: 40px; border-radius: 8px; background: var(--brand-light); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.component-name { font-size: 17px; font-weight: 700; color: var(--text-primary); }
+.component-id-sub { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-top: 2px; }
+.component-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.component-meta-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.component-meta-item { background: var(--bg); border: 1px solid var(--border); border-radius: 5px; padding: 10px 12px; }
+.component-meta-label { font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 3px; }
+.component-meta-value { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.risk-ampel { display: flex; gap: 4px; align-items: center; }
+.ampel-dot { width: 10px; height: 10px; border-radius: 50%; opacity: 0.2; }
+.ampel-dot.active { opacity: 1; }
+
+/* Function Group */
+.function-group { margin-bottom: 24px; }
+.function-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-secondary); padding: 6px 0; margin-bottom: 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.function-label-badge { font-size: 10px; padding: 1px 7px; border-radius: 10px; background: var(--bg); border: 1px solid var(--border); color: var(--text-muted); font-weight: 600; letter-spacing: 0; text-transform: none; }
+
+/* Risk Card */
+.risk-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 16px; overflow: hidden; position: relative; }
+.risk-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.risk-card.kritisch::before { background: var(--risk-kritisch); }
+.risk-card.hoch::before     { background: var(--risk-hoch); }
+.risk-card.mittel::before   { background: var(--risk-mittel); }
+.risk-card.niedrig::before  { background: var(--risk-niedrig); }
+
+.card-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 16px 20px 14px 24px; gap: 16px; }
+.card-id-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; flex-wrap: wrap; }
+.card-id { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: var(--text-muted); font-variant-numeric: tabular-nums; background: var(--bg); padding: 2px 7px; border-radius: 4px; }
+.card-title { font-size: 15px; font-weight: 700; color: var(--text-primary); line-height: 1.35; }
+.card-header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+
+.card-scores { display: flex; align-items: center; padding: 14px 24px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: #FAFBFC; }
+.sod-group { flex: 1; display: flex; flex-direction: column; gap: 9px; }
+.sod-row { display: flex; align-items: center; gap: 10px; }
+.sod-label { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: var(--text-muted); width: 14px; flex-shrink: 0; }
+.sod-bar-track { flex: 1; height: 7px; background: var(--border); border-radius: 4px; overflow: hidden; max-width: 200px; }
+.sod-bar-fill { height: 100%; border-radius: 4px; }
+.sod-bar-fill.c1 { background: var(--risk-kritisch); }
+.sod-bar-fill.c2 { background: var(--risk-hoch); }
+.sod-bar-fill.c3 { background: var(--risk-mittel); }
+.sod-bar-fill.c4 { background: var(--risk-niedrig); }
+.sod-val { font-size: 12px; font-weight: 700; color: var(--text-primary); width: 18px; text-align: right; font-variant-numeric: tabular-nums; }
+.rpz-divider { width: 1px; height: 68px; background: var(--border); margin: 0 24px; }
+.rpz-box { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.rpz-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+.rpz-value { font-size: 32px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; padding: 10px 18px; border-radius: var(--radius); border: 2px solid; }
+.rpz-value.kritisch { color: var(--risk-kritisch); border-color: rgba(220,38,38,0.3); background: var(--risk-kritisch-bg); }
+.rpz-value.hoch     { color: var(--risk-hoch);     border-color: rgba(234,88,12,0.3); background: var(--risk-hoch-bg); }
+.rpz-value.mittel   { color: var(--risk-mittel);   border-color: rgba(202,138,4,0.3); background: var(--risk-mittel-bg); }
+.rpz-value.niedrig  { color: var(--risk-niedrig);  border-color: rgba(22,163,74,0.3); background: var(--risk-niedrig-bg); }
+.rpz-formula { font-size: 10.5px; color: var(--text-muted); }
+
+/* Static sub-sections */
+.card-body { padding: 0; }
+.sub-section { padding: 16px 24px; border-top: 1px solid var(--border); }
+.sub-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.sub-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.mini-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.mini-table th { text-align: left; font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); padding: 5px 8px; background: var(--bg); border-bottom: 1px solid var(--border); }
+.mini-table td { padding: 8px 8px; color: var(--text-primary); border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+.mini-table tr:last-child td { border-bottom: none; }
+.mini-table tr:hover td { background: #FAFBFC; }
+.td-id { font-size: 11px; font-weight: 600; color: var(--text-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.effects-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.effect-cell { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; }
+.effect-cell-label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+.effect-cell-text { font-size: 12px; color: var(--text-primary); line-height: 1.45; }
+.effect-cell.none .effect-cell-text { color: var(--text-muted); font-style: italic; }
+
+.measure-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 10px; background: var(--bg); }
+.measure-card:last-child { margin-bottom: 0; }
+.measure-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.measure-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.measure-badges { display: flex; gap: 5px; flex-shrink: 0; align-items: center; }
+.stop-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.05em; }
+.stop-t { background: rgba(16,185,129,0.1); color: #047857; }
+.stop-o { background: rgba(139,92,246,0.1); color: #7C3AED; }
+.stop-p { background: rgba(236,72,153,0.1); color: #BE185D; }
+.abe-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; background: var(--surface); color: var(--text-secondary); border: 1px solid var(--border); }
+.measure-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 8px; }
+.measure-rpz-row { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.rpz-arrow { display: flex; align-items: center; gap: 6px; }
+.rpz-old { font-weight: 600; font-variant-numeric: tabular-nums; text-decoration: line-through; color: var(--text-muted); }
+.rpz-new { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--risk-niedrig); }
+.rpz-hint { font-size: 11px; color: var(--text-muted); }
+.special-rule-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--risk-kritisch); background: var(--risk-kritisch-bg); border: 1px solid rgba(220,38,38,0.2); padding: 2px 9px; border-radius: 4px; }
+.tag { display: inline-block; font-size: 10.5px; padding: 2px 8px; border-radius: 4px; background: var(--bg); border: 1px solid var(--border); color: var(--text-secondary); font-weight: 500; }
+.page-footer { text-align: center; color: var(--text-muted); font-size: 11px; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="cover-logo">
+    <div class="cover-logo-icon">&#9881;</div>
+    <span class="cover-logo-name">RiskAI Agent</span>
+  </div>
+  <div class="cover-body">
+    <div class="cover-label">FMEA &mdash; Failure Mode and Effects Analysis</div>
+    <div class="cover-title">Risikoanalyse<br>Ethylacetat-Produktion</div>
+    <div class="cover-subtitle">Anlage 20TA41 &middot; Synthesereaktor &amp; Nebenanlagen</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item"><span class="cover-meta-label">Status</span><span class="cover-meta-value">Abgeschlossen</span></div>
+      <div class="cover-meta-item"><span class="cover-meta-label">Erstelldatum</span><span class="cover-meta-value">10. März 2026</span></div>
+      <div class="cover-meta-item"><span class="cover-meta-label">Norm</span><span class="cover-meta-value">AIAG-VDA FMEA 2019</span></div>
+      <div class="cover-meta-item"><span class="cover-meta-label">Revision</span><span class="cover-meta-value">Rev. 1.0</span></div>
+    </div>
+  </div>
+  <div class="cover-stats">
+    <div class="cover-chip"><span class="dot" style="background:#DC2626"></span> 2 Kritisch</div>
+    <div class="cover-chip"><span class="dot" style="background:#EA580C"></span> 4 Hoch</div>
+    <div class="cover-chip"><span class="dot" style="background:#CA8A04"></span> 6 Mittel</div>
+    <div class="cover-chip"><span class="dot" style="background:#16A34A"></span> 5 Niedrig</div>
+    <div class="cover-chip">17 Fehlermodi</div>
+    <div class="cover-chip">31 Massnahmen</div>
+  </div>
+</div>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">&#9881;</div>
+        <span class="sidebar-logo-name">RiskAI</span>
+      </div>
+      <div class="sidebar-project">Ethylacetat-Produktion</div>
+      <div class="sidebar-project-sub">Anlage 20TA41 &middot; Rev. 1.0</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Bericht</div>
+        <a class="nav-link" href="#summary">&#128202; Executive Summary</a>
+      </div>
+      <div class="nav-section" style="margin-top:8px">
+        <div class="nav-section-label">5. Komponenten</div>
+        <a class="nav-link active" href="#reaktor">
+          <span class="nav-dot" style="background:var(--risk-kritisch)"></span> Reaktor R-101
+        </a>
+        <a class="nav-sub-link" href="#reaktor-sv">&#8627; Sicherheitsventil SV-101</a>
+        <a class="nav-sub-link" href="#reaktor-rw">&#8627; Rührwerk RW-101</a>
+        <a class="nav-sub-link" href="#reaktor-msr">&#8627; MSR-System</a>
+        <a class="nav-link" href="#destillation">
+          <span class="nav-dot" style="background:var(--risk-hoch)"></span> Destillationskolonne K-201
+        </a>
+        <a class="nav-link" href="#pumpen">
+          <span class="nav-dot" style="background:var(--risk-mittel)"></span> Pumpen P-101/P-102
+        </a>
+      </div>
+      <div class="nav-section" style="margin-top:8px">
+        <div class="nav-section-label">Anhang</div>
+        <a class="nav-link" href="#anhang">&#128206; Massnahmen-Tabelle</a>
+      </div>
+    </nav>
+    <div class="sidebar-risks">
+      <div class="sidebar-risks-label">Risikoverteilung</div>
+      <div class="risk-counter-row"><span class="risk-counter-left"><span class="risk-counter-dot" style="background:var(--risk-kritisch)"></span>Kritisch</span><span class="risk-counter-n">2</span></div>
+      <div class="risk-counter-row"><span class="risk-counter-left"><span class="risk-counter-dot" style="background:var(--risk-hoch)"></span>Hoch</span><span class="risk-counter-n">4</span></div>
+      <div class="risk-counter-row"><span class="risk-counter-left"><span class="risk-counter-dot" style="background:var(--risk-mittel)"></span>Mittel</span><span class="risk-counter-n">6</span></div>
+      <div class="risk-counter-row"><span class="risk-counter-left"><span class="risk-counter-dot" style="background:var(--risk-niedrig)"></span>Niedrig</span><span class="risk-counter-n">5</span></div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <section class="page-section" id="summary">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 1</div>
+        <div class="section-title">Executive Summary</div>
+        <div class="section-desc">Überblick über die wesentlichen Risikobefunde und Handlungsbedarfe der Anlage.</div>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card danger"><div class="kpi-value">2</div><div class="kpi-label">Kritische Risiken (RPZ &ge; 300)</div></div>
+        <div class="kpi-card warning"><div class="kpi-value">4</div><div class="kpi-label">Hohe Risiken (RPZ 200&ndash;299)</div></div>
+        <div class="kpi-card"><div class="kpi-value">17</div><div class="kpi-label">Fehlermodi gesamt</div></div>
+        <div class="kpi-card ok"><div class="kpi-value">&minus;62%</div><div class="kpi-label">Beste RPZ-Reduktion durch Massnahmen</div></div>
+      </div>
+      <div class="rpz-dist">
+        <div class="rpz-dist-title">RPZ-Verteilung aller Fehlermodi</div>
+        <div class="rpz-dist-bar">
+          <div class="rpz-dist-seg" style="background:var(--risk-kritisch); width:12%"></div>
+          <div class="rpz-dist-seg" style="background:var(--risk-hoch); width:23%"></div>
+          <div class="rpz-dist-seg" style="background:var(--risk-mittel); width:35%"></div>
+          <div class="rpz-dist-seg" style="background:var(--risk-niedrig); width:30%"></div>
+        </div>
+        <div class="rpz-dist-legend">
+          <div class="legend-item"><span class="legend-dot" style="background:var(--risk-kritisch)"></span>Kritisch: 2</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--risk-hoch)"></span>Hoch: 4</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--risk-mittel)"></span>Mittel: 6</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--risk-niedrig)"></span>Niedrig: 5</div>
+        </div>
+      </div>
+      <div class="top5-table">
+        <div class="top5-header">
+          <span class="top5-header-cell">ID</span>
+          <span class="top5-header-cell">Fehlermodus</span>
+          <span class="top5-header-cell" style="text-align:center">RPZ</span>
+          <span class="top5-header-cell" style="text-align:center">Risiko</span>
+          <span class="top5-header-cell" style="text-align:center">Komponente</span>
+        </div>
+        <div class="top5-row">
+          <span class="top5-cell id">FM-003</span>
+          <span class="top5-cell">Temperatursensor-Ausfall am Reaktor</span>
+          <span class="top5-cell rpz" style="color:var(--risk-kritisch)">378</span>
+          <span class="top5-cell center"><span class="risk-badge kritisch"><span class="bdot"></span>Kritisch</span></span>
+          <span class="top5-cell center"><span class="tag">R-101 MSR</span></span>
+        </div>
+        <div class="top5-row">
+          <span class="top5-cell id">FM-007</span>
+          <span class="top5-cell">Druckentlastungsventil versagt zu öffnen</span>
+          <span class="top5-cell rpz" style="color:var(--risk-kritisch)">315</span>
+          <span class="top5-cell center"><span class="risk-badge kritisch"><span class="bdot"></span>Kritisch</span></span>
+          <span class="top5-cell center"><span class="tag">SV-101</span></span>
+        </div>
+        <div class="top5-row">
+          <span class="top5-cell id">FM-011</span>
+          <span class="top5-cell">Fehlbedienung Rührersteuerung</span>
+          <span class="top5-cell rpz" style="color:var(--risk-hoch)">252</span>
+          <span class="top5-cell center"><span class="risk-badge hoch"><span class="bdot"></span>Hoch</span></span>
+          <span class="top5-cell center"><span class="tag">RW-101</span></span>
+        </div>
+        <div class="top5-row">
+          <span class="top5-cell id">FM-002</span>
+          <span class="top5-cell">Lagerausfall Rührwerkswelle</span>
+          <span class="top5-cell rpz" style="color:var(--risk-hoch)">240</span>
+          <span class="top5-cell center"><span class="risk-badge hoch"><span class="bdot"></span>Hoch</span></span>
+          <span class="top5-cell center"><span class="tag">RW-101</span></span>
+        </div>
+        <div class="top5-row">
+          <span class="top5-cell id">FM-009</span>
+          <span class="top5-cell">Leckage an Flanschverbindung</span>
+          <span class="top5-cell rpz" style="color:var(--risk-hoch)">224</span>
+          <span class="top5-cell center"><span class="risk-badge hoch"><span class="bdot"></span>Hoch</span></span>
+          <span class="top5-cell center"><span class="tag">K-201</span></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section" id="risikoanalyse">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 5</div>
+        <div class="section-title">Detaillierte Risikoanalyse</div>
+        <div class="section-desc">Gliederung nach Anlagekomponenten. Innerhalb jeder Komponente nach Funktion gruppiert, sortiert nach RPZ absteigend.</div>
+      </div>
+
+      <!-- REAKTOR R-101 -->
+      <div class="component-block" id="reaktor">
+        <div class="component-header">
+          <div class="component-header-top">
+            <div class="component-title-row">
+              <div class="component-icon">&#127981;</div>
+              <div>
+                <div class="component-name">Reaktor R-101</div>
+                <div class="component-id-sub">Synthese-Reaktor &middot; Anlage 20TA41</div>
+              </div>
+            </div>
+            <div class="component-right">
+              <span class="risk-badge kritisch"><span class="bdot"></span>Höchstes Risiko: Kritisch</span>
+              <div class="risk-ampel">
+                <div class="ampel-dot active" style="background:var(--risk-kritisch)"></div>
+                <div class="ampel-dot active" style="background:var(--risk-hoch)"></div>
+                <div class="ampel-dot" style="background:var(--risk-mittel)"></div>
+                <div class="ampel-dot" style="background:var(--risk-niedrig)"></div>
+              </div>
+            </div>
+          </div>
+          <div class="component-meta-grid">
+            <div class="component-meta-item"><div class="component-meta-label">Fehlermodi</div><div class="component-meta-value">7</div></div>
+            <div class="component-meta-item"><div class="component-meta-label">Höchste RPZ</div><div class="component-meta-value" style="color:var(--risk-kritisch)">378</div></div>
+            <div class="component-meta-item"><div class="component-meta-label">Massnahmen</div><div class="component-meta-value">14</div></div>
+            <div class="component-meta-item"><div class="component-meta-label">Baujahr</div><div class="component-meta-value">2008</div></div>
+          </div>
+        </div>
+
+        <!-- Druckentlastung -->
+        <div class="function-group" id="reaktor-sv">
+          <div class="function-label">Druckentlastung <span class="function-label-badge">1 Fehlermodus</span></div>
+          <div class="risk-card kritisch">
+            <div class="card-header">
+              <div>
+                <div class="card-id-row"><span class="card-id">FM-007</span><span style="font-size:12px;color:var(--text-secondary)">Sicherheitsventil SV-101</span></div>
+                <div class="card-title">Druckentlastungsventil versagt zu öffnen</div>
+              </div>
+              <div class="card-header-right"><span class="risk-badge kritisch"><span class="bdot"></span>Kritisch</span></div>
+            </div>
+            <div class="card-scores">
+              <div class="sod-group">
+                <div class="sod-row"><span class="sod-label">S</span><div class="sod-bar-track"><div class="sod-bar-fill c1" style="width:90%"></div></div><span class="sod-val">9</span></div>
+                <div class="sod-row"><span class="sod-label">O</span><div class="sod-bar-track"><div class="sod-bar-fill c2" style="width:70%"></div></div><span class="sod-val">7</span></div>
+                <div class="sod-row"><span class="sod-label">D</span><div class="sod-bar-track"><div class="sod-bar-fill c3" style="width:50%"></div></div><span class="sod-val">5</span></div>
+              </div>
+              <div class="rpz-divider"></div>
+              <div class="rpz-box"><div class="rpz-label">RPZ</div><div class="rpz-value kritisch">315</div><div class="rpz-formula">9 &times; 7 &times; 5</div></div>
+            </div>
+            <div class="card-body">
+              <div class="sub-section">
+                <div class="sub-label">Ursachen</div>
+                <table class="mini-table">
+                  <thead><tr><th style="width:60px">ID</th><th>Beschreibung</th><th style="width:110px">Phase</th></tr></thead>
+                  <tbody>
+                    <tr><td class="td-id">U-007-1</td><td>Verkalkung der Ventilspindel durch Produktablagerung bei erhöhter Temperatur</td><td>Dauerbetrieb</td></tr>
+                    <tr><td class="td-id">U-007-2</td><td>Korrosion am Federelement durch Essigsäuredämpfe über längere Betriebsdauer</td><td>Langzeitbetrieb</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="sub-section">
+                <div class="sub-label">Auswirkungen</div>
+                <div class="effects-grid">
+                  <div class="effect-cell"><div class="effect-cell-label">&#128100; Mensch</div><div class="effect-cell-text">Exposition gegenüber Druckwelle und Gefahrstoffen; Verletzungsgefahr für Bedienpersonal</div></div>
+                  <div class="effect-cell"><div class="effect-cell-label">&#127807; Umwelt</div><div class="effect-cell-text">Freisetzung von Ethylacetat und Essigsäure; Überschreitung TA-Luft-Grenzwerte möglich</div></div>
+                  <div class="effect-cell"><div class="effect-cell-label">&#127981; Anlage</div><div class="effect-cell-text">Reaktorversagen durch Überdruck; Totalausfall bis 14 Tage Stillstand</div></div>
+                  <div class="effect-cell"><div class="effect-cell-label">&#128182; Kosten</div><div class="effect-cell-text">Schaden &gt; 500 T&euro; durch Reparatur und Produktionsausfall</div></div>
+                </div>
+              </div>
+              <div class="sub-section">
+                <div class="sub-label">Massnahmen</div>
+                <div class="measure-card">
+                  <div class="measure-header"><span class="measure-name">Jährliche Prüfung &amp; Probeöffnung Sicherheitsventil</span><div class="measure-badges"><span class="stop-badge stop-o">O</span><span class="abe-badge">B</span></div></div>
+                  <div class="measure-desc">Jährliche Prüfung gemäß BetrSichV §15. Probeöffnung mit Dokumentation im Prüfbuch.</div>
+                  <div class="measure-rpz-row"><div class="rpz-arrow"><span class="rpz-old">315</span><span>&#8594;</span><span class="rpz-new">126</span></div><span class="rpz-hint">&middot; S 9&#8594;9, O 7&#8594;3, D 5&#8594;5</span></div>
+                </div>
+                <div class="measure-card">
+                  <div class="measure-header"><span class="measure-name">Wechsel auf korrosionsresistente Federlegierung (Hastelloy)</span><div class="measure-badges"><span class="stop-badge stop-t">T</span><span class="abe-badge">A</span></div></div>
+                  <div class="measure-desc">Ersatz der Standardfeder durch Hastelloy C-276; nachgewiesene Resistenz gegen Essigsäure.</div>
+                  <div class="measure-rpz-row"><div class="rpz-arrow"><span class="rpz-old">315</span><span>&#8594;</span><span class="rpz-new">180</span></div><span class="rpz-hint">&middot; S 9&#8594;9, O 7&#8594;4, D 5&#8594;5</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rührwerk -->
+        <div class="function-group" id="reaktor-rw">
+          <div class="function-label">Rührwerk &amp; Antrieb <span class="function-label-badge">2 Fehlermodi</span></div>
+
+          <div class="risk-card hoch">
+            <div class="card-header">
+              <div>
+                <div class="card-id-row"><span class="card-id">FM-002</span><span style="font-size:12px;color:var(--text-secondary)">Rührwerk RW-101</span></div>
+                <div class="card-title">Lagerausfall Rührwerkswelle durch Schmiermittelversagen</div>
+              </div>
+              <div class="card-header-right"><span class="risk-badge hoch"><span class="bdot"></span>Hoch</span></div>
+            </div>
+            <div class="card-scores">
+              <div class="sod-group">
+                <div class="sod-row"><span class="sod-label">S</span><div class="sod-bar-track"><div class="sod-bar-fill c2" style="width:80%"></div></div><span class="sod-val">8</span></div>
+                <div class="sod-row"><span class="sod-label">O</span><div class="sod-bar-track"><div class="sod-bar-fill c3" style="width:50%"></div></div><span class="sod-val">5</span></div>
+                <div class="sod-row"><span class="sod-label">D</span><div class="sod-bar-track"><div class="sod-bar-fill c4" style="width:60%"></div></div><span class="sod-val">6</span></div>
+              </div>
+              <div class="rpz-divider"></div>
+              <div class="rpz-box"><div class="rpz-label">RPZ</div><div class="rpz-value hoch">240</div><div class="rpz-formula">8 &times; 5 &times; 6</div></div>
+            </div>
+            <div class="card-body">
+              <div class="sub-section">
+                <div class="sub-label">Ursachen</div>
+                <table class="mini-table">
+                  <thead><tr><th style="width:60px">ID</th><th>Beschreibung</th><th style="width:110px">Phase</th></tr></thead>
+                  <tbody>
+                    <tr><td class="td-id">U-002-1</td><td>Unzureichende Schmierung durch verstopfte Schmiermittelleitung</td><td>Betrieb</td></tr>
+                    <tr><td class="td-id">U-002-2</td><td>Falsche Schmiermittel-Viskosität bei erhöhter Betriebstemperatur</td><td>Inbetriebnahme</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="sub-section">
+                <div class="sub-label">Auswirkungen</div>
+                <div class="effects-grid">
+                  <div class="effect-cell none"><div class="effect-cell-label">&#128100; Mensch</div><div class="effect-cell-text">Kein direktes Personenrisiko; sekundäre Gefährdung durch Produktaustritt möglich</div></div>
+                  <div class="effect-cell none"><div class="effect-cell-label">&#127807; Umwelt</div><div class="effect-cell-text">Kein direktes Umweltrisiko; Produktaustritt über Wellendichtung möglich</div></div>
+                  <div class="effect-cell"><div class="effect-cell-label">&#127981; Anlage</div><div class="effect-cell-text">Ausfall Rührwerk &#8594; Reaktionsstillstand; 2&ndash;3 Tage Stillstand für Lageraustausch</div></div>
+                  <div class="effect-cell"><div class="effect-cell-label">&#128182; Kosten</div><div class="effect-cell-text">Lagerschaden ca. 30 T&euro; + Produktionsausfall 50&ndash;80 T&euro; je Ausfall</div></div>
+                </div>
+              </div>
+              <div class="sub-section">
+                <div class="sub-label">Massnahmen</div>
+                <div class="measure-card">
+                  <div class="measure-header"><span class="measure-name">Automatische Schmiermittelüberwachung mit DCS-Alarm</span><div class="measure-badges"><span class="stop-badge stop-t">T</span><span class="abe-badge">B</span></div></div>
+                  <div class="measure-desc">Kontinuierlicher Sensor mit DCS-Alarm bei Unterschreitung des Minimaldrucks; automatische Abschaltsequenz.</div>
+                  <div class="measure-rpz-row"><div class="rpz-arrow"><span class="rpz-old">240</span><span>&#8594;</span><span class="rpz-new">96</span></div><span class="rpz-hint">&middot; S 8&#8594;8, O 5&#8594;3, D 6&#8594;4</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="risk-card hoch">
+            <div class="card-header">
+              <div>
+                <div class="card-id-row"><span class="card-id">FM-011</span><span style="font-size:12px;color:var(--text-secondary)">Bedieneinheit RW-101</span></div>
+                <div class="card-title">Fehlbedienung Rührersteuerung führt zu Reaktorüberdruck</div>
+              </div>
+              <div class="card-header-right"><span class="risk-badge hoch"><span class="bdot"></span>Hoch</span></div>
+            </div>
+            <div class="card-scores">
+              <div class="sod-group">
+                <div class="sod-row"><span class="sod-label">S</span><div class="sod-bar-track"><div class="sod-bar-fill c1" style="width:90%"></div></div><span class="sod-val">9</span></div>
+                <div class="sod-row"><span class="sod-label">O</span><div class="sod-bar-track"><div class="sod-bar-fill c3" style="width:40%"></div></div><span class="sod-val">4</span></div>
+                <div class="sod-row"><span class="sod-label">D</span><div class="sod-bar-track"><div class="sod-bar-fill c2" style="width:70%"></div></div><span class="sod-val">7</span></div>
+              </div>
+              <div class="rpz-divider"></div>
+              <div class="rpz-box"><div class="rpz-label">RPZ</div><div class="rpz-value hoch">252</div><div class="rpz-formula">9 &times; 4 &times; 7</div></div>
+            </div>
+            <div class="card-body">
+              <div class="sub-section">
+                <div class="sub-label">Ursachen</div>
+                <table class="mini-table">
+                  <thead><tr><th style="width:60px">ID</th><th>Beschreibung</th><th style="width:110px">Phase</th></tr></thead>
+                  <tbody>
+                    <tr><td class="td-id">U-011-1</td><td>Bediener startet Rührer bei noch heißem Reaktorinhalt entgegen Prozessanweisung</td><td>Anfahren</td></tr>
+                    <tr><td class="td-id">U-011-2</td><td>Fehlende oder unlesbare Anweisung am HMI-Display bei Schichtübergabe</td><td>Schichtbetrieb</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="sub-section">
+                <div class="sub-label">Auswirkungen</div>
+                <div class="effects-grid">
+                  <div class="effect-cell"><div class="effect-cell-label">&#128100; Mensch</div><div class="effect-cell-text">Verbrühungsgefahr durch Produktaustritt; Verletzungsrisiko für Bediener in Reaktornähe</div></div>
+                  <div class="effect-cell none"><div class="effect-cell-label">&#127807; Umwelt</div><div class="effect-cell-text">Begrenzte Umweltauswirkung; lokale Kontamination bei Produktaustritt möglich</div></div>
+                  <div class="effect-cell"><div class="effect-cell-label">&#127981; Anlage</div><div class="effect-cell-text">Überdruckereignis kann Reaktordichtungen beschädigen; 1&ndash;3 Tage Stillstand</div></div>
+                  <div class="effect-cell"><div class="effect-cell-label">&#128182; Kosten</div><div class="effect-cell-text">Reparatur ca. 20&ndash;60 T&euro; + Produktionsausfall</div></div>
+                </div>
+              </div>
+              <div class="sub-section">
+                <div class="sub-label">Massnahmen</div>
+                <div class="measure-card">
+                  <div class="measure-header"><span class="measure-name">DCS-Interlock: Rührer-Start gesperrt bei Temperatur &gt; 60&deg;C</span><div class="measure-badges"><span class="stop-badge stop-t">T</span><span class="abe-badge">A</span></div></div>
+                  <div class="measure-desc">Software-Interlock im DCS verhindert Rührerstart bei Reaktortemperatur über 60°C. Bypass nur mit Freigabe Schichtleiter.</div>
+                  <div class="measure-rpz-row"><div class="rpz-arrow"><span class="rpz-old">252</span><span>&#8594;</span><span class="rpz-new">108</span></div><span class="rpz-hint">&middot; S 9&#8594;9, O 4&#8594;3, D 7&#8594;4</span></div>
+                </div>
+                <div class="measure-card">
+                  <div class="measure-header"><span class="measure-name">Jährliche Schulung Anfahrprozedur mit Kompetenznachweis</span><div class="measure-badges"><span class="stop-badge stop-p">P</span><span class="abe-badge">A</span></div></div>
+                  <div class="measure-desc">Jährliche Schulung aller Schichtführer; Kompetenznachweis durch schriftliche Prüfung.</div>
+                  <div class="measure-rpz-row"><div class="rpz-arrow"><span class="rpz-old">252</span><span>&#8594;</span><span class="rpz-new">162</span></div><span class="rpz-hint">&middot; S 9&#8594;9, O 4&#8594;3, D 7&#8594;6</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MSR -->
+        <div class="function-group" id="reaktor-msr">
+          <div class="function-label">MSR-System &amp; Leittechnik <span class="function-label-badge">1 Fehlermodus</span></div>
+          <div class="risk-card kritisch">
+            <div class="card-header">
+              <div>
+                <div class="card-id-row">
+                  <span class="card-id">FM-003</span>
+                  <span style="font-size:12px;color:var(--text-secondary)">Temperatursensor TI-101</span>
+                  <span class="special-rule-badge">&#9888; Sonderregel S &ge; 9</span>
+                </div>
+                <div class="card-title">Temperatursensor-Ausfall führt zu unkontrollierter Exotherme</div>
+              </div>
+              <div class="card-header-right"><span class="risk-badge kritisch"><span class="bdot"></span>Kritisch</span></div>
+            </div>
+            <div class="card-scores">
+              <div class="sod-group">
+                <div class="sod-row"><span class="sod-label">S</span><div class="sod-bar-track"><div class="sod-bar-fill c1" style="width:90%"></div></div><span class="sod-val">9</span></div>
+                <div class="sod-row"><span class="sod-label">O</span><div class="sod-bar-track"><div class="sod-bar-fill c2" style="width:70%"></div></div><span class="sod-val">7</span></div>
+                <div class="sod-row"><span class="sod-label">D</span><div class="sod-bar-track"><div class="sod-bar-fill c2" style="width:60%"></div></div><span class="sod-val">6</span></div>
+              </div>
+              <div class="rpz-divider"></div>
+              <div class="rpz-box"><div class="rpz-label">RPZ</div><div class="rpz-value kritisch">378</div><div class="rpz-formula">9 &times; 7 &times; 6</div></div>
+            </div>
+            <div class="card-body">
+              <div class="sub-section">
+                <div class="sub-label">Ursachen</div>
+                <table class="mini-table">
+                  <thead><tr><th style="width:60px">ID</th><th>Beschreibung</th><th style="width:110px">Phase</th></tr></thead>
+                  <tbody>
+                    <tr><td class="td-id">U-003-1</td><td>Drift des Thermoelements durch Alterung im Hochtemperaturbereich (&gt; 100°C)</td><td>Langzeitbetrieb</td></tr>
+                    <tr><td class="td-id">U-003-2</td><td>Leitungsbruch durch mechanische Vibration des Rührwerks</td><td>Dauerbetrieb</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="sub-section">
+                <div class="sub-label">Auswirkungen</div>
+                <div class="effects-grid">
+                  <div class="effect-cell"><div class="effect-cell-label">&#128100; Mensch</div><div class="effect-cell-text">Verletzungsgefahr durch unkontrollierte Exotherme; potenzielle BLEVE-Situation</div></div>
+                  <div class="effect-cell"><div class="effect-cell-label">&#127807; Umwelt</div><div class="effect-cell-text">Massiver Gefahrstoffaustritt; Meldepflicht nach StörfallV; Grundwassergefährdung</div></div>
+                  <div class="effect-cell"><div class="effect-cell-label">&#127981; Anlage</div><div class="effect-cell-text">Totalschaden Reaktor; Wiederanlaufzeit &gt; 6 Wochen; Gefahr für Nachbaranlagen</div></div>
+                  <div class="effect-cell"><div class="effect-cell-label">&#128182; Kosten</div><div class="effect-cell-text">Schadensumme &gt; 2 Mio. &euro; inkl. Haftung, Produktionsausfall, Sanierung</div></div>
+                </div>
+              </div>
+              <div class="sub-section">
+                <div class="sub-label">Massnahmen</div>
+                <div class="measure-card">
+                  <div class="measure-header"><span class="measure-name">Redundanter Temperatursensor (2oo3-Voting-Logik)</span><div class="measure-badges"><span class="stop-badge stop-t">T</span><span class="abe-badge">B</span></div></div>
+                  <div class="measure-desc">Drei unabhängige Sensoren mit 2-von-3-Auswahllogik im SIS; Notabschaltung bei Abweichung &gt; 5 K. SIL 2-Anforderung.</div>
+                  <div class="measure-rpz-row"><div class="rpz-arrow"><span class="rpz-old">378</span><span>&#8594;</span><span class="rpz-new">72</span></div><span class="rpz-hint">&middot; S 9&#8594;9, O 7&#8594;2, D 6&#8594;4 &middot; SIL 2</span></div>
+                </div>
+                <div class="measure-card">
+                  <div class="measure-header"><span class="measure-name">Tägliche Plausibilitätsprüfung Sensor vs. DCS-Trend</span><div class="measure-badges"><span class="stop-badge stop-o">O</span><span class="abe-badge">B</span></div></div>
+                  <div class="measure-desc">Schichtführer prüft täglich Sensorwerte gegen DCS-Trend auf Sprünge oder Drift; Abzeichnung im Schichtbuch.</div>
+                  <div class="measure-rpz-row"><div class="rpz-arrow"><span class="rpz-old">378</span><span>&#8594;</span><span class="rpz-new">189</span></div><span class="rpz-hint">&middot; S 9&#8594;9, O 7&#8594;7, D 6&#8594;3</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="page-footer">
+      FMEA Variante B &mdash; Komponentenweise Gliederung &middot; RiskAI Agent &middot; Stand 10. März 2026
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

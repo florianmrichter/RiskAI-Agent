@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FMEA Design System – Terracotta Color Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #F5F2EE;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      color: #2C2C2C;
+      padding: 24px;
+    }
+
+    .page {
+      width: 794px;
+      margin: 0 auto;
+      background: #fff;
+    }
+
+    /* ── Page Header ─────────────────────────────────────────── */
+    .page-header {
+      padding: 28px 32px 20px;
+      border-bottom: 3px solid #A0522D;
+    }
+    .page-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: #1A1A1A;
+      letter-spacing: 0.01em;
+    }
+    .page-subtitle {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 13px;
+      color: #A0522D;
+      margin-top: 3px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Section ─────────────────────────────────────────────── */
+    .section {
+      padding: 22px 32px;
+      border-bottom: 1px solid #EDE8E2;
+    }
+    .section-title {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #A0522D;
+      margin-bottom: 14px;
+    }
+
+    /* ── Status Badge Grid ───────────────────────────────────── */
+    .badge-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .badge-card {
+      border-radius: 6px;
+      border: 1px solid;
+      overflow: hidden;
+    }
+    .badge-card-swatch {
+      height: 40px;
+    }
+    .badge-card-body {
+      padding: 8px 10px;
+      background: #fff;
+      border-top: 1px solid;
+    }
+    .badge-card-name {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .badge-card-desc {
+      font-size: 9px;
+      color: #888;
+      line-height: 1.4;
+      margin-bottom: 6px;
+    }
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 9px;
+      border-radius: 3px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: 1px solid;
+    }
+    .hex-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+    .hex-chip {
+      font-size: 8px;
+      font-family: 'Plus Jakarta Sans', monospace;
+      color: #888;
+      background: #F8F5F2;
+      border: 1px solid #E8E0D8;
+      border-radius: 2px;
+      padding: 1px 5px;
+    }
+
+    /* KRITISCH */
+    .kritisch-swatch { background: #FDF2F2; }
+    .kritisch-border { border-color: #C89090; }
+    .kritisch-body-border { border-top-color: #C89090; }
+    .kritisch-name { color: #7D2020; }
+    .kritisch-pill { color: #7D2020; background: #FDF2F2; border-color: #C89090; }
+
+    /* HOCH */
+    .hoch-swatch { background: #FDF5EF; }
+    .hoch-border { border-color: #D4A07A; }
+    .hoch-body-border { border-top-color: #D4A07A; }
+    .hoch-name { color: #8B3A10; }
+    .hoch-pill { color: #8B3A10; background: #FDF5EF; border-color: #D4A07A; }
+
+    /* MITTEL */
+    .mittel-swatch { background: #FEF9EE; }
+    .mittel-border { border-color: #C8A84A; }
+    .mittel-body-border { border-top-color: #C8A84A; }
+    .mittel-name { color: #7A5A0C; }
+    .mittel-pill { color: #7A5A0C; background: #FEF9EE; border-color: #C8A84A; }
+
+    /* NIEDRIG */
+    .niedrig-swatch { background: #F0F7F2; }
+    .niedrig-border { border-color: #88B89A; }
+    .niedrig-body-border { border-top-color: #88B89A; }
+    .niedrig-name { color: #2A5E38; }
+    .niedrig-pill { color: #2A5E38; background: #F0F7F2; border-color: #88B89A; }
+
+    /* ── Sample Cards ────────────────────────────────────────── */
+    .sample-card {
+      border-left: 4px solid;
+      border-radius: 4px;
+      border: 1px solid;
+      border-left-width: 4px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    .sample-card:last-child { margin-bottom: 0; }
+
+    .sample-card-header {
+      padding: 10px 16px 8px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .sample-card-id {
+      font-size: 9.5px;
+      font-weight: 600;
+      color: #A0522D;
+      padding-top: 1px;
+    }
+    .sample-card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: #1A1A1A;
+      line-height: 1.2;
+      flex: 1;
+      padding: 0 8px;
+    }
+    .sample-card-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 3px;
+    }
+    .rpz-text {
+      font-size: 10px;
+      color: #888;
+    }
+    .rpz-text strong { color: #444; font-weight: 700; }
+
+    .sample-card-body {
+      padding: 0 16px 10px;
+    }
+    .sample-narrative {
+      font-size: 10.5px;
+      color: #555;
+      font-style: italic;
+      line-height: 1.5;
+      margin-bottom: 8px;
+      border-bottom: 1px solid;
+      padding-bottom: 7px;
+    }
+
+    .sod-mini-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .sod-mini-box {
+      flex: 1;
+      border-radius: 3px;
+      border: 1px solid;
+      padding: 5px 7px;
+    }
+    .sod-mini-type {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1px;
+    }
+    .sod-mini-val {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #1A1A1A;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    .sod-mini-crit {
+      font-size: 9px;
+      color: #555;
+      line-height: 1.3;
+    }
+    .sod-mini-op {
+      display: flex;
+      align-items: center;
+      color: #BDB0A5;
+      font-size: 13px;
+      padding: 0 2px;
+    }
+
+    .rpz-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 8px;
+      border-radius: 3px;
+      border: 1px solid;
+    }
+    .rpz-bar-calc {
+      font-size: 10.5px;
+      color: #555;
+    }
+    .rpz-bar-calc strong {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #1A1A1A;
+    }
+
+    /* HOCH card colors */
+    .sc-hoch { border-color: #D4A07A; border-left-color: #D4A07A; }
+    .sc-hoch .sample-narrative { border-bottom-color: #F0E6DA; }
+    .sc-hoch .sod-mini-box { background: #FDFAF7; border-color: #E8CDB4; }
+    .sc-hoch .sod-mini-type { color: #8B3A10; }
+    .sc-hoch .rpz-bar { background: #FDF5EF; border-color: #D4A07A; }
+    .sc-hoch .sonderregel { color: #8B3A10; font-size: 9px; }
+
+    /* MITTEL card colors */
+    .sc-mittel { border-color: #C8A84A; border-left-color: #C8A84A; }
+    .sc-mittel .sample-narrative { border-bottom-color: #F0E8C8; }
+    .sc-mittel .sod-mini-box { background: #FDFBF4; border-color: #E0CB80; }
+    .sc-mittel .sod-mini-type { color: #7A5A0C; }
+    .sc-mittel .rpz-bar { background: #FEF9EE; border-color: #C8A84A; }
+
+    /* ── Color Palette ───────────────────────────────────────── */
+    .palette-grid {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .palette-swatch-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .palette-swatch-block {
+      width: 56px;
+      height: 56px;
+      border-radius: 5px;
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+    .palette-swatch-hex {
+      font-size: 8.5px;
+      font-family: monospace;
+      color: #555;
+      text-align: center;
+    }
+    .palette-swatch-label {
+      font-size: 9px;
+      font-weight: 600;
+      color: #777;
+      text-align: center;
+    }
+    .palette-divider {
+      width: 1px;
+      background: #E8E0D8;
+      margin: 0 6px;
+      align-self: stretch;
+    }
+
+    /* ── Page Footer ─────────────────────────────────────────── */
+    .page-footer {
+      padding: 10px 32px;
+      background: #FAFAF9;
+      border-top: 1px solid #E8E0D8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-note { font-size: 9px; color: #AAA; }
+    .footer-brand { font-size: 9px; color: #A0522D; font-weight: 500; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-title">Design System Preview — Terracotta</div>
+    <div class="page-subtitle">Status-Farben · Karten-Demos · Farbpalette</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SECTION 1: Status Color Badges -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">1 — Status-Farben im Überblick</div>
+    <div class="badge-grid">
+
+      <!-- KRITISCH -->
+      <div class="badge-card kritisch-border">
+        <div class="badge-card-swatch kritisch-swatch"></div>
+        <div class="badge-card-body kritisch-body-border">
+          <div class="badge-card-name kritisch-name">Kritisch</div>
+          <div class="badge-card-desc">Schwere &ge; 10 oder RPZ &ge; 200 mit S&ge;9</div>
+          <span class="badge-pill kritisch-pill">KRITISCH</span>
+          <div class="hex-row">
+            <span class="hex-chip">text #7D2020</span>
+            <span class="hex-chip">bg #FDF2F2</span>
+            <span class="hex-chip">border #C89090</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOCH -->
+      <div class="badge-card hoch-border">
+        <div class="badge-card-swatch hoch-swatch"></div>
+        <div class="badge-card-body hoch-body-border">
+          <div class="badge-card-name hoch-name">Hoch</div>
+          <div class="badge-card-desc">S&ge;9 (Sonderregel) oder RPZ 100–199</div>
+          <span class="badge-pill hoch-pill">HOCH</span>
+          <div class="hex-row">
+            <span class="hex-chip">text #8B3A10</span>
+            <span class="hex-chip">bg #FDF5EF</span>
+            <span class="hex-chip">border #D4A07A</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MITTEL -->
+      <div class="badge-card mittel-border">
+        <div class="badge-card-swatch mittel-swatch"></div>
+        <div class="badge-card-body mittel-body-border">
+          <div class="badge-card-name mittel-name">Mittel</div>
+          <div class="badge-card-desc">RPZ 50–99 ohne Sonderregel</div>
+          <span class="badge-pill mittel-pill">MITTEL</span>
+          <div class="hex-row">
+            <span class="hex-chip">text #7A5A0C</span>
+            <span class="hex-chip">bg #FEF9EE</span>
+            <span class="hex-chip">border #C8A84A</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- NIEDRIG -->
+      <div class="badge-card niedrig-border">
+        <div class="badge-card-swatch niedrig-swatch"></div>
+        <div class="badge-card-body niedrig-body-border">
+          <div class="badge-card-name niedrig-name">Niedrig</div>
+          <div class="badge-card-desc">RPZ &lt; 50 und alle SOLL-Werte erfüllt</div>
+          <span class="badge-pill niedrig-pill">NIEDRIG</span>
+          <div class="hex-row">
+            <span class="hex-chip">text #2A5E38</span>
+            <span class="hex-chip">bg #F0F7F2</span>
+            <span class="hex-chip">border #88B89A</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SECTION 2: Sample Cards -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">2 — Karten-Demo im Terracotta Design-System</div>
+
+    <!-- HOCH Card -->
+    <div class="sample-card sc-hoch">
+      <div class="sample-card-header">
+        <span class="sample-card-id">FM-D01</span>
+        <span class="sample-card-title">Druckentlastungsventil öffnet nicht</span>
+        <div class="sample-card-right">
+          <span class="badge-pill hoch-pill">HOCH</span>
+          <span class="rpz-text">RPZ = <strong>72</strong></span>
+        </div>
+      </div>
+      <div class="sample-card-body">
+        <div class="sample-narrative">
+          Das Sicherheitsventil PRV-201 ist die letzte Schutzbarriere bei Überdruckereignissen. Ein Versagen im geschlossenen Zustand kann zur unkontrollierten Druckentwicklung führen.
+        </div>
+        <div class="sod-mini-row">
+          <div class="sod-mini-box">
+            <div class="sod-mini-type">Schwere (S)</div>
+            <div class="sod-mini-val">9</div>
+            <div class="sod-mini-crit">Sicherheitsrelevant, mögliche Personenschäden</div>
+          </div>
+          <div class="sod-mini-op">×</div>
+          <div class="sod-mini-box">
+            <div class="sod-mini-type">Auftreten (O)</div>
+            <div class="sod-mini-val">2</div>
+            <div class="sod-mini-crit">Selten, &lt;1×/2 Jahre</div>
+          </div>
+          <div class="sod-mini-op">×</div>
+          <div class="sod-mini-box">
+            <div class="sod-mini-type">Entdeckung (D)</div>
+            <div class="sod-mini-val">4</div>
+            <div class="sod-mini-crit">Mäßige Erkennung, kein Positionssensor</div>
+          </div>
+        </div>
+        <div class="rpz-bar sc-hoch">
+          <span class="rpz-bar-calc">RPZ = 9 × 2 × 4 = <strong>72</strong></span>
+          <span class="sonderregel" style="color:#8B3A10;font-size:9px;margin-left:4px;">⚑ S = 9 → HOCH (Sonderregel AIAG-VDA §4.2)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MITTEL Card -->
+    <div class="sample-card sc-mittel">
+      <div class="sample-card-header">
+        <span class="sample-card-id">FM-D02</span>
+        <span class="sample-card-title">Druckmessung zeigt falschen Wert</span>
+        <div class="sample-card-right">
+          <span class="badge-pill mittel-pill">MITTEL</span>
+          <span class="rpz-text">RPZ = <strong>96</strong></span>
+        </div>
+      </div>
+      <div class="sample-card-body">
+        <div class="sample-narrative">
+          Fehlerhafte Druckmessung durch Messumformer PT-201 verhindert rechtzeitige Erkennung von Druckanomalie und kann zu Fehlregelung führen.
+        </div>
+        <div class="sod-mini-row">
+          <div class="sod-mini-box">
+            <div class="sod-mini-type">Schwere (S)</div>
+            <div class="sod-mini-val">6</div>
+            <div class="sod-mini-crit">Erhebliche Betriebsstörung</div>
+          </div>
+          <div class="sod-mini-op">×</div>
+          <div class="sod-mini-box">
+            <div class="sod-mini-type">Auftreten (O)</div>
+            <div class="sod-mini-val">4</div>
+            <div class="sod-mini-crit">Gelegentlich, 1–2×/Jahr</div>
+          </div>
+          <div class="sod-mini-op">×</div>
+          <div class="sod-mini-box">
+            <div class="sod-mini-type">Entdeckung (D)</div>
+            <div class="sod-mini-val">4</div>
+            <div class="sod-mini-crit">Mäßig, keine Plausibilitätsprüfung</div>
+          </div>
+        </div>
+        <div class="rpz-bar sc-mittel">
+          <span class="rpz-bar-calc">RPZ = 6 × 4 × 4 = <strong>96</strong></span>
+          <span style="font-size:9px;color:#7A5A0C;margin-left:6px;">50 ≤ RPZ &lt; 100 → MITTEL</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SECTION 3: Color Palette Reference -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="section" style="border-bottom:none;">
+    <div class="section-title">3 — Farbpalette des Design-Systems</div>
+    <div class="palette-grid">
+
+      <!-- Accent -->
+      <div class="palette-swatch-group">
+        <div class="palette-swatch-block" style="background:#A0522D;"></div>
+        <div class="palette-swatch-hex">#A0522D</div>
+        <div class="palette-swatch-label">Terracotta<br>Akzent</div>
+      </div>
+
+      <div class="palette-divider"></div>
+
+      <!-- KRITISCH set -->
+      <div class="palette-swatch-group">
+        <div class="palette-swatch-block" style="background:#7D2020;"></div>
+        <div class="palette-swatch-hex">#7D2020</div>
+        <div class="palette-swatch-label">Kritisch<br>Text</div>
+      </div>
+      <div class="palette-swatch-group">
+        <div class="palette-swatch-block" style="background:#FDF2F2;border:1px solid #C89090;"></div>
+        <div class="palette-swatch-hex">#FDF2F2</div>
+        <div class="palette-swatch-label">Kritisch<br>Bg</div>
+      </div>
+      <div class="palette-swatch-group">
+        <div class="palette-swatch-block" style="background:#C89090;"></div>
+        <div class="palette-swatch-hex">#C89090</div>
+        <div class="palette-swatch-label">Kritisch<br>Rand</div>
+      </div>
+
+      <div class="palette-divider"></div>
+
+      <!-- HOCH set -->
+      <div class="palette-swatch-group">
+        <div class="palette-swatch-block" style="background:#8B3A10;"></div>
+        <div class="palette-swatch-hex">#8B3A10</div>
+        <div class="palette-swatch-label">Hoch<br>Text</div>
+      </div>
+      <div class="palette-swatch-group">
+        <div class="palette-swatch-block" style="background:#FDF5EF;border:1px solid #D4A07A;"></div>
+        <div class="palette-swatch-hex">#FDF5EF</div>
+        <div class="palette-swatch-label">Hoch<br>Bg</div>
+      </div>
+      <div class="palette-swatch-group">
+        <div class="palette-swatch-block" style="background:#D4A07A;"></div>
+        <div class="palette-swatch-hex">#D4A07A</div>
+        <div class="palette-swatch-label">Hoch<br>Rand</div>
+      </div>
+
+      <div class="palette-divider"></div>
+
+      <!-- MITTEL set -->
+      <div class="palette-swatch-group">
+        <div class="palette-swatch-block" style="background:#7A5A0C;"></div>
+        <div class="palette-swatch-hex">#7A5A0C</div>
+        <div class="palette-swatch-label">Mittel<br>Text</div>
+      </div>
+      <div class="palette-swatch-group">
+        <div class="palette-swatch-block" style="background:#FEF9EE;border:1px solid #C8A84A;"></div>
+        <div class="palette-swatch-hex">#FEF9EE</div>
+        <div class="palette-swatch-label">Mittel<br>Bg</div>
+      </div>
+      <div class="palette-swatch-group">
+        <div class="palette-swatch-block" style="background:#C8A84A;"></div>
+        <div class="palette-swatch-hex">#C8A84A</div>
+        <div class="palette-swatch-label">Mittel<br>Rand</div>
+      </div>
+
+      <div class="palette-divider"></div>
+
+      <!-- NIEDRIG set -->
+      <div class="palette-swatch-group">
+        <div class="palette-swatch-block" style="background:#2A5E38;"></div>
+        <div class="palette-swatch-hex">#2A5E38</div>
+        <div class="palette-swatch-label">Niedrig<br>Text</div>
+      </div>
+      <div class="palette-swatch-group">
+        <div class="palette-swatch-block" style="background:#F0F7F2;border:1px solid #88B89A;"></div>
+        <div class="palette-swatch-hex">#F0F7F2</div>
+        <div class="palette-swatch-label">Niedrig<br>Bg</div>
+      </div>
+      <div class="palette-swatch-group">
+        <div class="palette-swatch-block" style="background:#88B89A;"></div>
+        <div class="palette-swatch-hex">#88B89A</div>
+        <div class="palette-swatch-label">Niedrig<br>Rand</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Page Footer -->
+  <div class="page-footer">
+    <span class="footer-note">Design-System Referenz · Nur zur internen Vorschau</span>
+    <span class="footer-brand">RiskAI · Terracotta Design v1</span>
+  </div>
+
+</div>
+</body>
+</html>

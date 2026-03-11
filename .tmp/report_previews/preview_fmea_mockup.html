@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FMEA-Bericht – Mockup (Skill-Struktur)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary: #F5004F;
+      --color-indigo: #2C2C54;
+      --color-bg: #F5F6FA;
+      --color-border: #E2E8F0;
+      --color-text-primary: #111827;
+      --color-text-secondary: #4B5563;
+      --color-text-muted: #9CA3AF;
+      --rpz-kritisch: #F5004F; --rpz-kritisch-bg: #FFF0F5; --rpz-kritisch-border: #FECDD3;
+      --rpz-hoch: #FD7E14; --rpz-hoch-bg: #FFF7ED; --rpz-hoch-border: #FDBA74;
+      --rpz-mittel: #E8C547; --rpz-mittel-bg: #FEFCE8; --rpz-mittel-border: #FDE68A;
+      --rpz-niedrig: #00A389; --rpz-niedrig-bg: #F0FDF4; --rpz-niedrig-border: #BBF7D0;
+      --font-sans: 'Inter', sans-serif;
+      --font-heading: 'Outfit', sans-serif;
+      --radius-md: 8px; --radius-lg: 12px; --radius-full: 9999px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-sans); color: var(--color-text-primary); line-height: 1.55; background: #fff; font-size: 10pt; }
+    .mockup-banner { background: #1E293B; color: #F5004F; padding: 8px 16px; font-size: 11px; font-weight: 600; text-align: center; }
+    .report-page { max-width: 210mm; margin: 0 auto; padding: 18mm; }
+    .cover { min-height: 297mm; display: flex; flex-direction: column; background: var(--color-bg); margin: -18mm -18mm 0 -18mm; padding: 18mm; position: relative; }
+    .cover::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 8mm; background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-indigo) 100%); }
+    .cover-top { padding-top: 40mm; text-align: center; }
+    .cover-logo-title { font-family: var(--font-heading); font-size: 2.5rem; font-weight: 800; color: var(--color-indigo); }
+    .cover-logo-title span { color: var(--color-primary); }
+    .cover-logo-subtitle { font-size: 0.75rem; letter-spacing: 0.3em; color: var(--color-text-muted); margin-top: 4px; }
+    .cover-divider { width: 60mm; height: 4px; background: linear-gradient(90deg, var(--color-primary), #E8C547); margin: 16px auto; border-radius: 2px; }
+    .cover-title { font-family: var(--font-heading); font-size: 2.8rem; font-weight: 800; margin-bottom: 8px; }
+    .cover-subtitle { font-size: 1.3rem; color: var(--color-text-secondary); margin-bottom: 6px; }
+    .cover-method { font-size: 0.8rem; color: var(--color-text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 24px; }
+    .cover-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; max-width: 200px; margin: 0 auto 24px; }
+    .cover-info-item { display: flex; flex-direction: column; gap: 2px; }
+    .cover-info-label { font-size: 0.7rem; color: var(--color-text-muted); text-transform: uppercase; }
+    .cover-info-value { font-weight: 700; font-size: 0.9rem; }
+    .cover-summary { background: #fff; border-radius: var(--radius-lg); padding: 16px; max-width: 320px; margin: 0 auto; border: 1px solid var(--color-border); }
+    .cover-summary-title { font-size: 0.8rem; font-weight: 600; margin-bottom: 12px; color: var(--color-indigo); }
+    .cover-summary-numbers { display: flex; gap: 24px; margin-bottom: 12px; }
+    .cover-summary-stat-big { text-align: center; }
+    .cover-summary-stat-val { display: block; font-size: 1.5rem; font-weight: 800; color: var(--color-primary); }
+    .cover-summary-stat-lbl { font-size: 0.7rem; color: var(--color-text-muted); }
+    .cover-summary-risk-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .cover-risk-chip { padding: 4px 10px; border-radius: var(--radius-full); font-size: 0.7rem; font-weight: 600; }
+    .cover-risk-chip.kritisch { background: var(--rpz-kritisch); color: #fff; }
+    .cover-risk-chip.hoch { background: var(--rpz-hoch); color: #fff; }
+    .cover-risk-chip.mittel { background: var(--rpz-mittel); color: #1F2937; }
+    .cover-risk-chip.niedrig { background: var(--rpz-niedrig); color: #fff; }
+    .cover-bottom { margin-top: auto; padding-top: 24px; font-size: 0.72rem; color: var(--color-text-muted); font-style: italic; text-align: center; }
+    .page-break { page-break-before: always; margin-top: 24px; }
+    .section-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2.5px solid var(--color-primary); }
+    .section-number { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; color: var(--color-primary); }
+    .section-title { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700; color: var(--color-indigo); }
+    h3 { font-family: var(--font-heading); font-size: 1.15rem; font-weight: 600; margin: 16px 0 8px; color: var(--color-indigo); }
+    p { font-size: 0.95rem; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 8px; }
+    .info-box { background: #EFF6FF; border-left: 4px solid var(--color-primary); border-radius: 0 var(--radius-md) var(--radius-md) 0; padding: 12px 16px; margin: 12px 0; font-size: 0.9rem; }
+    .toc { display: flex; flex-direction: column; }
+    .toc-item { display: flex; align-items: baseline; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--color-border); text-decoration: none; color: var(--color-indigo); font-weight: 500; }
+    .toc-item .toc-num { font-weight: 700; color: var(--color-primary); min-width: 24px; }
+    .toc-item.toc-sub { padding-left: 32px; font-size: 0.9rem; color: var(--color-text-secondary); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; margin: 12px 0; }
+    thead th { background: var(--color-primary); color: #fff; font-weight: 600; padding: 8px 10px; text-align: left; }
+    tbody td { padding: 6px 10px; border-bottom: 1px solid #F1F5F9; }
+    tbody tr:nth-child(even) { background: #F9FAFB; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: var(--radius-full); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+    .badge-kritisch { background: var(--rpz-kritisch); color: #fff; }
+    .badge-hoch { background: var(--rpz-hoch); color: #fff; }
+    .badge-mittel { background: var(--rpz-mittel); color: #1F2937; }
+    .badge-niedrig { background: var(--rpz-niedrig); color: #fff; }
+    .chart-placeholder { background: #F1F5F9; border: 2px dashed #94A3B8; border-radius: var(--radius-md); padding: 48px; text-align: center; color: var(--color-text-muted); font-size: 0.9rem; margin: 16px 0; }
+    .risk-card { border-radius: var(--radius-lg); border: 1.5px solid var(--color-border); overflow: hidden; margin: 16px 0; }
+    .risk-card.kritisch { border-color: var(--rpz-kritisch-border); }
+    .risk-card.hoch { border-color: var(--rpz-hoch-border); }
+    .risk-card-header { padding: 10px 12px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .risk-card.kritisch .risk-card-header { background: var(--rpz-kritisch-bg); border-bottom: 2px solid var(--rpz-kritisch); }
+    .risk-card.hoch .risk-card-header { background: var(--rpz-hoch-bg); border-bottom: 2px solid var(--rpz-hoch); }
+    .risk-id { font-size: 0.65rem; font-weight: 700; color: var(--color-text-muted); }
+    .risk-title { font-size: 0.85rem; font-weight: 600; }
+    .risk-card-body { padding: 12px; background: #fff; }
+    .sod-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; flex-wrap: wrap; }
+    .sod-card { flex: 1; min-width: 80px; border-radius: var(--radius-md); padding: 6px 8px; text-align: center; border: 1px solid; }
+    .sod-card.sod-s { background: #EFF6FF; border-color: #BFDBFE; }
+    .sod-card.sod-o { background: #FFF0F5; border-color: #FECDD3; }
+    .sod-card.sod-d { background: #FFFBEB; border-color: #FDE68A; }
+    .sod-value { font-size: 1.1rem; font-weight: 800; }
+    .rpz-result { min-width: 60px; padding: 6px; border-radius: var(--radius-md); background: #F9FAFB; text-align: center; border: 1px solid var(--color-border); }
+    .rpz-value { font-size: 1.2rem; font-weight: 800; }
+    .system-card { border: 2px solid var(--color-primary); border-radius: var(--radius-lg); overflow: hidden; margin: 12px 0; }
+    .system-card-header { background: linear-gradient(135deg, #2563EB, #4F46E5); color: #fff; padding: 10px 12px; display: flex; justify-content: space-between; }
+    .system-card-body { padding: 12px; background: #fff; }
+    .substance-card { background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 10px; margin: 6px 0; }
+    .steps-list { list-style: none; }
+    .steps-list li { display: flex; gap: 12px; margin-bottom: 10px; }
+    .steps-list li::before { content: counter(step); counter-increment: step; width: 24px; height: 24px; border-radius: 50%; background: var(--color-primary); color: #fff; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .steps-list { counter-reset: step; }
+    .measure-card { background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 8px 10px; margin: 6px 0; }
+    .stop-badge { display: inline-flex; padding: 2px 6px; border-radius: var(--radius-full); font-size: 0.6rem; font-weight: 700; margin-right: 4px; }
+    .stop-badge.stop-T { background: #E0F2FE; color: #0369A1; }
+  </style>
+</head>
+<body>
+  <div class="mockup-banner">MOCKUP – FMEA-Bericht-Struktur aus Skill fmea-risikoanalyse (Platzhalterdaten)</div>
+
+  <div class="report-page">
+    <!-- ═══════════ COVER PAGE ═══════════ -->
+    <div class="cover">
+      <div class="cover-top">
+        <div class="cover-logo-title"><span>Risk</span> Agent</div>
+        <div class="cover-logo-subtitle">RISK ANALYSIS</div>
+      </div>
+      <div class="cover-main" style="flex:1;display:flex;flex-direction:column;align-items:center;padding:16px;">
+        <div class="cover-divider"></div>
+        <div class="cover-title">FMEA-Bericht</div>
+        <div class="cover-subtitle">Ethylacetatproduktion 20TA41</div>
+        <div class="cover-method">AIAG-VDA FMEA · Prozess- und Design-FMEA</div>
+        <div class="cover-info-grid">
+          <div class="cover-info-item"><span class="cover-info-label">Projekt</span><span class="cover-info-value">20TA41</span></div>
+          <div class="cover-info-item"><span class="cover-info-label">Status</span><span class="cover-info-value">Abgeschlossen</span></div>
+          <div class="cover-info-item"><span class="cover-info-label">Datum</span><span class="cover-info-value">2026-03-10</span></div>
+          <div class="cover-info-item"><span class="cover-info-label">Erstellt</span><span class="cover-info-value">10.03.2026 14:30</span></div>
+        </div>
+        <div class="cover-summary">
+          <div class="cover-summary-title">Analyseergebnis</div>
+          <div class="cover-summary-numbers">
+            <div class="cover-summary-stat-big"><span class="cover-summary-stat-val">24</span><span class="cover-summary-stat-lbl">Fehlermodi</span></div>
+            <div class="cover-summary-stat-big"><span class="cover-summary-stat-val">12</span><span class="cover-summary-stat-lbl">Maßnahmen</span></div>
+          </div>
+          <div class="cover-summary-risk-row">
+            <span class="cover-risk-chip kritisch">2 Kritisch</span>
+            <span class="cover-risk-chip hoch">4 Hoch</span>
+            <span class="cover-risk-chip mittel">8 Mittel</span>
+            <span class="cover-risk-chip niedrig">10 Niedrig</span>
+          </div>
+        </div>
+      </div>
+      <div class="cover-bottom">Vertraulich – nur für den internen Gebrauch bestimmt.</div>
+    </div>
+
+    <!-- ═══════════ INHALTSVERZEICHNIS ═══════════ -->
+    <div class="page-break"></div>
+    <div class="section-header"><span class="section-title" style="font-size:1.3rem;">Inhaltsverzeichnis</span></div>
+    <div class="toc">
+      <a href="#sec-1" class="toc-item"><span class="toc-num">1</span><span>Management Summary</span></a>
+      <a href="#sec-2" class="toc-item"><span class="toc-num">2</span><span>Methodik</span></a>
+      <a href="#sec-3" class="toc-item"><span class="toc-num">3</span><span>Anlagenbeschreibung</span></a>
+      <a href="#sec-4" class="toc-item"><span class="toc-num">4</span><span>Risiko-Übersicht</span></a>
+      <a href="#chart-risikomatrix" class="toc-item toc-sub"><span>Risikomatrix</span></a>
+      <a href="#chart-rpz-vergleich" class="toc-item toc-sub"><span>RPZ-Verteilung – 6 Visualisierungen</span></a>
+      <a href="#chart-treemap" class="toc-item toc-sub"><span>Risiko-Treemap</span></a>
+      <a href="#sec-5" class="toc-item"><span class="toc-num">5</span><span>Detaillierte Risiko-Dokumentation</span></a>
+      <a href="#sec-6" class="toc-item"><span class="toc-num">6</span><span>Anhang</span></a>
+    </div>
+
+    <!-- ═══════════ 1. MANAGEMENT SUMMARY ═══════════ -->
+    <div class="page-break"></div>
+    <div class="section-header" id="sec-1">
+      <span class="section-number">1</span>
+      <span class="section-title">Management Summary</span>
+    </div>
+    <p>Der vorliegende Bericht dokumentiert die systematische Fehlermöglichkeits- und Einflussanalyse (FMEA) der Anlage <strong>„Ethylacetatproduktion 20TA41"</strong>. Die Analyse wurde nach dem AIAG-VDA-Standard durchgeführt.</p>
+    <p>Insgesamt wurden <strong>5</strong> Komponenten mit <strong>12</strong> Funktionen untersucht. Dabei konnten <strong>24</strong> potenzielle Fehlermodi identifiziert werden. <strong>6</strong> Fehlermodi wurden als kritisch oder hoch eingestuft.</p>
+    <div class="info-box">Komponenten: 5 | Funktionen: 12 | Fehlermodi: 24 | Maßnahmen: 12 | Kritisch/Hoch: 6</div>
+    <div class="chart-placeholder">[RPZ-Donut-Chart – Platzhalter]</div>
+    <h3>Top-5 Risiken</h3>
+    <table>
+      <thead><tr><th>Fehler-ID</th><th>Fehlermodus</th><th>S</th><th>O</th><th>D</th><th>RPZ</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>KOMP-001-F2-FM1</td><td>Leckage an Reaktor</td><td style="text-align:center">8</td><td style="text-align:center">4</td><td style="text-align:center">5</td><td style="text-align:center;font-weight:700">160</td><td><span class="badge badge-hoch">HOCH</span></td></tr>
+        <tr><td>KOMP-002-F1-FM1</td><td>Überhitzung Destillationskolonne</td><td style="text-align:center">7</td><td style="text-align:center">3</td><td style="text-align:center">6</td><td style="text-align:center;font-weight:700">126</td><td><span class="badge badge-hoch">HOCH</span></td></tr>
+        <tr><td>KOMP-003-F1-FM1</td><td>Pumpenausfall</td><td style="text-align:center">6</td><td style="text-align:center">4</td><td style="text-align:center">4</td><td style="text-align:center;font-weight:700">96</td><td><span class="badge badge-mittel">MITTEL</span></td></tr>
+      </tbody>
+    </table>
+
+    <!-- ═══════════ 2. METHODIK ═══════════ -->
+    <div class="page-break"></div>
+    <div class="section-header" id="sec-2"><span class="section-number">2</span><span class="section-title">Methodik</span></div>
+    <p>Die vorliegende Analyse basiert auf der FMEA-Methodik nach AIAG-VDA (1. Auflage, 2019). Die Risikobewertung erfolgt über drei Dimensionen: <strong>Bedeutung (S)</strong>, <strong>Auftreten (O)</strong>, <strong>Entdeckung (D)</strong>. RPZ = S × O × D.</p>
+    <h3>FMEA-Prozess (5 Schritte)</h3>
+    <ol class="steps-list">
+      <li><strong>Strukturanalyse</strong> – Zerlegung der Anlage in Einzelkomponenten</li>
+      <li><strong>Funktionsanalyse</strong> – Identifikation der Haupt- und Nebenfunktionen</li>
+      <li><strong>Fehleranalyse</strong> – Ermittlung von Fehlermodi und Ursachen</li>
+      <li><strong>Risikobewertung</strong> – S/O/D-Bewertung, RPZ-Berechnung</li>
+      <li><strong>Maßnahmenoptimierung</strong> – STOP-Prinzip, ABE-Hierarchie</li>
+    </ol>
+    <h3>RPZ-Klassifizierung</h3>
+    <table>
+      <thead><tr><th>Bereich</th><th>Klassifizierung</th><th>Maßnahme</th></tr></thead>
+      <tbody>
+        <tr><td>≥ 200</td><td><span class="badge badge-kritisch">Kritisch</span></td><td>Sofortige Maßnahme</td></tr>
+        <tr><td>≥ 125</td><td><span class="badge badge-hoch">Hoch</span></td><td>Maßnahme zeitnah</td></tr>
+        <tr><td>≥ 50</td><td><span class="badge badge-mittel">Mittel</span></td><td>Maßnahme planen</td></tr>
+        <tr><td>&lt; 50</td><td><span class="badge badge-niedrig">Niedrig</span></td><td>Monitoring</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ═══════════ 3. ANLAGENBESCHREIBUNG ═══════════ -->
+    <div class="page-break"></div>
+    <div class="section-header" id="sec-3"><span class="section-number">3</span><span class="section-title">Anlagenbeschreibung</span></div>
+    <h3>3.1 Allgemein</h3>
+    <p>Esterifizierungsanlage zur Produktion von Ethylacetat. Kontinuierlicher Betrieb, 24/7.</p>
+    <h3>3.2 Anlagensysteme</h3>
+    <div class="system-card">
+      <div class="system-card-header"><span class="system-name">Reaktionssystem</span><span>REAKTOR</span></div>
+      <div class="system-card-body">
+        <p style="font-size:0.9rem;margin-bottom:8px;">Rührkesselreaktor mit Kühlmantel. Auslegung: 5000 L, 80°C, 2 bar.</p>
+        <div class="substance-card"><strong>Einsatzstoffe:</strong> Essigsäure, Ethanol</div>
+        <div class="substance-card"><strong>Produkte:</strong> Ethylacetat, Wasser</div>
+      </div>
+    </div>
+
+    <!-- ═══════════ 4. RISIKO-ÜBERSICHT ═══════════ -->
+    <div class="page-break"></div>
+    <div class="section-header" id="sec-4"><span class="section-number">4</span><span class="section-title">Risiko-Übersicht</span></div>
+    <p>Die folgende Übersicht visualisiert die Risikolandschaft. Die Risikomatrix positioniert jeden Fehlermodus anhand von S (Y-Achse) und O (X-Achse).</p>
+    <h3 id="chart-risikomatrix">Risikomatrix</h3>
+    <div class="chart-placeholder">[Risikomatrix S vs. O – Platzhalter]</div>
+    <h3 id="chart-rpz-vergleich">RPZ-Verteilung – 6 Visualisierungen</h3>
+    <div class="chart-placeholder">[Donut, Balken, Waffle, Gauge, Bullet, Lollipop – Platzhalter]</div>
+    <h3 id="chart-treemap">Risiko-Treemap: Vorher vs. Nachher</h3>
+    <div class="chart-placeholder">[Treemap – Platzhalter]</div>
+
+    <!-- ═══════════ 5. DETAILLIERTE RISIKO-DOKUMENTATION ═══════════ -->
+    <div class="page-break"></div>
+    <div class="section-header" id="sec-5"><span class="section-number">5</span><span class="section-title">Detaillierte Risiko-Dokumentation</span></div>
+    <p>Jeder Fehlermodus wird als Risiko-Card dokumentiert: S/O/D-Bewertung, Ursachen, Folgen, Controls, Maßnahmen.</p>
+    <table style="font-size:0.75rem;">
+      <thead><tr><th>ID</th><th>Fehlermodus</th><th>S</th><th>O</th><th>D</th><th>RPZ</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>KOMP-001-F2-FM1</td><td>Leckage an Reaktor</td><td>8</td><td>4</td><td>5</td><td>160</td><td><span class="badge badge-hoch">HOCH</span></td></tr>
+        <tr><td>KOMP-002-F1-FM1</td><td>Überhitzung Destillationskolonne</td><td>7</td><td>3</td><td>6</td><td>126</td><td><span class="badge badge-hoch">HOCH</span></td></tr>
+      </tbody>
+    </table>
+
+    <!-- Beispiel Risk-Card -->
+    <div class="risk-card hoch" id="risk-KOMP-001-F2-FM1">
+      <div class="risk-card-header">
+        <div><span class="risk-id">KOMP-001-F2-FM1</span><span class="risk-title">Leckage an Reaktor – Gefahrstoffaustritt</span></div>
+        <span class="badge badge-hoch">HOCH</span>
+      </div>
+      <div class="risk-card-body">
+        <div class="risk-sub-title" style="font-size:0.7rem;font-weight:600;margin-bottom:6px;">S/O/D-Bewertung</div>
+        <div class="sod-row">
+          <div class="sod-card sod-s"><div class="sod-label" style="font-size:0.6rem;">Bedeutung (S)</div><div class="sod-value">8</div><div style="height:2px;background:#60A5FA;border-radius:1px;width:80%;margin:2px auto;"></div></div>
+          <span style="font-weight:700;color:#9CA3AF;">×</span>
+          <div class="sod-card sod-o"><div class="sod-label" style="font-size:0.6rem;">Auftreten (O)</div><div class="sod-value">4</div><div style="height:2px;background:#FB7185;border-radius:1px;width:40%;margin:2px auto;"></div></div>
+          <span style="font-weight:700;color:#9CA3AF;">×</span>
+          <div class="sod-card sod-d"><div class="sod-label" style="font-size:0.6rem;">Entdeckung (D)</div><div class="sod-value">5</div><div style="height:2px;background:#FCD34D;border-radius:1px;width:50%;margin:2px auto;"></div></div>
+          <span style="font-weight:700;color:#9CA3AF;">=</span>
+          <div class="rpz-result"><div style="font-size:0.55rem;">RPZ</div><div class="rpz-value" style="color:var(--rpz-hoch);">160</div><span class="badge badge-hoch" style="font-size:0.6rem;">HOCH</span></div>
+        </div>
+        <div style="margin-top:10px;">
+          <div style="font-size:0.7rem;font-weight:600;margin-bottom:4px;">Maßnahmen zur Risikoreduktion</div>
+          <div class="measure-card">
+            <span class="stop-badge stop-T">Technisch</span>
+            <strong>Leckage-Erkennungssystem</strong> – Installation von Dichtheitsprüfung und Sensoren. RPZ' 48
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ 6. ANHANG ═══════════ -->
+    <div class="page-break"></div>
+    <div class="section-header" id="sec-6"><span class="section-number">6</span><span class="section-title">Anhang</span></div>
+    <p>RPZ-Vergleich Vorher/Nachher, Maßnahmentabelle, Glossar.</p>
+    <div class="chart-placeholder">[RPZ-Vergleich Vorher vs. Nachher – Platzhalter]</div>
+    <h3>Maßnahmentabelle (zum Herauskopieren)</h3>
+    <table>
+      <thead><tr><th>Fehler-ID</th><th>Maßnahme</th><th>Typ</th><th>RPZ vorher</th><th>RPZ nachher</th></tr></thead>
+      <tbody>
+        <tr><td>KOMP-001-F2-FM1</td><td>Leckage-Erkennungssystem</td><td>T / B</td><td>160</td><td>48</td></tr>
+      </tbody>
+    </table>
+    <h3>Glossar</h3>
+    <table>
+      <thead><tr><th>Begriff</th><th>Beschreibung</th></tr></thead>
+      <tbody>
+        <tr><td>FMEA</td><td>Fehlermöglichkeits- und Einflussanalyse</td></tr>
+        <tr><td>RPZ</td><td>Risikoprioritätszahl = S × O × D</td></tr>
+        <tr><td>S/O/D</td><td>Severity, Occurrence, Detection</td></tr>
+        <tr><td>STOP</td><td>Substitution, Technisch, Organisatorisch, Persönlich</td></tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
