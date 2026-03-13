@@ -210,6 +210,38 @@ Kein Typ darf stillschweigend übergangen werden. Die Dokumentation nicht-releva
 
 ---
 
+## Konfidenz-Dokumentation (Pflicht bei jeder Bewertung)
+
+### daten_konfidenz — Qualität der Eingangsdaten
+
+| Stufe | Bedeutung |
+|---|---|
+| hoch | CCPS/OREDA-Referenzdaten, IEC 61508-Datenbank, publizierte Ausfallraten |
+| mittel | Betriebserfahrung des Kunden, interne Störfalldaten, Herstellerangaben |
+| niedrig | KI-Schätzung, grobe Analogie, keine belastbaren Daten verfügbar |
+
+### agent_konfidenz — Selbsteinschätzung des Agenten
+
+| Stufe | Bedeutung |
+|---|---|
+| hoch | Klare Datenlage, Standardfall, Skalenbedeutung eindeutig anwendbar |
+| mittel | Leichte Unsicherheit bei O-Wert oder D-Wert; kein Review-Flag nötig |
+| niedrig | Unklare Datenlage, stark domänenspezifisch, menschliche Überprüfung empfohlen |
+
+**Regel:** Bei `agent_konfidenz = niedrig` → `agent_konfidenz_begruendung` ist Pflichtfeld + explizit im Dialog ansprechen + Review-Flag im Report.
+
+### daten_quelle — Herkunft der O-Bewertung
+
+| Quelle | Beschreibung |
+|---|---|
+| CCPS | Center for Chemical Process Safety — Guidelines for CPQRA |
+| OREDA | Offshore and Onshore Reliability Data Handbook |
+| Betriebserfahrung | Kundeneigene Störfalldaten, Wartungsprotokolle |
+| Expertenschätzung | Einschätzung durch Fachingenieur ohne Datenbankreferenz |
+| KI-Vorschlag | Agent-Schätzung ohne externe Referenz — immer niedrige daten_konfidenz |
+
+---
+
 ## Maßnahmen-Klassifizierung
 
 **STOP-Prinzip** (Priorität): Substitution → Technisch → Organisatorisch → Persönlich

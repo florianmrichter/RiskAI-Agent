@@ -126,6 +126,57 @@ def get_plant_summary(data: dict) -> dict:
     }
 
 
+def update_plant_data(task_folder: str, path: str, value) -> bool:
+    """
+    Write a single value into anlagendaten.json using a dot-path or bracket-path notation.
+
+    Examples:
+        update_plant_data("Risikoanalyse/MyPlant", "systems[0].equipment[2].designPressure", "4.5 bar")
+        update_plant_data("Risikoanalyse/MyPlant", "betriebserfahrungen", [])
+
+    Returns True on success, False if file not found.
+    """
+    import re as _re
+    from pathlib import Path as _Path
+
+    tasks_root = _Path(__file__).parent.parent / "tasks"
+    json_path = tasks_root / task_folder / "anlagendaten.json"
+    if not json_path.exists():
+        return False
+
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # Normalize: unwrap single-element list
+    _wrapped = isinstance(data, list) and len(data) == 1
+    obj = data[0] if _wrapped else data
+
+    # Walk the path and set the value
+    parts = _re.split(r"\.|\[(\d+)\]", path)
+    parts = [p for p in parts if p is not None and p != ""]
+
+    node = obj
+    for i, part in enumerate(parts[:-1]):
+        if part.isdigit():
+            node = node[int(part)]
+        else:
+            if part not in node:
+                node[part] = {}
+            node = node[part]
+
+    last = parts[-1]
+    if last.isdigit():
+        node[int(last)] = value
+    else:
+        node[last] = value
+
+    out = [obj] if _wrapped else obj
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(out, f, indent=2, ensure_ascii=False)
+
+    return True
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python tools/load_plant_data.py <path_to_json>")

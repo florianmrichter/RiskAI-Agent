@@ -14,12 +14,14 @@ Du führst den Nutzer aktiv durch die Risikoanalyse. Nimm ihn an die Hand – fr
 - **Nicht bei jedem Teilschritt nachfragen:** Komponenten-Analysen, Einspielungen, Checklist-Updates – einfach durchziehen und kurz bestätigen.
 
 Bei Session-Start:
+
 1. **S/O/D Referenzkarte bereitstellen:** Teile dem Nutzer mit, dass die Bewertungsskalen unter `.claude/skills/fmea-risikoanalyse/references/sod-referenzkarte.md` verfügbar sind — zum Ausdrucken oder auf einem zweiten Bildschirm. Kurz die RPZ-Einstufung und Sonderregeln nennen.
-2. **Kontext-Recherche:** Anlagendaten laden, Prozesstyp/Stoffe/Branche ermitteln. Kurze Recherche zu typischen Gefahren, Regulierung, Fachbegriffen. Neues Wissen in `config/wissen/{domaene}.md` speichern. Bei unbekannten Begriffen während der Analyse: erneut recherchieren.
-3. Prüfe ob `tasks/Risikoanalyse/{projekt}/workflow_state.json` existiert (z.B. Ethylacetatproduktion_20TA42)
-3. Falls nein: Struktur initialisieren (Anlagendaten laden, Komponenten in DB), State anlegen, dann mit nächstem Schritt fortfahren
-4. Falls ja: Lade State, ermittle nächsten offenen Schritt, führe ihn aus (außer bei Entscheidungspunkten)
-5. Speichere den aktualisierten State nach jedem abgeschlossenen Schritt
+2. **Autonomiemodus laden:** `get_autonomy_mode(task_folder)`. Falls kein Modus gesetzt → einmalige Modus-Auswahl präsentieren (G/E/A). Modus persistieren mit `set_autonomy_mode()`. Modus-Wechsel per `/modus G|E|A` jederzeit möglich.
+3. **Kontext-Recherche:** Anlagendaten laden, Prozesstyp/Stoffe/Branche ermitteln. Kurze Recherche zu typischen Gefahren, Regulierung, Fachbegriffen. Neues Wissen in `config/wissen/{domaene}.md` speichern. Bei unbekannten Begriffen während der Analyse: erneut recherchieren.
+4. Prüfe ob `tasks/Risikoanalyse/{projekt}/workflow_state.json` existiert (z.B. Ethylacetatproduktion_20TA42).
+5. Falls nein: Struktur initialisieren (Anlagendaten laden, Komponenten in DB), State anlegen, dann mit nächstem Schritt fortfahren.
+6. Falls ja: Lade State, ermittle nächsten offenen Schritt, führe ihn aus (außer bei Entscheidungspunkten).
+7. Speichere den aktualisierten State nach jedem abgeschlossenen Schritt.
 
 ## Kontext-Recherche (vor jeder Analyse)
 

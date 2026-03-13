@@ -533,6 +533,76 @@ def generate_report(project_id: int, output_path: str = None, task_folder: str =
             raise ValueError("task_folder erforderlich – weder übergeben noch in Projekt gespeichert")
         plant_data = _load_plant_data(task_folder=task_folder)
 
+        # ── Konfidenz-Aggregation ──
+        low_konfidenz_fms = [fm for fm in fmea_data if fm.get("agent_konfidenz") == "niedrig"]
+        konfidenz_warning = len(low_konfidenz_fms) > 0
+
+        # ── Pflicht-Maßnahmen (S≥9 oder RPZ≥300) ──
+        pflicht_massnahmen_count = sum(
+            1 for fm in fmea_data
+            for m in fm.get("measures", [])
+            if m.get("prioritaet") == "pflicht"
+        )
+
+        # ── Maßnahmen-Cockpit: sortiert nach RPZ-Delta (höchste Wirkung oben) ──
+        cockpit_rows = []
+        for fm in fmea_data:
+            for m in fm.get("measures", []):
+                rpz_vorher = fm.get("rpz", 0)
+                rpz_nachher = m.get("rpz_neu") or rpz_vorher
+                delta = rpz_vorher - rpz_nachher
+                cockpit_rows.append({
+                    "fehler_id": fm.get("fehler_id", ""),
+                    "fehlermodus": fm.get("fehlermodus", ""),
+                    "komponente": fm.get("komponente", ""),
+                    "massnahme_name": m.get("name", ""),
+                    "stop_kategorie": m.get("stop_kategorie", ""),
+                    "abe_kategorie": m.get("abe_kategorie", ""),
+                    "prioritaet": m.get("prioritaet", "empfohlen"),
+                    "aufwand": m.get("aufwand", ""),
+                    "kosten_klasse": m.get("kosten_klasse", ""),
+                    "rpz_vorher": rpz_vorher,
+                    "rpz_nachher": rpz_nachher,
+                    "rpz_delta": delta,
+                    "rpz_status_vorher": fm.get("rpz_status", ""),
+                    "rpz_status_nachher": m.get("rpz_status_neu", ""),
+                    "assigned_to": m.get("assigned_to", ""),
+                    "target_date": m.get("target_date", ""),
+                    "implementation_status": m.get("implementation_status", "geplant"),
+                })
+        cockpit_rows.sort(key=lambda x: x["rpz_delta"], reverse=True)
+
+        # ── MoC-Delta (wenn parent_version vorhanden) ──
+        moc_delta = None
+        parent_version_id = project.get("parent_version_id")
+        if parent_version_id:
+            db2 = FMEAStorage(db_path)
+            parent_project = db2.get_project(parent_version_id)
+            parent_fmea = db2.get_full_fmea_data(parent_version_id)
+            db2.close()
+            parent_by_id = {fm["fehler_id"]: fm for fm in parent_fmea}
+            current_by_id = {fm["fehler_id"]: fm for fm in fmea_data}
+            changed = []
+            added = []
+            removed = []
+            for fid, fm in current_by_id.items():
+                if fid not in parent_by_id:
+                    added.append(fm)
+                elif (fm.get("S") != parent_by_id[fid].get("S") or
+                      fm.get("O") != parent_by_id[fid].get("O") or
+                      fm.get("D") != parent_by_id[fid].get("D")):
+                    changed.append({"current": fm, "parent": parent_by_id[fid]})
+            for fid, fm in parent_by_id.items():
+                if fid not in current_by_id:
+                    removed.append(fm)
+            moc_delta = {
+                "parent_project": parent_project,
+                "changed": changed,
+                "added": added,
+                "removed": removed,
+                "change_description": project.get("version_beschreibung", ""),
+            }
+
         # Jinja2 rendering
         env = Environment(loader=FileSystemLoader(str(template_dir)), autoescape=False)
         template = env.get_template("fmea_report.html")
@@ -568,6 +638,8 @@ def generate_report(project_id: int, output_path: str = None, task_folder: str =
             stop_icons=STOP_ICONS,
             func_details=func_details,
             abe_labels={"A": "Vermeidung", "B": "Entdeckung", "E": "Abschwächung"},
+            cockpit_rows=cockpit_rows,
+            moc_delta=moc_delta,
             report_context={
                 "special_rule_count": special_rule_count,
                 "stop_coverage": stop_coverage,
@@ -576,6 +648,13 @@ def generate_report(project_id: int, output_path: str = None, task_folder: str =
                 "best_reduction": best_reduction,
                 "avg_reduction": avg_reduction if best_reduction else 0,
                 "fms_with_measures_count": len(fms_with_measures),
+                "low_konfidenz_count": len(low_konfidenz_fms),
+                "konfidenz_warning": konfidenz_warning,
+                "pflicht_massnahmen_count": pflicht_massnahmen_count,
+                "has_moc": moc_delta is not None,
+                "version": project.get("version", "1.0"),
+                "erstellt_von": project.get("erstellt_von", ""),
+                "geprueft_von": project.get("geprueft_von", ""),
             },
         )
 

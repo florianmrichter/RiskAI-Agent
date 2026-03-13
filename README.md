@@ -225,3 +225,5 @@ Jeder Projektordner enthält: `anlagendaten.json`, `fmea_explicit.py`, `measures
 **Cleanup (2026-03-05):** `archive/` entfernt (PoC-Reste). `.claude/commands/` durch Claude Code Skills in `.claude/skills/` ersetzt. Skill-Bundle ist self-contained: Moderator-Regeln, S/O/D-Skalen und MSR-Glossar sind direkt in `references/` gebündelt.
 
 **Änderungen (2026-03-08):** Skill `anlagendaten-interview`: PubChem-Stoffdaten-Integration, Phasen- und Referenz-Updates. Skill `fmea-risikoanalyse`: FMEA-Standards und Workflow-Referenzen überarbeitet. Tools: `insert_fmea_explicit.py`, `storage.py` angepasst. `claude.md` angepasst.
+
+**Änderungen (2026-03-13):** FMEA-Skill-Workflow weiter konsolidiert (`workflows/fmea-workflow.md`, FMEA-Referenzen, Report-Template). Tools: `load_plant_data.py`, `report_generator.py`, `storage.py`, `workflow_state.py` überarbeitet; neue Tools `migrate_db.py` (DB-Migration) und `moc_manager.py` (Management of Change) ergänzt. Plan `007_FMEA-Skill-Upgrade-Report-MoC_2026-03-10.md` fortgeschrieben.

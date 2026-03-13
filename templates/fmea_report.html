@@ -72,6 +72,29 @@
       </div>
     </div>
 
+    {# Version-Header + MoC-Hinweis #}
+    <div style="margin-top:5mm;padding:3mm 5mm;background:rgba(255,255,255,0.08);border-radius:6px;border-left:3px solid #E8C547;">
+      <span style="font-size:0.8rem;color:#E8C547;font-weight:700;">Version {{ report_context.version }}</span>
+      {% if moc_delta %}
+      <span style="font-size:0.75rem;color:rgba(255,255,255,0.7);margin-left:8px;">
+        ersetzt {{ moc_delta.parent_project.version if moc_delta.parent_project else '' }} vom {{ moc_delta.parent_project.datum[:10] if moc_delta.parent_project else '' }}
+        {% if moc_delta.change_description %} · {{ moc_delta.change_description }}{% endif %}
+      </span>
+      {% endif %}
+    </div>
+
+    {# Freigabe-Stempel #}
+    <div style="margin-top:4mm;display:flex;gap:8mm;">
+      <div style="flex:1;padding:3mm 4mm;background:rgba(255,255,255,0.06);border-radius:6px;border:1px solid rgba(255,255,255,0.15);">
+        <div style="font-size:0.65rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1mm;">Erstellt von</div>
+        <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">{{ report_context.erstellt_von or 'ausstehend' }}</div>
+      </div>
+      <div style="flex:1;padding:3mm 4mm;background:rgba(255,255,255,0.06);border-radius:6px;border:1px solid rgba(255,255,255,0.15);">
+        <div style="font-size:0.65rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1mm;">Geprüft von</div>
+        <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">{{ report_context.geprueft_von or 'ausstehend' }}</div>
+      </div>
+    </div>
+
     <div class="cover-summary">
       <div class="cover-summary-title">Analyseergebnis</div>
       <div class="cover-summary-numbers">
@@ -182,6 +205,29 @@
 </div>
 {% endif %}
 
+{# Konfidenz-Warnung #}
+{% if report_context.konfidenz_warning %}
+<div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:6px;padding:3mm 4mm;margin-bottom:4mm;display:flex;gap:3mm;align-items:flex-start;">
+  <span style="font-size:1rem;flex-shrink:0;">⚠</span>
+  <div>
+    <strong style="color:#92400E;">KI-Bewertung unsicher</strong>
+    <span style="color:#78350F;font-size:0.82rem;"> — {{ report_context.low_konfidenz_count }} Fehlermodi mit <code>agent_konfidenz = niedrig</code>.
+    Expertenprüfung empfohlen. Betroffen sind die mit ⚠ markierten Detailkarten in Kapitel 5.</span>
+  </div>
+</div>
+{% endif %}
+
+{# Pflicht-Maßnahmen-Highlight #}
+{% if report_context.pflicht_massnahmen_count > 0 %}
+<div style="background:#FEE2E2;border:1px solid #FECACA;border-radius:6px;padding:3mm 4mm;margin-bottom:4mm;display:flex;gap:3mm;align-items:flex-start;">
+  <span style="font-size:1rem;flex-shrink:0;">🔴</span>
+  <div>
+    <strong style="color:#991B1B;">{{ report_context.pflicht_massnahmen_count }} Pflicht-Maßnahmen sofort erforderlich</strong>
+    <span style="color:#7F1D1D;font-size:0.82rem;"> — S ≥ 9 oder RPZ ≥ 300. Keine Maßnahme darf ausstehen. Details im Maßnahmen-Cockpit (Abschnitt 1.2).</span>
+  </div>
+</div>
+{% endif %}
+
 <h3>Top-5 Risiken</h3>
 <table class="top5-table">
   <thead>
@@ -202,6 +248,75 @@
   </tbody>
 </table>
 
+
+{# ═══════════════════════  1.2 MAßNAHMEN-COCKPIT  ═══════════════════════ #}
+</div>
+<div class="page-break"></div>
+<div class="content">
+
+<div class="section-header">
+  <span class="section-number" style="font-size:0.9rem;padding:1mm 2mm;">1.2</span>
+  <span class="section-title">Maßnahmen-Cockpit</span>
+</div>
+<p style="font-size:0.82rem;color:var(--color-text-muted);margin-bottom:4mm;">
+  Alle {{ total_measures }} Maßnahmen, sortiert nach Wirkung (höchste RPZ-Reduktion oben).
+  <strong style="color:#991B1B;">Rot = Pflicht</strong> · <span style="color:#EA580C;">Orange = Empfohlen</span> · <span style="color:#6B7280;">Grau = Optional</span>.
+</p>
+
+{% if cockpit_rows %}
+<table class="appendix-measures-table" style="font-size:0.72rem;">
+  <thead>
+    <tr style="background:var(--color-bg-card);">
+      <th>Fehler-ID</th>
+      <th>Fehlermodus</th>
+      <th>Maßnahme</th>
+      <th style="text-align:center;">STOP</th>
+      <th style="text-align:center;">ABE</th>
+      <th style="text-align:center;">Priorität</th>
+      <th style="text-align:center;">Aufwand</th>
+      <th style="text-align:center;">Kosten</th>
+      <th style="text-align:center;">RPZ vorher</th>
+      <th style="text-align:center;">RPZ nachher</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in cockpit_rows %}
+    {% set prio_color = {'pflicht':'#DC2626','empfohlen':'#EA580C','optional':'#6B7280'}.get(row.prioritaet, '#6B7280') %}
+    <tr>
+      <td style="font-weight:600;white-space:nowrap;font-size:0.68rem;">{{ row.fehler_id }}</td>
+      <td style="font-size:0.7rem;">{{ row.fehlermodus[:50] }}{% if row.fehlermodus|length > 50 %}…{% endif %}</td>
+      <td style="font-size:0.7rem;">{{ row.massnahme_name }}</td>
+      <td style="text-align:center;white-space:nowrap;">
+        <span class="badge" style="background:#1F293710;color:#1F2937;font-size:0.62rem;">{{ row.stop_kategorie or '–' }}</span>
+      </td>
+      <td style="text-align:center;white-space:nowrap;">
+        <span class="badge" style="background:#1F293710;color:#1F2937;font-size:0.62rem;">{{ row.abe_kategorie or '–' }}</span>
+      </td>
+      <td style="text-align:center;">
+        <span style="color:{{ prio_color }};font-weight:700;font-size:0.68rem;">{{ row.prioritaet|upper }}</span>
+      </td>
+      <td style="text-align:center;font-size:0.68rem;">{{ row.aufwand or '–' }}</td>
+      <td style="text-align:center;font-size:0.68rem;">{{ row.kosten_klasse or '–' }}</td>
+      <td style="text-align:center;font-weight:600;">
+        <span class="badge badge-{{ row.rpz_status_vorher }}" style="font-size:0.65rem;">{{ row.rpz_vorher }}</span>
+      </td>
+      <td style="text-align:center;font-weight:600;">
+        {% if row.rpz_nachher != row.rpz_vorher %}
+        <span class="badge badge-{{ row.rpz_status_nachher }}" style="font-size:0.65rem;">{{ row.rpz_nachher }}</span>
+        <span style="font-size:0.6rem;color:#00A389;"> ↓{{ row.rpz_delta }}</span>
+        {% else %}
+        <span style="color:var(--color-text-muted);">–</span>
+        {% endif %}
+      </td>
+      <td style="font-size:0.68rem;white-space:nowrap;">{{ row.implementation_status or 'geplant' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p style="color:var(--color-text-muted);font-style:italic;">Noch keine Maßnahmen eingespielt.</p>
+{% endif %}
 
 {# ═══════════════════════  2. METHODIK  ═══════════════════════ #}
 </div>
@@ -952,6 +1067,44 @@
         </div>
       </div>
 
+      {# Konfidenz-Badges #}
+      {% set risk = fm.get('risk') or {} %}
+      {% if risk.get('daten_konfidenz') or risk.get('agent_konfidenz') %}
+      <div style="display:flex;gap:2mm;margin-top:2mm;flex-wrap:wrap;align-items:center;">
+        {% if risk.get('daten_konfidenz') %}
+        {% set dk = risk.daten_konfidenz %}
+        {% set dk_color = {'hoch':'#00A389','mittel':'#E8C547','niedrig':'#F5004F'}.get(dk,'#6B7280') %}
+        <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;border:1px solid {{ dk_color }};color:{{ dk_color }};font-weight:600;">
+          Datenbasis: {{ dk }}</span>
+        {% if risk.get('daten_quelle') %}
+        <span style="font-size:0.62rem;color:var(--color-text-muted);padding:1px 4px;background:var(--color-bg-card);border-radius:3px;border:1px solid var(--color-border);">{{ risk.daten_quelle }}</span>
+        {% endif %}
+        {% endif %}
+        {% if risk.get('agent_konfidenz') %}
+        {% set ak = risk.agent_konfidenz %}
+        {% set ak_color = {'hoch':'#00A389','mittel':'#E8C547','niedrig':'#F5004F'}.get(ak,'#6B7280') %}
+        <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;border:1px solid {{ ak_color }};color:{{ ak_color }};font-weight:600;">
+          KI-Konfidenz: {{ ak }}</span>
+        {% endif %}
+      </div>
+      {% endif %}
+      {# Review-Flag bei agent_konfidenz=niedrig #}
+      {% if (fm.get('risk') or {}).get('agent_konfidenz') == 'niedrig' %}
+      <div style="background:#FEE2E2;border-left:3px solid #DC2626;padding:2mm 3mm;margin-top:2mm;border-radius:0 4px 4px 0;font-size:0.72rem;color:#991B1B;">
+        ⚠ KI-Bewertung unsicher — Expertenprüfung empfohlen.
+        {% if (fm.get('risk') or {}).get('agent_konfidenz_begruendung') %}
+        Begründung: {{ fm.risk.agent_konfidenz_begruendung }}
+        {% endif %}
+      </div>
+      {% endif %}
+      {# MoC-Badge #}
+      {% if fm.get('moc_status') and fm.moc_status not in ('original', 'unverändert') %}
+      <div style="display:inline-block;background:#EDE9FE;border:1px solid #C4B5FD;border-radius:4px;padding:1px 6px;margin-top:2mm;font-size:0.65rem;color:#5B21B6;font-weight:600;">
+        {{ {'neu_bewertet':'Neu bewertet','hinzugefügt':'Neu in dieser Version','entfernt':'Entfernt'}.get(fm.moc_status, fm.moc_status) }}
+        {% if report_context.has_moc %} – v{{ report_context.version }}{% endif %}
+      </div>
+      {% endif %}
+
       {# Sonderregel-Hinweis #}
       {% if fm.special_rule %}
       <div class="special-rule-box">
@@ -1088,7 +1241,78 @@
   Die vollständige Risikoübersicht mit S/O/D-Bewertungen befindet sich in Kapitel 5.
 </p>
 
-<h3>6.0 Abkürzungsverzeichnis</h3>
+{# ── Freigabe-Sektion ── #}
+<h3>6.0 Freigabe</h3>
+<table style="width:100%;border-collapse:collapse;margin-bottom:6mm;">
+  <thead>
+    <tr style="background:var(--color-bg-card);">
+      <th style="padding:2mm 3mm;text-align:left;font-size:0.75rem;border:1px solid var(--color-border);">Rolle</th>
+      <th style="padding:2mm 3mm;text-align:left;font-size:0.75rem;border:1px solid var(--color-border);">Name</th>
+      <th style="padding:2mm 3mm;text-align:left;font-size:0.75rem;border:1px solid var(--color-border);">Datum</th>
+      <th style="padding:2mm 3mm;text-align:left;font-size:0.75rem;border:1px solid var(--color-border);">Unterschrift</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">Erstellt von</td>
+      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">{{ report_context.erstellt_von or '_______________' }}</td>
+      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">{{ project.datum[:10] }}</td>
+      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">_______________</td>
+    </tr>
+    <tr>
+      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">Geprüft von</td>
+      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">{{ report_context.geprueft_von or '_______________' }}</td>
+      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">_______________</td>
+      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">_______________</td>
+    </tr>
+  </tbody>
+</table>
+
+{# ── Versionshistorie ── #}
+{% if moc_delta %}
+<h3>6.0a Versionshistorie</h3>
+<table style="width:100%;border-collapse:collapse;margin-bottom:4mm;">
+  <thead>
+    <tr style="background:var(--color-bg-card);">
+      <th style="padding:2mm 3mm;text-align:left;font-size:0.75rem;border:1px solid var(--color-border);">Version</th>
+      <th style="padding:2mm 3mm;text-align:left;font-size:0.75rem;border:1px solid var(--color-border);">Datum</th>
+      <th style="padding:2mm 3mm;text-align:left;font-size:0.75rem;border:1px solid var(--color-border);">Änderungsbeschreibung</th>
+      <th style="padding:2mm 3mm;text-align:center;font-size:0.75rem;border:1px solid var(--color-border);">Geändert</th>
+      <th style="padding:2mm 3mm;text-align:center;font-size:0.75rem;border:1px solid var(--color-border);">Hinzugefügt</th>
+      <th style="padding:2mm 3mm;text-align:center;font-size:0.75rem;border:1px solid var(--color-border);">Entfernt</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">v{{ moc_delta.parent_project.version if moc_delta.parent_project else '1.0' }}</td>
+      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">{{ moc_delta.parent_project.datum[:10] if moc_delta.parent_project else '–' }}</td>
+      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">Initiale Version</td>
+      <td style="text-align:center;border:1px solid var(--color-border);">–</td>
+      <td style="text-align:center;border:1px solid var(--color-border);">–</td>
+      <td style="text-align:center;border:1px solid var(--color-border);">–</td>
+    </tr>
+    <tr style="background:#F5F3FF;">
+      <td style="padding:2mm 3mm;font-size:0.75rem;font-weight:700;border:1px solid var(--color-border);">v{{ report_context.version }}</td>
+      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">{{ project.datum[:10] }}</td>
+      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">{{ moc_delta.change_description or '–' }}</td>
+      <td style="text-align:center;font-weight:700;border:1px solid var(--color-border);">{{ moc_delta.changed|length }}</td>
+      <td style="text-align:center;font-weight:700;border:1px solid var(--color-border);">{{ moc_delta.added|length }}</td>
+      <td style="text-align:center;font-weight:700;border:1px solid var(--color-border);">{{ moc_delta.removed|length }}</td>
+    </tr>
+  </tbody>
+</table>
+{% else %}
+<h3 style="display:none;">6.0a Versionshistorie</h3>
+<p style="font-size:0.78rem;color:var(--color-text-muted);margin-bottom:4mm;">Version 1.0 — keine Vorversion vorhanden.</p>
+{% endif %}
+
+{# ── Methodikverweis ── #}
+<h3>6.0b Methodik &amp; Normative Grundlagen</h3>
+<p style="font-size:0.78rem;color:var(--color-text-muted);margin-bottom:4mm;">
+  AIAG-VDA FMEA (1. Aufl. 2019) · IEC 61511 (Functional Safety – SIS) · CCPS (Guidelines for Chemical Process Quantitative Risk Analysis) · OREDA Handbook.
+</p>
+
+<h3>6.1 Abkürzungsverzeichnis</h3>
 <table>
   <thead><tr><th>Abkürzung</th><th>Bedeutung</th></tr></thead>
   <tbody>

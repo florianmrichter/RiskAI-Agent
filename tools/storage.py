@@ -35,6 +35,10 @@ class FMEAStorage:
         self._migrate_failure_modes_extended()
         self._migrate_current_controls_einschraenkung()
         self._migrate_measures_hinweis()
+        self._migrate_risk_assessments_konfidenz()
+        self._migrate_measures_new_fields()
+        self._migrate_projects_version()
+        self._migrate_failure_modes_moc()
 
     def _create_tables(self):
         self.conn.executescript("""
@@ -211,15 +215,98 @@ class FMEAStorage:
             )
         self.conn.commit()
 
+    def _migrate_risk_assessments_konfidenz(self):
+        """Add daten_konfidenz, agent_konfidenz, agent_konfidenz_begruendung, daten_quelle to risk_assessments."""
+        cursor = self.conn.execute("PRAGMA table_info(risk_assessments)")
+        existing_cols = {row[1] for row in cursor.fetchall()}
+        new_cols = {
+            "daten_konfidenz": "TEXT DEFAULT 'mittel'",
+            "agent_konfidenz": "TEXT DEFAULT 'mittel'",
+            "agent_konfidenz_begruendung": "TEXT",
+            "daten_quelle": "TEXT",
+        }
+        for col, definition in new_cols.items():
+            if col not in existing_cols:
+                self.conn.execute(f"ALTER TABLE risk_assessments ADD COLUMN {col} {definition}")
+        self.conn.commit()
+
+    def _migrate_measures_new_fields(self):
+        """Add prioritaet, aufwand, kosten_klasse, assigned_to, target_date, implementation_status to measures."""
+        cursor = self.conn.execute("PRAGMA table_info(measures)")
+        existing_cols = {row[1] for row in cursor.fetchall()}
+        new_cols = {
+            "prioritaet": "TEXT DEFAULT 'empfohlen'",
+            "aufwand": "TEXT",
+            "kosten_klasse": "TEXT",
+            "assigned_to": "TEXT",
+            "target_date": "TEXT",
+            "implementation_status": "TEXT DEFAULT 'geplant'",
+        }
+        for col, definition in new_cols.items():
+            if col not in existing_cols:
+                self.conn.execute(f"ALTER TABLE measures ADD COLUMN {col} {definition}")
+        self.conn.commit()
+
+    def _migrate_projects_version(self):
+        """Add version, parent_version_id, version_beschreibung, erstellt_von, geprueft_von, frozen to projects."""
+        cursor = self.conn.execute("PRAGMA table_info(projects)")
+        existing_cols = {row[1] for row in cursor.fetchall()}
+        new_cols = {
+            "version": "TEXT DEFAULT '1.0'",
+            "parent_version_id": "INTEGER",
+            "version_beschreibung": "TEXT",
+            "erstellt_von": "TEXT",
+            "geprueft_von": "TEXT",
+            "frozen": "INTEGER DEFAULT 0",
+        }
+        for col, definition in new_cols.items():
+            if col not in existing_cols:
+                self.conn.execute(f"ALTER TABLE projects ADD COLUMN {col} {definition}")
+        self.conn.commit()
+
+    def _migrate_failure_modes_moc(self):
+        """Add moc_status and moc_herkunft_version to failure_modes."""
+        cursor = self.conn.execute("PRAGMA table_info(failure_modes)")
+        existing_cols = {row[1] for row in cursor.fetchall()}
+        new_cols = {
+            "moc_status": "TEXT DEFAULT 'original'",
+            "moc_herkunft_version": "TEXT",
+        }
+        for col, definition in new_cols.items():
+            if col not in existing_cols:
+                self.conn.execute(f"ALTER TABLE failure_modes ADD COLUMN {col} {definition}")
+        self.conn.commit()
+
     # ── Project CRUD ──
 
-    def create_project(self, name: str, anlage_name: str = None, task_folder: str = None) -> int:
+    def create_project(self, name: str, anlage_name: str = None, task_folder: str = None,
+                       version: str = "1.0", parent_version_id: int = None,
+                       version_beschreibung: str = None, erstellt_von: str = None,
+                       geprueft_von: str = None) -> int:
         cur = self.conn.execute(
-            "INSERT INTO projects (name, anlage_name, datum, task_folder) VALUES (?, ?, ?, ?)",
-            (name, anlage_name, datetime.now().isoformat(), task_folder)
+            """INSERT INTO projects
+               (name, anlage_name, datum, task_folder,
+                version, parent_version_id, version_beschreibung, erstellt_von, geprueft_von)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (name, anlage_name, datetime.now().isoformat(), task_folder,
+             version, parent_version_id, version_beschreibung, erstellt_von, geprueft_von)
         )
         self.conn.commit()
         return cur.lastrowid
+
+    def freeze_project(self, project_id: int) -> bool:
+        """Freeze a project (no further changes allowed)."""
+        self.conn.execute("UPDATE projects SET frozen = 1 WHERE id = ?", (project_id,))
+        self.conn.commit()
+        return self.conn.total_changes > 0
+
+    def get_project_versions(self, task_folder: str) -> list:
+        """Return all versions of a project ordered by id."""
+        rows = self.conn.execute(
+            "SELECT * FROM projects WHERE task_folder = ? ORDER BY id",
+            (task_folder,)
+        ).fetchall()
+        return [dict(r) for r in rows]
 
     def get_project(self, project_id: int) -> dict:
         row = self.conn.execute("SELECT * FROM projects WHERE id = ?", (project_id,)).fetchone()
@@ -413,25 +500,31 @@ class FMEAStorage:
     def insert_risk_assessment(self, failure_mode_id: int, S: int, O: int, D: int,
                                begruendung_S: str = None, begruendung_O: str = None,
                                begruendung_D: str = None, rpz: int = None,
-                               rpz_status: str = None, override_applied: str = None) -> int:
+                               rpz_status: str = None, override_applied: str = None,
+                               daten_konfidenz: str = "mittel", agent_konfidenz: str = "mittel",
+                               agent_konfidenz_begruendung: str = None,
+                               daten_quelle: str = None) -> int:
         if rpz is None:
             rpz = S * O * D
         if rpz_status is None:
             rpz_status = self._classify_rpz(rpz)
         cur = self.conn.execute(
-            """INSERT INTO risk_assessments 
+            """INSERT INTO risk_assessments
                (failure_mode_id, S, O, D, begruendung_S, begruendung_O, begruendung_D,
-                rpz, rpz_status, override_applied)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                rpz, rpz_status, override_applied,
+                daten_konfidenz, agent_konfidenz, agent_konfidenz_begruendung, daten_quelle)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (failure_mode_id, S, O, D, begruendung_S, begruendung_O, begruendung_D,
-             rpz, rpz_status, override_applied)
+             rpz, rpz_status, override_applied,
+             daten_konfidenz, agent_konfidenz, agent_konfidenz_begruendung, daten_quelle)
         )
         self.conn.commit()
         return cur.lastrowid
 
     def update_risk_assessment(self, failure_mode_id: int, **kwargs):
         allowed = {"S", "O", "D", "begruendung_S", "begruendung_O", "begruendung_D",
-                    "rpz", "rpz_status", "override_applied"}
+                    "rpz", "rpz_status", "override_applied",
+                    "daten_konfidenz", "agent_konfidenz", "agent_konfidenz_begruendung", "daten_quelle"}
         updates = {k: v for k, v in kwargs.items() if k in allowed}
         if not updates:
             return
@@ -481,18 +574,24 @@ class FMEAStorage:
                        ziel: str = None,
                        S_neu: int = None, O_neu: int = None, D_neu: int = None,
                        rpz_neu: int = None, rpz_status_neu: str = None,
-                       begruendung: str = None, hinweis: str = None, iteration: int = 1) -> int:
+                       begruendung: str = None, hinweis: str = None, iteration: int = 1,
+                       prioritaet: str = "empfohlen", aufwand: str = None,
+                       kosten_klasse: str = None, assigned_to: str = None,
+                       target_date: str = None,
+                       implementation_status: str = "geplant") -> int:
         if rpz_neu is None and all(v is not None for v in [S_neu, O_neu, D_neu]):
             rpz_neu = S_neu * O_neu * D_neu
         if rpz_status_neu is None and rpz_neu is not None:
             rpz_status_neu = self._classify_rpz(rpz_neu)
         cur = self.conn.execute(
-            """INSERT INTO measures 
+            """INSERT INTO measures
                (failure_mode_id, name, abe_kategorie, stop_kategorie, beschreibung, ziel,
-                S_neu, O_neu, D_neu, rpz_neu, rpz_status_neu, begruendung, hinweis, iteration)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                S_neu, O_neu, D_neu, rpz_neu, rpz_status_neu, begruendung, hinweis, iteration,
+                prioritaet, aufwand, kosten_klasse, assigned_to, target_date, implementation_status)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (failure_mode_id, name, abe_kategorie, stop_kategorie, beschreibung, ziel,
-             S_neu, O_neu, D_neu, rpz_neu, rpz_status_neu, begruendung, hinweis, iteration)
+             S_neu, O_neu, D_neu, rpz_neu, rpz_status_neu, begruendung, hinweis, iteration,
+             prioritaet, aufwand, kosten_klasse, assigned_to, target_date, implementation_status)
         )
         self.conn.commit()
         return cur.lastrowid
@@ -516,6 +615,12 @@ class FMEAStorage:
                 begruendung=m.get("begruendung"),
                 hinweis=m.get("hinweis"),
                 iteration=m.get("iteration", 1),
+                prioritaet=m.get("prioritaet", "empfohlen"),
+                aufwand=m.get("aufwand"),
+                kosten_klasse=m.get("kosten_klasse"),
+                assigned_to=m.get("assigned_to"),
+                target_date=m.get("target_date"),
+                implementation_status=m.get("implementation_status", "geplant"),
             )
             ids.append(mid)
         return ids

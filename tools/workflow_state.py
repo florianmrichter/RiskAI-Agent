@@ -6,9 +6,11 @@ Persistiert den Fortschritt pro task_folder. Ermöglicht dem Agent,
 beim Session-Start den nächsten offenen Schritt zu ermitteln.
 
 Usage:
-    from tools.workflow_state import load_state, get_next_action, mark_component_done
+    from tools.workflow_state import load_state, get_next_action, mark_component_done, get_autonomy_mode, set_autonomy_mode
     state = load_state("Risikoanalyse/Ethylacetatproduktion_20TA42")
     action = get_next_action("Risikoanalyse/Ethylacetatproduktion_20TA42")
+    mode = get_autonomy_mode("Risikoanalyse/Ethylacetatproduktion_20TA42")
+    set_autonomy_mode("Risikoanalyse/Ethylacetatproduktion_20TA42", "experte")
 """
 
 import json
@@ -146,6 +148,26 @@ def mark_component_in_progress(task_folder: str, komp_id: str, step: str) -> Non
     save_state(task_folder, state)
 
 
+def get_autonomy_mode(task_folder: str) -> str:
+    """Returns the current autonomy mode: 'geführt' | 'experte' | 'autonom'. Default: 'geführt'."""
+    state = load_state(task_folder)
+    if state is None:
+        return "geführt"
+    return state.get("autonomy_mode", "geführt")
+
+
+def set_autonomy_mode(task_folder: str, mode: str) -> None:
+    """Persist autonomy mode in workflow_state.json. mode: 'geführt' | 'experte' | 'autonom'."""
+    valid = {"geführt", "experte", "autonom"}
+    if mode not in valid:
+        raise ValueError(f"Ungültiger Modus '{mode}'. Erlaubt: {valid}")
+    state = load_state(task_folder)
+    if state is None:
+        state = _default_state(task_folder)
+    state["autonomy_mode"] = mode
+    save_state(task_folder, state)
+
+
 def mark_phase_done(task_folder: str, phase: str) -> None:
     """Markiert eine Phase als abgeschlossen und setzt die nächste auf in_progress."""
     state = load_state(task_folder)
@@ -172,6 +194,7 @@ def init_state_from_structure(task_folder: str, project_id: int, komp_ids: list[
         "task_folder": task_folder,
         "phase": "fmea",
         "current_komp_id": komp_ids[0] if komp_ids else None,
+        "autonomy_mode": "geführt",
         "last_updated": datetime.now().isoformat(),
         "phases": {
             "struktur": "done",
@@ -192,6 +215,7 @@ def _default_state(task_folder: str) -> dict:
         "task_folder": task_folder,
         "phase": "struktur",
         "current_komp_id": None,
+        "autonomy_mode": "geführt",
         "last_updated": datetime.now().isoformat(),
         "phases": {p: "pending" for p in PHASES_ORDER},
         "components": {},

@@ -28,6 +28,12 @@ Pro Runde stellst du maximal 3–4 Fragen — fang jetzt mit Phase 1 an. Frage:
 1. Was macht die Anlage? (Prozesszweck in 2–3 Sätzen)
 2. Betriebsweise: Batch / Kontinuierlich / Semi-Batch?
 3. Besondere Rahmenbedingungen? (12. BImSchV? Ex-Zone? Genehmigungspflichtig?)
+4. **Bekannte Störfälle / Betriebserfahrungen** *(neu — FMEA-kritisch für O-Werte):*
+   > "Gibt es bekannte Störfälle, Beinaheunfälle oder häufige Betriebsstörungen an dieser Anlage?
+   > Wenn ja: Was ist passiert, wie oft, was war die Ursache?
+   > (Diese Information hilft mir, die Häufigkeitsbewertung der FMEA realistisch zu gestalten)"
+
+   Speichern unter `betriebserfahrungen[]` mit Feldern: `datum`, `beschreibung`, `ursache`, `konsequenz`, `massnahme`
 
 ---
 
@@ -75,13 +81,24 @@ Für **jedes System** fragst du der Reihe nach:
 - Welche Apparate, Pumpen, Wärmetauscher, Armaturen, Antriebe?
 - Für jeden: Name/Bezeichnung, Typ, Position, Antriebsart (elektrisch/pneumatisch/–), wichtige Parameter
 
-### 4d — MSR-Ausrüstung
-- Welche Messgeräte und Regler? (Druck, Temperatur, Füllstand, Durchfluss, ...)
-- Für jedes Gerät: MSR-Kennzeichen (z. B. TIC-101), Typ, Position, Signalart (4-20 mA / Relais / Lokal), ATEX-Zone, SIL-Einstufung (falls vorhanden)
+### 4d — MSR-Ausrüstung ⚠ FMEA-KRITISCH
 
-### 4e — Sicherheitseinrichtungen
-- Sicherheitsventile, Berstscheiben, NOT-AUS, Gaswarnung, Auffangwannen, ...
-- Für jede: Bezeichnung, Typ, Position, wichtige Parameter (Ansprechdruck, DN, Prüfintervall)
+> **FMEA-KRITISCH** — Diese Felder blockieren die FMEA wenn leer:
+> SIL-Einstufung aller sicherheitsrelevanten MSR-Kreise.
+> Ohne SIL kann D-Wert für Sicherheitskreise nicht korrekt bewertet werden.
+
+- Welche Messgeräte und Regler? (Druck, Temperatur, Füllstand, Durchfluss, ...)
+- Für jedes Gerät: MSR-Kennzeichen (z. B. TIC-101), Typ, Position, Signalart (4-20 mA / Relais / Lokal), ATEX-Zone, **SIL-Einstufung** (falls vorhanden)
+
+### 4e — Sicherheitseinrichtungen ⚠ FMEA-KRITISCH
+
+> **FMEA-KRITISCH** — Alle PSV, Berstscheiben, Notstopp-Einrichtungen müssen vollständig erfasst sein.
+> Diese bestimmen den D-Wert für alle druckführenden Fehlermodi.
+
+- Sicherheitsventile (PSV): Bezeichnung, **Ansprechdruck**, DN, Prüfintervall
+- Berstscheiben: Bezeichnung, Berstdruck, DN
+- NOT-AUS / NOT-HALT: Auslösebedingungen, Abschaltumfang
+- Gaswarnung, Auffangwannen, weitere Schutzeinrichtungen
 
 ### 4f — Verbundene Systeme
 - Welche Systeme liefern zu (upstream)?
@@ -92,15 +109,30 @@ Für **jedes System** fragst du der Reihe nach:
 - Technischer Platz / Equipment-Nr. / Asset-ID (falls im SAP/ERP vorhanden)
 - Letzter TÜV / nächste Prüfung, Inbetriebnahmedatum, Investitionskosten
 
+### Phasen-Checkpoint (bei mehr als 2 Systemen)
+
+Nach Abschluss jedes Systems in Phase 4 expliziten Checkpoint ausgeben:
+
+```
+[System {NAME} — vollständig erfasst]
+Sub-Phasen 4a–4g abgeschlossen.
+FMEA-kritische Felder: {SIL vorhanden? ATEX-Zone? PSV?}
+→ Weiter mit System {NÄCHSTES_SYSTEM}?
+```
+
 ---
 
-## Phase 5 — Medien und Betriebsstoffe
+## Phase 5 — Medien und Betriebsstoffe ⚠ FMEA-KRITISCH (Notkühlung)
+
+> **FMEA-KRITISCH** — Utility-Ausfall ist eine eigenständige Fehlermodus-Kategorie in der FMEA.
+> Diese Daten werden später für Fehlermodi-Kategorien wie "Kühlwasserausfall" oder "N2-Ausfall" benötigt.
+> Erkläre dem Nutzer diesen Zusammenhang explizit.
 
 Frage nach Hilfsmedien:
 
 - **Dampf:** Druck, Temperatur?
 - **Kühlwasser:** Vor-/Rücklauftemperatur, Druck?
-- **Notkühlung** vorhanden? (Medium, Temperatur)
+- **Notkühlung** vorhanden? ⚠ FMEA-KRITISCH (Medium, Temperatur, Auslösebedingung)
 - **Stickstoff / Inertisierung:** Druck, Reinheit, Verwendung?
 - **Druckluft:** Druck, Qualitätsklasse, Verwendung?
 - **Elektrische Versorgung:** Spannung, Anschlussleistung, USV vorhanden?

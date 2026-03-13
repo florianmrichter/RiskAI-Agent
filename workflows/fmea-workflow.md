@@ -31,12 +31,68 @@ Bei Session-Start:
 **Speicherung:** Neues Wissen in `config/wissen/{domaene}.md` (z.B. `verfahrenstechnik_esterifizierung.md`). Bei späteren Analysen darauf zurückgreifen – aber Anlagendaten bleiben führend.
 
 ## Tools
-- `tools/workflow_state.get_next_action("Risikoanalyse/Ethylacetatproduktion_20TA42")` – nächste Aktion
+
+- `tools/workflow_state.get_next_action(task_folder)` – nächste Aktion
+- `tools/workflow_state.get_autonomy_mode(task_folder)` – Modus laden (`geführt` / `experte` / `autonom`)
+- `tools/workflow_state.set_autonomy_mode(task_folder, mode)` – Modus setzen und persistieren
 - `tools/workflow_state.init_state_from_structure(...)` – nach Strukturanalyse
 - `tools/insert_fmea_explicit.insert_fmea_for_component(project_id, komp_id, task_folder="...")` – FMEA einspielen
-- `tools/update_checklist.update_checklist("Risikoanalyse/Ethylacetatproduktion_20TA42")` – Checkliste aktualisieren
+- `tools/load_plant_data.update_plant_data(task_folder, "path.to.field", value)` – Anlagendaten ergänzen
+- `tools/update_checklist.update_checklist(task_folder)` – Checkliste aktualisieren
 - `tools/generate_measures.py --task-folder "..."` – Maßnahmen aus measures_explicit.py für RPZ ≥ 100 einspielen
 - `tools/report_generator.generate_report(project_id, task_folder="...")` – FMEA-PDF erzeugen
+- `tools/moc_manager.freeze_version(project_id)` – Version einfrieren (MoC)
+- `tools/moc_manager.create_new_version(project_id, change_description, changed_components)` – Neue MoC-Version anlegen
+
+## Autonomiemodus-Syntax
+
+Modus-Wechsel jederzeit per Nutzereingabe:
+
+- `/modus G` → Geführt (erklärt alles, zeigt Skalen + Beispiele, fragt nach optional. Feldern)
+- `/modus E` → Experte (direkt, keine Erklärungen, kompakte Vollständigkeitsprüfung)
+- `/modus A` → Autonom (führt Komponente vollständig durch, Nutzer bestätigt nur Highlights)
+
+**Verhalten pro Modus:**
+
+**Geführt:**
+- S/O/D: Skala immer zeigen + 2 plant-spezifische Beispiele aus bereits bewerteten FMs dieses Projekts
+- Vollständigkeitsprüfung am Ende jeder Komponente: alle 9 Kategorien + Utility-Pflichtcheck
+- Safety-Override immer laut erklären: "Ich habe S auf [9] angehoben — [Begründung]"
+- Maßnahmen: `assigned_to` und `target_date` abfragen
+- MoC: Betroffene Komponenten bestätigen lassen
+
+**Experte:**
+- S/O/D: Skala nur auf Anfrage, keine Grundlagenerklärungen
+- Vollständigkeitsprüfung: kompakt, eine Zeile pro Kategorie
+- Safety-Override: kurz benennen
+- Maßnahmen: `assigned_to` / `target_date` optional, nicht aktiv abfragen
+
+**Autonom:**
+- Führt Komponente vollständig durch ohne Zwischenfragen
+- Am Ende: Zusammenfassung + nur Highlight-Fragen (Format: "Komponente X vollständig: [N] FMs, [M] mit RPZ≥100. Drei Punkte zur menschlichen Prüfung: [1] [2] [3]")
+- `agent_konfidenz = niedrig` FMs **immer** vorlegen, egal welcher Modus
+- MoC: selbst entscheiden welche Nachbar-Komponenten betroffen sind
+
+## Konfidenz-Pflichtfelder (bei jeder S/O/D-Vergabe)
+
+```python
+# In fmea_explicit.py oder insert_risk_assessment():
+daten_konfidenz = "hoch"       # hoch=CCPS/OREDA | mittel=Betriebserfahrung | niedrig=Schätzung
+agent_konfidenz = "mittel"     # hoch | mittel | niedrig (Selbsteinschätzung)
+agent_konfidenz_begruendung = None  # Pflicht wenn niedrig
+daten_quelle = "OREDA"         # CCPS | OREDA | Betriebserfahrung | Expertenschätzung | KI-Vorschlag
+```
+
+Bei `agent_konfidenz = niedrig` explizit im Dialog ansprechen, egal welcher Modus.
+
+## Maßnahmen-Pflichtfelder (bei RPZ ≥ 100 oder S ≥ 9)
+
+```python
+# In measures_explicit.py oder insert_measure():
+prioritaet = "pflicht"         # pflicht (S≥9 oder RPZ≥300) | empfohlen | optional
+aufwand = "mittel"             # gering | mittel | hoch
+kosten_klasse = "klein"        # klein (<5k) | mittel (5-50k) | gross (>50k)
+```
 
 **Regel: Nach Maßnahmen immer Report.** Nach jedem Einspielen von Maßnahmen (über `generate_measures` oder `insert_measures_for_fehlermodus`) den FMEA-Report **sofort neu generieren**, damit das PDF die aktuellen Maßnahmen enthält. Kein Abschluss der Maßnahmenphase ohne Report-Update.
 

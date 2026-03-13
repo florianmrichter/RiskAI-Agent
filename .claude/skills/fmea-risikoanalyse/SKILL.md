@@ -33,7 +33,30 @@ projekte = [p for p in os.listdir("tasks/Risikoanalyse")
 - **Projekte vorhanden:** Liste zeigen → fragen ob bestehendes fortsetzen oder neues anlegen.
 - **Kein Projekt:** Hinweis geben → zuerst den `anlagendaten-interview`-Skill ausführen um `anlagendaten.json` zu erzeugen, dann hierher zurückkehren.
 
-## 2. State laden und nächsten Schritt ausführen
+## 2. Autonomiemodus bestimmen (Pflicht bei neuer Session)
+
+```python
+from tools.workflow_state import get_autonomy_mode, set_autonomy_mode
+mode = get_autonomy_mode("Risikoanalyse/{projektname}")
+```
+
+- **Modus vorhanden:** Kurz benennen ("Modus: Geführt"), direkt weiter.
+- **Kein Modus gesetzt (neue Analyse):** Modus-Auswahl einmalig präsentieren:
+
+```
+Wie möchtest du arbeiten?
+[G] Geführt   — ich erkläre jeden Schritt, zeige Skalen, gebe Beispiele
+[E] Experte   — direkt, kein Grundlagenwissen, kompakte Vollständigkeitsprüfung
+[A] Autonom   — ich mache alles, du bestätigst nur Highlight-Punkte
+
+Du kannst jederzeit wechseln: /modus G | /modus E | /modus A
+```
+
+Modus persistieren: `set_autonomy_mode(task_folder, mode)`.
+
+**Modus-Wechsel erkennen:** Wenn der Nutzer `/modus G`, `/modus E` oder `/modus A` schreibt, sofort wechseln und bestätigen: "Modus gewechselt zu [Geführt]. Ab jetzt erkläre ich wieder jeden Schritt."
+
+## 3. State laden und nächsten Schritt ausführen
 
 ```python
 from tools.workflow_state import get_next_action
@@ -43,7 +66,7 @@ next_action = get_next_action("Risikoanalyse/{projektname}")
 - **State vorhanden:** Stand kurz nennen, sofort nächsten offenen Schritt ausführen.
 - **Kein State:** Struktur initialisieren (Anlagendaten laden, Komponenten in DB), State anlegen, Schritt 1 starten.
 
-## 3. FMEA-Session durchführen
+## 4. FMEA-Session durchführen
 
 Ab hier gelten **alle Regeln aus `references/fmea-workflow.md`**. Wichtigste Punkte:
 
@@ -54,8 +77,39 @@ Ab hier gelten **alle Regeln aus `references/fmea-workflow.md`**. Wichtigste Pun
 - Nach jedem Einspielen von Maßnahmen sofort Report neu generieren
 - Niemals FMEA-Daten aus anderen Projekten übernehmen
 
+### Konfidenz-Pflicht (bei jeder S/O/D-Vergabe)
+
+Nach jeder S/O/D-Bewertung MÜSSEN diese Felder in `fmea_explicit.py` / `insert_risk_assessment()` gesetzt werden:
+
+- `daten_konfidenz`: `hoch` (CCPS/OREDA-Referenz) | `mittel` (Betriebserfahrung) | `niedrig` (Schätzung/unklar)
+- `agent_konfidenz`: `hoch` | `mittel` | `niedrig` (Selbsteinschätzung, mit Begründungspflicht)
+- `agent_konfidenz_begruendung`: Pflichtfeld wenn `niedrig` — was unklar ist
+- `daten_quelle`: `CCPS` | `OREDA` | `Betriebserfahrung` | `Expertenschätzung` | `KI-Vorschlag`
+
+**Bei `agent_konfidenz = niedrig`:** Explizit ansprechen, egal welcher Modus:
+> "Ich bin bei diesem O-Wert unsicher, weil [Grund]. Empfehle Überprüfung durch Fachkraft."
+
+### Anlagendaten-Write-back (Pflicht)
+
+Wenn während der FMEA-Session neue Anlagendaten erhoben werden (fehlende Auslegungstemperatur, unbekanntes Sicherheitsventil, neue MSR-Stelle etc.):
+
+```python
+from tools.load_plant_data import update_plant_data
+update_plant_data(task_folder, "systems[0].equipment[3].designPressure", "4.5 bar")
+```
+
+Danach im Dialog dokumentieren: *"Ich habe [PSV-101, Ansprechdruck 3.5 bar] in den Anlagendaten ergänzt."*
+
+### Maßnahmen-Felder (Pflicht bei RPZ ≥ 100 oder S ≥ 9)
+
+Beim Maßnahmen-Vorschlag immer setzen:
+- `prioritaet`: `pflicht` (wenn S≥9 oder RPZ≥300) | `empfohlen` | `optional`
+- `aufwand`: `gering` | `mittel` | `hoch`
+- `kosten_klasse`: `klein` (<5k) | `mittel` (5-50k) | `gross` (>50k)
+- `assigned_to`, `target_date`: nur im Modus "Geführt" abfragen
+
 **Testmodus:** Aktivierung durch Passwort aus `.env` (FMEA_TESTMODE_PASSWORD) → vollautomatischer Durchlauf, alle Maßnahmen übernehmen, keine Rückfragen bis Abschluss.
 
-## 4. Abschluss
+## 5. Abschluss
 
 Abschluss-Zusammenfassung: Anzahl Komponenten, Fehlermodi, übernommene Maßnahmen, Status DB/Report.
