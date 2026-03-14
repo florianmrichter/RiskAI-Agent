@@ -1,5 +1,6 @@
 ---
 name: anlagendaten-interview
+model: sonnet
 description: >
   Führt ein strukturiertes Interview durch um alle Anlagendaten für eine FMEA-Risikoanalyse zu erheben und erzeugt daraus eine vollständige anlagendaten.json. Verwende diese Skill immer wenn der Nutzer eine neue Anlage aufnehmen will, Anlagendaten fehlen oder unvollständig sind, eine anlagendaten.json erstellt oder ergänzt werden soll, oder wenn der Nutzer vor dem Start einer FMEA sagt dass noch keine Daten vorliegen. Auch verwenden bei Begriffen wie "Anlage erfassen", "Anlagendaten erheben", "neue Anlage anlegen", "FMEA vorbereiten" oder "Interview starten".
 ---

@@ -1,5 +1,6 @@
 ---
 name: fmea-risikoanalyse
+model: opus
 description: >
   Führt eine vollständige FMEA-Risikoanalyse (Failure Mode and Effects Analysis) für Industrieanlagen durch — vom Session-Start bis zum fertigen PDF-Report. Verwende diese Skill immer wenn der Nutzer eine Risikoanalyse starten oder fortsetzen will, FMEA-Fehlermodi bewerten soll, RPZ-Werte (Risikoprioritätszahlen) berechnet oder Maßnahmen definiert werden sollen. Auch verwenden wenn der Nutzer Begriffe wie "FMEA", "Risikoanalyse", "S/O/D bewerten", "Fehlermodi", "RPZ", "Maßnahmen einspielen" oder "Report generieren" nennt.
 ---
