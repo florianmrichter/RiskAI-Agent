@@ -12,8 +12,10 @@ Usage:
 import base64
 import json
 import re
+import subprocess
 import sys
 import tempfile
+import time
 import urllib.request
 from collections import OrderedDict
 from datetime import datetime
@@ -446,6 +448,60 @@ def _load_plant_data(path: str = None, task_folder: str = None) -> dict:
 # Main Entry Point
 # ═══════════════════════════════════════════════════════════════
 
+def _start_chat_server(task_folder_path: Path):
+    """Start fmea_chat_server.py if not already running. Returns port or None."""
+    port_file = task_folder_path / ".chat_server_port"
+    tools_dir = Path(__file__).parent
+    server_script = tools_dir / "fmea_chat_server.py"
+
+    # Check if server already running on saved port
+    if port_file.exists():
+        try:
+            port = int(port_file.read_text().strip())
+            import socket as _sock
+            with _sock.create_connection(("127.0.0.1", port), timeout=0.3):
+                return port  # already alive
+        except Exception:
+            pass  # stale port file, restart
+
+    # Write .active_task_folder
+    repo_root = Path(__file__).parent.parent
+    rel = task_folder_path.relative_to(repo_root)
+    (repo_root / ".active_task_folder").write_text(str(rel), encoding="utf-8")
+
+    # Launch server
+    subprocess.Popen(
+        [sys.executable, str(server_script), str(rel)],
+        cwd=str(repo_root),
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
+    # Wait up to 4s for port file to appear
+    for _ in range(20):
+        time.sleep(0.2)
+        if port_file.exists():
+            try:
+                return int(port_file.read_text().strip())
+            except Exception:
+                pass
+
+    return None
+
+
+def _init_chat_files(task_folder_path: Path) -> None:
+    """Initialise chat bridge JSON files if they don't exist."""
+    defaults = {
+        "chat_inbox.json":   "[]",
+        "chat_outbox.json":  "[]",
+        "agent_status.json": '{"text":"","done":true,"ts":0}',
+    }
+    for fname, default in defaults.items():
+        p = task_folder_path / fname
+        if not p.exists():
+            p.write_text(default, encoding="utf-8")
+
+
 def generate_report(project_id: int, output_path: str = None, task_folder: str = None, db_path: str = None, css_name: str = "fmea_style.css") -> str:
     """Generate the FMEA PDF report for a given project."""
 
@@ -552,6 +608,14 @@ def generate_report(project_id: int, output_path: str = None, task_folder: str =
         task_folder = task_folder or project.get("task_folder")
         if not task_folder:
             raise ValueError("task_folder erforderlich – weder übergeben noch in Projekt gespeichert")
+
+        # ── Chat server ──────────────────────────────────────────────────────
+        task_folder_abs = Path(__file__).parent.parent / "tasks" / task_folder
+        _init_chat_files(task_folder_abs)
+        chat_server_port = _start_chat_server(task_folder_abs)
+        if chat_server_port:
+            print(f"Chat-Server läuft auf Port {chat_server_port}")
+
         plant_data = _load_plant_data(task_folder=task_folder)
 
         # ── MoC-Änderungen aus Anlagendaten extrahieren ──
@@ -706,6 +770,7 @@ def generate_report(project_id: int, output_path: str = None, task_folder: str =
                 "erstellt_von": project.get("erstellt_von", ""),
                 "geprueft_von": project.get("geprueft_von", ""),
             },
+            chat_server_port=chat_server_port or "null",
         )
 
         # Write temporary HTML to feed Playwright (it needs a file: URL for CSS)
