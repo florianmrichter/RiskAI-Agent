@@ -2,1406 +2,1469 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FMEA-Bericht – {{ project.anlage_name }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" media="not print">
   <link rel="stylesheet" href="{{ css_path }}">
 </head>
 <body>
 
-{# ═══════════════════════  COVER PAGE  ═══════════════════════ #}
+{# ═══════════════════════  COVER — Navy full-bleed  ═══════════════════════ #}
 <div class="cover">
-  <div class="cover-top">
-    <div class="cover-logo">
-      <svg class="cover-logo-svg" viewBox="0 0 100 138" xmlns="http://www.w3.org/2000/svg">
-        <line x1="50" y1="5" x2="50" y2="15" stroke="#2C2C54" stroke-width="2" stroke-linecap="round"/>
-        <rect x="46" y="2" width="8" height="5" rx="1" fill="#F5004F"/>
-        <rect x="8" y="15" width="84" height="64" rx="6" fill="#2C2C54"/>
-        <rect x="11" y="24" width="32" height="24" rx="7" fill="none" stroke="#E8C547" stroke-width="2.5"/>
-        <rect x="57" y="24" width="32" height="24" rx="7" fill="none" stroke="#E8C547" stroke-width="2.5"/>
-        <line x1="43" y1="36" x2="57" y2="36" stroke="#E8C547" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="11" y1="36" x2="8" y2="37" stroke="#E8C547" stroke-width="2" stroke-linecap="round"/>
-        <line x1="89" y1="36" x2="92" y2="37" stroke="#E8C547" stroke-width="2" stroke-linecap="round"/>
-        <circle cx="27" cy="36" r="8.5" fill="#EFD9CE"/>
-        <circle cx="73" cy="36" r="8.5" fill="#EFD9CE"/>
-        <circle cx="27" cy="36" r="4.5" fill="#1a1730"/>
-        <circle cx="73" cy="36" r="4.5" fill="#1a1730"/>
-        <circle cx="29" cy="34" r="1.8" fill="#EFD9CE"/>
-        <circle cx="75" cy="34" r="1.8" fill="#EFD9CE"/>
-        <path d="M34,58 Q50,66 66,58" stroke="#EFD9CE" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.4"/>
-        <circle cx="84" cy="21" r="4" fill="#F5004F"/>
-        <rect x="40" y="79" width="20" height="10" rx="3" fill="#2C2C54"/>
-        <polygon points="28,92 42,85 42,99" fill="#F5004F"/>
-        <polygon points="72,92 58,85 58,99" fill="#F5004F"/>
-        <rect x="42" y="87" width="16" height="10" rx="2" fill="#C0003A"/>
-        <rect x="18" y="99" width="64" height="36" rx="8" fill="#2C2C54"/>
-        <rect x="14" y="77" width="72" height="2" rx="1" fill="#00A389" opacity="0.35"/>
-        <rect x="14" y="77" width="24" height="2" rx="1" fill="#00A389"/>
-        <rect x="26" y="111" width="48" height="3" rx="1.5" fill="#E5E7EB"/>
-        <rect x="26" y="111" width="14" height="3" rx="1.5" fill="#F5004F"/>
-        <rect x="26" y="118" width="48" height="3" rx="1.5" fill="#E5E7EB"/>
-        <rect x="26" y="118" width="28" height="3" rx="1.5" fill="#00A389"/>
-      </svg>
-      <div class="cover-logo-text">
-        <div class="cover-logo-title"><span>Risk</span> Agent</div>
-        <div class="cover-logo-subtitle">RISK ANALYSIS</div>
-      </div>
-    </div>
+  <div class="cover-logo">
+    <div class="cover-logo-icon">⚙</div>
+    <span class="cover-logo-name">RiskAI Agent</span>
   </div>
-
-  <div class="cover-main">
-    <div class="cover-divider"></div>
-    <div class="cover-title">FMEA-Bericht</div>
-    <div class="cover-subtitle">{{ project.anlage_name }}</div>
-    <div class="cover-method">AIAG-VDA FMEA &nbsp;·&nbsp; Prozess- und Design-FMEA</div>
-
-    <div class="cover-info-grid">
-      <div class="cover-info-item">
-        <span class="cover-info-label">Projekt</span>
-        <span class="cover-info-value">{{ project.name }}</span>
+  <div class="cover-body">
+    <div class="cover-label">FMEA — Failure Mode and Effects Analysis</div>
+    <div class="cover-title">{{ project.anlage_name }}</div>
+    <div class="cover-subtitle">{{ project.name }}</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Status</span>
+        <span class="cover-meta-value">{{ project.status }}</span>
       </div>
-      <div class="cover-info-item">
-        <span class="cover-info-label">Status</span>
-        <span class="cover-info-value">{{ project.status }}</span>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Datum</span>
+        <span class="cover-meta-value">{{ project.datum[:10] }}</span>
       </div>
-      <div class="cover-info-item">
-        <span class="cover-info-label">Datum</span>
-        <span class="cover-info-value">{{ project.datum[:10] }}</span>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Norm</span>
+        <span class="cover-meta-value">AIAG-VDA FMEA 2019</span>
       </div>
-      <div class="cover-info-item">
-        <span class="cover-info-label">Erstellt</span>
-        <span class="cover-info-value">{{ now }}</span>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Version</span>
+        <span class="cover-meta-value">Rev. {{ report_context.version }}</span>
       </div>
     </div>
 
-    {# Version-Header + MoC-Hinweis #}
-    <div style="margin-top:5mm;padding:3mm 5mm;background:rgba(255,255,255,0.08);border-radius:6px;border-left:3px solid #E8C547;">
-      <span style="font-size:0.8rem;color:#E8C547;font-weight:700;">Version {{ report_context.version }}</span>
-      {% if moc_delta %}
-      <span style="font-size:0.75rem;color:rgba(255,255,255,0.7);margin-left:8px;">
+    {# MoC-Hinweis #}
+    {% if moc_delta %}
+    <div class="cover-version-box" style="margin-top:20px;">
+      <span style="font-size:11px;color:#E8C547;font-weight:700;">Version {{ report_context.version }}</span>
+      <span style="font-size:11px;color:rgba(255,255,255,0.7);margin-left:8px;">
         ersetzt {{ moc_delta.parent_project.version if moc_delta.parent_project else '' }} vom {{ moc_delta.parent_project.datum[:10] if moc_delta.parent_project else '' }}
         {% if moc_delta.change_description %} · {{ moc_delta.change_description }}{% endif %}
       </span>
-      {% endif %}
     </div>
+    {% endif %}
 
     {# Freigabe-Stempel #}
-    <div style="margin-top:4mm;display:flex;gap:8mm;">
-      <div style="flex:1;padding:3mm 4mm;background:rgba(255,255,255,0.06);border-radius:6px;border:1px solid rgba(255,255,255,0.15);">
-        <div style="font-size:0.65rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1mm;">Erstellt von</div>
-        <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">{{ report_context.erstellt_von or 'ausstehend' }}</div>
+    <div class="cover-approval-row">
+      <div class="cover-approval-cell">
+        <div class="cover-approval-label">Erstellt von</div>
+        <div class="cover-approval-value">{{ report_context.erstellt_von or 'ausstehend' }}</div>
       </div>
-      <div style="flex:1;padding:3mm 4mm;background:rgba(255,255,255,0.06);border-radius:6px;border:1px solid rgba(255,255,255,0.15);">
-        <div style="font-size:0.65rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1mm;">Geprüft von</div>
-        <div style="font-size:0.8rem;color:rgba(255,255,255,0.9);">{{ report_context.geprueft_von or 'ausstehend' }}</div>
+      <div class="cover-approval-cell">
+        <div class="cover-approval-label">Geprüft von</div>
+        <div class="cover-approval-value">{{ report_context.geprueft_von or 'ausstehend' }}</div>
       </div>
     </div>
+  </div>
 
-    <div class="cover-summary">
-      <div class="cover-summary-title">Analyseergebnis</div>
-      <div class="cover-summary-numbers">
-        <div class="cover-summary-stat-big">
-          <span class="cover-summary-stat-val">{{ stats.failure_modes }}</span>
-          <span class="cover-summary-stat-lbl">Fehlermodi</span>
-        </div>
-        <div class="cover-summary-stat-big">
-          <span class="cover-summary-stat-val">{{ stats.measures }}</span>
-          <span class="cover-summary-stat-lbl">Maßnahmen</span>
-        </div>
+  <div class="cover-stats">
+    <div class="cover-chip"><span class="dot" style="background:#DC2626"></span> {{ stats.rpz_distribution.get('kritisch', 0) }} Kritisch</div>
+    <div class="cover-chip"><span class="dot" style="background:#EA580C"></span> {{ stats.rpz_distribution.get('hoch', 0) }} Hoch</div>
+    <div class="cover-chip"><span class="dot" style="background:#CA8A04"></span> {{ stats.rpz_distribution.get('mittel', 0) }} Mittel</div>
+    <div class="cover-chip"><span class="dot" style="background:#16A34A"></span> {{ stats.rpz_distribution.get('niedrig', 0) }} Niedrig</div>
+    <div class="cover-chip">{{ stats.failure_modes }} Fehlermodi</div>
+    <div class="cover-chip">{{ stats.measures }} Maßnahmen</div>
+  </div>
+</div>
+
+{# ═══════════════════════  APP SHELL  ═══════════════════════ #}
+<div class="app-shell">
+
+  {# ── SIDEBAR ── #}
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">⚙</div>
+        <span class="sidebar-logo-name">RiskAI</span>
       </div>
-      <div class="cover-summary-risk-row">
-        {% for key, label in [('kritisch','Kritisch'),('hoch','Hoch'),('mittel','Mittel'),('niedrig','Niedrig')] %}
-        <span class="cover-risk-chip {{ key }}">
-          <span class="cover-risk-chip-val">{{ stats.rpz_distribution.get(key, 0) }}</span>
-          {{ label }}
-        </span>
+      <div class="sidebar-project">{{ project.anlage_name }}</div>
+      <div class="sidebar-project-sub">{{ project.name }} · Rev. {{ report_context.version }}</div>
+    </div>
+
+    {# View-Toggle Buttons #}
+    <div class="view-toggle-btns">
+      <button class="view-toggle-btn active" id="btn-thematic" onclick="switchView('thematic')">Thematisch</button>
+      <button class="view-toggle-btn" id="btn-component" onclick="switchView('component')">Komponenten</button>
+    </div>
+
+    {# Sidebar Nav — Thematisch #}
+    <nav class="sidebar-nav" id="nav-thematic">
+      <div class="nav-section">
+        <div class="nav-section-label">Bericht</div>
+        <a class="nav-link active" href="#summary">📊 Executive Summary</a>
+        <a class="nav-link" href="#sec-methodik">📖 Methodik</a>
+        <a class="nav-link" href="#sec-anlage">🏭 Anlagenbeschreibung</a>
+        {% if plant.get('outOfScope') %}<a class="nav-link" href="#sec-abgrenzung">🚫 Abgrenzung (Out of Scope)</a>{% endif %}
+        {% if moc_changes %}<a class="nav-link" href="#sec-moc">🔄 Management of Change</a>{% endif %}
+        <a class="nav-link" href="#sec-risikouebersicht">📈 Risiko-Übersicht</a>
+      </div>
+      <div class="nav-section" style="margin-top:8px;">
+        <div class="nav-section-label">5. Risikoanalyse — Thematisch</div>
+        {# Dynamisch: alle fehlerart-Gruppen #}
+        {% set ns = namespace(seen=[]) %}
+        {% for fm in fmea_sorted %}
+          {% if fm.fehlerart and fm.fehlerart not in ns.seen %}
+            {% set ns.seen = ns.seen + [fm.fehlerart] %}
+            {% set dot_color = {'kritisch':'var(--risk-kritisch)','hoch':'var(--risk-hoch)','mittel':'var(--risk-mittel)','niedrig':'var(--risk-niedrig)'}.get(fm.rpz_status, 'var(--text-muted)') %}
+            <a class="nav-link" href="#cat-{{ fm.fehlerart|lower|replace(' ','_')|replace('/','_')|replace('ä','ae')|replace('ö','oe')|replace('ü','ue') }}">
+              <span class="nav-dot" style="background:{{ dot_color }}"></span>
+              {{ fm.fehlerart }}
+            </a>
+          {% endif %}
         {% endfor %}
       </div>
+      <div class="nav-section" style="margin-top:8px;">
+        <div class="nav-section-label">Anhang</div>
+        <a class="nav-link" href="#sec-anhang">📎 Anhang &amp; Tabellen</a>
+      </div>
+    </nav>
+
+    {# Sidebar Nav — Komponentenweise (hidden by default) #}
+    <nav class="sidebar-nav" id="nav-component" style="display:none;">
+      <div class="nav-section">
+        <div class="nav-section-label">Bericht</div>
+        <a class="nav-link active" href="#summary">📊 Executive Summary</a>
+        <a class="nav-link" href="#sec-methodik">📖 Methodik</a>
+        <a class="nav-link" href="#sec-anlage">🏭 Anlagenbeschreibung</a>
+        {% if plant.get('outOfScope') %}<a class="nav-link" href="#sec-abgrenzung">🚫 Abgrenzung (Out of Scope)</a>{% endif %}
+        {% if moc_changes %}<a class="nav-link" href="#sec-moc">🔄 Management of Change</a>{% endif %}
+        <a class="nav-link" href="#sec-risikouebersicht">📈 Risiko-Übersicht</a>
+      </div>
+      <div class="nav-section" style="margin-top:8px;">
+        <div class="nav-section-label">5. Risikoanalyse — Komponenten</div>
+        {% set ns2 = namespace(seen_comp=[]) %}
+        {% for fm in fmea_sorted %}
+          {% set comp = fm.get('component_name') or fm.get('komponente','?') %}
+          {% if comp not in ns2.seen_comp %}
+            {% set ns2.seen_comp = ns2.seen_comp + [comp] %}
+            <a class="nav-link" href="#comp-{{ comp|lower|replace(' ','_')|replace('-','_') }}">
+              <span class="nav-dot" style="background:var(--text-muted)"></span>
+              {{ comp }}
+            </a>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="nav-section" style="margin-top:8px;">
+        <div class="nav-section-label">Anhang</div>
+        <a class="nav-link" href="#sec-anhang">📎 Anhang &amp; Tabellen</a>
+      </div>
+    </nav>
+
+    {# Risikoverteilung Footer #}
+    <div class="sidebar-risks">
+      <div class="sidebar-risks-label">Risikoverteilung</div>
+      <div class="risk-counter">
+        <div class="risk-counter-row">
+          <span class="risk-counter-left"><span class="risk-counter-dot" style="background:var(--risk-kritisch)"></span>Kritisch</span>
+          <span class="risk-counter-n">{{ stats.rpz_distribution.get('kritisch', 0) }}</span>
+        </div>
+        <div class="risk-counter-row">
+          <span class="risk-counter-left"><span class="risk-counter-dot" style="background:var(--risk-hoch)"></span>Hoch</span>
+          <span class="risk-counter-n">{{ stats.rpz_distribution.get('hoch', 0) }}</span>
+        </div>
+        <div class="risk-counter-row">
+          <span class="risk-counter-left"><span class="risk-counter-dot" style="background:var(--risk-mittel)"></span>Mittel</span>
+          <span class="risk-counter-n">{{ stats.rpz_distribution.get('mittel', 0) }}</span>
+        </div>
+        <div class="risk-counter-row">
+          <span class="risk-counter-left"><span class="risk-counter-dot" style="background:var(--risk-niedrig)"></span>Niedrig</span>
+          <span class="risk-counter-n">{{ stats.rpz_distribution.get('niedrig', 0) }}</span>
+        </div>
+      </div>
     </div>
-  </div>
+  </aside>
 
-  <div class="cover-bottom">
-    <div class="cover-confidential">
-      Vertraulich – nur für den internen Gebrauch bestimmt.
-    </div>
-  </div>
-</div>
+  {# ── MAIN CONTENT ── #}
+  <main class="main">
 
-{# ═══════════════════════  INHALTSVERZEICHNIS  ═══════════════════════ #}
-<div class="page-break"></div>
-<div class="content">
+    {# ══════════════════  1. EXECUTIVE SUMMARY  ══════════════════ #}
+    <section class="page-section" id="summary">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 1</div>
+        <div class="section-title">Executive Summary</div>
+        <div class="section-desc">Überblick über die wesentlichen Risikobefunde und Handlungsbedarfe der Anlage <strong>{{ project.anlage_name }}</strong>.</div>
+      </div>
 
-<div class="section-header">
-  <span class="section-title" style="font-size:1.3rem;">Inhaltsverzeichnis</span>
-</div>
+      <div class="kpi-grid">
+        <div class="kpi-card {% if stats.rpz_distribution.get('kritisch', 0) > 0 %}danger{% endif %}">
+          <div class="kpi-value">{{ stats.rpz_distribution.get('kritisch', 0) }}</div>
+          <div class="kpi-label">Kritische Risiken (RPZ ≥ 300)</div>
+        </div>
+        <div class="kpi-card {% if stats.rpz_distribution.get('hoch', 0) > 0 %}warning{% endif %}">
+          <div class="kpi-value">{{ stats.rpz_distribution.get('hoch', 0) }}</div>
+          <div class="kpi-label">Hohe Risiken (RPZ ≥ 200)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">{{ stats.failure_modes }}</div>
+          <div class="kpi-label">Fehlermodi gesamt</div>
+        </div>
+        <div class="kpi-card ok">
+          <div class="kpi-value">{{ stats.measures }}</div>
+          <div class="kpi-label">Maßnahmen definiert</div>
+        </div>
+      </div>
 
-<div class="toc">
-  <a href="#sec-1" class="toc-item"><span class="toc-num">1</span><span class="toc-text">Management Summary</span></a>
-  <a href="#sec-2" class="toc-item"><span class="toc-num">2</span><span class="toc-text">Methodik</span></a>
-  <a href="#sec-3" class="toc-item"><span class="toc-num">3</span><span class="toc-text">Anlagenbeschreibung</span></a>
-  <a href="#sec-4" class="toc-item"><span class="toc-num">4</span><span class="toc-text">Risiko-Übersicht</span></a>
-  <a href="#chart-risikomatrix" class="toc-item toc-sub"><span class="toc-text">Risikomatrix</span></a>
-  <a href="#chart-rpz-vergleich" class="toc-item toc-sub"><span class="toc-text">RPZ-Verteilung – 6 Visualisierungen</span></a>
-  <a href="#chart-treemap" class="toc-item toc-sub"><span class="toc-text">Risiko-Treemap</span></a>
-  <a href="#sec-5" class="toc-item"><span class="toc-num">5</span><span class="toc-text">Detaillierte Risiko-Dokumentation</span></a>
-  <a href="#sec-6" class="toc-item"><span class="toc-num">6</span><span class="toc-text">Anhang</span></a>
-  <a href="#sec-6" class="toc-item toc-sub"><span class="toc-text">6.0 Abkürzungsverzeichnis</span></a>
-</div>
+      {# RPZ-Verteilungsbalken #}
+      {% set total = stats.failure_modes or 1 %}
+      {% set krit_pct = ((stats.rpz_distribution.get('kritisch', 0) / total) * 100)|int %}
+      {% set hoch_pct = ((stats.rpz_distribution.get('hoch', 0) / total) * 100)|int %}
+      {% set mittel_pct = ((stats.rpz_distribution.get('mittel', 0) / total) * 100)|int %}
+      {% set niedrig_pct = 100 - krit_pct - hoch_pct - mittel_pct %}
+      <div class="rpz-dist">
+        <div class="rpz-dist-title">RPZ-Verteilung aller {{ stats.failure_modes }} Fehlermodi</div>
+        <div class="rpz-dist-bar">
+          {% if krit_pct > 0 %}<div class="rpz-dist-seg" style="background:var(--risk-kritisch); width:{{ krit_pct }}%"></div>{% endif %}
+          {% if hoch_pct > 0 %}<div class="rpz-dist-seg" style="background:var(--risk-hoch); width:{{ hoch_pct }}%"></div>{% endif %}
+          {% if mittel_pct > 0 %}<div class="rpz-dist-seg" style="background:var(--risk-mittel); width:{{ mittel_pct }}%"></div>{% endif %}
+          {% if niedrig_pct > 0 %}<div class="rpz-dist-seg" style="background:var(--risk-niedrig); width:{{ niedrig_pct }}%"></div>{% endif %}
+        </div>
+        <div class="rpz-dist-legend">
+          <div class="legend-item"><span class="legend-dot" style="background:var(--risk-kritisch)"></span>Kritisch: {{ stats.rpz_distribution.get('kritisch', 0) }}</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--risk-hoch)"></span>Hoch: {{ stats.rpz_distribution.get('hoch', 0) }}</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--risk-mittel)"></span>Mittel: {{ stats.rpz_distribution.get('mittel', 0) }}</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--risk-niedrig)"></span>Niedrig: {{ stats.rpz_distribution.get('niedrig', 0) }}</div>
+        </div>
+      </div>
 
-</div>
-
-{# ═══════════════════════  1. MANAGEMENT SUMMARY  ═══════════════════════ #}
-<div class="page-break"></div>
-<div class="content">
-
-<div class="section-header" id="sec-1">
-  <span class="section-number">1</span>
-  <span class="section-title">Management Summary</span>
-</div>
-
-<p>
-  Der vorliegende Bericht dokumentiert die systematische Fehlermöglichkeits- und Einflussanalyse (FMEA)
-  der Anlage <strong>„{{ project.anlage_name }}"</strong>. Die Analyse wurde nach dem AIAG-VDA-Standard
-  durchgeführt und folgt einem fünfstufigen Prozess: Strukturanalyse, Funktionsanalyse, Fehleranalyse,
-  Risikobewertung und Maßnahmenoptimierung.
-</p>
-<p>
-  Insgesamt wurden <strong>{{ stats.components }}</strong> Komponenten mit
-  <strong>{{ stats.functions }}</strong> Funktionen untersucht. Dabei konnten
-  <strong>{{ stats.failure_modes }}</strong> potenzielle Fehlermodi identifiziert werden.
-  Jeder Fehlermodus wurde hinsichtlich seiner Bedeutung (Severity), Auftretenswahrscheinlichkeit
-  (Occurrence) und Entdeckbarkeit (Detection) bewertet. Die daraus resultierende Risikoprioritätszahl
-  (RPZ) dient als zentrale Kennzahl zur Priorisierung der Maßnahmen.
-</p>
-<p>
-  <strong>{{ high_risk_count }}</strong> Fehlermodi wurden als kritisch oder hoch eingestuft und
-  erfordern sofortige bzw. zeitnahe Maßnahmen. Der höchste ermittelte RPZ-Wert liegt bei
-  <strong>{{ report_context.max_rpz }}</strong>, der Durchschnitt bei
-  <strong>{{ report_context.avg_rpz }}</strong>.
-  {% if report_context.special_rule_count > 0 %}
-  Bei <strong>{{ report_context.special_rule_count }}</strong> Fehlermodi greifen AIAG-VDA-Sonderregeln,
-  die den Risikostatus unabhängig vom rechnerischen RPZ anheben (z.&nbsp;B. bei Severity ≥ 9).
-  {% endif %}
-  Zur Risikominderung wurden <strong>{{ stats.measures }}</strong> Maßnahmen nach dem STOP-Prinzip
-  (Substitution, Technisch, Organisatorisch, Persönlich) und der ABE-Hierarchie (Vermeidung,
-  Entdeckung, Abschwächung) definiert.
-  {% if report_context.best_reduction %}
-  Die wirksamste Einzelmaßnahme erzielt eine RPZ-Reduktion von <strong>{{ report_context.best_reduction }}</strong> Punkten;
-  im Mittel reduzieren die Maßnahmen den RPZ um <strong>{{ report_context.avg_reduction }}</strong> Punkte.
-  {% endif %}
-</p>
-
-<div class="info-box">
-  Komponenten: {{ stats.components }} &nbsp;|&nbsp;
-  Funktionen: {{ stats.functions }} &nbsp;|&nbsp;
-  Fehlermodi: {{ stats.failure_modes }}<br>
-  Maßnahmen: {{ stats.measures }} &nbsp;|&nbsp;
-  Kritisch/Hoch: {{ high_risk_count }} &nbsp;|&nbsp;
-  Mittel: {{ stats.rpz_distribution.get('mittel', 0) }} &nbsp;|&nbsp;
-  Niedrig: {{ stats.rpz_distribution.get('niedrig', 0) }}
-</div>
-
-{% if donut_img %}
-<div class="chart-container">
-  <img src="{{ donut_img }}" alt="RPZ-Verteilung" style="max-width:55%;">
-</div>
-{% endif %}
-
-{# Konfidenz-Warnung #}
-{% if report_context.konfidenz_warning %}
-<div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:6px;padding:3mm 4mm;margin-bottom:4mm;display:flex;gap:3mm;align-items:flex-start;">
-  <span style="font-size:1rem;flex-shrink:0;">⚠</span>
-  <div>
-    <strong style="color:#92400E;">KI-Bewertung unsicher</strong>
-    <span style="color:#78350F;font-size:0.82rem;"> — {{ report_context.low_konfidenz_count }} Fehlermodi mit <code>agent_konfidenz = niedrig</code>.
-    Expertenprüfung empfohlen. Betroffen sind die mit ⚠ markierten Detailkarten in Kapitel 5.</span>
-  </div>
-</div>
-{% endif %}
-
-{# Pflicht-Maßnahmen-Highlight #}
-{% if report_context.pflicht_massnahmen_count > 0 %}
-<div style="background:#FEE2E2;border:1px solid #FECACA;border-radius:6px;padding:3mm 4mm;margin-bottom:4mm;display:flex;gap:3mm;align-items:flex-start;">
-  <span style="font-size:1rem;flex-shrink:0;">🔴</span>
-  <div>
-    <strong style="color:#991B1B;">{{ report_context.pflicht_massnahmen_count }} Pflicht-Maßnahmen sofort erforderlich</strong>
-    <span style="color:#7F1D1D;font-size:0.82rem;"> — S ≥ 9 oder RPZ ≥ 300. Keine Maßnahme darf ausstehen. Details im Maßnahmen-Cockpit (Abschnitt 1.2).</span>
-  </div>
-</div>
-{% endif %}
-
-<h3>Top-5 Risiken</h3>
-<table class="top5-table">
-  <thead>
-    <tr><th>Fehler-ID</th><th>Fehlermodus</th><th>S</th><th>O</th><th>D</th><th>RPZ</th><th>Status</th></tr>
-  </thead>
-  <tbody>
-    {% for fm in top5 %}
-    <tr class="{{ fm.rpz_status }}">
-      <td>{{ fm.fehler_id }}</td>
-      <td>{{ fm.fehlermodus }}</td>
-      <td style="text-align:center;">{{ fm.S }}</td>
-      <td style="text-align:center;">{{ fm.O }}</td>
-      <td style="text-align:center;">{{ fm.D }}</td>
-      <td style="text-align:center; font-weight:700;">{{ fm.rpz }}</td>
-      <td><span class="badge badge-{{ fm.rpz_status }}">{{ fm.rpz_status|upper }}</span></td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-
-
-{# ═══════════════════════  1.2 MAßNAHMEN-COCKPIT  ═══════════════════════ #}
-</div>
-<div class="page-break"></div>
-<div class="content">
-
-<div class="section-header">
-  <span class="section-number" style="font-size:0.9rem;padding:1mm 2mm;">1.2</span>
-  <span class="section-title">Maßnahmen-Cockpit</span>
-</div>
-<p style="font-size:0.82rem;color:var(--color-text-muted);margin-bottom:4mm;">
-  Alle {{ total_measures }} Maßnahmen, sortiert nach Wirkung (höchste RPZ-Reduktion oben).
-  <strong style="color:#991B1B;">Rot = Pflicht</strong> · <span style="color:#EA580C;">Orange = Empfohlen</span> · <span style="color:#6B7280;">Grau = Optional</span>.
-</p>
-
-{% if cockpit_rows %}
-<table class="appendix-measures-table" style="font-size:0.72rem;">
-  <thead>
-    <tr style="background:var(--color-bg-card);">
-      <th>Fehler-ID</th>
-      <th>Fehlermodus</th>
-      <th>Maßnahme</th>
-      <th style="text-align:center;">STOP</th>
-      <th style="text-align:center;">ABE</th>
-      <th style="text-align:center;">Priorität</th>
-      <th style="text-align:center;">Aufwand</th>
-      <th style="text-align:center;">Kosten</th>
-      <th style="text-align:center;">RPZ vorher</th>
-      <th style="text-align:center;">RPZ nachher</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for row in cockpit_rows %}
-    {% set prio_color = {'pflicht':'#DC2626','empfohlen':'#EA580C','optional':'#6B7280'}.get(row.prioritaet, '#6B7280') %}
-    <tr>
-      <td style="font-weight:600;white-space:nowrap;font-size:0.68rem;">{{ row.fehler_id }}</td>
-      <td style="font-size:0.7rem;">{{ row.fehlermodus[:50] }}{% if row.fehlermodus|length > 50 %}…{% endif %}</td>
-      <td style="font-size:0.7rem;">{{ row.massnahme_name }}</td>
-      <td style="text-align:center;white-space:nowrap;">
-        <span class="badge" style="background:#1F293710;color:#1F2937;font-size:0.62rem;">{{ row.stop_kategorie or '–' }}</span>
-      </td>
-      <td style="text-align:center;white-space:nowrap;">
-        <span class="badge" style="background:#1F293710;color:#1F2937;font-size:0.62rem;">{{ row.abe_kategorie or '–' }}</span>
-      </td>
-      <td style="text-align:center;">
-        <span style="color:{{ prio_color }};font-weight:700;font-size:0.68rem;">{{ row.prioritaet|upper }}</span>
-      </td>
-      <td style="text-align:center;font-size:0.68rem;">{{ row.aufwand or '–' }}</td>
-      <td style="text-align:center;font-size:0.68rem;">{{ row.kosten_klasse or '–' }}</td>
-      <td style="text-align:center;font-weight:600;">
-        <span class="badge badge-{{ row.rpz_status_vorher }}" style="font-size:0.65rem;">{{ row.rpz_vorher }}</span>
-      </td>
-      <td style="text-align:center;font-weight:600;">
-        {% if row.rpz_nachher != row.rpz_vorher %}
-        <span class="badge badge-{{ row.rpz_status_nachher }}" style="font-size:0.65rem;">{{ row.rpz_nachher }}</span>
-        <span style="font-size:0.6rem;color:#00A389;"> ↓{{ row.rpz_delta }}</span>
-        {% else %}
-        <span style="color:var(--color-text-muted);">–</span>
+      {# Summary Text #}
+      <p>
+        Die Anlage <strong>„{{ project.anlage_name }}"</strong> wurde nach dem AIAG-VDA-Standard analysiert.
+        Insgesamt wurden <strong>{{ stats.components }}</strong> Komponenten mit
+        <strong>{{ stats.functions }}</strong> Funktionen untersucht und
+        <strong>{{ stats.failure_modes }}</strong> potenzielle Fehlermodi identifiziert.
+        <strong>{{ high_risk_count }}</strong> davon sind als kritisch oder hoch eingestuft.
+        Der höchste RPZ liegt bei <strong>{{ report_context.max_rpz }}</strong>, der Durchschnitt bei <strong>{{ report_context.avg_rpz }}</strong>.
+        {% if report_context.special_rule_count > 0 %}
+        Bei <strong>{{ report_context.special_rule_count }}</strong> Fehlermodi greifen AIAG-VDA-Sonderregeln.
         {% endif %}
-      </td>
-      <td style="font-size:0.68rem;white-space:nowrap;">{{ row.implementation_status or 'geplant' }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% else %}
-<p style="color:var(--color-text-muted);font-style:italic;">Noch keine Maßnahmen eingespielt.</p>
-{% endif %}
+        {% if report_context.best_reduction %}
+        Die wirksamste Maßnahme reduziert den RPZ um <strong>{{ report_context.best_reduction }}</strong> Punkte.
+        {% endif %}
+      </p>
 
-{# ═══════════════════════  2. METHODIK  ═══════════════════════ #}
-</div>
-<div class="page-break"></div>
-<div class="content">
+      {# Warnhinweise #}
+      {% if report_context.konfidenz_warning %}
+      <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:6px;padding:10px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start;">
+        <span style="font-size:16px;flex-shrink:0;">⚠</span>
+        <div>
+          <strong style="color:#92400E;">KI-Bewertung unsicher</strong>
+          <span style="color:#78350F;font-size:13px;"> — {{ report_context.low_konfidenz_count }} Fehlermodi mit niedrigem Agent-Konfidenz-Level. Expertenprüfung empfohlen.</span>
+        </div>
+      </div>
+      {% endif %}
 
-<div class="section-header" id="sec-2">
-  <span class="section-number">2</span>
-  <span class="section-title">Methodik</span>
-</div>
+      {% if report_context.pflicht_massnahmen_count > 0 %}
+      <div style="background:#FEE2E2;border:1px solid #FECACA;border-radius:6px;padding:10px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start;">
+        <span style="font-size:16px;flex-shrink:0;">🔴</span>
+        <div>
+          <strong style="color:#991B1B;">{{ report_context.pflicht_massnahmen_count }} Pflicht-Maßnahmen sofort erforderlich</strong>
+          <span style="color:#7F1D1D;font-size:13px;"> — S ≥ 9 oder RPZ ≥ 300. Details im Maßnahmen-Cockpit unten.</span>
+        </div>
+      </div>
+      {% endif %}
 
-<p>
-  Die vorliegende Fehlermöglichkeits- und Einflussanalyse (FMEA) basiert auf der Methodik nach
-  AIAG-VDA (Automotive Industry Action Group – Verband der Automobilindustrie, 1. Auflage, 2019).
-  Dieses Verfahren ist der internationale Standard für systematische Risikoanalysen in der
-  Automobil-, Prozess- und Anlagentechnik. Im Unterschied zu älteren FMEA-Ansätzen integriert
-  der AIAG-VDA-Standard eine durchgängige Verknüpfung von Struktur-, Funktions- und
-  Fehleranalyse und ermöglicht so eine lückenlose Rückverfolgbarkeit jeder Risikobewertung
-  bis zur betroffenen Komponente und Funktion.
-</p>
-<p>
-  Die Risikobewertung erfolgt über drei Dimensionen:
-  <strong>Bedeutung (Severity, S)</strong> bewertet die Schwere der Fehlerauswirkung auf einer Skala von 1–10.
-  <strong>Auftreten (Occurrence, O)</strong> schätzt die Wahrscheinlichkeit des Fehlereintritts ein,
-  gestützt auf publizierte Ausfallratendaten und Betriebserfahrung.
-  <strong>Entdeckung (Detection, D)</strong> bewertet die Fähigkeit bestehender Prüf- und
-  Überwachungsmaßnahmen, den Fehler vor Eintritt der Auswirkung zu erkennen.
-  Das Produkt S × O × D ergibt die Risikoprioritätszahl (RPZ, Wertebereich 1–1000).
-</p>
+      {# Donut Chart #}
+      {% if donut_img %}
+      <div class="chart-container">
+        <img src="{{ donut_img }}" alt="RPZ-Verteilung Donut" style="max-width:55%;">
+      </div>
+      {% endif %}
 
-<h3>FMEA-Prozess (5 Schritte)</h3>
-<p>
-  Der FMEA-Prozess gliedert sich in fünf aufeinander aufbauende Schritte.
-  Jeder Schritt erzeugt die Eingangsdaten für den nächsten, sodass am Ende eine vollständige
-  Kette von der Anlagenstruktur bis zur konkreten Maßnahmenempfehlung vorliegt:
-</p>
-<ol class="steps-list">
-  <li><span class="step-name">Strukturanalyse</span><span class="step-desc">Zerlegung der Anlage in Einzelkomponenten mit Systemkontext – ermöglicht die gezielte Zuordnung von Funktionen und Fehlern zu konkreten Baugruppen und Betriebsmitteln.</span></li>
-  <li><span class="step-name">Domänenrecherche</span><span class="step-desc">Sichtung verfahrenstechnischer Grundlagen, relevanter Gefährdungen und geltender Vorschriften (z.&#8239;B. 12.&#8239;BImSchV, ATEX) für den spezifischen Prozess. Neues Domänenwissen wird projektbegleitend dokumentiert und für zukünftige Analysen verfügbar gemacht.</span></li>
-  <li><span class="step-name">Systematische Fehleridentifikation</span><span class="step-desc">Für jede Komponente werden alle 9 Fehlermodi-Kategorien geprüft (vollständige Checkliste – keine Kategorie wird stillschweigend ausgelassen; nicht anwendbare Kategorien werden mit Begründung dokumentiert).</span></li>
-  <li><span class="step-name">Funktionsanalyse &amp; Fehleranalyse</span><span class="step-desc">Identifikation der Haupt- und Nebenfunktionen sowie Ermittlung von Fehlermodi, deren Ursachen, Folgen für vor- und nachgelagerte Systeme und bestehende Kontrollmaßnahmen.</span></li>
-  <li><span class="step-name">Risikobewertung S/O/D</span><span class="step-desc">Quantitative Bewertung jedes Fehlermodus nach Bedeutung (S), Auftreten (O) und Entdeckung (D). Die O-Einstufung wird mit publizierten Ausfallratendaten (CCPS, OREDA, IEC) abgeglichen. Die Risikoprioritätszahl (RPZ) ermöglicht eine objektive Priorisierung.</span></li>
-  <li><span class="step-name">Maßnahmenoptimierung</span><span class="step-desc">Definition risikomindernder Maßnahmen nach dem STOP-Prinzip (Substitution – Technisch – Organisatorisch – Persönlich) und der ABE-Hierarchie (Abschaffend – Begrenzend – Entdeckend). Jede Maßnahme wird mit einem neu berechneten Restrisiko (RPZ_neu) versehen.</span></li>
-</ol>
-<div class="info-box" style="margin-top:4mm;">
-  <strong>KI-gestützte Analyse:</strong> Die Analyse wird computergestützt unter Einsatz von
-  KI-Assistenztechnologie durchgeführt. Alle Bewertungen und Maßnahmen werden durch den
-  verantwortlichen Ingenieur überprüft und freigegeben.
-</div>
+      {# Top 5 #}
+      <h3 style="margin-top:24px;margin-bottom:12px;">Top-5 Risiken</h3>
+      <div class="top5-table-shell">
+        <div class="top5-header">
+          <span class="top5-header-cell">ID</span>
+          <span class="top5-header-cell">Fehlermodus</span>
+          <span class="top5-header-cell" style="text-align:center;">RPZ</span>
+          <span class="top5-header-cell" style="text-align:center;">Risiko</span>
+          <span class="top5-header-cell" style="text-align:center;">Kategorie</span>
+        </div>
+        {% for fm in top5 %}
+        <div class="top5-row">
+          <span class="top5-cell id">{{ fm.fehler_id }}</span>
+          <span class="top5-cell">{{ fm.fehlermodus }}</span>
+          <span class="top5-cell rpz" style="color:var(--risk-{{ fm.rpz_status }});">{{ fm.rpz }}</span>
+          <span class="top5-cell center">
+            <span class="risk-badge {{ fm.rpz_status }}">
+              <span class="bdot"></span>{{ fm.rpz_status|capitalize }}
+            </span>
+          </span>
+          <span class="top5-cell center"><span class="tag">{{ fm.fehlerart }}</span></span>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
 
-<h4 class="mt-lg">Normative Grundlagen und Datenquellen</h4>
-<p>Die Analyse stützt sich auf folgende Normen, Richtlinien und Zuverlässigkeitsdatenbanken:</p>
-<table>
-  <thead><tr><th>Norm / Quelle</th><th>Anwendungsbereich</th></tr></thead>
-  <tbody>
-    <tr><td>AIAG-VDA FMEA (1.&nbsp;Auflage, 2019)</td><td>Methodischer Rahmen, S/O/D-Systematik, Sonderregeln</td></tr>
-    <tr><td>CCPS Guidelines for Process Equipment Reliability Data (AIChE)</td><td>Referenz-Ausfallraten für Prozessanlagen</td></tr>
-    <tr><td>IEC 61511 / IEC 61508</td><td>Safety Integrity Level (SIL)-Zuverlässigkeitsdaten, sicherheitsgerichtete Systeme</td></tr>
-    <tr><td>IEEE Std 493 (Gold Book)</td><td>Allgemeine Equipment-Zuverlässigkeitsdaten</td></tr>
-    <tr><td>OREDA (öffentlich zugängliche Zusammenfassungen)</td><td>Ausfallraten für Prozess- und Offshore-Anlagen</td></tr>
-    <tr><td>VDI 4006</td><td>Zuverlässigkeit in der Verfahrenstechnik</td></tr>
-  </tbody>
-</table>
-<div class="special-rule-box" style="margin-top:3mm;">
-  <span class="special-rule-icon">ℹ</span>
-  <div class="special-rule-content">
-    <div class="special-rule-desc">Die angegebenen Ausfallraten sind Orientierungswerte auf Basis veröffentlichter Industrie-Daten.
-    Für sicherheitskritische Entscheidungen sind herstellerspezifische Zuverlässigkeitsdaten und
-    betriebliche Erfahrungswerte heranzuziehen.</div>
-  </div>
-</div>
+    {# ══════════════════  1.2 MAßNAHMEN-COCKPIT  ══════════════════ #}
+    <section class="page-section" id="cockpit">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 1.2</div>
+        <div class="section-title">Maßnahmen-Cockpit</div>
+        <div class="section-desc">Alle {{ total_measures }} Maßnahmen, sortiert nach Wirkung (höchste RPZ-Reduktion oben).
+          <strong style="color:#991B1B;">Rot = Pflicht</strong> · <span style="color:#EA580C;">Orange = Empfohlen</span> · <span style="color:#6B7280;">Grau = Optional</span></div>
+      </div>
+      {% if cockpit_rows %}
+      <table class="appendix-measures-table" style="font-size:12px;">
+        <thead>
+          <tr>
+            <th>Fehler-ID</th>
+            <th>Fehlermodus</th>
+            <th>Maßnahme</th>
+            <th style="text-align:center;">STOP</th>
+            <th style="text-align:center;">ABE</th>
+            <th style="text-align:center;">Priorität</th>
+            <th style="text-align:center;">Aufwand</th>
+            <th style="text-align:center;">RPZ vorher</th>
+            <th style="text-align:center;">RPZ nachher</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in cockpit_rows %}
+          {% set prio_color = {'pflicht':'#DC2626','empfohlen':'#EA580C','optional':'#6B7280'}.get(row.prioritaet, '#6B7280') %}
+          <tr>
+            <td style="font-weight:600;white-space:nowrap;font-size:11px;">{{ row.fehler_id }}</td>
+            <td style="font-size:12px;">{{ row.fehlermodus[:50] }}{% if row.fehlermodus|length > 50 %}…{% endif %}</td>
+            <td style="font-size:12px;">{{ row.massnahme_name }}</td>
+            <td style="text-align:center;white-space:nowrap;">
+              <span class="badge" style="background:#1F293710;color:#1F2937;font-size:10px;">{{ row.stop_kategorie or '–' }}</span>
+            </td>
+            <td style="text-align:center;white-space:nowrap;">
+              <span class="badge" style="background:#1F293710;color:#1F2937;font-size:10px;">{{ row.abe_kategorie or '–' }}</span>
+            </td>
+            <td style="text-align:center;">
+              <span style="color:{{ prio_color }};font-weight:700;font-size:11px;">{{ row.prioritaet|upper }}</span>
+            </td>
+            <td style="text-align:center;font-size:11px;">{{ row.aufwand or '–' }}</td>
+            <td style="text-align:center;font-weight:600;">
+              <span class="risk-badge {{ row.rpz_status_vorher }}" style="font-size:10px;">{{ row.rpz_vorher }}</span>
+            </td>
+            <td style="text-align:center;font-weight:600;">
+              {% if row.rpz_nachher != row.rpz_vorher %}
+              <span class="risk-badge {{ row.rpz_status_nachher }}" style="font-size:10px;">{{ row.rpz_nachher }}</span>
+              <span style="font-size:10px;color:#16A34A;"> ↓{{ row.rpz_delta }}</span>
+              {% else %}
+              <span style="color:var(--text-muted);">–</span>
+              {% endif %}
+            </td>
+            <td style="font-size:11px;white-space:nowrap;">{{ row.implementation_status or 'geplant' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p style="color:var(--text-muted);font-style:italic;">Noch keine Maßnahmen erfasst.</p>
+      {% endif %}
+    </section>
 
-{% for scale_key, scale_title, info_dict in scales %}
-<h4 class="mt-lg">Bewertungsskala: {{ scale_title }}</h4>
-<table class="scale-table">
-  <thead><tr><th>Stufe</th><th>Kriterium</th><th>Beschreibung / Beispiel</th></tr></thead>
-  <tbody>
-    {% for val, (criterion, example) in info_dict.items() %}
-    <tr><td class="scale-num">{{ val }}</td><td>{{ criterion }}</td><td>{{ example }}</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% endfor %}
+    {# ══════════════════  2. METHODIK  ══════════════════ #}
+    <section class="page-section" id="sec-methodik">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 2</div>
+        <div class="section-title">Methodik</div>
+        <div class="section-desc">AIAG-VDA FMEA – systematische Risikoanalyse in fünf Schritten.</div>
+      </div>
 
-<h4 class="mt-lg">RPZ-Klassifizierung</h4>
-<p>RPZ = S × O × D &nbsp;&nbsp;(Wertebereich: 1 – 1000)</p>
-<table>
-  <thead><tr><th>Bereich</th><th>Klassifizierung</th><th>Maßnahme erforderlich</th></tr></thead>
-  <tbody>
-    <tr><td>≥ 300</td><td><span class="badge badge-kritisch">Kritisch</span></td><td>Sofortige Maßnahme erforderlich</td></tr>
-    <tr><td>≥ 200</td><td><span class="badge badge-hoch">Hoch</span></td><td>Maßnahme zeitnah umsetzen</td></tr>
-    <tr><td>≥ 100</td><td><span class="badge badge-mittel">Mittel</span></td><td>Maßnahme planen</td></tr>
-    <tr><td>&lt; 100</td><td><span class="badge badge-niedrig">Niedrig</span></td><td>Monitoring ausreichend</td></tr>
-  </tbody>
-</table>
+      <p>
+        Die vorliegende FMEA basiert auf der Methodik nach AIAG-VDA (1. Auflage, 2019).
+        Die Risikobewertung erfolgt über drei Dimensionen:
+        <strong>Bedeutung (Severity, S)</strong> bewertet die Schwere der Fehlerauswirkung (1–10).
+        <strong>Auftreten (Occurrence, O)</strong> schätzt die Eintrittswahrscheinlichkeit ein.
+        <strong>Entdeckung (Detection, D)</strong> bewertet die Fähigkeit bestehender Maßnahmen, den Fehler zu erkennen.
+        Das Produkt S × O × D ergibt die Risikoprioritätszahl (RPZ, Wertebereich 1–1000).
+      </p>
 
+      <h3>FMEA-Prozess (5 Schritte)</h3>
+      <ol class="steps-list">
+        <li><span class="step-name">Strukturanalyse</span><span class="step-desc">Zerlegung der Anlage in Einzelkomponenten mit Systemkontext.</span></li>
+        <li><span class="step-name">Domänenrecherche</span><span class="step-desc">Sichtung verfahrenstechnischer Grundlagen, Gefährdungen und geltender Vorschriften (12. BImSchV, ATEX).</span></li>
+        <li><span class="step-name">Systematische Fehleridentifikation</span><span class="step-desc">Für jede Komponente werden alle 9 Fehlermodi-Kategorien geprüft.</span></li>
+        <li><span class="step-name">Funktions- &amp; Fehleranalyse</span><span class="step-desc">Identifikation von Haupt-/Nebenfunktionen, Fehlermodi, Ursachen, Folgen und Controls.</span></li>
+        <li><span class="step-name">Risikobewertung &amp; Maßnahmenoptimierung</span><span class="step-desc">S/O/D-Bewertung nach AIAG-VDA mit publizierten Ausfallratendaten (CCPS, OREDA, IEC). Maßnahmen nach STOP-Prinzip und ABE-Hierarchie.</span></li>
+      </ol>
 
-<h4 class="mt-lg">Datenbasis der O-Bewertung (Ausfallraten)</h4>
-<p>
-  Die Einstufung des Auftretens (O) basiert auf publizierten Ausfallraten in der Einheit
-  <strong>FPMH (Failures Per Million Hours – Ausfälle pro Million Betriebsstunden)</strong>.
-  Die folgende Tabelle zeigt die Zuordnung von FPMH-Werten zu O-Stufen nach AIAG-VDA:
-</p>
-<table>
-  <thead><tr><th>O</th><th>FPMH ≤</th><th>Häufigkeitsbeschreibung</th></tr></thead>
-  <tbody>
-    <tr><td class="scale-num">1</td><td>1</td><td>Extrem unwahrscheinlich, nahezu ausgeschlossen</td></tr>
-    <tr><td class="scale-num">2</td><td>3</td><td>Sehr gering, konstruktiv oder betrieblich verhindert</td></tr>
-    <tr><td class="scale-num">3</td><td>8</td><td>Gering, bei üblicher Betriebsführung selten</td></tr>
-    <tr><td class="scale-num">4</td><td>15</td><td>Mäßig gering</td></tr>
-    <tr><td class="scale-num">5</td><td>25</td><td>Mäßig, gelegentliches Auftreten</td></tr>
-    <tr><td class="scale-num">6</td><td>40</td><td>Mäßig hoch</td></tr>
-    <tr><td class="scale-num">7</td><td>60</td><td>Hoch, häufiges Auftreten</td></tr>
-    <tr><td class="scale-num">8</td><td>100</td><td>Sehr hoch</td></tr>
-    <tr><td class="scale-num">9</td><td>200</td><td>Sehr hoch, fast unvermeidlich</td></tr>
-    <tr><td class="scale-num">10</td><td>&gt; 200</td><td>Extrem hoch, tritt mit Sicherheit auf</td></tr>
-  </tbody>
-</table>
-<p style="font-size:0.82rem; color:var(--color-text-muted); margin-top:2mm;">
-  <em>Beispiele:</em> Kreiselpumpe (50 FPMH, typisch) → O&nbsp;=&nbsp;5 (gelegentlich) &nbsp;|&nbsp;
-  Drucktransmitter (8 FPMH) → O&nbsp;=&nbsp;3 (gering) &nbsp;|&nbsp;
-  Sicherheitsventil PSV (10 FPMH) → O&nbsp;=&nbsp;4 (mäßig gering).
-  Quelle: CCPS / OREDA / IEC 61511.
-</p>
+      <div class="info-box">
+        <strong>Normative Grundlagen:</strong> AIAG-VDA FMEA (1. Aufl. 2019) · IEC 61511 / IEC 61508 · CCPS Guidelines · IEEE Std 493 · OREDA · VDI 4006
+      </div>
 
-<h4 class="mt-lg">Sonderregeln (AIAG-VDA Overrides)</h4>
-<p>Unabhängig vom rechnerischen RPZ-Wert können Sonderregeln den Risikostatus anheben.
-   Diese Regeln stellen sicher, dass sicherheitsrelevante Fehlermodi nicht allein aufgrund einer
-   niedrigen Eintrittswahrscheinlichkeit als unkritisch eingestuft werden.</p>
-<table>
-  <thead><tr><th>Bedingung</th><th>Wirkung</th><th>Begründung</th></tr></thead>
-  <tbody>
-    <tr>
-      <td><strong>S ≥ 9</strong> (unabhängig von O und D)</td>
-      <td>Status mindestens <span class="badge badge-hoch">HOCH</span></td>
-      <td>Bei möglichen Schwerverletzungen oder Todesfällen sind Maßnahmen zwingend erforderlich – auch bei sehr geringer Eintrittswahrscheinlichkeit.</td>
-    </tr>
-    <tr>
-      <td><strong>D ≥ 9</strong> und <strong>S ≥ 7</strong></td>
-      <td>Status wird <span class="badge badge-kritisch">KRITISCH</span></td>
-      <td>Hohe Bedeutung bei gleichzeitig fehlender Entdeckungsmöglichkeit erfordert sofortige Maßnahmen.</td>
-    </tr>
-  </tbody>
-</table>
-<div class="special-rule-box" style="margin-top:3mm;">
-  <span class="special-rule-icon">⚠</span>
-  <div class="special-rule-content">
-    <div class="special-rule-desc">Fehlermodi, bei denen eine Sonderregel greift, sind im Bericht mit dem Symbol ⚠ gekennzeichnet.
-      Der rechnerische Status und der angehobene Status werden jeweils ausgewiesen.</div>
-  </div>
-</div>
+      <h3>RPZ-Klassifizierung</h3>
+      <table>
+        <thead><tr><th>Bereich</th><th>Klassifizierung</th><th>Maßnahme erforderlich</th></tr></thead>
+        <tbody>
+          <tr><td>≥ 300</td><td><span class="badge badge-kritisch">Kritisch</span></td><td>Sofortige Maßnahme erforderlich</td></tr>
+          <tr><td>≥ 200</td><td><span class="badge badge-hoch">Hoch</span></td><td>Maßnahme zeitnah umsetzen</td></tr>
+          <tr><td>≥ 100</td><td><span class="badge badge-mittel">Mittel</span></td><td>Maßnahme planen</td></tr>
+          <tr><td>&lt; 100</td><td><span class="badge badge-niedrig">Niedrig</span></td><td>Monitoring ausreichend</td></tr>
+        </tbody>
+      </table>
 
-<h4 class="mt-lg">Fehlermodi-Systematik — 9 Kategorien</h4>
-<p>
-  Für jede Anlage und jede Komponente werden systematisch alle 9 Fehlermodi-Kategorien geprüft.
-  Dieses strukturierte Vorgehen stellt sicher, dass keine Fehlerklasse übersehen wird.
-</p>
-<table>
-  <thead><tr><th>#</th><th>Kategorie</th><th>Typische Fehlermodi (Beispiele)</th></tr></thead>
-  <tbody>
-    <tr><td class="scale-num">1</td><td>Prozess</td><td>Über-/Unterstrom, Rückstrom, Druckabweichung, Konzentrationsabweichung, Phasentrennung</td></tr>
-    <tr><td class="scale-num">2</td><td>Thermisch</td><td>Überhitzung, Unterkühlung, thermischer Schock, Verlust der Wärmeabfuhr, lokale Überhitzung (Hot Spot)</td></tr>
-    <tr><td class="scale-num">3</td><td>Mechanisch</td><td>Erosion, Kavitation, Vibration/Resonanz, externe Leckage, interne Leckage (Bypass), Materialermüdung</td></tr>
-    <tr><td class="scale-num">4</td><td>Equipment</td><td>Fouling/Belagbildung, Verstopfung, Gleitringdichtungsversagen, Beschädigung von Einbauten, Vakuumverlust</td></tr>
-    <tr><td class="scale-num">5</td><td>Elektrisch</td><td>Vollständiger Spannungsausfall, Spannungseinbruch, Phasenausfall, elektromagnetische Einkopplung (EMV), Erdschluss</td></tr>
-    <tr><td class="scale-num">6</td><td>Mess-, Steuer- und Regelungstechnik (MSR)</td><td>Messwertdrift, eingefrorener Messwert, Signalrauschen, Aktor-Blockade, Logikfehler, Kommunikationsabriss (Busfehler)</td></tr>
-    <tr><td class="scale-num">7</td><td>Sicherheitseinrichtungen</td><td>Sicherheitsventil (PSV) öffnet nicht, Frühauslösung, Ausfall der Inertisierung, Flammendurchschlag, Fehlauslösung Not-Halt</td></tr>
-    <tr><td class="scale-num">8</td><td>Dosierung</td><td>Überdosierung, Unterdosierung, falsche Dosierreihenfolge, Gasblasen im Dosierstrom</td></tr>
-    <tr><td class="scale-num">9</td><td>Sonstiges</td><td>Bedienfehler, Fehlkennzeichnung von Leitungen/Ventilen, externe Einwirkung (mechanisch, Umwelt)</td></tr>
-  </tbody>
-</table>
-<div class="special-rule-box" style="margin-top:3mm;">
-  <span class="special-rule-icon">ℹ</span>
-  <div class="special-rule-content">
-    <div class="special-rule-desc">Nicht anwendbare Kategorien werden explizit mit Begründung dokumentiert – keine stillschweigende Auslassung.
-    Besonderes Augenmerk gilt externen Versorgungsschnittstellen (Kühlwasser, Stickstoff, Elektrik), die als potenzielle Fehlerquellen stets explizit geprüft werden.</div>
-  </div>
-</div>
+      <h3>Sonderregeln (AIAG-VDA Overrides)</h3>
+      <table>
+        <thead><tr><th>Bedingung</th><th>Wirkung</th><th>Begründung</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>S ≥ 9</strong></td>
+            <td>Status mindestens <span class="badge badge-hoch">HOCH</span></td>
+            <td>Bei möglichen Schwerverletzungen oder Todesfällen sind Maßnahmen zwingend erforderlich.</td>
+          </tr>
+          <tr>
+            <td><strong>D ≥ 9 und S ≥ 7</strong></td>
+            <td>Status wird <span class="badge badge-kritisch">KRITISCH</span></td>
+            <td>Hohe Bedeutung bei gleichzeitig fehlender Entdeckungsmöglichkeit erfordert sofortige Maßnahmen.</td>
+          </tr>
+        </tbody>
+      </table>
 
-<h4 class="mt-lg">STOP-Prinzip (Maßnahmen-Hierarchie)</h4>
-<p>Die Maßnahmen werden nach dem STOP-Prinzip klassifiziert, das die Wirksamkeit in absteigender Reihenfolge priorisiert:</p>
-<table>
-  <thead><tr><th>Stufe</th><th>Kategorie</th><th>Beschreibung</th><th>Beispiel</th></tr></thead>
-  <tbody>
-    <tr><td style="text-align:center;"><span class="stop-badge stop-S"><span class="stop-icon">↻</span>S</span></td><td>Substitution</td><td>Gefährdung vollständig beseitigen oder ersetzen</td><td>Gefahrstoff durch ungefährliche Alternative ersetzen</td></tr>
-    <tr><td style="text-align:center;"><span class="stop-badge stop-T"><span class="stop-icon">⚙</span>T</span></td><td>Technisch</td><td>Technische Schutzmaßnahmen installieren</td><td>Schutzgitter, Überdruckventil, Auffangwanne</td></tr>
-    <tr><td style="text-align:center;"><span class="stop-badge stop-O"><span class="stop-icon">☰</span>O</span></td><td>Organisatorisch</td><td>Prozesse, Regelungen und Schulungen anpassen</td><td>Arbeitsanweisungen, Prüfintervalle, Zugangsregelung</td></tr>
-    <tr><td style="text-align:center;"><span class="stop-badge stop-P"><span class="stop-icon">👤</span>P</span></td><td>Persönlich</td><td>Persönliche Schutzausrüstung (PSA)</td><td>Schutzbrille, Handschuhe, Atemschutz</td></tr>
-  </tbody>
-</table>
+      {% for scale_key, scale_title, info_dict in scales %}
+      <h3>Bewertungsskala: {{ scale_title }}</h3>
+      <table class="scale-table">
+        <thead><tr><th>Stufe</th><th>Kriterium</th><th>Beschreibung / Beispiel</th></tr></thead>
+        <tbody>
+          {% for val, (criterion, example) in info_dict.items() %}
+          <tr><td class="scale-num">{{ val }}</td><td>{{ criterion }}</td><td>{{ example }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endfor %}
 
-<h4 class="mt-lg">ABE-Hierarchie (Wirkungstyp der Maßnahmen)</h4>
-<p>
-  Jede Maßnahme wird zusätzlich zum STOP-Prinzip nach ihrer Wirkungsweise eingestuft
-  (Abschaffend – Begrenzend – Entdeckend, kurz ABE):
-</p>
-<table>
-  <thead><tr><th>Stufe</th><th>Bezeichnung</th><th>Wirkung der Maßnahme</th></tr></thead>
-  <tbody>
-    <tr>
-      <td style="text-align:center; font-weight:800; font-size:1.1rem;">A</td>
-      <td><strong>Abschaffend</strong></td>
-      <td>Der Fehlermodus wird vollständig beseitigt – das Auftreten wird konstruktiv oder verfahrenstechnisch unmöglich gemacht (O → nicht anwendbar).</td>
-    </tr>
-    <tr>
-      <td style="text-align:center; font-weight:800; font-size:1.1rem;">B</td>
-      <td><strong>Begrenzend</strong></td>
-      <td>Die Auswirkung oder Häufigkeit des Fehlermodus wird reduziert – Bedeutung (S_neu) oder Auftreten (O_neu) sinken im Vergleich zur Ausgangsbewertung.</td>
-    </tr>
-    <tr>
-      <td style="text-align:center; font-weight:800; font-size:1.1rem;">E</td>
-      <td><strong>Entdeckend</strong></td>
-      <td>Die Wahrscheinlichkeit der Fehlererkennung wird verbessert – Entdeckung (D_neu) sinkt. Der Fehlermodus selbst bleibt bestehen, wird aber frühzeitiger detektiert.</td>
-    </tr>
-  </tbody>
-</table>
-<p style="font-size:0.82rem; color:var(--color-text-muted); margin-top:2mm;">
-  Maßnahmen der Stufe A (Abschaffend) werden gegenüber B und E bevorzugt.
-  Stufe E gilt als letztes Mittel, wenn Abschaffen und Begrenzen nicht möglich sind.
-</p>
+      <h3>STOP-Prinzip &amp; ABE-Hierarchie</h3>
+      <table>
+        <thead><tr><th>Stufe</th><th>Kategorie</th><th>Beschreibung</th></tr></thead>
+        <tbody>
+          <tr><td><span class="stop-badge stop-S">S</span></td><td>Substitution</td><td>Gefährdung vollständig beseitigen oder ersetzen</td></tr>
+          <tr><td><span class="stop-badge stop-T">T</span></td><td>Technisch</td><td>Technische Schutzmaßnahmen installieren</td></tr>
+          <tr><td><span class="stop-badge stop-O">O</span></td><td>Organisatorisch</td><td>Prozesse, Regelungen und Schulungen anpassen</td></tr>
+          <tr><td><span class="stop-badge stop-P">P</span></td><td>Persönlich</td><td>Persönliche Schutzausrüstung (PSA)</td></tr>
+        </tbody>
+      </table>
+    </section>
 
-{# ═══════════════════════  3. ANLAGENBESCHREIBUNG  ═══════════════════════ #}
-</div>
-<div class="page-break"></div>
-<div class="content">
+    {# ══════════════════  3. ANLAGENBESCHREIBUNG  ══════════════════ #}
+    <section class="page-section" id="sec-anlage">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 3</div>
+        <div class="section-title">Anlagenbeschreibung</div>
+      </div>
 
-<div class="section-header" id="sec-3">
-  <span class="section-number">3</span>
-  <span class="section-title">Anlagenbeschreibung</span>
-</div>
+      {% if plant %}
+      {% set pd = plant.get('processDescription', {}) %}
+      {% set loc = plant.get('location', {}) %}
 
-{# ── 3.1 Allgemein ── #}
-{% if plant %}
-{% set pd = plant.get('processDescription', {}) %}
-{% set loc = plant.get('location', {}) %}
+      <h3>3.1 Allgemein</h3>
+      <p>{{ pd.get('description', '') }}</p>
 
-<h3>3.1 Allgemein</h3>
-<p>{{ pd.get('description', '') }}</p>
+      {% if pd.get('purpose') %}
+      <div class="info-box">
+        <strong>Zweck:</strong> {{ pd.get('purpose', '') }}<br>
+        <strong>Betriebsart:</strong> {{ pd.get('operatingMode', '') }}
+        {% if pd.get('additionalNotes') %}<br><strong>Hinweis:</strong> {{ pd.get('additionalNotes', '') }}{% endif %}
+      </div>
+      {% endif %}
 
-{% if pd.get('purpose') %}
-<div class="info-box">
-  <strong>Zweck:</strong> {{ pd.get('purpose', '') }}<br>
-  <strong>Betriebsart:</strong> {{ pd.get('operatingMode', '') }}
-  {% if pd.get('additionalNotes') %}<br><strong>Hinweis:</strong> {{ pd.get('additionalNotes', '') }}{% endif %}
-</div>
-{% endif %}
+      <div class="info-grid">
+        <div class="info-grid-item">
+          <h4>Standort</h4>
+          <div class="kv-row"><span class="kv-key">Werk</span><span class="kv-val">{{ loc.get('site', '–') }}</span></div>
+          <div class="kv-row"><span class="kv-key">Gebäude</span><span class="kv-val">{{ loc.get('building', '–') }}</span></div>
+          <div class="kv-row"><span class="kv-key">Raum</span><span class="kv-val">{{ loc.get('room', '–') }}</span></div>
+          <div class="kv-row"><span class="kv-key">Bereich</span><span class="kv-val">{{ loc.get('area', '–') }}</span></div>
+        </div>
+        <div class="info-grid-item">
+          <h4>Kenndaten</h4>
+          <div class="kv-row"><span class="kv-key">Teilanlage</span><span class="kv-val">{{ plant.get('teilanlage_nr', '–') }}</span></div>
+          <div class="kv-row"><span class="kv-key">Bezeichnung</span><span class="kv-val">{{ plant.get('bezeichnung', '–') }}</span></div>
+          <div class="kv-row"><span class="kv-key">Systeme</span><span class="kv-val">{{ plant.get('systems', [])|length }}</span></div>
+          <div class="kv-row"><span class="kv-key">Einsatzstoffe</span><span class="kv-val">{{ plant.get('feedstocks', [])|length }}</span></div>
+          <div class="kv-row"><span class="kv-key">Produkte</span><span class="kv-val">{{ plant.get('products', [])|length }}</span></div>
+        </div>
+      </div>
 
-<div class="info-grid">
-  <div class="info-grid-item">
-    <h4>Standort</h4>
-    <div class="kv-row"><span class="kv-key">Werk</span><span class="kv-val">{{ loc.get('site', '–') }}</span></div>
-    <div class="kv-row"><span class="kv-key">Gebäude</span><span class="kv-val">{{ loc.get('building', '–') }}</span></div>
-    <div class="kv-row"><span class="kv-key">Raum</span><span class="kv-val">{{ loc.get('room', '–') }}</span></div>
-    <div class="kv-row"><span class="kv-key">Geschoss</span><span class="kv-val">{{ loc.get('floor', '–') }}</span></div>
-    <div class="kv-row"><span class="kv-key">Bereich</span><span class="kv-val">{{ loc.get('area', '–') }}</span></div>
-  </div>
-  <div class="info-grid-item">
-    <h4>Kenndaten</h4>
-    <div class="kv-row"><span class="kv-key">Teilanlage</span><span class="kv-val">{{ plant.get('teilanlage_nr', '–') }}</span></div>
-    <div class="kv-row"><span class="kv-key">Bezeichnung</span><span class="kv-val">{{ plant.get('bezeichnung', '–') }}</span></div>
-    <div class="kv-row"><span class="kv-key">Systeme</span><span class="kv-val">{{ plant.get('systems', [])|length }}</span></div>
-    <div class="kv-row"><span class="kv-key">Einsatzstoffe</span><span class="kv-val">{{ plant.get('feedstocks', [])|length }}</span></div>
-    <div class="kv-row"><span class="kv-key">Produkte</span><span class="kv-val">{{ plant.get('products', [])|length }}</span></div>
-  </div>
-</div>
-
-{# ── 3.2 Systeme (hierarchisch) ── #}
-</div>
-<div class="page-break"></div>
-<div class="content">
-
-<h3>3.2 Anlagensysteme</h3>
-<p>
-  Die Anlage besteht aus <strong>{{ plant.get('systems', [])|length }}</strong> Hauptsystemen,
-  die jeweils Equipment-Komponenten, Mess-, Steuer- und Regelungstechnik (MSR) sowie
-  Sicherheitseinrichtungen umfassen. Die nachfolgende Darstellung zeigt die hierarchische
-  Gliederung jedes Systems mit seinen wesentlichen Auslegungsdaten, Betriebsparametern und
-  zugeordneten Komponenten. Diese Strukturanalyse bildet die Grundlage für die anschließende
-  Funktions- und Fehleranalyse: Jede hier aufgeführte Komponente wird auf mögliche
-  Funktionsverluste und Fehlfunktionen untersucht.
-</p>
-
-{% for sys in plant.get('systems', []) %}
-<div class="system-card avoid-break">
-  <div class="system-card-header">
-    <span class="system-name">{{ sys.name }}</span>
-    <span class="system-type">{{ sys.type|upper }}</span>
-  </div>
-  <div class="system-card-body">
-    <div class="system-desc">{{ sys.description }}</div>
-
-    {# Design data as param grid #}
-    {% if sys.designData %}
-    <div class="param-grid">
-      {% for dd in sys.designData %}
-      <div class="param-cell">
-        <div class="param-key">{{ dd.label }}</div>
-        <div class="param-val">{{ dd.value }} {{ dd.unit }}</div>
+      <h3>3.2 Anlagensysteme</h3>
+      {% for sys in plant.get('systems', []) %}
+      <div class="system-card avoid-break">
+        <div class="system-card-header">
+          <span class="system-name">{{ sys.name }}</span>
+          <span class="system-type">{{ sys.type|upper }}</span>
+        </div>
+        <div class="system-card-body">
+          <div class="system-desc">{{ sys.description }}</div>
+          {% if sys.designData %}
+          <div class="param-grid">
+            {% for dd in sys.designData %}
+            <div class="param-cell">
+              <div class="param-key">{{ dd.label }}</div>
+              <div class="param-val">{{ dd.value }} {{ dd.unit }}</div>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+          {% set mfr = sys.get('manufacturerData', {}) %}
+          {% if mfr.get('manufacturer') %}
+          <div class="param-grid">
+            <div class="param-cell"><div class="param-key">Hersteller</div><div class="param-val">{{ mfr.manufacturer }}</div></div>
+            {% if mfr.get('modelType') %}<div class="param-cell"><div class="param-key">Modell</div><div class="param-val">{{ mfr.modelType }}</div></div>{% endif %}
+            {% if mfr.get('yearOfManufacture') %}<div class="param-cell"><div class="param-key">Baujahr</div><div class="param-val">{{ mfr.yearOfManufacture }}</div></div>{% endif %}
+          </div>
+          {% endif %}
+          {% if sys.equipment %}
+          <div class="sub-group-title equipment">Equipment ({{ sys.equipment|length }})</div>
+          <table class="compact-table">
+            <thead><tr><th>Name</th><th>Typ</th><th>Position</th><th>Parameter</th></tr></thead>
+            <tbody>
+              {% for eq in sys.equipment %}
+              <tr>
+                <td style="font-weight:600;">{{ eq.name }}</td>
+                <td>{{ eq.type }}</td>
+                <td>{{ eq.position }}</td>
+                <td>{% for pk, pv in (eq.parameters or {}).items() %}{{ pk }}: {{ pv }}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% endif %}
+          {% if sys.msrEquipment %}
+          <div class="sub-group-title msr">MSR-Technik ({{ sys.msrEquipment|length }})</div>
+          <table class="compact-table">
+            <thead><tr><th>Kennung</th><th>Typ</th><th>Position</th><th>Signal</th><th>SIL</th></tr></thead>
+            <tbody>
+              {% for msr in sys.msrEquipment %}
+              <tr>
+                <td style="font-weight:600;">{{ msr.name }}</td>
+                <td>{{ msr.type }}</td>
+                <td>{{ msr.position }}</td>
+                <td>{{ msr.signalType }}</td>
+                <td>{{ msr.sil or '–' }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% endif %}
+          {% if sys.securityFeatures %}
+          <div class="sub-group-title safety">Sicherheitseinrichtungen ({{ sys.securityFeatures|length }})</div>
+          <table class="compact-table">
+            <thead><tr><th>Name</th><th>Typ</th><th>Position</th></tr></thead>
+            <tbody>
+              {% for sf in sys.securityFeatures %}
+              <tr>
+                <td style="font-weight:600;">{{ sf.name }}</td>
+                <td>{{ sf.type }}</td>
+                <td>{{ sf.position }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% endif %}
+        </div>
       </div>
       {% endfor %}
-      {% if sys.get('processConditions') %}
-        {% for pk, pv in sys.processConditions.items() %}
-        <div class="param-cell">
-          <div class="param-key">{{ pk }}</div>
-          <div class="param-val">{{ pv }}</div>
-        </div>
-        {% endfor %}
-      {% endif %}
-    </div>
-    {% endif %}
 
-    {# Manufacturer + Master data #}
-    {% set mfr = sys.get('manufacturerData', {}) %}
-    {% set mst = sys.get('masterData', {}) %}
-    {% set ai = sys.get('additionalInfo', {}) %}
-    {% if mfr or mst %}
-    <div class="param-grid">
-      {% if mfr.get('manufacturer') %}
-      <div class="param-cell"><div class="param-key">Hersteller</div><div class="param-val">{{ mfr.manufacturer }}</div></div>
-      {% endif %}
-      {% if mfr.get('modelType') %}
-      <div class="param-cell"><div class="param-key">Modell</div><div class="param-val">{{ mfr.modelType }}</div></div>
-      {% endif %}
-      {% if mfr.get('yearOfManufacture') %}
-      <div class="param-cell"><div class="param-key">Baujahr</div><div class="param-val">{{ mfr.yearOfManufacture }}</div></div>
-      {% endif %}
-      {% if mst.get('equipmentNumber') %}
-      <div class="param-cell"><div class="param-key">Equipment-Nr.</div><div class="param-val">{{ mst.equipmentNumber }}</div></div>
-      {% endif %}
-      {% if mst.get('technicalLocation') %}
-      <div class="param-cell"><div class="param-key">Techn. Platz</div><div class="param-val">{{ mst.technicalLocation }}</div></div>
-      {% endif %}
-      {% if ai.get('investmentCosts') %}
-      <div class="param-cell"><div class="param-key">Investition</div><div class="param-val">{{ ai.investmentCosts }}</div></div>
-      {% endif %}
-    </div>
-    {% endif %}
-
-    {# Equipment table #}
-    {% if sys.equipment %}
-    <div class="sub-group-title equipment">Equipment ({{ sys.equipment|length }})</div>
-    <table class="compact-table">
-      <thead><tr><th>Name</th><th>Typ</th><th>Position</th><th>Schlüsselparameter</th></tr></thead>
-      <tbody>
-        {% for eq in sys.equipment %}
-        <tr>
-          <td style="font-weight:600;">{{ eq.name }}</td>
-          <td>{{ eq.type }}</td>
-          <td>{{ eq.position }}</td>
-          <td>{% for pk, pv in (eq.parameters or {}).items() %}{{ pk }}: {{ pv }}{% if not loop.last %}, {% endif %}{% endfor %}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% endif %}
-
-    {# MSR Equipment table #}
-    {% if sys.msrEquipment %}
-    <div class="sub-group-title msr">MSR-Technik ({{ sys.msrEquipment|length }})</div>
-    <table class="compact-table">
-      <thead><tr><th>Kennung</th><th>Typ</th><th>Position</th><th>Signal</th><th>SIL</th><th>Parameter</th></tr></thead>
-      <tbody>
-        {% for msr in sys.msrEquipment %}
-        <tr>
-          <td style="font-weight:600;">{{ msr.name }}</td>
-          <td>{{ msr.type }}</td>
-          <td>{{ msr.position }}</td>
-          <td>{{ msr.signalType }}</td>
-          <td>{{ msr.sil or '–' }}</td>
-          <td>{% for pk, pv in (msr.parameters or {}).items() %}{{ pk }}: {{ pv }}{% if not loop.last %}, {% endif %}{% endfor %}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% endif %}
-
-    {# Security features table #}
-    {% if sys.securityFeatures %}
-    <div class="sub-group-title safety">Sicherheitseinrichtungen ({{ sys.securityFeatures|length }})</div>
-    <table class="compact-table">
-      <thead><tr><th>Name</th><th>Typ</th><th>Position</th><th>Parameter</th></tr></thead>
-      <tbody>
-        {% for sf in sys.securityFeatures %}
-        <tr>
-          <td style="font-weight:600;">{{ sf.name }}</td>
-          <td>{{ sf.type }}</td>
-          <td>{{ sf.position }}</td>
-          <td>{% for pk, pv in (sf.parameters or {}).items() %}{{ pk }}: {{ pv }}{% if not loop.last %}, {% endif %}{% endfor %}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% endif %}
-
-    {# Connected systems #}
-    {% set cs = sys.get('connectedSystems', {}) %}
-    {% if cs.get('upstream') or cs.get('downstream') %}
-    <div style="font-size:0.72rem;color:var(--color-text-muted);margin-top:2mm;">
-      {% if cs.get('upstream') %}<strong>Upstream:</strong> {{ cs.upstream|join(', ') }}{% endif %}
-      {% if cs.get('upstream') and cs.get('downstream') %} &nbsp;|&nbsp; {% endif %}
-      {% if cs.get('downstream') %}<strong>Downstream:</strong> {{ cs.downstream|join(', ') }}{% endif %}
-    </div>
-    {% endif %}
-  </div>
-</div>
-{% endfor %}
-
-{# ── 3.3 Stoffe ── #}
-</div>
-<div class="page-break"></div>
-<div class="content">
-
-<h3>3.3 Stoffübersicht</h3>
-
-{% if plant.get('feedstocks') %}
-<h4>Einsatzstoffe</h4>
-<div class="substance-grid">
-  {% for sub in plant.feedstocks %}
-  <div class="substance-card avoid-break">
-    <div class="substance-name">{{ sub.name }}</div>
-    <div class="substance-props">{{ sub.properties }}</div>
-    {% if sub.parameters %}
-    <div style="font-size:0.65rem;color:var(--color-text-muted);margin-bottom:1mm;">
-      CAS: {{ sub.parameters.get('casNumber', '–') }} | MW: {{ sub.parameters.get('molWeight', '–') }} | Fp: {{ sub.parameters.get('flashPoint', '–') }}
-    </div>
-    {% endif %}
-    {% if sub.parameters and sub.parameters.get('ghs') %}
-    <div class="substance-ghs">
-      {% for g in sub.parameters.ghs.split(', ') %}<span class="ghs-pill">{{ g }}</span>{% endfor %}
-      {% if sub.parameters.get('signalWord') %}<span class="ghs-pill" style="background:#FEF3C7;color:#92400E;border-color:#FDE68A;">{{ sub.parameters.signalWord }}</span>{% endif %}
-    </div>
-    {% endif %}
-  </div>
-  {% endfor %}
-</div>
-{% endif %}
-
-{% if plant.get('products') %}
-<h4>Produkte</h4>
-<div class="substance-grid">
-  {% for sub in plant.products %}
-  <div class="substance-card avoid-break">
-    <div class="substance-name">{{ sub.name }}</div>
-    <div class="substance-props">{{ sub.properties }}</div>
-    {% if sub.parameters %}
-    <div style="font-size:0.65rem;color:var(--color-text-muted);margin-bottom:1mm;">
-      CAS: {{ sub.parameters.get('casNumber', '–') }} | MW: {{ sub.parameters.get('molWeight', '–') }} | Fp: {{ sub.parameters.get('flashPoint', '–') }}
-    </div>
-    {% endif %}
-    {% if sub.parameters and sub.parameters.get('ghs') %}
-    <div class="substance-ghs">
-      {% for g in sub.parameters.ghs.split(', ') %}<span class="ghs-pill">{{ g }}</span>{% endfor %}
-    </div>
-    {% endif %}
-  </div>
-  {% endfor %}
-</div>
-{% endif %}
-
-{% if plant.get('byproducts') %}
-<h4>Nebenprodukte</h4>
-<div class="substance-grid">
-  {% for sub in plant.byproducts %}
-  <div class="substance-card avoid-break">
-    <div class="substance-name">{{ sub.name }}</div>
-    <div class="substance-props">{{ sub.properties }}</div>
-  </div>
-  {% endfor %}
-</div>
-{% endif %}
-
-{# ── 3.4 Medien & Utilities ── #}
-<h3 class="mt-lg">3.4 Medien &amp; Utilities</h3>
-
-{% if plant.get('media') %}
-<h4>Betriebsmedien</h4>
-<table class="compact-table">
-  <thead><tr><th>Medium</th><th>Kategorie</th><th>Temp.-Bereich</th><th>Druck-Bereich</th><th>Details</th></tr></thead>
-  <tbody>
-    {% for m in plant.media %}
-    <tr>
-      <td style="font-weight:600;">{{ m.name }}</td>
-      <td>{{ m.category }}</td>
-      <td>{{ m.get('MinBetriebstemperatur', '–') }} – {{ m.get('MaxBetriebstemperatur', '–') }}</td>
-      <td>{{ m.get('MinBetriebsdruck', '–') }} – {{ m.get('MaxBetriebsdruck', '–') }}</td>
-      <td>{% for pk, pv in (m.get('parameters') or {}).items() %}{{ pk }}: {{ pv }}{% if not loop.last %}, {% endif %}{% endfor %}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% endif %}
-
-{% if plant.get('utilities') %}
-<h4>Leitsysteme &amp; Sicherheitssysteme</h4>
-<table class="compact-table">
-  <thead><tr><th>System</th><th>Typ</th><th>Details</th></tr></thead>
-  <tbody>
-    {% for u in plant.utilities %}
-    <tr>
-      <td style="font-weight:600;">{{ u.name }}</td>
-      <td>{{ u.type }}</td>
-      <td>{% for pk, pv in (u.get('parameters') or {}).items() %}{{ pk }}: {{ pv }}{% if not loop.last %}, {% endif %}{% endfor %}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% endif %}
-
-{# ── 3.5 Out of Scope ── #}
-{% set oos = plant.get('outOfScope', {}) %}
-{% if oos %}
-<div class="oos-box">
-  <h4>Nicht Bestandteil dieser Analyse</h4>
-  <ul>
-    {% for ex in oos.get('excludedSystems', []) %}
-    <li>{{ ex }}</li>
-    {% endfor %}
-  </ul>
-  {% if oos.get('description') %}
-  <div class="oos-reason">{{ oos.description }}</div>
-  {% endif %}
-</div>
-{% endif %}
-
-{% else %}
-<p>Keine Anlagendaten verfügbar.</p>
-{% endif %}
-
-
-{# ═══════════════════════  4. RISIKO-ÜBERSICHT  ═══════════════════════ #}
-</div>
-<div class="page-break"></div>
-<div class="content">
-
-<div class="section-header" id="sec-4">
-  <span class="section-number">4</span>
-  <span class="section-title">Risiko-Übersicht</span>
-</div>
-
-<p>
-  Die folgende Übersicht visualisiert die Risikolandschaft der gesamten Anlage.
-  Die Risikomatrix positioniert jeden der <strong>{{ stats.failure_modes }}</strong> identifizierten
-  Fehlermodi anhand seiner Bedeutung (Severity, Y-Achse) und Auftretenswahrscheinlichkeit
-  (Occurrence, X-Achse). Die Punktgröße kodiert den Detection-Wert – größere Punkte bedeuten
-  eine schlechtere Entdeckbarkeit und damit ein höheres Restrisiko. Die Farbgebung entspricht der
-  RPZ-Klassifizierung: <span class="badge badge-kritisch">Kritisch</span> (≥ 200),
-  <span class="badge badge-hoch">Hoch</span> (≥ 125),
-  <span class="badge badge-mittel">Mittel</span> (≥ 50),
-  <span class="badge badge-niedrig">Niedrig</span> (&lt; 50).
-</p>
-<p>
-  Fehlermodi, die sich im oberen rechten Quadranten häufen, weisen auf systemische Schwachstellen hin,
-  die bevorzugt durch technische oder substitutive Maßnahmen (STOP-Prinzip) adressiert werden sollten.
-  {% if report_context.special_rule_count > 0 %}
-  Zusätzlich sind <strong>{{ report_context.special_rule_count }}</strong> Fehlermodi durch AIAG-VDA-Sonderregeln
-  hochgestuft – diese erscheinen farblich in der höheren Kategorie, auch wenn ihr rechnerischer RPZ-Wert
-  dies nicht erfordern würde.
-  {% endif %}
-</p>
-
-{% if matrix_img %}
-<h3 id="chart-risikomatrix">Risikomatrix (S vs. O, D als Größe, RPZ als Farbe)</h3>
-<div class="chart-container">
-  <img src="{{ matrix_img }}" alt="Risikomatrix" style="max-width:100%;">
-</div>
-{% endif %}
-
-{% if chart_comparison_img %}
-</div>
-<div class="page-break"></div>
-<div class="content">
-<h3 id="chart-rpz-vergleich">RPZ-Verteilung – 6 Visualisierungen im Vergleich</h3>
-<p>
-  Die folgende Übersicht zeigt die Verteilung der {{ stats.failure_modes }} Fehlermodi auf die
-  vier Risikokategorien in sechs unterschiedlichen Darstellungsformen. Jede Visualisierung
-  hebt einen anderen Aspekt der Risikolandschaft hervor:
-  der <strong>Donut</strong> zeigt die proportionale Verteilung,
-  der <strong>gestapelte Balken</strong> die prozentualen Anteile auf einen Blick,
-  das <strong>Waffle-Chart</strong> vermittelt die Größenordnung intuitiv über ein 10×10-Raster,
-  der <strong>Gauge/Tachometer</strong> verdichtet die Verteilung zu einem aggregierten Risiko-Score,
-  das <strong>Bullet-Chart</strong> stellt die Verteilung einem definierten Zielwert gegenüber,
-  und das <strong>Lollipop-Chart</strong> zeigt die absoluten Häufigkeiten pro Kategorie.
-</p>
-<div class="chart-container">
-  <img src="{{ chart_comparison_img }}" alt="RPZ-Verteilung – 6 Chart-Typen im Vergleich" style="max-width:100%;">
-</div>
-{% endif %}
-
-{% if treemap_img %}
-</div>
-<div class="page-break"></div>
-<div class="content">
-<h3 id="chart-treemap">Risiko-Treemap: Vorher vs. Nachher</h3>
-<p>
-  Die Treemap stellt die relative Größe jedes Risikos vor und nach der Maßnahmenumsetzung dar.
-  Die Fläche jedes Blocks ist proportional zum RPZ-Wert, die Farbe entspricht der
-  Risikokategorie. Durch den direkten Vergleich wird sichtbar, welche Maßnahmen die größte
-  Wirkung erzielen und wo weiterhin erhöhter Handlungsbedarf besteht.
-</p>
-<div class="chart-container">
-  <img src="{{ treemap_img }}" alt="Treemap" style="max-width:100%;">
-</div>
-{% endif %}
-
-
-{# ═══════════════════════  5. DETAILLIERTE RISIKO-DOKUMENTATION  ═══════════════════════ #}
-</div>
-<div class="page-break"></div>
-<div class="content">
-
-<div class="section-header" id="sec-5">
-  <span class="section-number">5</span>
-  <span class="section-title">Detaillierte Risiko-Dokumentation</span>
-</div>
-
-<p>
-  In diesem Abschnitt wird jeder identifizierte Fehlermodus als eigenständige Risiko-Card
-  dokumentiert. Jede Card enthält die vollständige Bewertungskette: die betroffene Funktion
-  und Komponente, die S/O/D-Bewertung mit visueller Darstellung, alle ermittelten Ursachen und
-  deren Folgen für vor- und nachgelagerte Systeme sowie die bestehenden Prüf- und
-  Kontrollmaßnahmen.
-</p>
-<p>
-  Für Fehlermodi mit kritischem oder hohem Risikostatus werden zusätzlich die definierten
-  Maßnahmen dargestellt, jeweils klassifiziert nach dem STOP-Prinzip (Substitution, Technisch,
-  Organisatorisch, Persönlich) und der ABE-Hierarchie (Vermeidung, Entdeckung, Abschwächung).
-  Jede Maßnahme enthält eine Nachbewertung (S<sub>neu</sub>, O<sub>neu</sub>, D<sub>neu</sub>,
-  RPZ<sub>neu</sub>), die den erwarteten Risikorückgang quantifiziert.
-  {% if report_context.fms_with_measures_count > 0 %}
-  Aktuell sind für <strong>{{ report_context.fms_with_measures_count }}</strong> von
-  {{ stats.failure_modes }} Fehlermodi Maßnahmen definiert.
-  {% endif %}
-</p>
-<p>
-  Die Cards sind nach Funktionsgruppen gegliedert und innerhalb jeder Gruppe nach RPZ absteigend
-  sortiert, sodass die kritischsten Risiken zuerst erscheinen.
-  Klicken Sie auf eine Zeile in der folgenden Übersichtstabelle, um direkt zur
-  entsprechenden Risiko-Card zu gelangen.
-</p>
-
-{# ── Klickbares Risiko-Inhaltsverzeichnis ── #}
-<table class="risk-toc-table">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Fehlermodus</th>
-      <th>Art</th>
-      <th style="text-align:center;">S</th>
-      <th style="text-align:center;">O</th>
-      <th style="text-align:center;">D</th>
-      <th style="text-align:center;">RPZ</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for fm in fmea_sorted %}
-    <tr class="risk-toc-row" onclick="void(0)">
-      <td style="font-weight:600;"><a href="#risk-{{ fm.fehler_id }}" class="risk-toc-link">{{ fm.fehler_id }}</a></td>
-      <td><a href="#risk-{{ fm.fehler_id }}" class="risk-toc-link">{{ fm.fehlermodus }}</a></td>
-      <td>{{ fm.fehlerart }}</td>
-      <td style="text-align:center;">{{ fm.S }}</td>
-      <td style="text-align:center;">{{ fm.O }}</td>
-      <td style="text-align:center;">{{ fm.D }}</td>
-      <td style="text-align:center;font-weight:700;">{{ fm.rpz }}</td>
-      <td>
-        <span class="badge badge-{{ fm.rpz_status }}">{{ fm.rpz_status|upper }}</span>
-        {% if fm.special_rule %}<span style="font-size:0.55rem;color:#9A3412;margin-left:1mm;">⚠</span>{% endif %}
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-
-{% for func_id, group in func_groups.items() %}
-  {% for fm in group.fms %}
-  {% set status = fm.rpz_status %}
-  {% set measures = fm.measures or [] %}
-  {% set best_measure = measures|sort(attribute='rpz_neu')|first if measures else None %}
-
-  <div class="risk-card {{ status }}" id="risk-{{ fm.fehler_id }}">
-    {# ── Function Context Bar ── #}
-    {% set fd = func_details.get(fm.funktion_id, {}) %}
-    {% if fd %}
-    <div class="func-context-bar">
-      <span class="func-context-id">{{ fm.funktion_id }}</span>
-      <span class="func-context-type">{{ 'Hauptfunktion' if fd.typ == 'haupt' else 'Nebenfunktion' }}</span>
-      <span class="func-context-desc">{{ fd.beschreibung }}</span>
-      <span class="func-context-comp">{{ fd.component_name }}</span>
-    </div>
-    {% endif %}
-    {# ── Card Header ── #}
-    <div class="risk-card-header">
-      <div class="risk-header-left">
-        <span class="risk-id">{{ fm.fehler_id }}</span>
-        <span class="risk-title">{{ fm.fehlermodus }}</span>
-      </div>
-      <div class="risk-header-right">
-        <span class="badge badge-{{ status }}">{{ status|upper }}</span>
-      </div>
-    </div>
-
-    {# ── Card Body ── #}
-    <div class="risk-card-body">
-
-      {# Worum geht es? #}
-      {% if fm.kontext_beschreibung %}
-      <div class="risk-sub-section">
-        <div class="risk-sub-title">Worum geht es?</div>
-        <p>{{ fm.kontext_beschreibung }}</p>
-      </div>
-      {% endif %}
-
-      {# SOD Cards #}
-      <div class="sod-row">
-        {% for key, val, css, label_text, info in sod_data(fm) %}
-        <div class="sod-card sod-{{ css }}">
-          <div class="sod-label">{{ label_text }}</div>
-          <div class="sod-value">{{ val }}</div>
-          <div class="sod-bar-track"><div class="sod-bar-fill" style="width:{{ (val / 10 * 100)|int }}%;"></div></div>
-          <div class="sod-criterion">{{ info[0] }}</div>
-          <div class="sod-example">{{ info[1] }}</div>
-          {% if fm.risk and fm.risk.get('begruendung_' ~ key) %}
-          <div class="sod-begruendung">{{ fm.risk['begruendung_' ~ key] }}</div>
-          {% endif %}
-          {% if best_measure %}
-            {% set new_key = {'S':'S_neu','O':'O_neu','D':'D_neu'}[key] %}
-            {% set nv = best_measure.get(new_key) %}
-            {% if nv and nv != val %}
-            <div class="sod-soll">↓ → {{ nv }}</div>
-            {% endif %}
-          {% endif %}
-        </div>
-        {% if loop.index < 3 %}
-        <span class="sod-operator">×</span>
-        {% elif loop.index == 3 %}
-        <span class="sod-operator">=</span>
-        {% endif %}
-        {% endfor %}
-
-        {# RPZ Box #}
-        <div class="rpz-result">
-          <div class="rpz-label">RPZ</div>
-          <div class="rpz-value" style="color:{{ rpz_color(status) }};">{{ fm.rpz }}</div>
-          <div class="rpz-status-badge" style="background:{{ rpz_color(status) }}20;color:{{ rpz_color(status) }};">{{ status|upper }}</div>
-          {% if best_measure and best_measure.rpz_neu and best_measure.rpz_neu != fm.rpz %}
-          <div class="rpz-soll">SOLL: {{ best_measure.rpz_neu }}</div>
-          {% endif %}
-        </div>
-      </div>
-
-      {# Konfidenz-Badges #}
-      {% set risk = fm.get('risk') or {} %}
-      {% if risk.get('daten_konfidenz') or risk.get('agent_konfidenz') %}
-      <div style="display:flex;gap:2mm;margin-top:2mm;flex-wrap:wrap;align-items:center;">
-        {% if risk.get('daten_konfidenz') %}
-        {% set dk = risk.daten_konfidenz %}
-        {% set dk_color = {'hoch':'#00A389','mittel':'#E8C547','niedrig':'#F5004F'}.get(dk,'#6B7280') %}
-        <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;border:1px solid {{ dk_color }};color:{{ dk_color }};font-weight:600;">
-          Datenbasis: {{ dk }}</span>
-        {% if risk.get('daten_quelle') %}
-        <span style="font-size:0.62rem;color:var(--color-text-muted);padding:1px 4px;background:var(--color-bg-card);border-radius:3px;border:1px solid var(--color-border);">{{ risk.daten_quelle }}</span>
-        {% endif %}
-        {% endif %}
-        {% if risk.get('agent_konfidenz') %}
-        {% set ak = risk.agent_konfidenz %}
-        {% set ak_color = {'hoch':'#00A389','mittel':'#E8C547','niedrig':'#F5004F'}.get(ak,'#6B7280') %}
-        <span style="font-size:0.65rem;padding:1px 5px;border-radius:3px;border:1px solid {{ ak_color }};color:{{ ak_color }};font-weight:600;">
-          KI-Konfidenz: {{ ak }}</span>
-        {% endif %}
-      </div>
-      {% endif %}
-      {# Review-Flag bei agent_konfidenz=niedrig #}
-      {% if (fm.get('risk') or {}).get('agent_konfidenz') == 'niedrig' %}
-      <div style="background:#FEE2E2;border-left:3px solid #DC2626;padding:2mm 3mm;margin-top:2mm;border-radius:0 4px 4px 0;font-size:0.72rem;color:#991B1B;">
-        ⚠ KI-Bewertung unsicher — Expertenprüfung empfohlen.
-        {% if (fm.get('risk') or {}).get('agent_konfidenz_begruendung') %}
-        Begründung: {{ fm.risk.agent_konfidenz_begruendung }}
-        {% endif %}
-      </div>
-      {% endif %}
-      {# MoC-Badge #}
-      {% if fm.get('moc_status') and fm.moc_status not in ('original', 'unverändert') %}
-      <div style="display:inline-block;background:#EDE9FE;border:1px solid #C4B5FD;border-radius:4px;padding:1px 6px;margin-top:2mm;font-size:0.65rem;color:#5B21B6;font-weight:600;">
-        {{ {'neu_bewertet':'Neu bewertet','hinzugefügt':'Neu in dieser Version','entfernt':'Entfernt'}.get(fm.moc_status, fm.moc_status) }}
-        {% if report_context.has_moc %} – v{{ report_context.version }}{% endif %}
-      </div>
-      {% endif %}
-
-      {# Sonderregel-Hinweis #}
-      {% if fm.special_rule %}
-      <div class="special-rule-box">
-        <span class="special-rule-icon">⚠</span>
-        <div class="special-rule-content">
-          <div class="special-rule-title">Sonderregel angewendet (AIAG-VDA)</div>
-          <div class="special-rule-desc">{{ fm.special_rule.description }}</div>
-          <div class="special-rule-calc">
-            Rechnerischer Status: <strong>{{ fm.special_rule.calculated_status|upper }}</strong> (RPZ {{ fm.rpz }})
-            → Angehobener Status: <strong>{{ fm.special_rule.final_status|upper }}</strong>
+      <h3>3.3 Stoffübersicht</h3>
+      {% if plant.get('feedstocks') %}
+      <h4>Einsatzstoffe</h4>
+      <div class="substance-grid">
+        {% for sub in plant.feedstocks %}
+        <div class="substance-card avoid-break">
+          <div class="substance-name">{{ sub.name }}</div>
+          <div class="substance-props">{{ sub.properties }}</div>
+          {% if sub.parameters %}
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">
+            CAS: {{ sub.parameters.get('casNumber', '–') }} | MW: {{ sub.parameters.get('molWeight', '–') }} | Fp: {{ sub.parameters.get('flashPoint', '–') }}
           </div>
+          {% endif %}
+          {% if sub.parameters and sub.parameters.get('ghs') %}
+          <div class="substance-ghs">
+            {% for g in sub.parameters.ghs.split(', ') %}<span class="ghs-pill">{{ g }}</span>{% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if plant.get('products') %}
+      <h4>Produkte</h4>
+      <div class="substance-grid">
+        {% for sub in plant.products %}
+        <div class="substance-card avoid-break">
+          <div class="substance-name">{{ sub.name }}</div>
+          <div class="substance-props">{{ sub.properties }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% else %}
+      <p style="color:var(--text-muted);font-style:italic;">Keine Anlagendaten verfügbar.</p>
+      {% endif %}
+    </section>
+
+    {# ══════════════════  ANALYSEUMFANG & ABGRENZUNG  ══════════════════ #}
+    {% set oos = plant.get('outOfScope', {}) %}
+    {% if oos %}
+    <section class="page-section" id="sec-abgrenzung">
+      <div class="section-header">
+        <div class="section-num">Analyseumfang</div>
+        <div class="section-title">Abgrenzung (Out of Scope)</div>
+        <div class="section-desc">Systeme und Bereiche, die explizit nicht Bestandteil dieser Risikoanalyse sind, sowie die Begründung für deren Ausschluss.</div>
+      </div>
+
+      {% if oos.get('description') %}
+      <div class="info-box" style="margin-bottom:20px;">{{ oos.description }}</div>
+      {% endif %}
+
+      {% if oos.get('excludedSystems') %}
+      <table class="risk-toc-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Ausgeschlossenes System / Bereich</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ex in oos.get('excludedSystems', []) %}
+          <tr>
+            <td style="white-space:nowrap;font-weight:700;color:var(--text-muted);">{{ loop.index }}</td>
+            <td>
+              <span style="display:inline-flex;align-items:center;gap:8px;">
+                <span style="color:#DC2626;font-weight:700;font-size:14px;">✕</span>
+                {{ ex }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+
+    </section>
+    {% endif %}
+
+    {# ══════════════════  MoC — MANAGEMENT OF CHANGE  ══════════════════ #}
+    {% if moc_changes %}
+    <section class="page-section" id="sec-moc">
+      <div class="section-header">
+        <div class="section-num">Management of Change</div>
+        <div class="section-title">Änderungsdokumentation (MoC)</div>
+        <div class="section-desc">
+          Dokumentation aller Anlagenänderungen, die zu dieser Risikoanalyse geführt haben oder in deren Rahmen bewertet wurden.
+          {% if moc_fms %} {{ moc_fms|length }} Fehlermodi wurden im Rahmen dieser Änderung neu erfasst.{% endif %}
         </div>
       </div>
-      {% endif %}
 
-      {# Causes #}
-      {% if fm.causes %}
-      <div class="risk-sub-section">
-        <div class="risk-sub-title">Fehlerursachen</div>
-        <table>
-          <thead><tr><th>ID</th><th>Beschreibung</th><th>Herkunft</th><th>Präv.-Phase</th><th>Präv.-Hinweis</th></tr></thead>
-          <tbody>
-            {% for c in fm.causes %}
-            <tr>
-              <td style="font-weight:600;">{{ c.ursache_id }}</td>
-              <td>{{ c.beschreibung }}</td>
-              <td>{{ c.herkunft }}</td>
-              <td>{{ c.praeventionsphase }}</td>
-              <td>{{ c.praeventionshinweis or '–' }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      <div class="moc-alert">
+        ⚠️ Diese Risikoanalyse enthält Fehlermodi, die auf dokumentierte Anlagenänderungen zurückgehen.
+        Alle MoC-Einträge sind unten vollständig aufgeführt, einschließlich des Änderungsdatums, der betroffenen Komponenten und der daraus resultierenden Risikobeurteilungen.
       </div>
-      {% endif %}
 
-      {# Effects #}
-      {% set eff = fm.effects %}
-      {% if eff %}
-      <div class="risk-sub-section">
-        <div class="risk-sub-title">Fehlerfolgen</div>
-        <div class="effect-grid">
-          {% for dim, desc_key in [('Mensch','mensch_beschreibung'),('Umwelt','umwelt_beschreibung'),('Anlage','anlage_beschreibung'),('Kosten','kosten_beschreibung')] %}
-          <div class="effect-cell">
-            <div class="effect-dim">{{ dim }}</div>
-            <div class="effect-desc">{{ eff.get(desc_key, '–') if eff.get(desc_key) else '–' }}</div>
-          </div>
+      {# Zusammenfassung #}
+      <div class="moc-summary-grid">
+        <div class="moc-summary-card">
+          <div class="moc-num">{{ moc_changes|length }}</div>
+          <div class="moc-label">Geänderte Equipment-Positionen</div>
+        </div>
+        <div class="moc-summary-card">
+          <div class="moc-num">{{ moc_fms|length }}</div>
+          <div class="moc-label">Neu bewertete Fehlermodi</div>
+        </div>
+        <div class="moc-summary-card">
+          <div class="moc-num">{{ moc_changes[0].datum if moc_changes else '–' }}</div>
+          <div class="moc-label">Änderungsdatum (frühestes)</div>
+        </div>
+      </div>
+
+      {# Geänderte Equipment-Positionen #}
+      <h3>Geänderte Anlagenkomponenten</h3>
+      {% for chg in moc_changes %}
+      <div class="moc-change-card avoid-break">
+        <div class="moc-change-header">
+          <span class="moc-badge">MoC</span>
+          <h3>{{ chg.equipment.name }}</h3>
+          <span class="moc-date">{{ chg.datum }}</span>
+        </div>
+        <div class="moc-change-body">
+          <div class="kv-row"><span class="kv-key">System</span><span class="kv-val">{{ chg.system.name }}</span></div>
+          <div class="kv-row"><span class="kv-key">Equipment-Typ</span><span class="kv-val">{{ chg.equipment.type }}</span></div>
+          {% if chg.equipment.get('position') %}
+          <div class="kv-row"><span class="kv-key">Position</span><span class="kv-val">{{ chg.equipment.position }}</span></div>
+          {% endif %}
+          {% if chg.beschreibung %}
+          <div class="kv-row"><span class="kv-key">Änderungsbeschreibung</span><span class="kv-val">{{ chg.beschreibung }}</span></div>
+          {% endif %}
+          {% for pk, pv in (chg.equipment.parameters or {}).items() if pk not in ('MoC_Datum', 'MoC_Beschreibung') %}
+          <div class="kv-row"><span class="kv-key">{{ pk }}</span><span class="kv-val">{{ pv }}</span></div>
           {% endfor %}
         </div>
       </div>
-      {% endif %}
+      {% endfor %}
 
-      {# Controls (ausführlich) #}
-      {% if fm.controls %}
-      <div class="risk-sub-section">
-        <div class="risk-sub-title">Bestehende Controls</div>
-        <table class="compact-table">
-          <thead><tr><th>Wirkung</th><th>Name</th><th>Typ</th><th>Beschreibung</th><th>Beeinflusst</th><th>Einschränkung</th></tr></thead>
-          <tbody>
-            {% for ctrl in fm.controls %}
-            <tr>
-              <td><span class="abe-badge {{ 'A' if ctrl.wirkung == 'A' else ('B' if ctrl.wirkung == 'B' else 'E') }}">{{ abe_labels.get(ctrl.wirkung, ctrl.wirkung) }}</span></td>
-              <td style="font-weight:600;">{{ ctrl.name }}</td>
-              <td>{{ ctrl.typ }}</td>
-              <td>{{ ctrl.beschreibung or '–' }}</td>
-              <td>{{ ctrl.beeinflusst or '–' }}</td>
-              <td>{{ ctrl.einschraenkung or '–' }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% if fm.controls_einschraenkung %}
-        <div class="controls-einschraenkung">Einschränkung: {{ fm.controls_einschraenkung }}</div>
+      {# Betroffene Fehlermodi #}
+      {% if moc_fms %}
+      <h3 style="margin-top:28px;">Betroffene Fehlermodi ({{ moc_fms|length }})</h3>
+      <p>Die folgenden Fehlermodi wurden im Rahmen dieser Änderung neu erfasst und bewertet.
+        Alle Risiken sind im Abschnitt «Detaillierte Risiko-Dokumentation» vollständig beschrieben.</p>
+      <table class="risk-toc-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fehlermodus</th>
+            <th>Komponente</th>
+            <th style="text-align:center;">S</th>
+            <th style="text-align:center;">O</th>
+            <th style="text-align:center;">D</th>
+            <th style="text-align:center;">RPZ</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fm in moc_fms %}
+          <tr>
+            <td style="font-weight:600;white-space:nowrap;">
+              <a href="#risk-{{ fm.fehler_id }}" class="risk-toc-link">{{ fm.fehler_id }}</a>
+            </td>
+            <td><a href="#risk-{{ fm.fehler_id }}" class="risk-toc-link">{{ fm.fehlermodus }}</a></td>
+            <td>{{ fm.get('component_name') or fm.get('komponente','–') }}</td>
+            <td style="text-align:center;">{{ fm.S }}</td>
+            <td style="text-align:center;">{{ fm.O }}</td>
+            <td style="text-align:center;">{{ fm.D }}</td>
+            <td style="text-align:center;font-weight:700;">{{ fm.rpz }}</td>
+            <td><span class="badge badge-{{ fm.rpz_status }}">{{ fm.rpz_status|capitalize }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {# Zusammenfassung Risikoeinstufung #}
+      {% set moc_niedrig = moc_fms | selectattr('rpz_status', 'equalto', 'niedrig') | list | length %}
+      {% set moc_mittel  = moc_fms | selectattr('rpz_status', 'equalto', 'mittel')  | list | length %}
+      {% set moc_hoch    = moc_fms | selectattr('rpz_status', 'equalto', 'hoch')    | list | length %}
+      {% set moc_krit    = moc_fms | selectattr('rpz_status', 'equalto', 'kritisch')| list | length %}
+      <div class="info-box" style="margin-top:16px;">
+        <strong>Risiko-Zusammenfassung (MoC-Fehlermodi):</strong>
+        {% if moc_krit > 0 %}<span class="badge badge-kritisch">{{ moc_krit }} Kritisch</span> {% endif %}
+        {% if moc_hoch  > 0 %}<span class="badge badge-hoch">{{ moc_hoch }} Hoch</span> {% endif %}
+        {% if moc_mittel > 0 %}<span class="badge badge-mittel">{{ moc_mittel }} Mittel</span> {% endif %}
+        {% if moc_niedrig > 0 %}<span class="badge badge-niedrig">{{ moc_niedrig }} Niedrig</span> {% endif %}
+        {% if moc_krit == 0 and moc_hoch == 0 %}
+        — Alle MoC-bedingten Risiken liegen im akzeptablen Bereich. Keine zusätzlichen Maßnahmen erforderlich.
         {% endif %}
       </div>
       {% endif %}
 
-      {# Maßnahmen (inline bei Risikobewertung) #}
-      {% if measures %}
-      <div class="risk-sub-section">
-        <div class="risk-sub-title">Maßnahmen zur Risikoreduktion</div>
-        {% for m in measures|sort(attribute='stop_kategorie') %}
-        <div class="measure-card">
-          <div class="measure-header">
-            <div style="display:flex;align-items:center;gap:2mm;">
-              <span class="abe-badge {{ m.abe_kategorie }}">{{ abe_labels.get(m.abe_kategorie, m.abe_kategorie) }}</span>
-              {% if m.stop_kategorie and stop_icons %}
-              <span class="stop-badge stop-{{ m.stop_kategorie }}"><span class="stop-icon">{{ stop_icons.get(m.stop_kategorie, '') }}</span>{{ stop_labels.get(m.stop_kategorie, m.stop_kategorie) }}</span>
-              {% endif %}
-              <span style="font-weight:600;font-size:0.62rem;">{{ m.name }}</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:2mm;">
-              {% for sk, sl in [('S_neu','S'),('O_neu','O'),('D_neu','D')] %}
-                {% if m.get(sk) and m[sk] != fm.get(sl) %}
-                <span class="reduction-arrow">{{ sl }}: {{ fm.get(sl, '?') }}→{{ m[sk] }}</span>
-                {% endif %}
-              {% endfor %}
-              {% if m.rpz_neu %}
-              <span class="badge-outline {{ m.rpz_status_neu or 'niedrig' }}" style="font-size:0.58rem;padding:0 5px;">RPZ' {{ m.rpz_neu }}</span>
-              {% endif %}
-            </div>
-          </div>
-          <p style="font-size:0.55rem;color:var(--color-text-secondary);margin:0;line-height:1.3;">{{ m.beschreibung }}</p>
-          {% if m.begruendung %}
-          <div class="measure-reasoning">{{ m.begruendung }}</div>
-          {% endif %}
-          {% if m.hinweis %}
-          <div class="measure-hinweis">{{ m.hinweis }}</div>
-          {% endif %}
-        </div>
-        {% endfor %}
+    </section>
+    {% endif %}
+
+    {# ══════════════════  4. RISIKO-ÜBERSICHT  ══════════════════ #}
+    <section class="page-section" id="sec-risikouebersicht">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 4</div>
+        <div class="section-title">Risiko-Übersicht</div>
+        <div class="section-desc">Visualisierungen der Risikolandschaft aller {{ stats.failure_modes }} Fehlermodi.</div>
+      </div>
+
+      {% if matrix_img %}
+      <h3 id="chart-risikomatrix">Risikomatrix (S vs. O · Größe = D · Farbe = RPZ)</h3>
+      <div class="chart-container">
+        <img src="{{ matrix_img }}" alt="Risikomatrix" style="max-width:100%;">
       </div>
       {% endif %}
 
-    </div>
-  </div>
-  {% endfor %}
-{% endfor %}
+      {% if chart_comparison_img %}
+      <h3 id="chart-rpz-vergleich" style="margin-top:32px;">RPZ-Verteilung — 6 Visualisierungen</h3>
+      <div class="chart-container">
+        <img src="{{ chart_comparison_img }}" alt="RPZ-Verteilung" style="max-width:100%;">
+      </div>
+      {% endif %}
 
+      {% if treemap_img %}
+      <h3 id="chart-treemap" style="margin-top:32px;">Risiko-Treemap: Vorher vs. Nachher</h3>
+      <p>Die Fläche jedes Blocks ist proportional zum RPZ-Wert, die Farbe entspricht der Risikokategorie.</p>
+      <div class="chart-container">
+        <img src="{{ treemap_img }}" alt="Treemap" style="max-width:100%;">
+      </div>
+      {% endif %}
+    </section>
 
-{# ═══════════════════════  6. ANHANG  ═══════════════════════ #}
-</div>
-<div class="page-break"></div>
-<div class="content">
+    {# ══════════════════  5. DETAILLIERTE RISIKO-DOKUMENTATION  ══════════════════ #}
+    <section class="page-section" id="sec-5">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 5</div>
+        <div class="section-title">Detaillierte Risiko-Dokumentation</div>
+        <div class="section-desc">
+          Jeder Fehlermodus als vollständige Risiko-Card mit S/O/D-Bewertung, Ursachen, Folgen und Maßnahmen.
+          {% if report_context.fms_with_measures_count > 0 %}
+          {{ report_context.fms_with_measures_count }} von {{ stats.failure_modes }} Fehlermodi haben Maßnahmen.
+          {% endif %}
+        </div>
+      </div>
 
-<div class="section-header" id="sec-6">
-  <span class="section-number">6</span>
-  <span class="section-title">Anhang</span>
-</div>
+      {# Klickbares Risiko-Inhaltsverzeichnis #}
+      <table class="risk-toc-table">
+        <thead>
+          <tr>
+            <th>ID</th><th>Fehlermodus</th><th>Art</th>
+            <th style="text-align:center;">S</th>
+            <th style="text-align:center;">O</th>
+            <th style="text-align:center;">D</th>
+            <th style="text-align:center;">RPZ</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fm in fmea_sorted %}
+          <tr>
+            <td style="font-weight:600;"><a href="#risk-{{ fm.fehler_id }}" class="risk-toc-link">{{ fm.fehler_id }}</a></td>
+            <td><a href="#risk-{{ fm.fehler_id }}" class="risk-toc-link">{{ fm.fehlermodus }}</a></td>
+            <td>{{ fm.fehlerart }}</td>
+            <td style="text-align:center;">{{ fm.S }}</td>
+            <td style="text-align:center;">{{ fm.O }}</td>
+            <td style="text-align:center;">{{ fm.D }}</td>
+            <td style="text-align:center;font-weight:700;">{{ fm.rpz }}</td>
+            <td>
+              <span class="risk-badge {{ fm.rpz_status }}"><span class="bdot"></span>{{ fm.rpz_status|capitalize }}</span>
+              {% if fm.special_rule %}<span style="font-size:10px;color:#9A3412;margin-left:4px;">⚠</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
 
-<p>
-  Der Anhang enthält das Abkürzungsverzeichnis, den RPZ-Vergleich (Vorher/Nachher),
-  eine erweiterte Maßnahmentabelle sowie ein Glossar der verwendeten Fachbegriffe.
-  Die vollständige Risikoübersicht mit S/O/D-Bewertungen befindet sich in Kapitel 5.
-</p>
+      {# ── THEMATISCHE ANSICHT ── #}
+      <div class="view-thematic" id="view-thematic">
 
-{# ── Freigabe-Sektion ── #}
-<h3>6.0 Freigabe</h3>
-<table style="width:100%;border-collapse:collapse;margin-bottom:6mm;">
-  <thead>
-    <tr style="background:var(--color-bg-card);">
-      <th style="padding:2mm 3mm;text-align:left;font-size:0.75rem;border:1px solid var(--color-border);">Rolle</th>
-      <th style="padding:2mm 3mm;text-align:left;font-size:0.75rem;border:1px solid var(--color-border);">Name</th>
-      <th style="padding:2mm 3mm;text-align:left;font-size:0.75rem;border:1px solid var(--color-border);">Datum</th>
-      <th style="padding:2mm 3mm;text-align:left;font-size:0.75rem;border:1px solid var(--color-border);">Unterschrift</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">Erstellt von</td>
-      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">{{ report_context.erstellt_von or '_______________' }}</td>
-      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">{{ project.datum[:10] }}</td>
-      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">_______________</td>
-    </tr>
-    <tr>
-      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">Geprüft von</td>
-      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">{{ report_context.geprueft_von or '_______________' }}</td>
-      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">_______________</td>
-      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">_______________</td>
-    </tr>
-  </tbody>
-</table>
+        {# Sammle alle fehlerart-Kategorien in einer geordneten Liste #}
+        {% set ns3 = namespace(seen_cats=[]) %}
+        {% for fm in fmea_sorted %}
+          {% if fm.fehlerart and fm.fehlerart not in ns3.seen_cats %}
+            {% set ns3.seen_cats = ns3.seen_cats + [fm.fehlerart] %}
+          {% endif %}
+        {% endfor %}
 
-{# ── Versionshistorie ── #}
-{% if moc_delta %}
-<h3>6.0a Versionshistorie</h3>
-<table style="width:100%;border-collapse:collapse;margin-bottom:4mm;">
-  <thead>
-    <tr style="background:var(--color-bg-card);">
-      <th style="padding:2mm 3mm;text-align:left;font-size:0.75rem;border:1px solid var(--color-border);">Version</th>
-      <th style="padding:2mm 3mm;text-align:left;font-size:0.75rem;border:1px solid var(--color-border);">Datum</th>
-      <th style="padding:2mm 3mm;text-align:left;font-size:0.75rem;border:1px solid var(--color-border);">Änderungsbeschreibung</th>
-      <th style="padding:2mm 3mm;text-align:center;font-size:0.75rem;border:1px solid var(--color-border);">Geändert</th>
-      <th style="padding:2mm 3mm;text-align:center;font-size:0.75rem;border:1px solid var(--color-border);">Hinzugefügt</th>
-      <th style="padding:2mm 3mm;text-align:center;font-size:0.75rem;border:1px solid var(--color-border);">Entfernt</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">v{{ moc_delta.parent_project.version if moc_delta.parent_project else '1.0' }}</td>
-      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">{{ moc_delta.parent_project.datum[:10] if moc_delta.parent_project else '–' }}</td>
-      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">Initiale Version</td>
-      <td style="text-align:center;border:1px solid var(--color-border);">–</td>
-      <td style="text-align:center;border:1px solid var(--color-border);">–</td>
-      <td style="text-align:center;border:1px solid var(--color-border);">–</td>
-    </tr>
-    <tr style="background:#F5F3FF;">
-      <td style="padding:2mm 3mm;font-size:0.75rem;font-weight:700;border:1px solid var(--color-border);">v{{ report_context.version }}</td>
-      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">{{ project.datum[:10] }}</td>
-      <td style="padding:2mm 3mm;font-size:0.75rem;border:1px solid var(--color-border);">{{ moc_delta.change_description or '–' }}</td>
-      <td style="text-align:center;font-weight:700;border:1px solid var(--color-border);">{{ moc_delta.changed|length }}</td>
-      <td style="text-align:center;font-weight:700;border:1px solid var(--color-border);">{{ moc_delta.added|length }}</td>
-      <td style="text-align:center;font-weight:700;border:1px solid var(--color-border);">{{ moc_delta.removed|length }}</td>
-    </tr>
-  </tbody>
-</table>
-{% else %}
-<h3 style="display:none;">6.0a Versionshistorie</h3>
-<p style="font-size:0.78rem;color:var(--color-text-muted);margin-bottom:4mm;">Version 1.0 — keine Vorversion vorhanden.</p>
-{% endif %}
+        {# Kategorie-Icons #}
+        {% set cat_icons = {
+          'Prozess': '⚗',
+          'Thermisch': '🌡',
+          'Mechanisch': '⚙',
+          'Equipment': '🔧',
+          'MSR': '📡',
+          'MSR-Fehler': '📡',
+          'Mess-, Steuer- und Regelungstechnik (MSR)': '📡',
+          'Sicherheit': '🛡',
+          'Sicherheitseinrichtungen': '🛡',
+          'Elektrisch': '⚡',
+          'Dosierung': '💧',
+          'Verschleiß': '🔄',
+          'Korrosion': '🧪',
+          'Bedienfehler': '👤',
+          'Auslegung': '📐',
+          'Sonstiges': '📋'
+        } %}
 
-{# ── Methodikverweis ── #}
-<h3>6.0b Methodik &amp; Normative Grundlagen</h3>
-<p style="font-size:0.78rem;color:var(--color-text-muted);margin-bottom:4mm;">
-  AIAG-VDA FMEA (1. Aufl. 2019) · IEC 61511 (Functional Safety – SIS) · CCPS (Guidelines for Chemical Process Quantitative Risk Analysis) · OREDA Handbook.
-</p>
+        {% for cat in ns3.seen_cats %}
+        {% set cat_fms = fmea_sorted | selectattr('fehlerart', 'eq', cat) | list %}
+        {% set cat_id = cat|lower|replace(' ','_')|replace('/','_')|replace('ä','ae')|replace('ö','oe')|replace('ü','ue') %}
+        {% set cat_max_status = 'niedrig' %}
+        {% for fm in cat_fms %}
+          {% if fm.rpz_status == 'kritisch' %}{% set cat_max_status = 'kritisch' %}
+          {% elif fm.rpz_status == 'hoch' and cat_max_status != 'kritisch' %}{% set cat_max_status = 'hoch' %}
+          {% elif fm.rpz_status == 'mittel' and cat_max_status not in ('kritisch','hoch') %}{% set cat_max_status = 'mittel' %}
+          {% endif %}
+        {% endfor %}
 
-<h3>6.1 Abkürzungsverzeichnis</h3>
-<table>
-  <thead><tr><th>Abkürzung</th><th>Bedeutung</th></tr></thead>
-  <tbody>
-    <tr><td><strong>ABE</strong></td><td>Abschaffend – Begrenzend – Entdeckend (Wirkungstyp-Klassifikation für Maßnahmen)</td></tr>
-    <tr><td><strong>AIAG-VDA</strong></td><td>Automotive Industry Action Group – Verband der Automobilindustrie (Herausgeber des FMEA-Standards)</td></tr>
-    <tr><td><strong>ATEX</strong></td><td>Atmosphères Explosibles – EU-Richtlinie für Geräte und Schutzsysteme in explosionsgefährdeten Bereichen</td></tr>
-    <tr><td><strong>BImSchV</strong></td><td>Bundes-Immissionsschutzverordnung (12. BImSchV = Störfall-Verordnung)</td></tr>
-    <tr><td><strong>CCPS</strong></td><td>Center for Chemical Process Safety (Division der AIChE – American Institute of Chemical Engineers)</td></tr>
-    <tr><td><strong>D</strong></td><td>Entdeckung / Detection – Bewertungsdimension der FMEA (Skala 1–10, 1 = sicher entdeckt)</td></tr>
-    <tr><td><strong>FMEA</strong></td><td>Fehlermöglichkeits- und Einflussanalyse (engl. Failure Mode and Effects Analysis)</td></tr>
-    <tr><td><strong>FPMH</strong></td><td>Failures Per Million Hours – Ausfälle pro Million Betriebsstunden (Einheit für Ausfallraten)</td></tr>
-    <tr><td><strong>MSR</strong></td><td>Mess-, Steuer- und Regelungstechnik</td></tr>
-    <tr><td><strong>MTBF</strong></td><td>Mean Time Between Failures – mittlere Betriebsdauer zwischen zwei Ausfällen</td></tr>
-    <tr><td><strong>O</strong></td><td>Auftreten / Occurrence – Bewertungsdimension der FMEA (Skala 1–10, 1 = extrem selten)</td></tr>
-    <tr><td><strong>OREDA</strong></td><td>Offshore and Onshore Reliability Data – internationale Ausfallratendatenbank für Prozessanlagen</td></tr>
-    <tr><td><strong>PSV</strong></td><td>Pressure Safety Valve – Sicherheitsventil / Überdruckventil</td></tr>
-    <tr><td><strong>RPZ</strong></td><td>Risikoprioritätszahl = S × O × D (Wertebereich 1–1000)</td></tr>
-    <tr><td><strong>S</strong></td><td>Bedeutung / Severity – Bewertungsdimension der FMEA (Skala 1–10, 10 = Todesfälle)</td></tr>
-    <tr><td><strong>SIL</strong></td><td>Safety Integrity Level – Sicherheits-Integritätsstufe nach IEC 61508/61511 (SIL 1–4)</td></tr>
-    <tr><td><strong>STOP</strong></td><td>Substitution – Technisch – Organisatorisch – Persönlich (Maßnahmen-Hierarchie)</td></tr>
-  </tbody>
-</table>
+        <div class="category-block" id="cat-{{ cat_id }}">
+          <div class="category-header">
+            <div class="category-icon">{{ cat_icons.get(cat, '📋') }}</div>
+            <div class="category-info">
+              <div class="category-name">{{ cat }}</div>
+              <div class="category-desc">{{ cat_fms|length }} Fehlermodi in dieser Kategorie</div>
+            </div>
+            <div class="category-meta">
+              <span class="risk-badge {{ cat_max_status }}"><span class="bdot"></span>Max: {{ cat_max_status|capitalize }}</span>
+              <span class="cat-count">{{ cat_fms|length }} FMs</span>
+            </div>
+          </div>
 
-{% if comparison_img %}
-<h3 id="chart-rpz-vorher-nachher">A. RPZ-Vergleich: Vorher vs. Nachher</h3>
-<p>
-  Das folgende Diagramm zeigt für jeden Fehlermodus mit Maßnahmen den RPZ-Wert vor und nach
-  Maßnahmenumsetzung. Die Differenz zwischen den Balken entspricht der erwarteten Risikoreduktion.
-  {% if report_context.best_reduction %}
-  Die maximale Einzelreduktion beträgt <strong>{{ report_context.best_reduction }}</strong> RPZ-Punkte,
-  die durchschnittliche Reduktion <strong>{{ report_context.avg_reduction }}</strong> Punkte.
-  {% endif %}
-</p>
-<div class="chart-container">
-  <img src="{{ comparison_img }}" alt="RPZ-Vergleich" style="max-width:95%;">
-</div>
-{% endif %}
+          {% for fm in cat_fms %}
+          {% set status = fm.rpz_status %}
+          {% set measures = fm.measures or [] %}
+          {% set best_measure = measures|sort(attribute='rpz_neu')|first if measures else None %}
+          {% set fd = func_details.get(fm.funktion_id, {}) %}
 
-<h3 class="{% if comparison_img %}mt-lg{% endif %}">{% if comparison_img %}B.{% else %}A.{% endif %} Maßnahmentabelle (zum Herauskopieren)</h3>
-<p class="mb-md" style="font-size:0.8rem;color:var(--color-text-muted);">
-  Erweiterte Übersicht aller {{ total_measures }} Maßnahmen – zum Einfügen in Tracking-Systeme,
-  E-Mails oder Projektmanagement-Tools.
-</p>
-<table class="appendix-measures-table appendix-measures-extended">
-  <thead>
-    <tr>
-      <th>Fehler-ID</th>
-      <th>Maßnahme</th>
-      <th>Typ</th>
-      <th>Beschreibung</th>
-      <th>Begründung</th>
-      <th>Hinweis</th>
-      <th style="text-align:center;">RPZ<br>vorher</th>
-      <th style="text-align:center;">RPZ<br>nachher</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for fm in fmea_sorted %}
-      {% for m in fm.get('measures', [])|sort(attribute='stop_kategorie') %}
-      <tr>
-        <td style="font-weight:600;white-space:nowrap;">{{ fm.fehler_id }}</td>
-        <td>{{ m.name }}</td>
-        <td style="white-space:nowrap;">{{ m.stop_kategorie or '–' }} / {{ m.abe_kategorie or '–' }}</td>
-        <td style="font-size:0.75rem;">{{ m.beschreibung or '–' }}</td>
-        <td style="font-size:0.72rem;color:var(--color-text-muted);">{{ m.begruendung or '–' }}</td>
-        <td style="font-size:0.72rem;white-space:nowrap;">{{ m.hinweis or '–' }}</td>
-        <td style="text-align:center;">{{ fm.rpz }}</td>
-        <td style="text-align:center;">{{ m.rpz_neu or '–' }}</td>
-      </tr>
-      {% endfor %}
-    {% endfor %}
-  </tbody>
-</table>
+          <div class="risk-card {{ status }}" id="risk-{{ fm.fehler_id }}">
 
-<h3 class="mt-lg">{% if comparison_img %}C.{% else %}B.{% endif %} Glossar</h3>
-<table class="glossary-table">
-  <thead><tr><th>Begriff</th><th>Beschreibung</th></tr></thead>
-  <tbody>
-    <tr><td>FMEA</td><td>Fehlermöglichkeits- und Einflussanalyse</td></tr>
-    <tr><td>RPZ</td><td>Risikoprioritätszahl = S × O × D</td></tr>
-    <tr><td>S</td><td>Bedeutung / Severity (1–10)</td></tr>
-    <tr><td>O</td><td>Auftretenswahrscheinlichkeit / Occurrence (1–10)</td></tr>
-    <tr><td>D</td><td>Entdeckungswahrscheinlichkeit / Detection (1–10)</td></tr>
-    <tr><td>ABE</td><td>A = Vermeidung, B = Entdeckung, E = Abschwächung</td></tr>
-    <tr><td>STOP</td><td>S = Substitution, T = Technisch, O = Organisatorisch, P = Persönlich (Maßnahmen-Hierarchie nach Wirksamkeit)</td></tr>
-    <tr><td>Sonderregel</td><td>AIAG-VDA Override: Anhebung des Risikostatus unabhängig vom RPZ-Wert bei sicherheitsrelevanten Fehlermodi (z.B. S ≥ 9 → mindestens HOCH)</td></tr>
-  </tbody>
-</table>
+            {# Card Header #}
+            <div class="card-header">
+              <div>
+                <div class="card-id-row">
+                  <span class="card-id">{{ fm.fehler_id }}</span>
+                  {% if fd %}<span class="card-component">{{ fd.component_name }}</span>{% endif %}
+                  {% if fm.get('moc_status') and fm.moc_status not in ('original', 'unverändert') %}
+                  <span style="display:inline-block;background:#EDE9FE;border:1px solid #C4B5FD;border-radius:4px;padding:1px 6px;font-size:10px;color:#5B21B6;font-weight:600;">
+                    {{ {'neu_bewertet':'Neu bewertet','hinzugefügt':'Neu hinzugefügt','entfernt':'Entfernt'}.get(fm.moc_status, fm.moc_status) }}
+                  </span>
+                  {% endif %}
+                </div>
+                <div class="card-title">{{ fm.fehlermodus }}</div>
+                {% if fd %}
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">
+                  {{ 'Hauptfunktion' if fd.typ == 'haupt' else 'Nebenfunktion' }}: {{ fd.beschreibung }}
+                </div>
+                {% endif %}
+              </div>
+              <div class="card-header-right">
+                <span class="risk-badge {{ status }}"><span class="bdot"></span>{{ status|capitalize }}</span>
+                {% if fm.special_rule %}
+                <span class="special-rule-badge">⚠ Sonderregel</span>
+                {% endif %}
+              </div>
+            </div>
 
-</div>
+            {# Scores Row #}
+            <div class="card-scores">
+              <div class="sod-group">
+                {% for key, val, css, label_text, info in sod_data(fm) %}
+                <div class="sod-row">
+                  <span class="sod-label">{{ key }}</span>
+                  <div class="sod-bar-track">
+                    <div class="sod-bar-fill sod-v{{ val }}" style="width:{{ (val / 10 * 100)|int }}%;"></div>
+                  </div>
+                  <span class="sod-val">{{ val }}</span>
+                  <span style="font-size:11px;color:var(--text-muted);margin-left:4px;">{{ info[0] }}</span>
+                </div>
+                {% endfor %}
+              </div>
+              <div class="rpz-divider"></div>
+              <div class="rpz-box">
+                <span class="rpz-label">RPZ</span>
+                <span class="rpz-value {{ status }}">{{ fm.rpz }}</span>
+                <span class="rpz-formula">{{ fm.S }} × {{ fm.O }} × {{ fm.D }}</span>
+                {% if best_measure and best_measure.rpz_neu and best_measure.rpz_neu != fm.rpz %}
+                <span style="font-size:11px;color:var(--risk-niedrig);font-weight:600;margin-top:2px;">→ {{ best_measure.rpz_neu }}</span>
+                {% endif %}
+              </div>
+            </div>
+
+            {# Card Body #}
+            <div class="card-body">
+
+              {# Kontextbeschreibung #}
+              {% if fm.kontext_beschreibung %}
+              <div class="sub-section">
+                <div class="sub-label">Kontext</div>
+                <p style="font-size:13px;color:var(--text-secondary);margin:0;">{{ fm.kontext_beschreibung }}</p>
+              </div>
+              {% endif %}
+
+              {# Konfidenz-Badges #}
+              {% set risk = fm.get('risk') or {} %}
+              {% if risk.get('daten_konfidenz') or risk.get('agent_konfidenz') %}
+              <div class="sub-section" style="padding-top:8px;padding-bottom:8px;">
+                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+                  {% if risk.get('daten_konfidenz') %}
+                  {% set dk = risk.daten_konfidenz %}
+                  {% set dk_color = {'hoch':'#16A34A','mittel':'#CA8A04','niedrig':'#DC2626'}.get(dk,'#6B7280') %}
+                  <span style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid {{ dk_color }};color:{{ dk_color }};font-weight:600;">Datenbasis: {{ dk }}</span>
+                  {% endif %}
+                  {% if risk.get('agent_konfidenz') %}
+                  {% set ak = risk.agent_konfidenz %}
+                  {% set ak_color = {'hoch':'#16A34A','mittel':'#CA8A04','niedrig':'#DC2626'}.get(ak,'#6B7280') %}
+                  <span style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid {{ ak_color }};color:{{ ak_color }};font-weight:600;">KI-Konfidenz: {{ ak }}</span>
+                  {% endif %}
+                  {% if risk.get('agent_konfidenz') == 'niedrig' %}
+                  <span style="font-size:10px;color:#991B1B;font-weight:600;">⚠ Expertenprüfung empfohlen</span>
+                  {% endif %}
+                </div>
+              </div>
+              {% endif %}
+
+              {# Sonderregel-Hinweis #}
+              {% if fm.special_rule %}
+              <div class="sub-section" style="padding-top:6px;padding-bottom:6px;">
+                <div class="special-rule-box" style="margin:0;">
+                  <span class="special-rule-icon">⚠</span>
+                  <div class="special-rule-content">
+                    <div class="special-rule-title">Sonderregel angewendet (AIAG-VDA)</div>
+                    <div class="special-rule-desc">{{ fm.special_rule.description }}</div>
+                    <div class="special-rule-calc">
+                      Rechnerisch: <strong>{{ fm.special_rule.calculated_status|upper }}</strong> (RPZ {{ fm.rpz }})
+                      → Angehoben: <strong>{{ fm.special_rule.final_status|upper }}</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+
+              {# Fehlerursachen #}
+              {% if fm.causes %}
+              <div class="sub-section">
+                <div class="sub-label">Fehlerursachen</div>
+                <table class="mini-table">
+                  <thead><tr><th>ID</th><th>Beschreibung</th><th>Herkunft</th><th>Präventionsphase</th></tr></thead>
+                  <tbody>
+                    {% for c in fm.causes %}
+                    <tr>
+                      <td class="td-id">{{ c.ursache_id }}</td>
+                      <td>{{ c.beschreibung }}</td>
+                      <td>{{ c.herkunft }}</td>
+                      <td>{{ c.praeventionsphase }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% endif %}
+
+              {# Fehlerfolgen #}
+              {% set eff = fm.effects %}
+              {% if eff %}
+              <div class="sub-section">
+                <div class="sub-label">Fehlerfolgen</div>
+                <div class="effects-grid">
+                  {% for dim, desc_key in [('Mensch','mensch_beschreibung'),('Umwelt','umwelt_beschreibung'),('Anlage','anlage_beschreibung'),('Kosten','kosten_beschreibung')] %}
+                  <div class="effect-cell {% if not eff.get(desc_key) %}none{% endif %}">
+                    <div class="effect-cell-label">{{ dim }}</div>
+                    <div class="effect-cell-text">{{ eff.get(desc_key, '—') if eff.get(desc_key) else '—' }}</div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+
+              {# Controls #}
+              {% if fm.controls %}
+              <div class="sub-section">
+                <div class="sub-label">Bestehende Controls</div>
+                <table class="mini-table">
+                  <thead><tr><th>Wirkung</th><th>Name</th><th>Typ</th><th>Beschreibung</th><th>Beeinflusst</th></tr></thead>
+                  <tbody>
+                    {% for ctrl in fm.controls %}
+                    <tr>
+                      <td><span class="abe-badge {{ ctrl.wirkung }}">{{ abe_labels.get(ctrl.wirkung, ctrl.wirkung) }}</span></td>
+                      <td style="font-weight:600;">{{ ctrl.name }}</td>
+                      <td>{{ ctrl.typ }}</td>
+                      <td>{{ ctrl.beschreibung or '–' }}</td>
+                      <td>{{ ctrl.beeinflusst or '–' }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                {% if fm.controls_einschraenkung %}
+                <div class="controls-einschraenkung">Einschränkung: {{ fm.controls_einschraenkung }}</div>
+                {% endif %}
+              </div>
+              {% endif %}
+
+              {# Maßnahmen #}
+              {% if measures %}
+              <div class="sub-section">
+                <div class="sub-label">Maßnahmen zur Risikoreduktion</div>
+                {% for m in measures %}
+                <div class="measure-card">
+                  <div class="measure-header">
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                      <span class="abe-badge {{ m.abe_kategorie }}">{{ abe_labels.get(m.abe_kategorie, m.abe_kategorie) }}</span>
+                      {% if m.stop_kategorie %}
+                      <span class="stop-badge stop-{{ m.stop_kategorie }}">{{ stop_labels.get(m.stop_kategorie, m.stop_kategorie) }}</span>
+                      {% endif %}
+                      <span class="measure-name">{{ m.name }}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex-shrink:0;">
+                      {% for sk, sl in [('S_neu','S'),('O_neu','O'),('D_neu','D')] %}
+                        {% if m.get(sk) and m[sk] != fm.get(sl) %}
+                        <span class="reduction-arrow">{{ sl }}: {{ fm.get(sl) }}→{{ m[sk] }}</span>
+                        {% endif %}
+                      {% endfor %}
+                      {% if m.rpz_neu %}
+                      <div class="measure-rpz-row">
+                        <div class="rpz-arrow">
+                          <span class="rpz-old">{{ fm.rpz }}</span>
+                          <span>→</span>
+                          <span class="rpz-new">{{ m.rpz_neu }}</span>
+                        </div>
+                      </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="measure-desc">{{ m.beschreibung }}</div>
+                  {% if m.begruendung %}
+                  <div class="measure-reasoning">{{ m.begruendung }}</div>
+                  {% endif %}
+                  {% if m.hinweis %}
+                  <div class="measure-hinweis">{{ m.hinweis }}</div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+
+            </div>{# /card-body #}
+          </div>{# /risk-card #}
+          {% endfor %}{# /fm in cat_fms #}
+        </div>{# /category-block #}
+        {% endfor %}{# /cat #}
+
+      </div>{# /view-thematic #}
+
+      {# ── KOMPONENTENWEISE ANSICHT ── #}
+      <div class="view-component" id="view-component" style="display:none;">
+
+        {% set ns4 = namespace(seen_comps=[]) %}
+        {% for fm in fmea_sorted %}
+          {% set comp = fm.get('component_name') or fm.get('komponente','?') %}
+          {% if comp not in ns4.seen_comps %}
+            {% set ns4.seen_comps = ns4.seen_comps + [comp] %}
+          {% endif %}
+        {% endfor %}
+
+        {% for comp_name in ns4.seen_comps %}
+        {% set comp_fms = [] %}
+        {% for fm in fmea_sorted %}
+          {% set c = fm.get('component_name') or fm.get('komponente','?') %}
+          {% if c == comp_name %}
+            {% set _ = comp_fms.append(fm) %}
+          {% endif %}
+        {% endfor %}
+        {% set comp_id = comp_name|lower|replace(' ','_')|replace('-','_') %}
+
+        <div class="category-block" id="comp-{{ comp_id }}">
+          <div class="comp-group-header">
+            <span class="comp-group-id">{{ comp_name }}</span>
+            <span class="comp-group-name">{{ comp_name }}</span>
+            <span class="comp-group-count">{{ comp_fms|length }} Fehlermodi</span>
+          </div>
+
+          {% for fm in comp_fms %}
+          {% set status = fm.rpz_status %}
+          {% set measures = fm.measures or [] %}
+          {% set best_measure = measures|sort(attribute='rpz_neu')|first if measures else None %}
+          {% set fd = func_details.get(fm.funktion_id, {}) %}
+
+          <div class="risk-card {{ status }}" id="risk-comp-{{ fm.fehler_id }}">
+            <div class="card-header">
+              <div>
+                <div class="card-id-row">
+                  <span class="card-id">{{ fm.fehler_id }}</span>
+                  <span class="tag">{{ fm.fehlerart }}</span>
+                </div>
+                <div class="card-title">{{ fm.fehlermodus }}</div>
+                {% if fd %}
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">{{ 'Hauptfunktion' if fd.typ == 'haupt' else 'Nebenfunktion' }}: {{ fd.beschreibung }}</div>
+                {% endif %}
+              </div>
+              <div class="card-header-right">
+                <span class="risk-badge {{ status }}"><span class="bdot"></span>{{ status|capitalize }}</span>
+                {% if fm.special_rule %}<span class="special-rule-badge">⚠ Sonderregel</span>{% endif %}
+              </div>
+            </div>
+
+            <div class="card-scores">
+              <div class="sod-group">
+                {% for key, val, css, label_text, info in sod_data(fm) %}
+                <div class="sod-row">
+                  <span class="sod-label">{{ key }}</span>
+                  <div class="sod-bar-track">
+                    <div class="sod-bar-fill sod-v{{ val }}" style="width:{{ (val / 10 * 100)|int }}%;"></div>
+                  </div>
+                  <span class="sod-val">{{ val }}</span>
+                  <span style="font-size:11px;color:var(--text-muted);margin-left:4px;">{{ info[0] }}</span>
+                </div>
+                {% endfor %}
+              </div>
+              <div class="rpz-divider"></div>
+              <div class="rpz-box">
+                <span class="rpz-label">RPZ</span>
+                <span class="rpz-value {{ status }}">{{ fm.rpz }}</span>
+                <span class="rpz-formula">{{ fm.S }} × {{ fm.O }} × {{ fm.D }}</span>
+                {% if best_measure and best_measure.rpz_neu and best_measure.rpz_neu != fm.rpz %}
+                <span style="font-size:11px;color:var(--risk-niedrig);font-weight:600;margin-top:2px;">→ {{ best_measure.rpz_neu }}</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="card-body">
+              {% if fm.causes %}
+              <div class="sub-section">
+                <div class="sub-label">Fehlerursachen</div>
+                <table class="mini-table">
+                  <thead><tr><th>ID</th><th>Beschreibung</th><th>Herkunft</th></tr></thead>
+                  <tbody>
+                    {% for c in fm.causes %}
+                    <tr>
+                      <td class="td-id">{{ c.ursache_id }}</td>
+                      <td>{{ c.beschreibung }}</td>
+                      <td>{{ c.herkunft }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% endif %}
+
+              {% set eff = fm.effects %}
+              {% if eff %}
+              <div class="sub-section">
+                <div class="sub-label">Fehlerfolgen</div>
+                <div class="effects-grid">
+                  {% for dim, desc_key in [('Mensch','mensch_beschreibung'),('Umwelt','umwelt_beschreibung'),('Anlage','anlage_beschreibung'),('Kosten','kosten_beschreibung')] %}
+                  <div class="effect-cell {% if not eff.get(desc_key) %}none{% endif %}">
+                    <div class="effect-cell-label">{{ dim }}</div>
+                    <div class="effect-cell-text">{{ eff.get(desc_key, '—') if eff.get(desc_key) else '—' }}</div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+
+              {% if fm.controls %}
+              <div class="sub-section">
+                <div class="sub-label">Bestehende Controls</div>
+                <table class="mini-table">
+                  <thead><tr><th>Wirkung</th><th>Name</th><th>Beschreibung</th></tr></thead>
+                  <tbody>
+                    {% for ctrl in fm.controls %}
+                    <tr>
+                      <td><span class="abe-badge {{ ctrl.wirkung }}">{{ abe_labels.get(ctrl.wirkung, ctrl.wirkung) }}</span></td>
+                      <td style="font-weight:600;">{{ ctrl.name }}</td>
+                      <td>{{ ctrl.beschreibung or '–' }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% endif %}
+
+              {% if measures %}
+              <div class="sub-section">
+                <div class="sub-label">Maßnahmen</div>
+                {% for m in measures %}
+                <div class="measure-card">
+                  <div class="measure-header">
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                      <span class="abe-badge {{ m.abe_kategorie }}">{{ abe_labels.get(m.abe_kategorie, m.abe_kategorie) }}</span>
+                      {% if m.stop_kategorie %}<span class="stop-badge stop-{{ m.stop_kategorie }}">{{ stop_labels.get(m.stop_kategorie, m.stop_kategorie) }}</span>{% endif %}
+                      <span class="measure-name">{{ m.name }}</span>
+                    </div>
+                    {% if m.rpz_neu %}
+                    <div class="measure-rpz-row">
+                      <div class="rpz-arrow">
+                        <span class="rpz-old">{{ fm.rpz }}</span>
+                        <span>→</span>
+                        <span class="rpz-new">{{ m.rpz_neu }}</span>
+                      </div>
+                    </div>
+                    {% endif %}
+                  </div>
+                  <div class="measure-desc">{{ m.beschreibung }}</div>
+                  {% if m.begruendung %}<div class="measure-reasoning">{{ m.begruendung }}</div>{% endif %}
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+          </div>{# /risk-card #}
+          {% endfor %}{# /fm in comp_fms #}
+        </div>{# /category-block #}
+        {% endfor %}{# /comp_name #}
+
+      </div>{# /view-component #}
+
+    </section>{# /sec-5 #}
+
+    {# ══════════════════  6. ANHANG  ══════════════════ #}
+    <section class="page-section" id="sec-anhang">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 6</div>
+        <div class="section-title">Anhang</div>
+        <div class="section-desc">Freigabe, Versionshistorie, RPZ-Vergleich, Maßnahmentabelle und Glossar.</div>
+      </div>
+
+      {# Freigabe #}
+      <h3>6.0 Freigabe</h3>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+        <thead>
+          <tr style="background:var(--bg);">
+            <th style="padding:8px 10px;text-align:left;font-size:12px;border:1px solid var(--border);">Rolle</th>
+            <th style="padding:8px 10px;text-align:left;font-size:12px;border:1px solid var(--border);">Name</th>
+            <th style="padding:8px 10px;text-align:left;font-size:12px;border:1px solid var(--border);">Datum</th>
+            <th style="padding:8px 10px;text-align:left;font-size:12px;border:1px solid var(--border);">Unterschrift</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:8px 10px;font-size:12px;border:1px solid var(--border);">Erstellt von</td>
+            <td style="padding:8px 10px;font-size:12px;border:1px solid var(--border);">{{ report_context.erstellt_von or '_______________' }}</td>
+            <td style="padding:8px 10px;font-size:12px;border:1px solid var(--border);">{{ project.datum[:10] }}</td>
+            <td style="padding:8px 10px;font-size:12px;border:1px solid var(--border);">_______________</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 10px;font-size:12px;border:1px solid var(--border);">Geprüft von</td>
+            <td style="padding:8px 10px;font-size:12px;border:1px solid var(--border);">{{ report_context.geprueft_von or '_______________' }}</td>
+            <td style="padding:8px 10px;font-size:12px;border:1px solid var(--border);">_______________</td>
+            <td style="padding:8px 10px;font-size:12px;border:1px solid var(--border);">_______________</td>
+          </tr>
+        </tbody>
+      </table>
+
+      {# Versionshistorie #}
+      {% if moc_delta %}
+      <h3>6.0a Versionshistorie</h3>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+        <thead>
+          <tr style="background:var(--bg);">
+            <th style="padding:6px 8px;text-align:left;font-size:12px;border:1px solid var(--border);">Version</th>
+            <th style="padding:6px 8px;text-align:left;font-size:12px;border:1px solid var(--border);">Datum</th>
+            <th style="padding:6px 8px;text-align:left;font-size:12px;border:1px solid var(--border);">Änderungsbeschreibung</th>
+            <th style="padding:6px 8px;text-align:center;font-size:12px;border:1px solid var(--border);">Geändert</th>
+            <th style="padding:6px 8px;text-align:center;font-size:12px;border:1px solid var(--border);">Hinzugefügt</th>
+            <th style="padding:6px 8px;text-align:center;font-size:12px;border:1px solid var(--border);">Entfernt</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:6px 8px;font-size:12px;border:1px solid var(--border);">v{{ moc_delta.parent_project.version if moc_delta.parent_project else '1.0' }}</td>
+            <td style="padding:6px 8px;font-size:12px;border:1px solid var(--border);">{{ moc_delta.parent_project.datum[:10] if moc_delta.parent_project else '–' }}</td>
+            <td style="padding:6px 8px;font-size:12px;border:1px solid var(--border);">Initiale Version</td>
+            <td style="text-align:center;border:1px solid var(--border);">–</td>
+            <td style="text-align:center;border:1px solid var(--border);">–</td>
+            <td style="text-align:center;border:1px solid var(--border);">–</td>
+          </tr>
+          <tr style="background:#F5F3FF;">
+            <td style="padding:6px 8px;font-size:12px;font-weight:700;border:1px solid var(--border);">v{{ report_context.version }}</td>
+            <td style="padding:6px 8px;font-size:12px;border:1px solid var(--border);">{{ project.datum[:10] }}</td>
+            <td style="padding:6px 8px;font-size:12px;border:1px solid var(--border);">{{ moc_delta.change_description or '–' }}</td>
+            <td style="text-align:center;font-weight:700;border:1px solid var(--border);">{{ moc_delta.changed|length }}</td>
+            <td style="text-align:center;font-weight:700;border:1px solid var(--border);">{{ moc_delta.added|length }}</td>
+            <td style="text-align:center;font-weight:700;border:1px solid var(--border);">{{ moc_delta.removed|length }}</td>
+          </tr>
+        </tbody>
+      </table>
+      {% else %}
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Version 1.0 — keine Vorversion vorhanden.</p>
+      {% endif %}
+
+      {# RPZ-Vergleich Chart #}
+      {% if comparison_img %}
+      <h3 id="chart-rpz-vorher-nachher">A. RPZ-Vergleich: Vorher vs. Nachher</h3>
+      <p>Fehlermodi mit Maßnahmen, sortiert nach RPZ-Wert. Die Differenz entspricht der erwarteten Risikoreduktion.
+        {% if report_context.best_reduction %}Maximale Einzelreduktion: <strong>{{ report_context.best_reduction }}</strong> Punkte.{% endif %}
+      </p>
+      <div class="chart-container">
+        <img src="{{ comparison_img }}" alt="RPZ-Vergleich" style="max-width:95%;">
+      </div>
+      {% endif %}
+
+      {# Maßnahmentabelle #}
+      <h3>{% if comparison_img %}B.{% else %}A.{% endif %} Maßnahmentabelle</h3>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">
+        Alle {{ total_measures }} Maßnahmen — zum Übertragen in Tracking-Systeme oder Projektmanagement-Tools.
+      </p>
+      <table class="appendix-measures-table appendix-measures-extended">
+        <thead>
+          <tr>
+            <th>Fehler-ID</th>
+            <th>Maßnahme</th>
+            <th>STOP/ABE</th>
+            <th>Beschreibung</th>
+            <th>Begründung</th>
+            <th style="text-align:center;">RPZ vorher</th>
+            <th style="text-align:center;">RPZ nachher</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fm in fmea_sorted %}
+            {% for m in fm.get('measures', [])|sort(attribute='stop_kategorie') %}
+            <tr>
+              <td style="font-weight:600;white-space:nowrap;">{{ fm.fehler_id }}</td>
+              <td>{{ m.name }}</td>
+              <td style="white-space:nowrap;">{{ m.stop_kategorie or '–' }} / {{ m.abe_kategorie or '–' }}</td>
+              <td style="font-size:11px;">{{ m.beschreibung or '–' }}</td>
+              <td style="font-size:11px;color:var(--text-muted);">{{ m.begruendung or '–' }}</td>
+              <td style="text-align:center;">{{ fm.rpz }}</td>
+              <td style="text-align:center;">{{ m.rpz_neu or '–' }}</td>
+            </tr>
+            {% endfor %}
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {# Abkürzungsverzeichnis #}
+      <h3>{% if comparison_img %}C.{% else %}B.{% endif %} Abkürzungsverzeichnis</h3>
+      <table>
+        <thead><tr><th>Abkürzung</th><th>Bedeutung</th></tr></thead>
+        <tbody>
+          <tr><td><strong>ABE</strong></td><td>Abschaffend – Begrenzend – Entdeckend (Wirkungstyp-Klassifikation)</td></tr>
+          <tr><td><strong>AIAG-VDA</strong></td><td>Automotive Industry Action Group – Verband der Automobilindustrie</td></tr>
+          <tr><td><strong>ATEX</strong></td><td>Atmosphères Explosibles – EU-Richtlinie für explosionsgefährdete Bereiche</td></tr>
+          <tr><td><strong>BImSchV</strong></td><td>Bundes-Immissionsschutzverordnung (12. BImSchV = Störfall-Verordnung)</td></tr>
+          <tr><td><strong>CCPS</strong></td><td>Center for Chemical Process Safety (Division der AIChE)</td></tr>
+          <tr><td><strong>D</strong></td><td>Entdeckung / Detection – FMEA-Bewertungsdimension (1–10)</td></tr>
+          <tr><td><strong>FMEA</strong></td><td>Fehlermöglichkeits- und Einflussanalyse</td></tr>
+          <tr><td><strong>FPMH</strong></td><td>Failures Per Million Hours – Ausfälle pro Million Betriebsstunden</td></tr>
+          <tr><td><strong>MSR</strong></td><td>Mess-, Steuer- und Regelungstechnik</td></tr>
+          <tr><td><strong>O</strong></td><td>Auftreten / Occurrence – FMEA-Bewertungsdimension (1–10)</td></tr>
+          <tr><td><strong>OREDA</strong></td><td>Offshore and Onshore Reliability Data</td></tr>
+          <tr><td><strong>PSV</strong></td><td>Pressure Safety Valve – Sicherheitsventil</td></tr>
+          <tr><td><strong>RPZ</strong></td><td>Risikoprioritätszahl = S × O × D (Wertebereich 1–1000)</td></tr>
+          <tr><td><strong>S</strong></td><td>Bedeutung / Severity – FMEA-Bewertungsdimension (1–10)</td></tr>
+          <tr><td><strong>SIL</strong></td><td>Safety Integrity Level – nach IEC 61508/61511</td></tr>
+          <tr><td><strong>STOP</strong></td><td>Substitution – Technisch – Organisatorisch – Persönlich</td></tr>
+        </tbody>
+      </table>
+
+      {# Glossar #}
+      <h3>{% if comparison_img %}D.{% else %}C.{% endif %} Glossar</h3>
+      <table class="glossary-table">
+        <thead><tr><th>Begriff</th><th>Beschreibung</th></tr></thead>
+        <tbody>
+          <tr><td>FMEA</td><td>Fehlermöglichkeits- und Einflussanalyse</td></tr>
+          <tr><td>RPZ</td><td>Risikoprioritätszahl = S × O × D</td></tr>
+          <tr><td>S</td><td>Bedeutung / Severity (1–10)</td></tr>
+          <tr><td>O</td><td>Auftretenswahrscheinlichkeit / Occurrence (1–10)</td></tr>
+          <tr><td>D</td><td>Entdeckungswahrscheinlichkeit / Detection (1–10)</td></tr>
+          <tr><td>ABE</td><td>A = Abschaffend, B = Begrenzend, E = Entdeckend</td></tr>
+          <tr><td>STOP</td><td>S = Substitution, T = Technisch, O = Organisatorisch, P = Persönlich</td></tr>
+          <tr><td>Sonderregel</td><td>AIAG-VDA Override: Anhebung des Risikostatus unabhängig vom RPZ (z.B. S ≥ 9 → mindestens HOCH)</td></tr>
+        </tbody>
+      </table>
+
+    </section>
+
+  </main>
+</div>{# /app-shell #}
+
+{# ══════════════════  JAVASCRIPT: View Toggle  ══════════════════ #}
+<script>
+function switchView(mode) {
+  var thematic  = document.getElementById('view-thematic');
+  var component = document.getElementById('view-component');
+  var navThematic  = document.getElementById('nav-thematic');
+  var navComponent = document.getElementById('nav-component');
+  var btnThematic  = document.getElementById('btn-thematic');
+  var btnComponent = document.getElementById('btn-component');
+
+  if (mode === 'thematic') {
+    thematic.style.display  = 'block';
+    component.style.display = 'none';
+    navThematic.style.display  = 'block';
+    navComponent.style.display = 'none';
+    btnThematic.classList.add('active');
+    btnComponent.classList.remove('active');
+  } else {
+    thematic.style.display  = 'none';
+    component.style.display = 'block';
+    navThematic.style.display  = 'none';
+    navComponent.style.display = 'block';
+    btnThematic.classList.remove('active');
+    btnComponent.classList.add('active');
+  }
+}
+</script>
+
 </body>
 </html>

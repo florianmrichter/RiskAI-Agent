@@ -11,6 +11,7 @@ Usage:
 
 import base64
 import json
+import re
 import sys
 import tempfile
 import urllib.request
@@ -73,6 +74,26 @@ def _get_outfit_font_style():
 
     _OUTFIT_FONT_STYLE_CACHE = "<style>" + "".join(css_parts) + "</style>"
     return _OUTFIT_FONT_STYLE_CACHE
+
+
+def _embed_images_base64(html: str) -> str:
+    """Replace file:// image src URIs with base64 data URIs for standalone HTML viewing."""
+    def replace_uri(m):
+        raw = m.group(1)
+        # file:///path → /path
+        if raw.startswith("file:///"):
+            fpath = raw[7:]
+        elif raw.startswith("file://"):
+            fpath = raw[7:]
+        else:
+            return m.group(0)
+        try:
+            data = Path(fpath).read_bytes()
+            b64 = base64.b64encode(data).decode()
+            return f'src="data:image/png;base64,{b64}"'
+        except Exception:
+            return m.group(0)
+    return re.sub(r'src="(file://[^"]+)"', replace_uri, html)
 
 
 STOP_ORDER = {"S": 0, "T": 1, "O": 2, "P": 3}
@@ -533,6 +554,33 @@ def generate_report(project_id: int, output_path: str = None, task_folder: str =
             raise ValueError("task_folder erforderlich – weder übergeben noch in Projekt gespeichert")
         plant_data = _load_plant_data(task_folder=task_folder)
 
+        # ── MoC-Änderungen aus Anlagendaten extrahieren ──
+        moc_changes = []
+        for sys_item in plant_data.get("systems", []):
+            for equip in sys_item.get("equipment", []):
+                params = equip.get("parameters", {})
+                if params.get("MoC_Datum"):
+                    moc_changes.append({
+                        "equipment": equip,
+                        "system": sys_item,
+                        "datum": params["MoC_Datum"],
+                        "beschreibung": params.get("MoC_Beschreibung", ""),
+                    })
+
+        # FMs, die zu geänderten Equipment-Einträgen gehören (Keyword-Matching auf fehler_id)
+        moc_keywords = set()
+        for chg in moc_changes:
+            for word in chg["equipment"]["name"].split():
+                if len(word) >= 4:
+                    moc_keywords.add(word[:6].upper())
+        moc_keywords.add("FILTER")  # Fallback für bekanntes Namensmuster
+
+        moc_fms = [
+            fm for fm in fmea_data
+            if any(kw in fm.get("fehler_id", "").upper() for kw in moc_keywords)
+            or any(kw in fm.get("fehlermodus", "").upper() for kw in moc_keywords)
+        ]
+
         # ── Konfidenz-Aggregation ──
         low_konfidenz_fms = [fm for fm in fmea_data if fm.get("agent_konfidenz") == "niedrig"]
         konfidenz_warning = len(low_konfidenz_fms) > 0
@@ -640,6 +688,8 @@ def generate_report(project_id: int, output_path: str = None, task_folder: str =
             abe_labels={"A": "Vermeidung", "B": "Entdeckung", "E": "Abschwächung"},
             cockpit_rows=cockpit_rows,
             moc_delta=moc_delta,
+            moc_changes=moc_changes,
+            moc_fms=moc_fms,
             report_context={
                 "special_rule_count": special_rule_count,
                 "stop_coverage": stop_coverage,
@@ -694,6 +744,11 @@ def generate_report(project_id: int, output_path: str = None, task_folder: str =
             '</div>'
         )
 
+        # Save rendered HTML alongside the PDF (with embedded base64 images for offline viewing)
+        html_output = Path(output_path).with_suffix('.html')
+        html_output.write_text(_embed_images_base64(html_content), encoding='utf-8')
+        print(f"HTML-Vorschau gespeichert: {html_output}")
+
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
@@ -710,7 +765,7 @@ def generate_report(project_id: int, output_path: str = None, task_folder: str =
             browser.close()
 
     print(f"FMEA-Bericht generiert: {output_path}")
-    return output_path
+    return str(output_path)
 
 
 if __name__ == "__main__":

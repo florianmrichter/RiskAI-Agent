@@ -77,6 +77,20 @@ Für **jedes System** fragst du der Reihe nach:
 - Min./Max. Druck (Auslegung)
 - Betriebstemperatur und -druck (Normalbetrieb)
 
+> ⚠️ **Druckeinheiten-Pflicht (gilt für alle Druckangaben):**
+> Jedes „bar" ohne Qualifizierung ist **nachzufragen**. Speicherung immer mit explizitem Typ:
+>
+> - `barg` = Überdruck (relativ zur Atmosphäre) — Standard bei Behältern, Reaktoren, Leitungen
+> - `bara` = Absolutdruck (relativ zum Vakuum) — bei Vakuumanwendungen
+>
+> **Entscheidungshilfe beim Nachfragen:**
+>
+> - Positiver Wert (z. B. „0,5 bar") → wahrscheinlich barg: *„Meinen Sie 0,5 barg Überdruck?"*
+> - Negativer Wert (z. B. „-0,8 bar") → meist barg (Unterdruck/Vakuum): *„Meinen Sie -0,8 barg, also Unterdruck gegenüber Atmosphäre?"*
+> - Vakuumanlage: *„Arbeiten Sie mit Absolutdruck — z. B. 0,2 bara?"*
+>
+> Gilt analog für: mbar, MPa, kPa, psi — immer Typ klären und explizit speichern.
+
 ### 4c — Ausrüstung (Equipment)
 - Welche Apparate, Pumpen, Wärmetauscher, Armaturen, Antriebe?
 - Für jeden: Name/Bezeichnung, Typ, Position, Antriebsart (elektrisch/pneumatisch/–), wichtige Parameter
