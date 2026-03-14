@@ -1507,6 +1507,7 @@ let _chatOpen       = false;
 let _pendingContext = [];   // array of {id, text} context chips
 let _eventSource    = null;
 let _selectedText   = '';
+let _selectedOrigin = null;
 
 // ── Panel toggle ──────────────────────────────────────────────────────────────
 function toggleChat() {
@@ -1550,7 +1551,19 @@ async function sendMessage() {
   var text  = input.value.trim();
   if (!text) return;
 
-  var context = _pendingContext.map(function(c){ return c.text; }).join(' | ');
+  var contextParts = _pendingContext.map(function(c) {
+    var prefix = '';
+    if (c.origin) {
+      var parts = [];
+      if (c.origin.abschnitt) parts.push(c.origin.abschnitt);
+      if (c.origin.kategorie) parts.push(c.origin.kategorie);
+      if (c.origin.fehler_id) parts.push(c.origin.fehler_id);
+      if (c.origin.fehlermodus) parts.push(c.origin.fehlermodus);
+      if (parts.length) prefix = '[' + parts.join(' > ') + '] ';
+    }
+    return prefix + c.text;
+  });
+  var context = contextParts.join(' | ');
   _appendMessage('user', text + (context ? '\n[Kontext: ' + context + ']' : ''));
   input.value = '';
   _clearContextChips();
@@ -1560,11 +1573,15 @@ async function sendMessage() {
   document.getElementById('send-btn').disabled = true;
 
   try {
-    await fetch(BASE + '/chat/send', {
+    var resp = await fetch(BASE + '/chat/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: text, context: context }),
     });
+    if (!resp.ok) {
+      var errText = await resp.text().catch(function(){ return resp.status; });
+      _appendMessage('assistant', 'Server-Fehler: ' + errText, thinkId);
+    }
   } catch(e) {
     _appendMessage('assistant', 'Fehler beim Senden: ' + e.message, thinkId);
   } finally {
@@ -1628,35 +1645,72 @@ function _updateStatusChip(status) {
 document.addEventListener('mouseup',  _onTextSelect);
 document.addEventListener('keyup',    _onTextSelect);
 
-function _onTextSelect() {
+function _onTextSelect(e) {
+  if (e && e.target && e.target.closest && e.target.closest('#selection-popover')) return;
   var sel = window.getSelection();
   var txt = sel ? sel.toString().trim() : '';
-  if (txt.length < 10) { _hidePopover(); return; }
+  if (txt.length < 10 || !sel || sel.rangeCount === 0) { _hidePopover(); return; }
+  var rect = sel.getRangeAt(0).getBoundingClientRect();
+  if (!rect || (rect.width === 0 && rect.height === 0)) { _hidePopover(); return; }
   _selectedText = txt;
-  var range = sel.getRangeAt(0).getBoundingClientRect();
-  _showPopover(range.left + range.width / 2, range.top + window.scrollY - 52);
+  _selectedOrigin = _getSelectionOrigin();
+  _showPopover(rect.left + rect.width / 2, rect.top - 52);
 }
 
 function _showPopover(x, y) {
   var pop = document.getElementById('selection-popover');
+  var panelWidth = _chatOpen ? 390 : 0;
+  var maxX = window.innerWidth - panelWidth - 220;
   pop.style.display = 'block';
-  pop.style.left    = Math.min(x, window.innerWidth - 220) + 'px';
-  pop.style.top     = y + 'px';
+  pop.style.left    = Math.max(10, Math.min(x, maxX)) + 'px';
+  pop.style.top     = Math.max(10, y) + 'px';
 }
 
 function _hidePopover() {
   document.getElementById('selection-popover').style.display = 'none';
   _selectedText = '';
+  _selectedOrigin = null;
 }
 
 document.addEventListener('mousedown', function(e) {
   if (!e.target.closest('#selection-popover')) _hidePopover();
 });
 
+function _getSelectionOrigin() {
+  var sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0) return null;
+  var node = sel.getRangeAt(0).startContainer;
+  if (node.nodeType === 3) node = node.parentElement;
+  if (!node) return null;
+  var origin = {};
+  // Fehlermodus-Karte?
+  var card = node.closest('.risk-card');
+  if (card) {
+    var idEl = card.querySelector('.card-id');
+    var titleEl = card.querySelector('.card-title');
+    if (idEl) origin.fehler_id = idEl.textContent.trim();
+    if (titleEl) origin.fehlermodus = titleEl.textContent.trim();
+  }
+  // Kategorie-Block?
+  var cat = node.closest('.category-block');
+  if (cat) {
+    var catName = cat.querySelector('.category-name');
+    if (catName) origin.kategorie = catName.textContent.trim();
+  }
+  // Sektion?
+  var sec = node.closest('.page-section');
+  if (sec) {
+    var secTitle = sec.querySelector('.section-title');
+    if (secTitle) origin.abschnitt = secTitle.textContent.trim();
+    if (sec.id) origin.section_id = sec.id;
+  }
+  return Object.keys(origin).length > 0 ? origin : null;
+}
+
 function addSelectionToContext() {
   if (!_selectedText) return;
   var id = 'ctx-' + Date.now();
-  _pendingContext.push({ id: id, text: _selectedText });
+  _pendingContext.push({ id: id, text: _selectedText, origin: _selectedOrigin });
   _renderContextChips();
   _hidePopover();
   window.getSelection().removeAllRanges();
@@ -1672,8 +1726,12 @@ function _renderContextChips() {
 
     var label = document.createElement('span');
     var preview = c.text.length > 40 ? c.text.slice(0, 40) + '…' : c.text;
-    label.textContent = '"' + preview + '"';
-    label.title = c.text;
+    var originTag = '';
+    if (c.origin) {
+      originTag = c.origin.fehler_id || c.origin.kategorie || c.origin.abschnitt || '';
+    }
+    label.textContent = (originTag ? '[' + originTag + '] ' : '') + '"' + preview + '"';
+    label.title = (originTag ? originTag + ':\n' : '') + c.text;
 
     var btn = document.createElement('button');
     btn.textContent = 'x';
