@@ -83,6 +83,22 @@ def insert_fmea_for_component(
     func_id_to_db_id = {}
     stats = {"functions": 0, "failure_modes": 0}
 
+    # Pflichtfeld-Prüfung pro Fehlermodus (Warnung, kein Abbruch)
+    for fm in fmea_data.get("failure_modes", []):
+        fid = fm.get("fehler_id", "?")
+        if not fm.get("causes"):
+            print(f"⚠ {fid}: Keine Ursachen definiert")
+        if not fm.get("effects"):
+            print(f"⚠ {fid}: Keine Folgen definiert")
+        if not fm.get("controls"):
+            print(f"⚠ {fid}: Keine Controls definiert")
+        if fm.get("begruendung_S", "").startswith("Siehe"):
+            print(f"⚠ {fid}: Begründung S ist ein Platzhalter")
+        if fm.get("begruendung_O", "").startswith("Siehe"):
+            print(f"⚠ {fid}: Begründung O ist ein Platzhalter")
+        if fm.get("begruendung_D", "").startswith("Siehe"):
+            print(f"⚠ {fid}: Begründung D ist ein Platzhalter")
+
     for func in fmea_data.get("functions", []):
         fid = db.insert_function(
             comp_id,
@@ -107,7 +123,15 @@ def insert_fmea_for_component(
         fehler_id = fm.get("fehler_id")
         if not fehler_id:
             existing = db.get_failure_modes(func_db_id)
-            fehler_id = f"{func_id}-FM{len(existing)+1}"
+            # Komponentenbasierte ID: {teilanlage}-{komp_id}-FM{nn}
+            teilanlage = ""
+            if task_folder:
+                parts = task_folder.split("/")[-1].split("_")
+                teilanlage = parts[-1] if len(parts) > 1 else ""
+            if teilanlage:
+                fehler_id = f"{teilanlage}-{komp_id}-FM{len(existing)+1:02d}"
+            else:
+                fehler_id = f"{komp_id}-FM{len(existing)+1:02d}"
 
         fm_id = db.insert_failure_mode(
             func_db_id,
@@ -164,6 +188,14 @@ def insert_fmea_for_component(
             begruendung_O=fm.get("begruendung_O"),
             begruendung_D=fm.get("begruendung_D"),
         )
+
+        # Empfehlung einspielen (falls vorhanden)
+        if fm.get("empfehlung"):
+            db.conn.execute(
+                "UPDATE failure_modes SET empfehlung = ? WHERE id = ?",
+                (fm["empfehlung"], fm_id)
+            )
+            db.conn.commit()
 
     db.close()
 

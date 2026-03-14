@@ -166,6 +166,61 @@ FAILURE_TYPES = [
     "Dosierung",
 ]
 
+
+# ═══════════════════════════════════════════════════════════════
+# Gefahrenfelder (erweiterte Prüfpunkte für FM-Kategorien)
+# ═══════════════════════════════════════════════════════════════
+# Zuordnung der 35 Gefahrenfelder zu FM-Kategorien.
+# Kategorie 1+2: Standard-Prüfpunkte (immer prüfen)
+# Kategorie 3: Optional (nur bei Außenanlagen oder auf Anfrage)
+
+GEFAHRENFELDER = {
+    # Kategorie 1 — Prozessbedingungen
+    "1.1":  {"name": "Spezifikation / Verunreinigungen", "fm_kategorien": ["Prozess"], "pflicht": True},
+    "1.2":  {"name": "Präsenz der Ausgangsstoffe", "fm_kategorien": ["Prozess", "Dosierung"], "pflicht": True},
+    "1.3":  {"name": "Dosierung / Menge / Reihenfolge", "fm_kategorien": ["Dosierung"], "pflicht": True},
+    "1.4":  {"name": "Reaktionsbedingungen (pH etc.)", "fm_kategorien": ["Prozess"], "pflicht": True},
+    "1.5":  {"name": "Druck", "fm_kategorien": ["Prozess"], "pflicht": True},
+    "1.6":  {"name": "Temperatur", "fm_kategorien": ["Thermisch"], "pflicht": True},
+    "1.7":  {"name": "Vermischung / Verwechslung", "fm_kategorien": ["Prozess", "Sonstiges"], "pflicht": True},
+    "1.8":  {"name": "Explosionsfähige Atmosphäre", "fm_kategorien": ["Sicherheit"], "pflicht": True},
+    "1.9":  {"name": "Stoffströme / Rückströmung", "fm_kategorien": ["Prozess"], "pflicht": True},
+    "1.10": {"name": "Füllstand / Überfüllung", "fm_kategorien": ["Prozess"], "pflicht": True},
+    "1.11": {"name": "Rührung / Rührgeschwindigkeit", "fm_kategorien": ["Mechanisch", "Equipment"], "pflicht": True},
+    "1.12": {"name": "Elektrostatische Aufladung", "fm_kategorien": ["Sicherheit", "Elektrisch"], "pflicht": True},
+    "1.13": {"name": "Reaktion mit Wärmeträger", "fm_kategorien": ["Thermisch"], "pflicht": True},
+    "1.14": {"name": "Katalysator / Inhibitor", "fm_kategorien": ["Prozess", "Dosierung"], "pflicht": True},
+    "1.15": {"name": "Filtrieren / Abtrennen / Dekantieren", "fm_kategorien": ["Equipment"], "pflicht": True},
+    "1.16": {"name": "Pumpen / Leeren / Transfer", "fm_kategorien": ["Mechanisch", "Prozess"], "pflicht": True},
+    "1.17": {"name": "Heizen / Kühlen", "fm_kategorien": ["Thermisch"], "pflicht": True},
+    "1.18": {"name": "Reinigung", "fm_kategorien": ["Prozess", "Sicherheit", "Equipment"], "pflicht": True},
+    "1.19": {"name": "Kontrolle / Überwachung / Detektion", "fm_kategorien": ["MSR"], "pflicht": True},
+    "1.20": {"name": "Evakuieren / Entlasten", "fm_kategorien": ["Prozess", "Sicherheit"], "pflicht": True},
+    "1.21": {"name": "Abluft / Ableitung", "fm_kategorien": ["Sicherheit", "Prozess"], "pflicht": True},
+    "1.22": {"name": "Prozessunterbruch", "fm_kategorien": ["Prozess", "Elektrisch"], "pflicht": True},
+    "1.23": {"name": "Stoff-/Chemikalienaustritt", "fm_kategorien": ["Mechanisch", "Sicherheit"], "pflicht": True},
+    "1.24": {"name": "Manuelle Tätigkeiten", "fm_kategorien": ["Sonstiges", "Sicherheit"], "pflicht": True},
+    "1.25": {"name": "Wartungs-/Reparaturarbeiten", "fm_kategorien": ["Sonstiges"], "pflicht": True},
+    "1.26": {"name": "Offenes Stoffhandling (K1-Gefahrstoffe)", "fm_kategorien": ["Sicherheit", "Sonstiges"], "pflicht": True},
+    # Kategorie 2 — Energie / Medien
+    "2.1":  {"name": "Hilfsenergien (Strom, Druckluft, N₂, Vakuum)", "fm_kategorien": ["Elektrisch", "Prozess"], "pflicht": True},
+    "2.2":  {"name": "Heiz-/Kühlmedien (Dampf, Kühlwasser, Sole)", "fm_kategorien": ["Thermisch"], "pflicht": True},
+    "2.3":  {"name": "PLT-Einrichtungen", "fm_kategorien": ["MSR"], "pflicht": True},
+    "2.4":  {"name": "Integrität der Bauteile", "fm_kategorien": ["Mechanisch", "Equipment"], "pflicht": True},
+    "2.5":  {"name": "CE-Konformität (Produktsicherheitsgesetz)", "fm_kategorien": ["Sicherheit"], "pflicht": True},
+    "2.6":  {"name": "Cyber Security", "fm_kategorien": ["MSR", "Elektrisch"], "pflicht": True},
+    # Kategorie 3 — Sonstige Einflüsse (optional, nur bei Außenanlagen)
+    "3.1":  {"name": "Hagel", "fm_kategorien": ["Mechanisch"], "pflicht": False},
+    "3.2":  {"name": "Blitzschlag", "fm_kategorien": ["Elektrisch", "Sicherheit"], "pflicht": False},
+    "3.3":  {"name": "Erdabsenkung", "fm_kategorien": ["Mechanisch"], "pflicht": False},
+    "3.4":  {"name": "Starkregenereignis", "fm_kategorien": ["Prozess"], "pflicht": False},
+    "3.5":  {"name": "Umgebungstemperaturen", "fm_kategorien": ["Thermisch"], "pflicht": False},
+    "3.6":  {"name": "Sabotage", "fm_kategorien": ["Sicherheit", "Sonstiges"], "pflicht": False},
+    "3.7":  {"name": "Sturm / Tornado", "fm_kategorien": ["Mechanisch"], "pflicht": False},
+    "3.8":  {"name": "Erdbeben", "fm_kategorien": ["Mechanisch"], "pflicht": False},
+    "3.9":  {"name": "Brand", "fm_kategorien": ["Sicherheit"], "pflicht": False},
+}
+
 # ═══════════════════════════════════════════════════════════════
 # Fehlermodi-Vorlagen (Basis für Agent-Bewertung)
 # ═══════════════════════════════════════════════════════════════
@@ -280,4 +335,5 @@ FMEA_CONFIG = {
     "fehlermodi_vorlagen": FEHLERMODI_VORLAGEN,
     "cause_origins": CAUSE_ORIGINS,
     "prevention_phases": PREVENTION_PHASES,
+    "gefahrenfelder": GEFAHRENFELDER,
 }

@@ -195,6 +195,7 @@ def init_state_from_structure(task_folder: str, project_id: int, komp_ids: list[
         "phase": "fmea",
         "current_komp_id": komp_ids[0] if komp_ids else None,
         "autonomy_mode": "geführt",
+        "session_started": datetime.now().isoformat(),
         "last_updated": datetime.now().isoformat(),
         "phases": {
             "struktur": "done",
@@ -209,6 +210,50 @@ def init_state_from_structure(task_folder: str, project_id: int, komp_ids: list[
     return state
 
 
+def get_progress_summary(task_folder: str) -> str:
+    """Gibt eine kompakte Fortschrittsanzeige zurück."""
+    state = load_state(task_folder)
+    if state is None:
+        return "Kein State vorhanden."
+
+    components = state.get("components", {})
+    total = len(components)
+    done_fmea = sum(1 for c in components.values() if c.get("fmea") == "done")
+    done_measures = sum(1 for c in components.values() if c.get("measures") == "done")
+    current = state.get("current_komp_id", "?")
+    phase = state.get("phase", "?")
+    elapsed = _calc_elapsed(state)
+
+    return f"Phase: {phase} | Komponente: {current} ({done_fmea}/{total} FMEA) | Maßnahmen: {done_measures}/{total} | {elapsed}"
+
+
+def _calc_elapsed(state: dict) -> str:
+    """Berechnet die verstrichene Session-Zeit."""
+    started = state.get("session_started")
+    if not started:
+        return "Keine Zeiterfassung"
+    try:
+        start_dt = datetime.fromisoformat(started)
+        delta = datetime.now() - start_dt
+        hours, remainder = divmod(int(delta.total_seconds()), 3600)
+        minutes = remainder // 60
+        if hours > 0:
+            return f"{hours}h {minutes}min"
+        return f"{minutes}min"
+    except (ValueError, TypeError):
+        return "?"
+
+
+def start_session_timer(task_folder: str) -> None:
+    """Setzt den Session-Timer, falls noch nicht gesetzt."""
+    state = load_state(task_folder)
+    if state is None:
+        state = _default_state(task_folder)
+    if not state.get("session_started"):
+        state["session_started"] = datetime.now().isoformat()
+        save_state(task_folder, state)
+
+
 def _default_state(task_folder: str) -> dict:
     return {
         "project_id": None,
@@ -216,6 +261,7 @@ def _default_state(task_folder: str) -> dict:
         "phase": "struktur",
         "current_komp_id": None,
         "autonomy_mode": "geführt",
+        "session_started": None,
         "last_updated": datetime.now().isoformat(),
         "phases": {p: "pending" for p in PHASES_ORDER},
         "components": {},

@@ -129,12 +129,27 @@ Kein Typ darf stillschweigend übergangen werden. Die Dokumentation nicht-releva
 | Mehr Stoffstrom (High Flow) | Überschreitung der Auslegungskapazität, verringerte Verweilzeit oder Überfüllung nachgeschalteter Apparate. |
 | Weniger Stoffstrom (Low Flow) | Unterschreitung der Mindestströmung, Gefahr von Ablagerungen oder unzureichender Durchmischung. |
 | Kein Stoffstrom (No Flow) | Vollständiger Abriss der Versorgung, Trockenlauf von Pumpen oder Entstehen von gefährlichen Totvolumina. |
-| Rückstrom (Reverse Flow) | Umkehrung der Fließrichtung durch Druckunterschiede, führt zu Kontamination von Vorlagen oder Reaktionen in Zuleitungen. |
+| Rückstrom (Reverse Flow) | Umkehrung der Fließrichtung durch Druckunterschiede, führt zu Kontamination von Vorlagen oder Reaktionen in Zuleitungen. **→ Backflow-Pflichtprüfung bei jeder upstream/downstream-Schnittstelle** |
 | Mehr Druck (High Pressure) | Überschreitung des zulässigen Betriebsdrucks (PS), Gefahr des Berstens oder Ansprechen von Sicherheitseinrichtungen. |
 | Weniger Druck (Low Pressure/Vacuum) | Unterschreitung des Mindestdrucks, Gefahr der Kavitation oder Implosion bei nicht vakuumfesten Apparaten. |
 | Konzentrationsabweichung | Falsches stöchiometrisches Verhältnis, führt zu Nebenreaktionen, Ausbeuteverlust oder thermischer Instabilität. |
 | Phasentrennung / Entmischung | Ungewollte Bildung von Schichten (z.B. Emulsionsbruch), führt zu Fehlmessungen oder lokalen Reaktions-Hotspots. |
 | Verschleppung / Kontamination | Eintrag von Fremdstoffen oder Rückständen aus Vorchargen, die als Katalysator oder Inhibitor wirken. |
+
+**Gefahrenfelder-Prüfpunkte (Prozess):**
+
+| Prüfpunkt | Prüffrage |
+|---|---|
+| 1.1 Spezifikation / Verunreinigungen | Qualität der Ausgangsstoffe? Verunreinigungen möglich? |
+| 1.2 Präsenz der Ausgangsstoffe | Versorgungsunterbrechung? Fehlende Ausgangsstoffe? |
+| 1.4 Reaktionsbedingungen | pH-Wert, Konzentration, Reaktionsparameter korrekt? |
+| 1.5 Druck | Über-/Unterdruck-Szenarien? Vakuumfestigkeit? |
+| 1.7 Vermischung / Verwechslung | Falsche Stoffe gemischt? Verwechslung von Leitungen? |
+| 1.9 Stoffströme / Rückströmung | Rückfluss? Falschströme? → Backflow-Pflichtprüfung |
+| 1.10 Füllstand / Überfüllung | Überlaufszenarien? Füllstandsüberwachung? |
+| 1.16 Pumpen / Leeren / Transfer | Trockenlauf? Kavitation? Leckage beim Transfer? |
+| 1.20 Evakuieren / Entlasten | Druckentlastung funktionsfähig? |
+| 1.22 Prozessunterbruch | Not-Halt-Folgen? Störungsreaktion? Wiederanfahren? |
 
 ### Thermisch
 | Typ | Beschreibung |
@@ -144,6 +159,15 @@ Kein Typ darf stillschweigend übergangen werden. Die Dokumentation nicht-releva
 | Thermischer Schock | Extreme Temperaturgradienten führen zu Spannungsrissen in Emaille-Auskleidungen oder Schweißnähten. |
 | Verlust der Wärmeabfuhr | Ausfall des Kühlmediums oder Fouling, führt zu unkontrolliertem Temperaturanstieg. |
 | Lokale Überhitzung (Hot Spot) | Ungleichmäßige Wärmeverteilung, z.B. durch defekte Rührwerke oder Wandbeläge, führt zu lokalem Materialversagen. |
+
+**Gefahrenfelder-Prüfpunkte (Thermisch):**
+
+| Prüfpunkt | Prüffrage |
+|---|---|
+| 1.6 Temperatur | Temperaturabweichungen? Runaway? Thermischer Schock? |
+| 1.13 Reaktion mit Wärmeträger | Vermischung Produkt/Wärmeträger? Doppelmantelbruch? |
+| 1.17 Heizen / Kühlen | Kühlungsausfall? Unkontrolliertes Heizen? Fouling? |
+| 2.2 Heiz-/Kühlmedien | Dampfausfall? Kühlwassermangel? Sole-Leckage? |
 
 ### Mechanisch
 | Typ | Beschreibung |
@@ -155,6 +179,15 @@ Kein Typ darf stillschweigend übergangen werden. Die Dokumentation nicht-releva
 | Innere Leckage (Bypass) | Durchbruch an Wärmetauscherrohren oder defekte Ventilsitze, prozessinterne Vermischung. |
 | Materialermüdung | Rissbildung durch zyklische Druck- oder Temperaturbelastungen. |
 
+**Gefahrenfelder-Prüfpunkte (Mechanisch):**
+
+| Prüfpunkt | Prüffrage |
+|---|---|
+| 1.11 Rührung / Rührgeschwindigkeit | Trockenlauf? Überdrehzahl? Vibration? Wellendichtung? |
+| 1.16 Pumpen / Leeren / Transfer | Kavitation? Mechanische Belastung? |
+| 1.23 Stoff-/Chemikalienaustritt | Flanschdichtungen? Gleitringdichtung? Leckagen? |
+| 2.4 Integrität der Bauteile | Korrosion? Materialermüdung? Werkstoffverträglichkeit? |
+
 ### Equipment
 | Typ | Beschreibung |
 |---|---|
@@ -164,6 +197,14 @@ Kein Typ darf stillschweigend übergangen werden. Die Dokumentation nicht-releva
 | Innere Beschädigung (Einbauten) | Bruch von Stromstörern, Füllkörpern oder Filterkerzen. |
 | Vakuumverlust | Eindringen von Falschluft in evakuierte Systeme, beeinträchtigt Siedepunkte oder führt zu explosiven Gemischen. |
 
+**Gefahrenfelder-Prüfpunkte (Equipment):**
+
+| Prüfpunkt | Prüffrage |
+|---|---|
+| 1.15 Filtrieren / Abtrennen | Filterdurchbruch? Verstopfung? Feststoffaustrag? |
+| 1.18 Reinigung | Restmengen? Reinigungserfolg? Rückstände? |
+| 2.4 Integrität der Bauteile | Werkstoffverträglichkeit? Alterung? |
+
 ### Elektrisch
 | Typ | Beschreibung |
 |---|---|
@@ -172,6 +213,13 @@ Kein Typ darf stillschweigend übergangen werden. Die Dokumentation nicht-releva
 | Phasenausfall / Asymmetrie | Unregelmäßige Versorgung von Drehstrommotoren, Überhitzung und Wicklungsschäden. |
 | EMV-Einkopplung | Elektromagnetische Störsignale auf Signalleitungen, sporadische Fehlmessungen. |
 | Erdschluss / Isolationsfehler | Fehlerstrom gegen Gehäuse, Auslösung von Schutzeinrichtungen oder Personengefahr. |
+
+**Gefahrenfelder-Prüfpunkte (Elektrisch):**
+
+| Prüfpunkt | Prüffrage |
+|---|---|
+| 1.12 Elektrostatische Aufladung | Erdung? Ableitfähige Materialien? Schüttgut/Pulver? |
+| 2.1 Hilfsenergien | Stromausfall? Druckluft-/Steuerluftausfall? USV vorhanden? |
 
 ### MSR
 | Typ | Beschreibung |
@@ -184,6 +232,14 @@ Kein Typ darf stillschweigend übergangen werden. Die Dokumentation nicht-releva
 | Kommunikationsabriss (Busfehler) | Verlust Verbindung E/A-Ebene zu CPU, Aktoren gehen in Fail-Safe. |
 | Antivalenzfehler | Widersprüchliche Rückmeldungen von Endlagenschaltern. |
 
+**Gefahrenfelder-Prüfpunkte (MSR):**
+
+| Prüfpunkt | Prüffrage |
+|---|---|
+| 1.19 Kontrolle / Überwachung / Detektion | Sensorausfall? Fehlende Redundanz? Alarmkette? |
+| 2.3 PLT-Einrichtungen | SPS-Ausfall? Regelung? Automatisierung? |
+| 2.6 Cyber Security | Netzwerk? Fernwartung? SCADA? Zugriffsschutz? |
+
 ### Sicherheit
 | Typ | Beschreibung |
 |---|---|
@@ -193,6 +249,17 @@ Kein Typ darf stillschweigend übergangen werden. Die Dokumentation nicht-releva
 | Flammendurchschlag | Defekt an Deflagrationssicherungen, Brandübertragung in andere Anlagenteile. |
 | Fehlauslösung Not-Halt | Unberechtigtes Auslösen der Schutzkette, instabile Zustände durch plötzlichen Stillstand. |
 
+**Gefahrenfelder-Prüfpunkte (Sicherheit):**
+
+| Prüfpunkt | Prüffrage |
+|---|---|
+| 1.8 Explosionsfähige Atmosphäre | Ex-Zone? Zündquellen? ATEX-Konformität? → **ATEX-Validierung Pflicht** |
+| 1.12 Elektrostatische Aufladung | Zündquelle durch Aufladung? Erdung? |
+| 1.21 Abluft / Ableitung | Sicherheitsventile korrekt dimensioniert? Abluftleitung frei? |
+| 1.24 Manuelle Tätigkeiten | Exposition bei offenem Mannloch/Handloch? PSA? |
+| 1.26 Offenes Stoffhandling | Exposition bei Befüllung/Entleerung? Absaugung? |
+| 2.5 CE-Konformität | Konformitätsbewertung aktuell? Dokumentation? |
+
 ### Dosierung
 | Typ | Beschreibung |
 |---|---|
@@ -201,12 +268,97 @@ Kein Typ darf stillschweigend übergangen werden. Die Dokumentation nicht-releva
 | Falsche Dosierreihenfolge | Abweichung vom Rezept, gefährliche Zwischenprodukte oder Feststoffausfall. |
 | Gasblasen im Dosierstrom | Inhomogenität im Medium, massive Volumenstromfehler bei Verdrängerpumpen. |
 
+**Gefahrenfelder-Prüfpunkte (Dosierung):**
+
+| Prüfpunkt | Prüffrage |
+|---|---|
+| 1.3 Dosierung / Menge / Reihenfolge | Korrekte Zugabe? Falsche Reihenfolge? |
+| 1.14 Katalysator / Inhibitor | Deaktivierung? Falscher Katalysator? Inhibitor verbraucht? |
+
 ### Sonstiges
 | Typ | Beschreibung |
 |---|---|
 | Bedienfehler (Human Error) | Falsche Sollwertvorgabe oder Fehlinterpretation von Alarmen. |
 | Kennzeichnungsfehler | Falsche Beschriftung von Leitungen oder Handventilen. |
 | Externe Einwirkung | Beschädigung von Rohrleitungen durch Staplerverkehr oder herabfallende Lasten. |
+
+**Gefahrenfelder-Prüfpunkte (Sonstiges):**
+
+| Prüfpunkt | Prüffrage |
+|---|---|
+| 1.24 Manuelle Tätigkeiten | Mannloch/Handloch offen? Probenahme? Filterwechsel? |
+| 1.25 Wartungs-/Reparaturarbeiten | Freigabeverfahren? Restenergie? Isolation? |
+| 1.26 Offenes Stoffhandling | Befüllung/Entleerung? Exposition? PSA? |
+
+---
+
+## ATEX-Validierung (Pflichtprüfung bei Ex-Zone)
+
+Bei jeder Komponente mit Ex-Zone-Einstufung MUSS geprüft werden:
+
+### Gas-Ex (Gruppe II G)
+
+| Bedingung | Prüfung | Pflichtmaßnahme |
+|---|---|---|
+| Zone 0 + brennbare Gase/Dämpfe | Geräte-Kategorie 1G erforderlich | Falls 2G/3G: Inertisierung PFLICHT |
+| Zone 1 + brennbare Gase/Dämpfe | Geräte-Kategorie 2G erforderlich | Falls 3G: Inertisierung oder Upgrade |
+| Zone 0/1 + keine Inertisierung | ATEX-Lücke! | Explizit ansprechen |
+
+### Staub-Ex (Gruppe II D)
+
+| Bedingung | Prüfung | Pflichtmaßnahme |
+|---|---|---|
+| Zone 20 + brennbarer Staub | Geräte-Kategorie 1D erforderlich | Falls 2D/3D: Inertisierung PFLICHT |
+| Zone 21 + brennbarer Staub | Geräte-Kategorie 2D erforderlich | Falls 3D: Inertisierung oder Upgrade |
+| Staubablagerungen auf heißen Oberflächen | Glimmtemperatur prüfen | Max. Oberflächentemperatur < 2/3 Glimmtemperatur |
+
+### Hybride Gemische (Gas + Staub gleichzeitig)
+
+| Bedingung | Prüfung | Pflichtmaßnahme |
+|---|---|---|
+| Gas + Staub gleichzeitig möglich | Strengere Zone gilt | UEG sinkt bei Hybridgemischen → konservativ bewerten |
+| Zone G + Zone D überlappen | Beide Kategorien (G+D) erforderlich | Geräte müssen beide Anforderungen erfüllen |
+
+### Entscheidungsbaum (alle drei Fälle)
+
+1. Sind brennbare Stoffe im System?
+   - Gase/Dämpfe: Flammpunkt < Betriebstemperatur? → Gas-Ex
+   - Stäube: Brennbarer Staub vorhanden? Kst > 0? → Staub-Ex
+   - Beides möglich? → Hybridgemisch
+2. Welche Ex-Zone im Inneren / im Raum?
+3. Welche ATEX-Gerätekategorie? (G, D, oder beides?)
+4. Inertisierung vorhanden? Wenn nein: als PFLICHTMASSNAHME vorschlagen
+
+**WICHTIG:** Der Agent MUSS diese Prüfung proaktiv durchführen. Der Nutzer darf nicht darauf hinweisen müssen. Immer ALLE drei Fälle (Gas, Staub, Hybrid) prüfen.
+
+---
+
+## Pflicht-Checkliste: Rückströmung (pro Schnittstelle)
+
+Für JEDE Verbindung in `connectedSystems.upstream` und `connectedSystems.downstream`:
+
+1. Gibt es ein Druckgefälle, das sich umkehren kann?
+2. Gibt es Rückschlagklappen oder andere Rückflusssperren?
+3. Was passiert bei Rückströmung? (Kontamination, gefährliche Reaktion, Druckaufbau?)
+
+Bei Vakuumbetrieb: Auch Falschluft-Eintrag als Rückströmungs-Variante betrachten.
+
+**Trigger:** Gefahrenfeld 1.9 (Stoffströme, Rückströmung) löst diese Prüfung aus.
+
+---
+
+## Common Cause Failure (CCF) Prüfung
+
+Nach Abschluss aller Einzel-Fehlermodi MUSS eine CCF-Prüfung durchgeführt werden:
+
+1. Welche Fehlermodi haben **gemeinsame Ursachen**?
+   (z.B. Stromausfall betrifft Rührwerk + Thermostat + Anzeigen)
+2. Welche **Schutzschichten sind voneinander abhängig**?
+   (z.B. DHV und PSV am selben Stutzen → Verstopfung betrifft beide)
+3. Gibt es **Kaskaden-Szenarien**?
+   (z.B. Kühlungsausfall → Übertemperatur → Druckaufbau → Glasbruch)
+
+Für jede identifizierte CCF: Eigenen Fehlermodus anlegen oder bestehenden FM um CCF-Ursache erweitern. S/O/D separat bewerten.
 
 ---
 

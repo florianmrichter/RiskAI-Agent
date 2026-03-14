@@ -39,6 +39,9 @@ class FMEAStorage:
         self._migrate_measures_new_fields()
         self._migrate_projects_version()
         self._migrate_failure_modes_moc()
+        self._migrate_failure_modes_empfehlung()
+        self._migrate_risk_assessments_akzeptanz()
+        self._migrate_measures_implementation_status()
 
     def _create_tables(self):
         self.conn.executescript("""
@@ -276,6 +279,37 @@ class FMEAStorage:
             if col not in existing_cols:
                 self.conn.execute(f"ALTER TABLE failure_modes ADD COLUMN {col} {definition}")
         self.conn.commit()
+
+    def _migrate_failure_modes_empfehlung(self):
+        """Add empfehlung column to failure_modes."""
+        try:
+            self.conn.execute("SELECT empfehlung FROM failure_modes LIMIT 1")
+        except sqlite3.OperationalError:
+            self.conn.execute("ALTER TABLE failure_modes ADD COLUMN empfehlung TEXT")
+            self.conn.commit()
+
+    def _migrate_risk_assessments_akzeptanz(self):
+        """Add risk acceptance fields to risk_assessments."""
+        for col, coltype in [
+            ("risiko_akzeptiert", "BOOLEAN DEFAULT 0"),
+            ("akzeptiert_von", "TEXT"),
+            ("akzeptiert_datum", "TEXT"),
+            ("akzeptanz_bedingungen", "TEXT"),
+            ("revalidierung_datum", "TEXT"),
+        ]:
+            try:
+                self.conn.execute(f"SELECT {col} FROM risk_assessments LIMIT 1")
+            except sqlite3.OperationalError:
+                self.conn.execute(f"ALTER TABLE risk_assessments ADD COLUMN {col} {coltype}")
+        self.conn.commit()
+
+    def _migrate_measures_implementation_status(self):
+        """Add implementation_status column to measures."""
+        try:
+            self.conn.execute("SELECT implementation_status FROM measures LIMIT 1")
+        except sqlite3.OperationalError:
+            self.conn.execute("ALTER TABLE measures ADD COLUMN implementation_status TEXT DEFAULT 'geplant'")
+            self.conn.commit()
 
     # ── Project CRUD ──
 

@@ -120,8 +120,14 @@
         {% endfor %}
       </div>
       <div class="nav-section" style="margin-top:8px;">
+        <div class="nav-section-label">Bewertung</div>
+        {% if compliance_findings is defined and compliance_findings %}<a class="nav-link" href="#sec-compliance">Compliance-Status</a>{% endif %}
+        {% if akzeptierte_risiken is defined and akzeptierte_risiken %}<a class="nav-link" href="#sec-akzeptanz">Akzeptierte Risiken</a>{% endif %}
+        {% if wartungsmatrix is defined and wartungsmatrix %}<a class="nav-link" href="#sec-wartung">Wartungsmatrix</a>{% endif %}
+      </div>
+      <div class="nav-section" style="margin-top:8px;">
         <div class="nav-section-label">Anhang</div>
-        <a class="nav-link" href="#sec-anhang">📎 Anhang &amp; Tabellen</a>
+        <a class="nav-link" href="#sec-anhang">Anhang &amp; Tabellen</a>
       </div>
     </nav>
 
@@ -979,6 +985,27 @@
                   {% if risk.get('agent_konfidenz') == 'niedrig' %}
                   <span style="font-size:10px;color:#991B1B;font-weight:600;">⚠ Expertenprüfung empfohlen</span>
                   {% endif %}
+                  {% if risk.get('daten_quelle') %}
+                  <span style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid #6B7280;color:#6B7280;font-weight:600;">Quelle: {{ risk.daten_quelle }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              {% endif %}
+
+              {# S/O/D-Begründungen #}
+              {% if risk.get('begruendung_S') or risk.get('begruendung_O') or risk.get('begruendung_D') %}
+              <div class="sub-section" style="padding-top:6px;padding-bottom:6px;">
+                <div class="sub-label">Bewertungsbegründung</div>
+                <div style="font-size:12px;color:var(--text-secondary);display:flex;flex-direction:column;gap:3px;">
+                  {% if risk.get('begruendung_S') %}
+                  <div><strong>S = {{ fm.S }}:</strong> {{ risk.begruendung_S }}</div>
+                  {% endif %}
+                  {% if risk.get('begruendung_O') %}
+                  <div><strong>O = {{ fm.O }}:</strong> {{ risk.begruendung_O }}</div>
+                  {% endif %}
+                  {% if risk.get('begruendung_D') %}
+                  <div><strong>D = {{ fm.D }}:</strong> {{ risk.begruendung_D }}</div>
+                  {% endif %}
                 </div>
               </div>
               {% endif %}
@@ -1100,6 +1127,37 @@
                   {% endif %}
                 </div>
                 {% endfor %}
+              </div>
+              {% endif %}
+
+              {# Vorgeschlagene Maßnahmen (nicht umgesetzt) #}
+              {% set vorgeschlagen = fm.get('vorgeschlagene_massnahmen', []) %}
+              {% if vorgeschlagen %}
+              <div class="sub-section" style="margin-top:8px;opacity:0.7;">
+                <div class="sub-label">Weitere empfohlene Maßnahmen (nicht umgesetzt)</div>
+                {% for m in vorgeschlagen %}
+                <div class="measure-card" style="border-style:dashed;">
+                  <div class="measure-header">
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                      <span class="abe-badge {{ m.abe_kategorie }}">{{ abe_labels.get(m.abe_kategorie, m.abe_kategorie) }}</span>
+                      {% if m.stop_kategorie %}
+                      <span class="stop-badge stop-{{ m.stop_kategorie }}">{{ stop_labels.get(m.stop_kategorie, m.stop_kategorie) }}</span>
+                      {% endif %}
+                      <span class="measure-name">{{ m.name }}</span>
+                      <span style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid #9CA3AF;color:#9CA3AF;font-weight:600;">{{ m.get('implementation_status', 'vorgeschlagen') }}</span>
+                    </div>
+                  </div>
+                  <div class="measure-desc">{{ m.beschreibung }}</div>
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+
+              {# Empfehlung des Agenten #}
+              {% if fm.empfehlung %}
+              <div class="sub-section" style="padding:10px 12px;background:var(--bg-secondary);border-radius:6px;border-left:3px solid var(--accent-blue);margin-top:8px;">
+                <div class="sub-label" style="margin-bottom:4px;">Empfehlung</div>
+                <p style="font-size:12px;color:var(--text-secondary);margin:0;">{{ fm.empfehlung }}</p>
               </div>
               {% endif %}
 
@@ -1275,6 +1333,94 @@
       </div>{# /view-component #}
 
     </section>{# /sec-5 #}
+
+    {# ══════════════════  5b. COMPLIANCE-STATUS  ══════════════════ #}
+    {% if compliance_findings is defined and compliance_findings %}
+    <section class="page-section" id="sec-compliance">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 5b</div>
+        <div class="section-title">Compliance-Status</div>
+        <div class="section-desc">Bewertung der regulatorischen Konformität basierend auf den FMEA-Ergebnissen.</div>
+      </div>
+      {% for finding in compliance_findings %}
+      <div style="padding:10px 14px;margin-bottom:8px;border-radius:6px;border-left:4px solid {% if finding.status == 'konform' %}var(--risk-niedrig){% elif finding.status == 'bedingt_konform' %}var(--risk-mittel){% else %}var(--risk-kritisch){% endif %};background:var(--bg-secondary);">
+        <div style="font-size:13px;font-weight:700;color:var(--text-primary);">{{ finding.regelwerk }}</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">{{ finding.aussage }}</div>
+        {% if finding.pflichtmassnahmen %}
+        <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">Pflichtmaßnahmen: {{ finding.pflichtmassnahmen | join(', ') }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    {# ══════════════════  5c. AKZEPTIERTE RESTRISIKEN  ══════════════════ #}
+    {% if akzeptierte_risiken is defined and akzeptierte_risiken %}
+    <section class="page-section" id="sec-akzeptanz">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 5c</div>
+        <div class="section-title">Akzeptierte Restrisiken</div>
+        <div class="section-desc">Formal akzeptierte Risiken mit Dokumentation der Verantwortlichkeit.</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+        <thead>
+          <tr style="background:var(--bg);">
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">FM-ID</th>
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">Einstufung</th>
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">RPZ</th>
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">Akzeptiert von</th>
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">Datum</th>
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">Bedingungen</th>
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">Revalidierung</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ar in akzeptierte_risiken %}
+          <tr>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);font-weight:600;">{{ ar.fehler_id }}</td>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);">{{ ar.rpz_status | upper }}</td>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);">{{ ar.rpz }}</td>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);">{{ ar.akzeptiert_von or '—' }}</td>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);">{{ ar.akzeptiert_datum or '—' }}</td>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);">{{ ar.akzeptanz_bedingungen or '—' }}</td>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);">{{ ar.revalidierung_datum or '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+    {% endif %}
+
+    {# ══════════════════  5d. WARTUNGSMATRIX  ══════════════════ #}
+    {% if wartungsmatrix is defined and wartungsmatrix %}
+    <section class="page-section" id="sec-wartung">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 5d</div>
+        <div class="section-title">Wartungs- und Prüfmatrix</div>
+        <div class="section-desc">Aggregierte Prüfintervalle aus Controls und Maßnahmen.</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+        <thead>
+          <tr style="background:var(--bg);">
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">Control / Maßnahme</th>
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">Typ</th>
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">Intervall</th>
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">Bezug (FM-ID)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for w in wartungsmatrix %}
+          <tr>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);font-weight:600;">{{ w.name }}</td>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);">{{ w.typ }}</td>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);">{{ w.intervall }}</td>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);">{{ w.fm_ids | join(', ') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+    {% endif %}
 
     {# ══════════════════  6. ANHANG  ══════════════════ #}
     <section class="page-section" id="sec-anhang">

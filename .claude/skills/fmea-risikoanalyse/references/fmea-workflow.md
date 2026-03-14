@@ -143,3 +143,112 @@ Am Ende jeder Risikoanalyse (unabhängig von Testmodus) gib eine kurze Zusammenf
   - Pro Maßnahme optional: `hinweis` (Aufwand/Kosten, z.B. „⚡ moderater Aufwand, 💰 gering“)
 - MSR-Bezeichnungen: `config/msr_glossar.md` – korrekte Benennung (PIC, TIC, LIC, LSH, LSHH etc.)
 - Domain-Wissen: `config/wissen/` – zentral gespeichertes Wissen aus Recherchen (pro Domäne/Prozess eine Datei)
+
+## Vollständigkeit der DB-Einträge (Pflicht)
+
+Beim Einspielen jedes Fehlermodus in die DB MÜSSEN folgende Felder befüllt sein:
+- `causes`: Alle identifizierten Ursachen (mit ursache_id, beschreibung, herkunft)
+- `effects`: Folgen in allen 4 Dimensionen (Mensch, Umwelt, Anlage, Kosten)
+- `controls`: Alle bestehenden Controls (mit Name, Typ, Wirkung, Beschreibung)
+- `begruendung_S/O/D`: Begründung für jeden S/O/D-Wert
+- `kontext_beschreibung`: "Worum geht es?" Erklärung
+- `daten_konfidenz`, `agent_konfidenz`, `daten_quelle`: Konfidenz-Dokumentation
+- `empfehlung`: Gesamteinschätzung des Agenten (z.B. "Bestehende Controls sind ausreichend" oder "Maßnahmen 1+5 in Kombination empfohlen")
+
+KEINE vereinfachten Platzhalter wie "Siehe Dokumentation FM X".
+Jeder Fehlermodus muss im Report eigenständig verständlich sein.
+
+Bei Kreuzverweisen auf andere Fehlermodi: Immer die vollständige FM-ID verwenden
+(z.B. "→ Verweis auf FM 20TA42-KOMP-001-FM03").
+
+## Daten-Anreicherung während der Analyse
+
+Wenn während der FMEA Datenlücken auffallen (z.B. fehlende Auslegungsdaten,
+unbekannte Gerätekategorie), den Nutzer fragen:
+- "Hast du ein Datenblatt dazu?"
+- "Soll ich beim Hersteller online nachschauen?"
+Gefundene Daten in `anlagendaten.json` zurückschreiben (Write-back-Regel).
+
+## Kostenbewertung bei S-Wert (Pflicht-Referenz)
+
+Wenn Anlagenkosten in den Anlagendaten vorhanden sind, diese als Referenz für
+die Kostendimension der Folgenabschätzung nutzen:
+
+| S | Kosten-Schwelle | Einordnungshilfe |
+|---|---|---|
+| 4 | < 1k € | Verbrauchsmaterial, Reinigung |
+| 5 | 1–10k € | Reparatur, Chargenverlust |
+| 6 | 10–50k € | Größere Reparatur, Teilersatz |
+| 7 | 50–250k € | Komponentenersatz |
+| 8 | 250k–500k € | Teilanlagenersatz |
+| 9 | > 500k € | Totalschaden |
+| 10 | > 1M € | Totalschaden + Folgeschäden |
+
+Beispiel: Glasreaktor mit Wiederbeschaffungskosten 80k € → Totalschaden = S=7
+(nicht S=9, es sei denn Folgeschäden/Stillstand kommen hinzu).
+
+## Betriebszustands-Matrix (Pflicht)
+
+Für jeden identifizierten Fehlermodus dokumentieren, in welchem Betriebszustand
+er auftreten kann. Fehlermodi die nur in bestimmten Zuständen relevant sind,
+müssen entsprechend gekennzeichnet werden.
+
+Besondere Aufmerksamkeit auf:
+- **Reinigung mit brennbaren Lösemitteln bei offenem Handloch** — Ex-Risiko!
+- **Entleerung mit laufendem Rührer** — Trockenlauf, Vibration
+- **Anfahren** — Inertisierung muss abgeschlossen sein vor Heizstart
+- **Übergänge zwischen Zuständen** — z.B. Druckwechsel Vakuum → Atmosphäre
+
+## Formale Risikoakzeptanz (Pflicht bei HOCH/KRITISCH ohne Maßnahmen)
+
+Wenn der Nutzer ein Risiko mit Einstufung HOCH oder KRITISCH ohne (weitere)
+Maßnahmen akzeptiert, MUSS dokumentiert werden:
+
+1. **Wer** akzeptiert das Risiko? (Name, Funktion)
+2. **Unter welchen Bedingungen** gilt die Akzeptanz?
+3. **Bis wann** muss revalidiert werden? (max. 1 Jahr)
+4. Im Report als "Akzeptiertes Restrisiko" kennzeichnen mit allen Angaben
+
+Bei S = 10 (Gefährlich — Todesfälle): Akzeptanz NUR durch Anlagenleitung
+oder Sicherheitsfachkraft möglich. Explizit darauf hinweisen.
+
+## Fehlermodus-ID-Konvention (Pflicht)
+
+Format: `{teilanlage_nr}-{komp_id}-FM{laufnummer:02d}`
+Beispiel: `20TA42-KOMP-001-FM01`
+
+NIEMALS generische Buchstaben (A, B, C) oder nicht-qualifizierte IDs verwenden.
+
+## Fortschrittsanzeige (Pflicht)
+
+Vor jedem neuen Fehlermodus die Fortschrittsanzeige ausgeben:
+`get_progress_summary(task_folder)` aufrufen und Ergebnis anzeigen.
+
+Am Ende der Analyse: Gesamtdauer der Session anzeigen.
+
+## ReliabilityDB-Referenz (Pflicht bei O-Bewertung)
+
+Vor jeder O-Bewertung `reliability_data.json` konsultieren.
+Wenn ein passender Equipment-Typ vorhanden ist, den Wert als Ausgangspunkt
+für die Bewertung verwenden und in `begruendung_O` referenzieren.
+
+**Wenn KEIN passender Equipment-Typ in der ReliabilityDB vorhanden ist:**
+1. Den Nutzer informieren: "Für [Equipment-Typ] liegen keine Referenz-Ausfallraten vor."
+2. Fragen: "Soll ich im Internet nach Zuverlässigkeitsdaten für [Hersteller/Typ] suchen?"
+3. Bei Bestätigung: Nach OREDA-Daten, Herstellerangaben, CCPS-Referenzen oder
+   Fachpublikationen recherchieren.
+4. Gefundene Daten in `reliability_data.json` ergänzen (neuer Equipment-Typ),
+   damit sie für zukünftige Analysen verfügbar sind.
+5. In `begruendung_O` die Quelle dokumentieren (z.B. "Herstellerangabe Büchi" oder
+   "OREDA 2014, Tabelle 3.2").
+6. Falls keine Daten findbar: `daten_konfidenz = niedrig` setzen und
+   `daten_quelle = KI-Vorschlag` verwenden.
+
+## Bewährte Praktiken (nicht ändern)
+
+1. **Anlagendaten-Write-back** — Korrekturen sofort in `anlagendaten.json` zurückschreiben
+2. **Dynamische S/O/D-Anpassung** — Neue Controls → sofort S/O/D korrigieren
+3. **Moderator-Stil** — Verständlich erklären, MSR-Abkürzungen ausschreiben
+4. **Maßnahmen-Verweis** — Bei bereits behandelten Maßnahmen verweisen statt doppeln
+5. **Druckeinheiten** — barg/bara korrekt nachfragen
+6. **Interview-Modus** — Max. 3–4 Fragen pro Runde
