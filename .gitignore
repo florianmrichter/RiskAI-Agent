@@ -38,6 +38,15 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Runtime State
+.active_task_folder
+
+# Superpowers (auto-generated brainstorm artifacts)
+.superpowers/
+
+# Playwright MCP logs
+.playwright-mcp/
+
 # Cursor / MCP
 .cursor/
 .mcp-servers/

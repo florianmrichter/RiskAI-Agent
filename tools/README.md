@@ -22,7 +22,6 @@
 | failure_templates.py | Fehlervorlagen pro Komponententyp | aktiv | fehleranalyse |
 | reliability_lookup.py | O-Wert-Vorschläge | aktiv | fehleranalyse |
 | chart_comparison.py | RPZ-Vergleichs-Chart | aktiv | report_generator |
-| mermaid_renderer.py | Mermaid zu SVG/PNG | aktiv | report_generator |
 | export.py | Excel/JSON-Export | aktiv | - |
 | clear_fmea_for_project.py | FMEA eines Projekts zurücksetzen | aktiv | - |
 | apply_explicit_measures.py | Maßnahmen aus Config | **deprecated** | - |
