@@ -2,7 +2,7 @@
 name: anlagendaten-interview
 model: sonnet
 description: >
-  Führt ein strukturiertes Interview durch um alle Anlagendaten für eine FMEA-Risikoanalyse zu erheben und erzeugt daraus eine vollständige anlagendaten.json. Verwende diese Skill immer wenn der Nutzer eine neue Anlage aufnehmen will, Anlagendaten fehlen oder unvollständig sind, eine anlagendaten.json erstellt oder ergänzt werden soll, oder wenn der Nutzer vor dem Start einer FMEA sagt dass noch keine Daten vorliegen. Auch verwenden bei Begriffen wie "Anlage erfassen", "Anlagendaten erheben", "neue Anlage anlegen", "FMEA vorbereiten" oder "Interview starten".
+  Führt ein strukturiertes Interview durch um alle Anlagendaten für eine FMEA-Risikoanalyse zu erheben und erzeugt daraus eine vollständige anlagendaten.json. Verwende diese Skill immer wenn der Nutzer eine neue Anlage aufnehmen will, Anlagendaten fehlen oder unvollständig sind, eine anlagendaten.json erstellt oder ergänzt werden soll, oder wenn der Nutzer vor dem Start einer FMEA sagt dass noch keine Daten vorliegen. Auch verwenden bei Begriffen wie "Anlage erfassen", "Anlagendaten erheben", "neue Anlage anlegen", "FMEA vorbereiten", "Interview starten", "Daten eingeben", "neue Analyse vorbereiten", "Anlage beschreiben" oder "Stoffdaten".
 ---
 
 # Anlagendaten-Interview
@@ -21,13 +21,7 @@ Lies `interview-phasen.md` und das kompakte Schema bevor du Phase 1 startest. Da
 
 ## 1. Autonomiemodus bestimmen (Pflicht beim Start)
 
-Prüfe zuerst ob `anlagendaten.json` bereits existiert mit `interview_status`:
-
-```python
-import os, json
-from pathlib import Path
-# Prüfe bekannte task_folders
-```
+Prüfe zuerst ob `anlagendaten.json` bereits existiert mit `interview_status`.
 
 **Fall A — Unterbrochenes Interview:**
 Wenn `anlagendaten.json` existiert mit `interview_status.complete = false`:
@@ -62,28 +56,7 @@ Du kannst jederzeit wechseln: /modus G | /modus E | /modus I
 
 ## 3. Anlagendaten-Write-back (kontinuierlich)
 
-Nach jeder Phase sofort in `anlagendaten.json` persistieren:
-
-```python
-import json
-from pathlib import Path
-path = Path(f"tasks/{task_folder}/anlagendaten.json")
-path.parent.mkdir(parents=True, exist_ok=True)
-# Bestehende Datei laden wenn vorhanden, neue Daten mergen
-```
-
-`interview_status` immer mitführen:
-
-```json
-{
-  "interview_status": {
-    "complete": false,
-    "current_phase": 3,
-    "current_system": "R-101",
-    "last_updated": "2026-03-12T10:00:00"
-  }
-}
-```
+Nach jeder Phase sofort in `tasks/{task_folder}/anlagendaten.json` persistieren (bestehende Datei laden, neue Daten mergen). `interview_status` immer mitführen: `complete` (bool), `current_phase` (1-7), `current_system` (ID), `last_updated` (ISO-Datum).
 
 ## 4. Stoffdaten — PubChem zuerst, Fachwissen als Fallback
 

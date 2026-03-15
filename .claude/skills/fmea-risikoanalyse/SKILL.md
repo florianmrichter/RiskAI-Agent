@@ -2,7 +2,7 @@
 name: fmea-risikoanalyse
 model: opus
 description: >
-  Führt eine vollständige FMEA-Risikoanalyse (Failure Mode and Effects Analysis) für Industrieanlagen durch — vom Session-Start bis zum fertigen PDF-Report. Verwende diese Skill immer wenn der Nutzer eine Risikoanalyse starten oder fortsetzen will, FMEA-Fehlermodi bewerten soll, RPZ-Werte (Risikoprioritätszahlen) berechnet oder Maßnahmen definiert werden sollen. Auch verwenden wenn der Nutzer Begriffe wie "FMEA", "Risikoanalyse", "S/O/D bewerten", "Fehlermodi", "RPZ", "Maßnahmen einspielen" oder "Report generieren" nennt.
+  Führt eine vollständige FMEA-Risikoanalyse (Failure Mode and Effects Analysis) für Industrieanlagen durch — vom Session-Start bis zum fertigen PDF-Report. Verwende diese Skill immer wenn der Nutzer eine Risikoanalyse starten oder fortsetzen will, FMEA-Fehlermodi bewerten soll, RPZ-Werte (Risikoprioritätszahlen) berechnet oder Maßnahmen definiert werden sollen. Auch verwenden wenn der Nutzer Begriffe wie "FMEA", "Risikoanalyse", "S/O/D bewerten", "Fehlermodi", "RPZ", "Maßnahmen einspielen", "Report generieren", "Risiken bewerten", "Gefahrenanalyse", "was kann schiefgehen", "weiter machen", "nächste Komponente" oder "wo waren wir" nennt.
 ---
 
 # FMEA-Risikoanalyse
@@ -46,22 +46,14 @@ Safety Overrides und Maßnahmen-Klassifizierung (STOP/ABE): siehe `config/fmea_s
 
 ## 1. Projekt ermitteln
 
-```python
-import os
-projekte = [p for p in os.listdir("tasks/Risikoanalyse")
-            if os.path.isdir(f"tasks/Risikoanalyse/{p}")]
-```
+Prüfe `tasks/Risikoanalyse/` auf vorhandene Projektordner.
 
 - **Projekte vorhanden:** Liste zeigen → fragen ob bestehendes fortsetzen oder neues anlegen.
-- **Kein Projekt:** Hinweis geben → zuerst den `anlagendaten-interview`-Skill ausführen um `anlagendaten.json` zu erzeugen, dann hierher zurückkehren.
+- **Kein Projekt:** Hinweis → zuerst `anlagendaten-interview`-Skill ausführen, dann zurückkehren.
 
 ## 2. Autonomiemodus und Report-Qualität bestimmen (Pflicht bei neuer Session)
 
-```python
-from tools.workflow_state import get_autonomy_mode, set_autonomy_mode, get_report_quality, set_report_quality
-mode = get_autonomy_mode("Risikoanalyse/{projektname}")
-quality = get_report_quality("Risikoanalyse/{projektname}")
-```
+Lade Modus mit `get_autonomy_mode(task_folder)` und `get_report_quality(task_folder)` aus `tools.workflow_state`.
 
 - **Modus vorhanden:** Kurz benennen ("Modus: Geführt, Report: ausführlich"), direkt weiter.
 - **Kein Modus gesetzt (neue Analyse):** Modus-Auswahl einmalig präsentieren:
@@ -98,22 +90,14 @@ Der Agent prüft `get_report_quality(task_folder)` vor jedem Schreiben in die DB
 
 ## 3. State laden und nächsten Schritt ausführen
 
-```python
-from tools.workflow_state import get_next_action
-next_action = get_next_action("Risikoanalyse/{projektname}")
-```
+`get_next_action(task_folder)` aus `tools.workflow_state` aufrufen.
 
 - **State vorhanden:** Stand kurz nennen, sofort nächsten offenen Schritt ausführen.
 - **Kein State:** Struktur initialisieren (Anlagendaten laden, Komponenten in DB), State anlegen, Schritt 1 starten.
 
 ## 3b. Kalibrierung laden (automatisch bei Session-Start)
 
-```python
-from tools.calibration import load_calibration_rules, check_plausibility, apply_calibration
-cal_rules = load_calibration_rules()
-```
-
-Kalibrierungs- und Feedback-Regeln: siehe `workflows/fmea-workflow.md` → "Kalibrierung und Feedback-Erfassung".
+`load_calibration_rules()` aus `tools.calibration` aufrufen. Regeln: siehe `workflows/fmea-workflow.md` → "Kalibrierung und Feedback-Erfassung".
 
 ## 3c. ReliabilityDB-Lookup laden (Pflicht pro Komponente)
 

@@ -5,21 +5,22 @@ description: >
   Trainingsmodus für das FMEA-Bewertungssystem. Präsentiert dem Fachexperten gezielt
   S/O/D-Bewertungen zur Überprüfung und sammelt strukturiertes Feedback für die
   Kalibrierung des Agents. Verwende diese Skill wenn der Nutzer "FMEA trainieren",
-  "Bewertungen überprüfen", "Agent kalibrieren" oder "Training starten" sagt.
+  "Bewertungen überprüfen", "Agent kalibrieren", "Training starten", "Bewertungen checken",
+  "wo lag ich falsch", "Qualität verbessern", "Feedback geben", "Korrekturen einpflegen",
+  "wie gut bewertet der Agent", "Training-Session" oder "Kalibrierung starten" sagt.
 ---
 
 # FMEA-Training
 
 Du führst eine gezielte Trainings-Session durch, um die Qualität deiner S/O/D-Bewertungen zu verbessern. Kein produktiver FMEA-Lauf — sondern ein überwachtes Training, bei dem der Fachexperte deine Bewertungen bestätigt oder korrigiert.
 
+S/O/D-Skalenbedeutungen aus `config/fmea_standards.py` (S_SCALE, O_SCALE, D_SCALE) laden. Druckbare Referenz: `.claude/skills/fmea-risikoanalyse/references/sod-referenzkarte.md`.
+
 ## Ablauf
 
 ### 1. Kandidaten auswählen
 
-```python
-from tools.calibration import select_training_candidates
-candidates = select_training_candidates(n=10)
-```
+`select_training_candidates(n=10)` aus `tools.calibration` aufrufen. Liefert vollständige Dicts mit FM-Kontext (komp_id, komp_typ, funktion, project_id, S/O/D, Begründungen, Konfidenz etc.).
 
 Auswahl-Priorität:
 1. Bewertungen mit `agent_konfidenz = niedrig`
@@ -28,32 +29,17 @@ Auswahl-Priorität:
 
 ### 2. Kontext laden (pro Kandidat)
 
-Für jeden Kandidaten den vollständigen Kontext aus der DB laden:
+Für jeden Kandidaten den vollständigen Kontext über die FMEAStorage-API laden — kein raw SQL:
 
 ```python
-from tools.storage import FMEAStorage
-db = FMEAStorage()
-
-# Fehlermodus mit Komponente, Projekt, Funktion
-fm_data = db.conn.execute('''
-    SELECT fm.id, fm.fehlermodus, fm.fehlerart, fm.kontext_beschreibung,
-           fm.controls_einschraenkung, fm.empfehlung,
-           c.komp_id, c.typ as komp_typ,
-           f.beschreibung as funktion,
-           p.anlage_name, p.id as project_id, p.task_folder
-    FROM failure_modes fm
-    JOIN functions f ON fm.function_id = f.id
-    JOIN components c ON f.component_id = c.id
-    JOIN projects p ON c.project_id = p.id
-    WHERE fm.id = ?
-''', (fm_id,)).fetchone()
-
-# Ursachen, Folgen, Controls, S/O/D-Begründungen laden
-causes = db.conn.execute('SELECT beschreibung, herkunft FROM failure_causes WHERE failure_mode_id=?', (fm_id,)).fetchall()
-effects = db.conn.execute('SELECT * FROM failure_effects WHERE failure_mode_id=?', (fm_id,)).fetchall()
-controls = db.conn.execute('SELECT name, typ, wirkung, beschreibung, beeinflusst FROM current_controls WHERE failure_mode_id=?', (fm_id,)).fetchall()
-ra = db.conn.execute('SELECT S, O, D, rpz, rpz_status, begruendung_S, begruendung_O, begruendung_D, daten_konfidenz, agent_konfidenz, daten_quelle FROM risk_assessments WHERE failure_mode_id=?', (fm_id,)).fetchone()
+with FMEAStorage() as db:
+    causes = db.get_failure_causes(fm_id)
+    effects = db.get_failure_effect(fm_id)
+    controls = db.get_current_controls(fm_id)
+    risk = db.get_risk_assessment(fm_id)
 ```
+
+Die Basis-Infos (komp_id, komp_typ, fehlermodus, fehlerart, project_id etc.) kommen bereits aus dem `select_training_candidates()`-Dict von Schritt 1.
 
 ### 3. Training-Runden — Präsentation im Moderator-Stil
 
@@ -81,7 +67,6 @@ Folgen:
 
 Bestehende Controls:
 - {control_1}: {beschreibung} (beeinflusst: {S/O/D})
-- {control_2}: ...
 
 Einschränkung der Controls: {controls_einschraenkung}
 
@@ -106,37 +91,18 @@ Konfidenz: Daten={daten_konfidenz}, Agent={agent_konfidenz}
 Beginnen wir mit S = {S}. Passt das?
 ```
 
-Wichtig: Wenn `kontext_beschreibung` leer oder zu kurz ist (< 50 Zeichen), eine eigene kurze Einordnung aus den Ursachen/Folgen formulieren. Der Experte braucht immer den "Worum geht es?"-Kontext.
-
-S/O/D-Skalenbedeutungen aus `config/fmea_standards.py` (S_SCALE, O_SCALE, D_SCALE) laden und bei der Präsentation angeben.
+Wenn `kontext_beschreibung` leer oder zu kurz ist (< 50 Zeichen), eine eigene kurze Einordnung aus den Ursachen/Folgen formulieren. Der Experte braucht immer den "Worum geht es?"-Kontext.
 
 ### 4. Feedback erfassen
 
 S, O, D **einzeln** bestätigen lassen — nicht pauschal "alles OK?"
 
-```python
-from tools.storage import FMEAStorage
-db = FMEAStorage()
+- **Bestätigung:** `db.record_confirmation(fm_id, project_id, field="S", value=S, source="training")`
+- **Korrektur:** `db.record_correction(fm_id, project_id, field="S", original=agent_S, corrected=expert_S, reason="...", context={...}, source="training")`
 
-# Bei Bestätigung:
-db.record_confirmation(
-    failure_mode_id=fm_id, project_id=project_id,
-    field="S", value=S, source="training"
-)
-
-# Bei Korrektur:
-db.record_correction(
-    failure_mode_id=fm_id, project_id=project_id,
-    field="S", original=agent_S, corrected=expert_S,
-    reason="Experten-Begründung",
-    context={"komponenten_typ": typ, "fehlerart": art, "medium": medium},
-    source="training"
-)
-```
+Bei Korrektur: RPZ wird automatisch neu berechnet.
 
 ### 5. Zusammenfassung
-
-Nach allen Runden:
 
 ```
 Training abgeschlossen: {total} Bewertungen
@@ -147,11 +113,7 @@ Training abgeschlossen: {total} Bewertungen
 
 ### 6. Kalibrierung aktualisieren
 
-```python
-from tools.calibration import generate_rules
-config = generate_rules()
-print(f"Kalibrierungsregeln aktualisiert: {len(config['rules'])} Regeln")
-```
+Am Ende: `generate_rules()` aus `tools.calibration` aufrufen — aktualisiert automatisch `config/calibration_rules.json`.
 
 ## Regeln
 
