@@ -487,29 +487,20 @@ small { font-size: 0.78rem; color: var(--text-muted); }
   border-color: var(--brand);
 }
 
-/* Kurzform: sub-content auf 3 Zeilen begrenzt */
-.sub-collapsible.section-kurz .sub-content {
-  max-height: 60px;
-  overflow: hidden;
-  opacity: 1;
-  position: relative;
-}
-.sub-collapsible.section-kurz .sub-content::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 24px;
-  background: linear-gradient(transparent, var(--surface));
-  pointer-events: none;
-}
-/* Detailform: alles sichtbar */
-.sub-collapsible.section-detail .sub-content {
-  max-height: 5000px;
-  opacity: 1;
-  overflow: visible;
-}
+/* Kurz/Detail Text-Sichtbarkeit */
+.text-detail { display: none; }
+.text-kurz { display: inline; }
+p.text-kurz { display: block; }
+
+.section-detail .text-detail { display: inline; }
+.section-detail p.text-detail { display: block; }
+.section-detail .text-kurz { display: none; }
+
+/* SOD-Begründungen: Kurz/Detail innerhalb sod-open */
+.sod-open .sod-collapsible .text-detail { display: none; }
+.sod-open .sod-collapsible .text-kurz { display: inline; }
+.sod-open.sod-detail .sod-collapsible .text-detail { display: inline; }
+.sod-open.sod-detail .sod-collapsible .text-kurz { display: none; }
 
 /* ═══ Hover-Preview Tooltip ═══ */
 .hover-tooltip {
@@ -1633,12 +1624,10 @@ tbody tr:last-child td { border-bottom: none; }
   .risk-card .sod-rationale,
   .risk-card .sod-rationale.sod-collapsible,
   .sub-collapsible .sub-content,
-  .sub-collapsible.section-kurz .sub-content {
-    max-height: none !important;
-    overflow: visible !important;
-    opacity: 1 !important;
-  }
-  .sub-collapsible.section-kurz .sub-content::after { display: none !important; }
+  /* Print: immer Langtext zeigen */
+  .text-kurz { display: none !important; }
+  .text-detail { display: inline !important; }
+  p.text-detail { display: block !important; }
   .risk-card.collapsed .card-body {
     max-height: none !important;
     overflow: visible !important;

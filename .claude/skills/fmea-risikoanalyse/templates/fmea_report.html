@@ -1218,7 +1218,11 @@
                     {% if beg %}<span class="sod-expand-hint">&#9654;</span>{% endif %}
                   </div>
                   {% if beg %}
-                  <div class="sod-rationale sod-collapsible">{{ beg | strip_sod_prefix }}</div>
+                  {% set beg_kurz = risk_scores.get(beg_keys[key] ~ '_kurz') %}
+                  <div class="sod-rationale sod-collapsible">
+                    <span class="text-kurz">{{ (beg_kurz or beg) | strip_sod_prefix }}</span>
+                    <span class="text-detail">{{ beg | strip_sod_prefix }}</span>
+                  </div>
                   {% endif %}
                 </div>
                 {% endfor %}
@@ -1245,7 +1249,8 @@
                   Kontext
                 </div>
                 <div class="sub-content">
-                  <p style="font-size:13px;color:var(--text-secondary);margin:0;">{{ fm.kontext_beschreibung }}</p>
+                  <p class="text-kurz" style="font-size:13px;color:var(--text-secondary);margin:0;">{{ fm.kontext_beschreibung_kurz or fm.kontext_beschreibung }}</p>
+                  <p class="text-detail" style="font-size:13px;color:var(--text-secondary);margin:0;">{{ fm.kontext_beschreibung }}</p>
                 </div>
               </div>
               {% endif %}
@@ -1311,7 +1316,7 @@
                     {% for c in fm.causes %}
                     <tr>
                       <td class="td-id">{{ c.ursache_id }}</td>
-                      <td>{{ c.beschreibung }}</td>
+                      <td><span class="text-kurz">{{ c.beschreibung_kurz or c.beschreibung }}</span><span class="text-detail">{{ c.beschreibung }}</span></td>
                       <td>{{ c.herkunft }}</td>
                       <td>{{ c.praeventionsphase }}</td>
                     </tr>
@@ -1335,7 +1340,10 @@
                   {% for dim, desc_key, stufe_key in [('Mensch','mensch_beschreibung','mensch_stufe'),('Umwelt','umwelt_beschreibung','umwelt_stufe'),('Anlage','anlage_beschreibung','anlage_stufe'),('Kosten','kosten_beschreibung','kosten_stufe')] %}
                   <div class="effect-cell {% if not eff.get(desc_key) %}none{% endif %}">
                     <div class="effect-cell-label">{{ dim }}{% if eff.get(stufe_key) %} <span class="effect-stufe">{{ eff.get(stufe_key) }}</span>{% endif %}</div>
-                    <div class="effect-cell-text">{{ eff.get(desc_key, '—') if eff.get(desc_key) else '—' }}</div>
+                    <div class="effect-cell-text">
+                      <span class="text-kurz">{{ eff.get(desc_key ~ '_kurz') or eff.get(desc_key, '—') }}</span>
+                      <span class="text-detail">{{ eff.get(desc_key, '—') if eff.get(desc_key) else '—' }}</span>
+                    </div>
                   </div>
                   {% endfor %}
                 </div>
@@ -1371,7 +1379,10 @@
                   </tbody>
                 </table>
                 {% if fm.controls_einschraenkung %}
-                <div class="controls-einschraenkung">Einschränkung: {{ fm.controls_einschraenkung }}</div>
+                <div class="controls-einschraenkung">
+                  <span class="text-kurz">Einschränkung: {{ fm.controls_einschraenkung_kurz or fm.controls_einschraenkung }}</span>
+                  <span class="text-detail">Einschränkung: {{ fm.controls_einschraenkung }}</span>
+                </div>
                 {% endif %}
                 </div>{# /sub-content controls #}
               </div>
@@ -1427,7 +1438,7 @@
                     {% endif %}
                   </div>
                   {% endif %}
-                  <div class="measure-desc">{{ m.beschreibung }}</div>
+                  <div class="measure-desc"><span class="text-kurz">{{ m.beschreibung_kurz or m.beschreibung }}</span><span class="text-detail">{{ m.beschreibung }}</span></div>
                   {% if m.begruendung %}
                   <div class="measure-reasoning">{{ m.begruendung }}</div>
                   {% endif %}
@@ -1457,7 +1468,7 @@
                       <span style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid #9CA3AF;color:#9CA3AF;font-weight:600;">{{ m.get('implementation_status', 'vorgeschlagen') }}</span>
                     </div>
                   </div>
-                  <div class="measure-desc">{{ m.beschreibung }}</div>
+                  <div class="measure-desc"><span class="text-kurz">{{ m.beschreibung_kurz or m.beschreibung }}</span><span class="text-detail">{{ m.beschreibung }}</span></div>
                 </div>
                 {% endfor %}
               </div>
@@ -1471,7 +1482,8 @@
                   Empfehlung
                 </div>
                 <div class="sub-content">
-                  <p style="font-size:12px;color:var(--text-secondary);margin:0;">{{ fm.empfehlung }}</p>
+                  <p class="text-kurz" style="font-size:12px;color:var(--text-secondary);margin:0;">{{ fm.empfehlung_kurz or fm.empfehlung }}</p>
+                  <p class="text-detail" style="font-size:12px;color:var(--text-secondary);margin:0;">{{ fm.empfehlung }}</p>
                 </div>
               </div>
               {% endif %}
@@ -1653,7 +1665,7 @@
                     </div>
                     {% endif %}
                   </div>
-                  <div class="measure-desc">{{ m.beschreibung }}</div>
+                  <div class="measure-desc"><span class="text-kurz">{{ m.beschreibung_kurz or m.beschreibung }}</span><span class="text-detail">{{ m.beschreibung }}</span></div>
                   {% if m.begruendung %}<div class="measure-reasoning">{{ m.begruendung }}</div>{% endif %}
                 </div>
                 {% endfor %}
@@ -1929,19 +1941,27 @@ function toggleDetail(mode) {
   var btnKurz   = document.getElementById('btn-kurzansicht');
   var btnDetail = document.getElementById('btn-detailansicht');
 
-  /* Scroll-Anker: aktuelle Karte im Viewport merken */
+  /* 1. Scroll-Anker: aktuelle Karte im Viewport merken */
   var cards = document.querySelectorAll('.risk-card');
   var anchorCard = null;
   var anchorOffset = 0;
   for (var i = 0; i < cards.length; i++) {
     var rect = cards[i].getBoundingClientRect();
-    if (rect.top >= -50 && rect.top < window.innerHeight) {
+    if (rect.top >= -50 && rect.top < window.innerHeight * 0.5) {
       anchorCard = cards[i];
       anchorOffset = rect.top;
       break;
     }
   }
 
+  /* 2. Transitions SOFORT deaktivieren (VOR DOM-Änderungen) */
+  var sheet = document.createElement('style');
+  sheet.id = 'no-transition';
+  sheet.textContent = '*, *::before, *::after { transition: none !important; }';
+  document.head.appendChild(sheet);
+  void document.body.offsetHeight;
+
+  /* 3. Toggle ausführen */
   if (mode === 'kurz') {
     document.body.classList.add('kurz-mode');
     document.querySelectorAll('.risk-card').forEach(function(c) {
@@ -1975,27 +1995,24 @@ function toggleDetail(mode) {
     btnKurz.classList.remove('active');
     btnDetail.classList.add('active');
   }
+  /* Detail-Button Labels aktualisieren */
+  document.querySelectorAll('.section-detail-btn').forEach(function(btn) {
+    var sec = btn.closest('.sub-collapsible');
+    btn.textContent = (sec && sec.classList.contains('section-detail')) ? 'Kurz' : 'Detail';
+  });
 
-  /* Scroll-Position korrigieren: Transitions temporär deaktivieren */
+  /* 4. Layout erzwingen + Scroll korrigieren */
+  void document.body.offsetHeight;
   if (anchorCard) {
-    /* Transitions aus */
-    var sheet = document.createElement('style');
-    sheet.id = 'no-transition';
-    sheet.textContent = '*, *::before, *::after { transition: none !important; }';
-    document.head.appendChild(sheet);
-    /* Layout erzwingen */
-    void document.body.offsetHeight;
-    /* Scroll korrigieren */
     var newRect = anchorCard.getBoundingClientRect();
     window.scrollBy(0, newRect.top - anchorOffset);
-    /* Transitions nach kurzem Delay wieder an */
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        var s = document.getElementById('no-transition');
-        if (s) s.remove();
-      });
-    });
   }
+
+  /* 5. Transitions wieder aktivieren */
+  requestAnimationFrame(function() {
+    var s = document.getElementById('no-transition');
+    if (s) s.remove();
+  });
 }
 
 /* ═══ Ebene 2: Per-Card Toggle ═══ */
@@ -2038,13 +2055,8 @@ function toggleSection(labelEl) {
 function toggleSectionDetail(btn) {
   event.stopPropagation();
   var section = btn.closest('.sub-collapsible');
-  if (section.classList.contains('section-detail')) {
-    section.classList.remove('section-detail');
-    section.classList.add('section-kurz');
-  } else {
-    section.classList.remove('section-kurz');
-    section.classList.add('section-detail');
-  }
+  section.classList.toggle('section-detail');
+  btn.textContent = section.classList.contains('section-detail') ? 'Kurz' : 'Detail';
 }
 
 /* ═══ Hover-Preview Tooltip ═══ */
