@@ -38,10 +38,12 @@ RiskAI-Agent/
 ├── plans/           # Architektur- und Strategiepläne
 ├── tasks/           # Aufgaben-spezifische Eingabedaten
 ├── data/            # SQLite-Datenbank fmea.db (gitignored)
-├── .claude/skills/  # Claude Code Skills (fmea-risikoanalyse, anlagendaten-interview)
+├── .claude/skills/  # Claude Code Skills (fmea-risikoanalyse, anlagendaten-interview, fmea-training)
+├── .github/         # CI/CD (GitHub Actions: ruff + pytest)
 ├── .tmp/            # Temporäre Verarbeitungsdateien (gitignored)
 ├── .env.example     # Vorlage für .env (API-Keys, FMEA_TESTMODE_PASSWORD)
-└── requirements.txt # Python-Abhängigkeiten
+├── pyproject.toml   # Projekt-Konfiguration (Python >=3.10, Dependencies)
+└── requirements.txt # Python-Abhängigkeiten (Legacy)
 ```
 
 **Agent-Anweisungen:** Generisches WAT-Framework in `CLAUDE.md`; FMEA-spezifische Regeln in den Claude Code Skills unter `.claude/skills/` (Moderator-Rolle, S/O/D-Skalen, MSR-Glossar werden automatisch geladen). Quell-SOPs bleiben kanonisch in `workflows/`.
@@ -54,14 +56,24 @@ RiskAI-Agent/
 ## Setup
 
 ```bash
+# Option 1: Mit pyproject.toml (empfohlen)
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -e .
+
+# Option 2: Mit requirements.txt
 pip install -r requirements.txt
+
+# Optional: Dev-Tools (Linting, Tests)
+pip install -e ".[dev]"
 ```
 
 ### Voraussetzungen
 
 - Python 3.10+
-- API-Schlüssel in `.env` (siehe `claude.md` für Details)
-- Optional: `.env` aus `.env.example` kopieren – enthält u.a. `FMEA_TESTMODE_PASSWORD` für den Testmodus
+- Claude Code CLI (für Agent-Interaktion)
+- API-Schlüssel in `.env` (siehe `.env.example`)
+- Optional: `FMEA_TESTMODE_PASSWORD` in `.env` für autonome Testläufe
 
 ## Standards & Methodik
 
@@ -247,3 +259,5 @@ Jeder Projektordner enthält: `anlagendaten.json`, `fmea_explicit.py`, `measures
 **Änderungen (2026-03-13):** FMEA-Skill-Workflow weiter konsolidiert (`workflows/fmea-workflow.md`, FMEA-Referenzen, Report-Template). Tools: `load_plant_data.py`, `report_generator.py`, `storage.py`, `workflow_state.py` überarbeitet; neue Tools `migrate_db.py` (DB-Migration) und `moc_manager.py` (Management of Change) ergänzt. Plan `007_FMEA-Skill-Upgrade-Report-MoC_2026-03-10.md` fortgeschrieben.
 
 **Änderungen (2026-03-14):** FMEA-Report-Template (`templates/fmea_report.html`) und CSS (`templates/fmea_style.css`) zu einem thematischen App-Shell-Layout mit Komponenten-/Themen-Ansicht ausgebaut. Report-Generator (`tools/report_generator.py`) erzeugt zusätzliche Vergleichs- und Treemap-Charts, MoC-Deltas und Maßnahmen-Cockpit. Chat-Panel im Report wieder entfernt — FMEA-Interaktion läuft direkt über Claude Code.
+
+**Optimierung (2026-03-15):** Umfassendes Projekt-Review und Optimierung: ~11k LOC Duplikate eliminiert (Skill-Kopien von tools/config/templates), Token-Ladung bei Session-Start um ~50% reduziert (Lazy-Loading, Inline-Regeln), fmea-training auf Sonnet gewechselt, Interview-Schema von 1310→185 Zeilen komprimiert. Code-Qualität: pyproject.toml (Python 3.10+), zentrales Logging (tools/_base.py), storage.py schema_version (18x Speedup), GitHub Actions CI, sys.path.insert Cleanup, Type Hints, Auto-Backup, Token-Usage-Tracking.

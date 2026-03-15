@@ -7,6 +7,8 @@ Usage:
     project_id = db.create_project("Beispiel-Anlage", "20TA42", task_folder="Risikoanalyse/Beispielprojekt")
 """
 
+from __future__ import annotations
+
 import sqlite3
 import json
 import os
@@ -21,7 +23,7 @@ DEFAULT_DB_DIR = Path(__file__).parent.parent / "data"
 
 
 class FMEAStorage:
-    def __init__(self, db_path: str = None):
+    def __init__(self, db_path: str | None = None):
         if db_path is None:
             DEFAULT_DB_DIR.mkdir(parents=True, exist_ok=True)
             db_path = str(DEFAULT_DB_DIR / "fmea.db")
@@ -376,10 +378,10 @@ class FMEAStorage:
 
     # ── Project CRUD ──
 
-    def create_project(self, name: str, anlage_name: str = None, task_folder: str = None,
-                       version: str = "1.0", parent_version_id: int = None,
-                       version_beschreibung: str = None, erstellt_von: str = None,
-                       geprueft_von: str = None) -> int:
+    def create_project(self, name: str, anlage_name: str | None = None, task_folder: str | None = None,
+                       version: str = "1.0", parent_version_id: int | None = None,
+                       version_beschreibung: str | None = None, erstellt_von: str | None = None,
+                       geprueft_von: str | None = None) -> int:
         cur = self.conn.execute(
             """INSERT INTO projects
                (name, anlage_name, datum, task_folder,
@@ -397,7 +399,7 @@ class FMEAStorage:
         self.conn.commit()
         return self.conn.total_changes > 0
 
-    def get_project_versions(self, task_folder: str) -> list:
+    def get_project_versions(self, task_folder: str) -> list[dict]:
         """Return all versions of a project ordered by id."""
         rows = self.conn.execute(
             "SELECT * FROM projects WHERE task_folder = ? ORDER BY id",
@@ -405,11 +407,11 @@ class FMEAStorage:
         ).fetchall()
         return [dict(r) for r in rows]
 
-    def get_project(self, project_id: int) -> dict:
+    def get_project(self, project_id: int) -> dict | None:
         row = self.conn.execute("SELECT * FROM projects WHERE id = ?", (project_id,)).fetchone()
         return dict(row) if row else None
 
-    def get_project_by_task_folder(self, task_folder: str) -> dict:
+    def get_project_by_task_folder(self, task_folder: str) -> dict | None:
         row = self.conn.execute(
             "SELECT * FROM projects WHERE task_folder = ? ORDER BY id DESC LIMIT 1",
             (task_folder,)
@@ -423,8 +425,8 @@ class FMEAStorage:
     # ── Component CRUD ──
 
     def insert_component(self, project_id: int, komp_id: str, name: str, typ: str,
-                         kategorie: str, system_name: str = None, beschreibung: str = None,
-                         parameters: dict = None, kontext: dict = None) -> int:
+                         kategorie: str, system_name: str | None = None, beschreibung: str | None = None,
+                         parameters: dict | None = None, kontext: dict | None = None) -> int:
         cur = self.conn.execute(
             """INSERT INTO components 
                (project_id, komp_id, name, typ, kategorie, system_name, beschreibung,
@@ -437,13 +439,13 @@ class FMEAStorage:
         self.conn.commit()
         return cur.lastrowid
 
-    def get_components(self, project_id: int) -> list:
+    def get_components(self, project_id: int) -> list[dict]:
         rows = self.conn.execute(
             "SELECT * FROM components WHERE project_id = ? ORDER BY komp_id", (project_id,)
         ).fetchall()
         return [self._parse_component(r) for r in rows]
 
-    def get_component_by_komp_id(self, komp_id: str, project_id: int = None) -> dict:
+    def get_component_by_komp_id(self, komp_id: str, project_id: int | None = None) -> dict | None:
         if project_id is not None:
             row = self.conn.execute(
                 "SELECT * FROM components WHERE komp_id = ? AND project_id = ?", (komp_id, project_id)
@@ -461,7 +463,7 @@ class FMEAStorage:
     # ── Function CRUD ──
 
     def insert_function(self, component_id: int, funktion_id: str, typ: str,
-                        beschreibung: str, anforderungen: list = None) -> int:
+                        beschreibung: str, anforderungen: list | None = None) -> int:
         cur = self.conn.execute(
             """INSERT OR IGNORE INTO functions (component_id, funktion_id, typ, beschreibung, anforderungen_json)
                VALUES (?, ?, ?, ?, ?)""",
@@ -474,13 +476,13 @@ class FMEAStorage:
         row = self.conn.execute("SELECT id FROM functions WHERE funktion_id = ?", (funktion_id,)).fetchone()
         return row[0] if row else None
 
-    def get_functions(self, component_id: int) -> list:
+    def get_functions(self, component_id: int) -> list[dict]:
         rows = self.conn.execute(
             "SELECT * FROM functions WHERE component_id = ? ORDER BY funktion_id", (component_id,)
         ).fetchall()
         return [self._parse_function(r) for r in rows]
 
-    def get_function_by_funktion_id(self, funktion_id: str) -> dict:
+    def get_function_by_funktion_id(self, funktion_id: str) -> dict | None:
         row = self.conn.execute("SELECT * FROM functions WHERE funktion_id = ?", (funktion_id,)).fetchone()
         return self._parse_function(row) if row else None
 
@@ -493,8 +495,8 @@ class FMEAStorage:
 
     def insert_failure_mode(self, function_id: int, fehler_id: str,
                             fehlermodus: str, fehlerart: str,
-                            kontext_beschreibung: str = None,
-                            controls_einschraenkung: str = None) -> int:
+                            kontext_beschreibung: str | None = None,
+                            controls_einschraenkung: str | None = None) -> int:
         cur = self.conn.execute(
             """INSERT OR IGNORE INTO failure_modes
                (function_id, fehler_id, fehlermodus, fehlerart, kontext_beschreibung, controls_einschraenkung)
@@ -507,19 +509,19 @@ class FMEAStorage:
         row = self.conn.execute("SELECT id FROM failure_modes WHERE fehler_id = ?", (fehler_id,)).fetchone()
         return row[0] if row else None
 
-    def get_failure_modes(self, function_id: int) -> list:
+    def get_failure_modes(self, function_id: int) -> list[dict]:
         rows = self.conn.execute(
             "SELECT * FROM failure_modes WHERE function_id = ? ORDER BY fehler_id", (function_id,)
         ).fetchall()
         return [dict(r) for r in rows]
 
-    def get_failure_mode_by_fehler_id(self, fehler_id: str) -> dict:
+    def get_failure_mode_by_fehler_id(self, fehler_id: str) -> dict | None:
         row = self.conn.execute("SELECT * FROM failure_modes WHERE fehler_id = ?", (fehler_id,)).fetchone()
         return dict(row) if row else None
 
     def update_failure_mode_report_fields(self, fehler_id: str,
-                                          kontext_beschreibung: str = None,
-                                          controls_einschraenkung: str = None) -> bool:
+                                          kontext_beschreibung: str | None = None,
+                                          controls_einschraenkung: str | None = None) -> bool:
         """Update kontext_beschreibung and/or controls_einschraenkung for existing failure mode."""
         updates = []
         values = []
@@ -543,7 +545,7 @@ class FMEAStorage:
 
     def insert_failure_cause(self, failure_mode_id: int, ursache_id: str, beschreibung: str,
                              herkunft: str, praeventionsphase: str,
-                             praeventionshinweis: str = None) -> int:
+                             praeventionshinweis: str | None = None) -> int:
         valid_herkunft = {"Design", "Fertigung", "Betrieb", "Wartung"}
         valid_phase = {"Konzept", "Detaildesign", "Fertigung", "Inbetriebnahme", "Betrieb", "Wartung"}
         if herkunft not in valid_herkunft:
@@ -559,7 +561,7 @@ class FMEAStorage:
         self.conn.commit()
         return cur.lastrowid
 
-    def get_failure_causes(self, failure_mode_id: int) -> list:
+    def get_failure_causes(self, failure_mode_id: int) -> list[dict]:
         rows = self.conn.execute(
             "SELECT * FROM failure_causes WHERE failure_mode_id = ? ORDER BY ursache_id",
             (failure_mode_id,)
@@ -569,10 +571,10 @@ class FMEAStorage:
     # ── FailureEffect CRUD ──
 
     def insert_failure_effect(self, failure_mode_id: int,
-                              mensch_stufe: str = None, mensch_beschreibung: str = None,
-                              umwelt_stufe: str = None, umwelt_beschreibung: str = None,
-                              anlage_stufe: str = None, anlage_beschreibung: str = None,
-                              kosten_stufe: str = None, kosten_beschreibung: str = None) -> int:
+                              mensch_stufe: str | None = None, mensch_beschreibung: str | None = None,
+                              umwelt_stufe: str | None = None, umwelt_beschreibung: str | None = None,
+                              anlage_stufe: str | None = None, anlage_beschreibung: str | None = None,
+                              kosten_stufe: str | None = None, kosten_beschreibung: str | None = None) -> int:
         cur = self.conn.execute(
             """INSERT INTO failure_effects 
                (failure_mode_id, mensch_stufe, mensch_beschreibung,
@@ -586,7 +588,7 @@ class FMEAStorage:
         self.conn.commit()
         return cur.lastrowid
 
-    def get_failure_effect(self, failure_mode_id: int) -> dict:
+    def get_failure_effect(self, failure_mode_id: int) -> dict | None:
         row = self.conn.execute(
             "SELECT * FROM failure_effects WHERE failure_mode_id = ?", (failure_mode_id,)
         ).fetchone()
@@ -595,12 +597,12 @@ class FMEAStorage:
     # ── RiskAssessment CRUD ──
 
     def insert_risk_assessment(self, failure_mode_id: int, S: int, O: int, D: int,
-                               begruendung_S: str = None, begruendung_O: str = None,
-                               begruendung_D: str = None, rpz: int = None,
-                               rpz_status: str = None, override_applied: str = None,
+                               begruendung_S: str | None = None, begruendung_O: str | None = None,
+                               begruendung_D: str | None = None, rpz: int | None = None,
+                               rpz_status: str | None = None, override_applied: str | None = None,
                                daten_konfidenz: str = "mittel", agent_konfidenz: str = "mittel",
-                               agent_konfidenz_begruendung: str = None,
-                               daten_quelle: str = None) -> int:
+                               agent_konfidenz_begruendung: str | None = None,
+                               daten_quelle: str | None = None) -> int:
         if rpz is None:
             rpz = S * O * D
         if rpz_status is None:
@@ -618,7 +620,7 @@ class FMEAStorage:
         self.conn.commit()
         return cur.lastrowid
 
-    def update_risk_assessment(self, failure_mode_id: int, **kwargs):
+    def update_risk_assessment(self, failure_mode_id: int, **kwargs) -> None:
         allowed = {"S", "O", "D", "begruendung_S", "begruendung_O", "begruendung_D",
                     "rpz", "rpz_status", "override_applied",
                     "daten_konfidenz", "agent_konfidenz", "agent_konfidenz_begruendung", "daten_quelle",
@@ -633,7 +635,7 @@ class FMEAStorage:
         )
         self.conn.commit()
 
-    def get_risk_assessment(self, failure_mode_id: int) -> dict:
+    def get_risk_assessment(self, failure_mode_id: int) -> dict | None:
         row = self.conn.execute(
             "SELECT * FROM risk_assessments WHERE failure_mode_id = ?", (failure_mode_id,)
         ).fetchone()
@@ -647,9 +649,9 @@ class FMEAStorage:
     # ── CurrentControl CRUD ──
 
     def insert_current_control(self, failure_mode_id: int, name: str, typ: str,
-                               wirkung: str, sil_level: str = None,
-                               beschreibung: str = None, beeinflusst: str = None,
-                               einschraenkung: str = None) -> int:
+                               wirkung: str, sil_level: str | None = None,
+                               beschreibung: str | None = None, beeinflusst: str | None = None,
+                               einschraenkung: str | None = None) -> int:
         cur = self.conn.execute(
             """INSERT INTO current_controls 
                (failure_mode_id, name, typ, wirkung, sil_level, beschreibung, beeinflusst, einschraenkung)
@@ -659,7 +661,7 @@ class FMEAStorage:
         self.conn.commit()
         return cur.lastrowid
 
-    def get_current_controls(self, failure_mode_id: int) -> list:
+    def get_current_controls(self, failure_mode_id: int) -> list[dict]:
         rows = self.conn.execute(
             "SELECT * FROM current_controls WHERE failure_mode_id = ?", (failure_mode_id,)
         ).fetchall()
@@ -668,14 +670,14 @@ class FMEAStorage:
     # ── Measure CRUD ──
 
     def insert_measure(self, failure_mode_id: int, name: str, abe_kategorie: str,
-                       beschreibung: str, stop_kategorie: str = None,
-                       ziel: str = None,
-                       S_neu: int = None, O_neu: int = None, D_neu: int = None,
-                       rpz_neu: int = None, rpz_status_neu: str = None,
-                       begruendung: str = None, hinweis: str = None, iteration: int = 1,
-                       prioritaet: str = "empfohlen", aufwand: str = None,
-                       kosten_klasse: str = None, assigned_to: str = None,
-                       target_date: str = None,
+                       beschreibung: str, stop_kategorie: str | None = None,
+                       ziel: str | None = None,
+                       S_neu: int | None = None, O_neu: int | None = None, D_neu: int | None = None,
+                       rpz_neu: int | None = None, rpz_status_neu: str | None = None,
+                       begruendung: str | None = None, hinweis: str | None = None, iteration: int = 1,
+                       prioritaet: str = "empfohlen", aufwand: str | None = None,
+                       kosten_klasse: str | None = None, assigned_to: str | None = None,
+                       target_date: str | None = None,
                        implementation_status: str = "geplant") -> int:
         if rpz_neu is None and all(v is not None for v in [S_neu, O_neu, D_neu]):
             rpz_neu = S_neu * O_neu * D_neu
@@ -694,7 +696,7 @@ class FMEAStorage:
         self.conn.commit()
         return cur.lastrowid
 
-    def insert_measures_batch(self, failure_mode_id: int, measures: list) -> list:
+    def insert_measures_batch(self, failure_mode_id: int, measures: list[dict]) -> list[int]:
         """Insert multiple measures for a single failure mode. Returns list of IDs."""
         ids = []
         for m in measures:
@@ -723,7 +725,7 @@ class FMEAStorage:
             ids.append(mid)
         return ids
 
-    def get_measures(self, failure_mode_id: int) -> list:
+    def get_measures(self, failure_mode_id: int) -> list[dict]:
         rows = self.conn.execute(
             "SELECT * FROM measures WHERE failure_mode_id = ?", (failure_mode_id,)
         ).fetchall()
@@ -743,7 +745,7 @@ class FMEAStorage:
     def record_feedback(self, failure_mode_id: int, project_id: int,
                         feedback_type: str, field: str,
                         agent_value: int, final_value: int,
-                        reason: str = None, context: dict = None,
+                        reason: str | None = None, context: dict | None = None,
                         source: str = "workflow") -> int:
         """Record expert feedback (correction or confirmation) for an S/O/D value."""
         delta = final_value - agent_value
@@ -762,7 +764,7 @@ class FMEAStorage:
 
     def record_correction(self, failure_mode_id: int, project_id: int,
                           field: str, original: int, corrected: int,
-                          reason: str, context: dict = None,
+                          reason: str, context: dict | None = None,
                           source: str = "workflow") -> int:
         """Record a human correction with full context. Updates risk_assessments too."""
         fb_id = self.record_feedback(
@@ -790,7 +792,7 @@ class FMEAStorage:
 
     def record_confirmation(self, failure_mode_id: int, project_id: int,
                             field: str, value: int,
-                            reason: str = None, context: dict = None,
+                            reason: str | None = None, context: dict | None = None,
                             source: str = "workflow") -> int:
         """Record expert confirmation (agent value was correct)."""
         return self.record_feedback(
@@ -798,8 +800,8 @@ class FMEAStorage:
             value, value, reason, context, source
         )
 
-    def get_feedback_history(self, project_id: int = None,
-                             feedback_type: str = None) -> list:
+    def get_feedback_history(self, project_id: int | None = None,
+                             feedback_type: str | None = None) -> list[dict]:
         """Get all feedback, optionally filtered by project and type."""
         query = "SELECT * FROM assessment_feedback WHERE 1=1"
         params = []
@@ -902,7 +904,7 @@ class FMEAStorage:
 
     # ── Query Helpers ──
 
-    def get_all_failure_modes_with_rpz(self, project_id: int, min_rpz: int = 0) -> list:
+    def get_all_failure_modes_with_rpz(self, project_id: int, min_rpz: int = 0) -> list[dict]:
         """Returns all failure modes for a project with their risk assessment, filtered by min RPZ."""
         rows = self.conn.execute("""
             SELECT fm.*, ra.S, ra.O, ra.D, ra.rpz, ra.rpz_status,
@@ -917,7 +919,7 @@ class FMEAStorage:
         """, (project_id, min_rpz)).fetchall()
         return [dict(r) for r in rows]
 
-    def get_failure_modes_needing_measures(self, project_id: int) -> list:
+    def get_failure_modes_needing_measures(self, project_id: int) -> list[dict]:
         """
         Returns failure modes that need measures: RPZ >= 100 OR rpz_status in ('hoch', 'kritisch').
         Ensures Sonderregel-Fälle (z.B. S>=9 → hoch trotz RPZ<100) werden berücksichtigt.
@@ -936,7 +938,7 @@ class FMEAStorage:
         """, (project_id,)).fetchall()
         return [dict(r) for r in rows]
 
-    def get_full_fmea_data(self, project_id: int) -> list:
+    def get_full_fmea_data(self, project_id: int) -> list[dict]:
         """Returns the complete FMEA dataset for export."""
         failure_modes = self.get_all_failure_modes_with_rpz(project_id)
         result = []
@@ -1008,7 +1010,7 @@ class FMEAStorage:
             old.unlink()
         return str(backup_path)
 
-    def close(self):
+    def close(self) -> None:
         self.conn.close()
 
     def __enter__(self):

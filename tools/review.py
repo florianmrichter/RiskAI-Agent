@@ -8,6 +8,7 @@ Usage:
     from tools.review import get_structure_review, get_ranking_review
     print(get_structure_review(project_id))
 """
+from __future__ import annotations
 
 import json
 import sys
@@ -33,7 +34,7 @@ def _db(db_path=None):
 # Schritt 1: Plant Data Review
 # ═══════════════════════════════════════════════════════════════
 
-def get_plant_data_review(plant_data: dict) -> str:
+def get_plant_data_review(plant_data: dict[str, object]) -> str:
     """Format a summary of loaded plant data for human review."""
     lines = ["## Anlagendaten – Zusammenfassung\n"]
 
@@ -88,7 +89,7 @@ def get_plant_data_review(plant_data: dict) -> str:
 # Schritt 2: Structure Review
 # ═══════════════════════════════════════════════════════════════
 
-def get_structure_review(project_id: int, db_path=None) -> str:
+def get_structure_review(project_id: int, db_path: str | None = None) -> str:
     """Format the component list for human review."""
     db = _db(db_path)
     components = db.get_components(project_id)
@@ -120,7 +121,7 @@ def get_structure_review(project_id: int, db_path=None) -> str:
 # Schritt 3: Function Review
 # ═══════════════════════════════════════════════════════════════
 
-def get_function_review(project_id: int, component_id: int = None, db_path=None) -> str:
+def get_function_review(project_id: int, component_id: int | None = None, db_path: str | None = None) -> str:
     """Format functions for human review, optionally filtered to one component."""
     db = _db(db_path)
     components = db.get_components(project_id)
@@ -211,7 +212,7 @@ def _identify_rpz_driver(S: int, O: int, D: int) -> str:
     return driver_explanations[driver_key]
 
 
-def get_risk_review(project_id: int, fehler_id: str = None, db_path=None) -> str:
+def get_risk_review(project_id: int, fehler_id: str | None = None, db_path: str | None = None) -> str:
     """Format a single failure mode for detailed S/O/D review.
     Includes neighboring scale values and driver explanation."""
     db = _db(db_path)
@@ -295,7 +296,7 @@ def get_risk_review(project_id: int, fehler_id: str = None, db_path=None) -> str
 # Schritt 5: Ranking Review
 # ═══════════════════════════════════════════════════════════════
 
-def get_ranking_review(project_id: int, db_path=None) -> str:
+def get_ranking_review(project_id: int, db_path: str | None = None) -> str:
     """Format the complete risk ranking for human review."""
     db = _db(db_path)
     fms = db.get_all_failure_modes_with_rpz(project_id)
@@ -360,7 +361,7 @@ def _build_stop_coverage(measures: list) -> dict:
     return coverage
 
 
-def get_measure_review(project_id: int, db_path=None) -> str:
+def get_measure_review(project_id: int, db_path: str | None = None) -> str:
     """Format measures with before/after comparison and STOP coverage for human review."""
     db = _db(db_path)
     fmea_data = db.get_full_fmea_data(project_id)
@@ -440,7 +441,7 @@ def get_measure_review(project_id: int, db_path=None) -> str:
 # Validation Report
 # ═══════════════════════════════════════════════════════════════
 
-def get_validation_report(project_id: int, db_path=None) -> str:
+def get_validation_report(project_id: int, db_path: str | None = None) -> str:
     """Run consistency checks and return a validation report."""
     db = _db(db_path)
     components = db.get_components(project_id)
@@ -562,12 +563,12 @@ def get_validation_report(project_id: int, db_path=None) -> str:
 # ═══════════════════════════════════════════════════════════════
 
 def update_risk_assessment(project_id: int, fehler_id: str,
-                           S: int = None, O: int = None, D: int = None,
-                           begruendung_S: str = None,
-                           begruendung_O: str = None,
-                           begruendung_D: str = None,
+                           S: int | None = None, O: int | None = None, D: int | None = None,
+                           begruendung_S: str | None = None,
+                           begruendung_O: str | None = None,
+                           begruendung_D: str | None = None,
                            angepasst_von: str = "nutzer",
-                           db_path=None) -> dict:
+                           db_path: str | None = None) -> dict[str, object]:
     """
     Update S/O/D values for a failure mode based on user feedback.
     Recalculates RPZ and applies special rules.
@@ -634,7 +635,7 @@ def update_risk_assessment(project_id: int, fehler_id: str,
     }
 
 
-def update_component(project_id: int, komp_id: str, db_path=None, **kwargs) -> dict:
+def update_component(project_id: int, komp_id: str, db_path: str | None = None, **kwargs: object) -> dict[str, object]:
     """Update component attributes (e.g., system_name, typ) based on user feedback."""
     db = _db(db_path)
     comp = db.get_component_by_komp_id(komp_id)
