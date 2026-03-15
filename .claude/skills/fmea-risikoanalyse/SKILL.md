@@ -141,16 +141,19 @@ Alle Detail-Regeln (Konfidenz-Pflicht, Maßnahmen-Felder, Anlagendaten-Write-bac
 
 ## 4b. Gesamtprüfung vor Report (Pflicht-Gate)
 
-**Vor der Report-Generierung** muss die Gesamtprüfung aus `workflows/fmea-workflow.md` → "Gesamtprüfung (Pflicht vor Report-Generierung)" durchlaufen werden:
+**Vor der Report-Generierung** Gesamtprüfung durchlaufen:
 
 1. **Gefahrenfelder-Matrix:** 26 Pflicht-Gefahrenfelder gegen alle FMs abgleichen
 2. **9-Kategorien-Check:** Jede FM-Kategorie mindestens einmal vertreten
 3. **Schnittstellenanalyse:** Jede Utility/Connected System hat mindestens einen FM
 4. **CCF-Prüfung:** Gemeinsame Versorgungen → gleichzeitiger Ausfall bewertet
 5. **Systemübergreifende Risiken:** Manuelle Tätigkeiten, Reinigung, Verwechslung, Abluft, Erstickung, AwSV
-6. **`validate_completeness(project_id, task_folder)`** aufrufen (wenn verfügbar)
+6. **Enhanced `validate_completeness(project_id, task_folder)`** — prüft zusätzlich: S/O/D-Plausibilität (Safety-Overrides, CCPS/OREDA, MSR), Maßnahmen-Wirksamkeit (RPZ≥200 ohne Maßnahmen), Cross-FM-Alignment (Systeme/Gefahrstoffe ohne FMs)
+7. **KRITISCH/WARNUNG interpretieren:** `KRITISCH:` blockiert Report → FM korrigieren. `WARNUNG:` → Nutzer entscheiden lassen.
+8. **Holistische Plausibilitätsprüfung:** Gesamtbild, Proportionalität, Sicherheitskonzept-Lücken
+9. **Korrekturschleife:** FM korrigieren → RPZ neu → erneut validieren → bis keine KRITISCH-Findings
 
-Erst nach Abschluss aller Schritte und Adressierung aller Warnings: Report generieren.
+Erst nach Adressierung aller KRITISCH-Findings: Report generieren.
 
 ## 5. Abschluss
 

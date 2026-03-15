@@ -93,35 +93,30 @@ Wenn PubChem keine Daten liefert → Werte aus Fachwissen ergänzen und als Quel
 
 Vollständige Fragenliste → `references/interview-phasen.md`
 
-## 6. Abschluss: FMEA-Readiness-Check + Bridge
+## 6. Abschluss: Tool-basierte Validierung + Bridge
 
 Nach Phase 7:
 
 1. Alle erhobenen Daten zusammenfassen → Bestätigung einholen ("Passt das so?")
-2. **FMEA-Bereitschaftscheck** ausgeben:
+2. `anlagendaten.json` erzeugen — **exakt nach Schema** aus `references/anlagendaten-schema.json`
+3. `interview_status.complete = true` setzen
+4. Speichern unter: `tasks/{task_folder}/anlagendaten.json`
+5. **Gate 1 — Tool-basierte Validierung:**
 
-```
-FMEA-Bereitschaftscheck:
-✅ Prozessbeschreibung: vollständig
-✅ Stoffe: vollständig (PubChem bestätigt)
-⚠ System R-101 — SIL-Einstufung fehlt (FMEA-kritisch)
-⚠ System DS-200 — ATEX-Zone nicht angegeben
-✅ Medien: vollständig
-✅ Leitsystem: vollständig
-✅ Systemgrenzen: dokumentiert
-
-FMEA-Bereitschaft: 85% — 2 FMEA-kritische Felder fehlen.
-Empfehlung: Diese jetzt ergänzen oder nach dem Start der FMEA direkt nacherheben.
+```python
+from tools.validate_anlagendaten import validate_anlagendaten
+result = validate_anlagendaten(task_folder)
 ```
 
-3. `anlagendaten.json` erzeugen — **exakt nach Schema** aus `references/anlagendaten-schema.json`
-4. `interview_status.complete = true` setzen
-5. Speichern unter: `tasks/{task_folder}/anlagendaten.json`
-6. **Bridge — direkter Übergang zur FMEA anbieten:**
+6. **Ergebnis interpretieren:**
+   - `critical` Findings → gezielte Nachfragen an den Nutzer, Anlagendaten updaten, erneut validieren
+   - `warnings` → dem Nutzer zur Entscheidung vorlegen ("Jetzt ergänzen oder später bei der FMEA nacherheben?")
+   - Validierungsschleife: Nachfragen → `anlagendaten.json` updaten → erneut `validate_anlagendaten()` → bis `passed=True`
+7. **Bridge — erst wenn `passed=True`:**
 
 ```
-Anlagendaten gespeichert. ✅
-FMEA-Bereitschaft: [X]% [— Y FMEA-kritische Felder fehlen]
+Anlagendaten gespeichert und validiert. ✅
+FMEA-Bereitschaft: [fmea_readiness_pct]% [— Warnings auflisten falls vorhanden]
 
 Möchtest du jetzt direkt mit der FMEA-Risikoanalyse starten?
 [J] Ja — ich starte den fmea-risikoanalyse-Skill, die Anlagendaten werden automatisch geladen

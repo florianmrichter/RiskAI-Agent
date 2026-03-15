@@ -44,6 +44,8 @@ Bei Session-Start:
 - `tools/insert_fmea_explicit.insert_fmea_for_component(project_id, komp_id, task_folder="...")` – FMEA einspielen
 - `tools/load_plant_data.update_plant_data(task_folder, "path.to.field", value)` – Anlagendaten ergänzen
 - `tools/update_checklist.update_checklist(task_folder)` – Checkliste aktualisieren
+- `tools/validate_anlagendaten.validate_anlagendaten(task_folder)` – **Gate 1:** Anlagendaten auf FMEA-Tauglichkeit prüfen (Schema, Wertebereiche, Konsistenz)
+- `tools/validate_completeness.validate_completeness(project_id, task_folder)` – **Gate 2:** FMEA-Vollständigkeit + S/O/D-Plausibilität + Maßnahmen-Wirksamkeit + Cross-FM-Alignment
 - `tools/generate_measures.py --task-folder "..."` – Maßnahmen aus measures_explicit.py für RPZ ≥ 100 einspielen
 - `tools/report_generator.generate_report(project_id, task_folder="...")` – FMEA-PDF erzeugen
 - `tools/moc_manager.freeze_version(project_id)` – Version einfrieren (MoC)
@@ -281,8 +283,18 @@ Querschnittsthemen abgedeckt?
 - Erstickungsgefahr — inerte Gase (N₂, CO₂) ohne O₂-Überwachung?
 - AwSV — Rückhaltung für wassergefährdende Stoffe ausreichend?
 
-**Schritt 6: `validate_completeness(project_id, task_folder)` aufrufen** (wenn Tool verfügbar)
-Programmatische Validierung als Absicherung. Warnings adressieren.
+**Schritt 6: Enhanced `validate_completeness(project_id, task_folder)` aufrufen**
+Programmatische Validierung mit erweiterten Checks:
+- S/O/D-Plausibilität (Safety-Overrides, CCPS/OREDA-Abgleich, MSR-Konsistenz)
+- Maßnahmen-Wirksamkeit (RPZ≥200 ohne Maßnahmen, RPZ_new < RPZ_old)
+- Cross-FM-Alignment (Systeme ohne FMs, Gefahrstoffe ohne FMs)
+`KRITISCH:`-Findings blockieren den Report. `WARNUNG:`-Findings adressieren oder begründen.
+
+**Schritt 7: Holistische Plausibilitätsprüfung (Agent-Reasoning)**
+Gesamtbild bewerten: Proportionalität der S/O/D-Bewertungen, Lücken im Sicherheitskonzept, fehlende Querverbindungen.
+
+**Schritt 8: Korrekturschleife**
+FM korrigieren → RPZ neu berechnen → erneut `validate_completeness()` → bis keine KRITISCH-Findings.
 
 ## Abschluss-Zusammenfassung (immer)
 
