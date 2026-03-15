@@ -37,7 +37,6 @@ from playwright.sync_api import sync_playwright
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent))
 from tools.storage import FMEAStorage
-from tools.chart_comparison import generate_comparison as _generate_chart_comparison
 from config.fmea_standards import (
     S_SCALE as S_INFO,
     O_SCALE as O_INFO,
@@ -136,37 +135,152 @@ LOGO_SVG_SMALL = """<svg style="height:6mm;width:auto;" viewBox="0 0 100 80" xml
 
 
 # ═══════════════════════════════════════════════════════════════
-# Chart Rendering (matplotlib → file path)
+# Interactive Chart Data (for HTML template rendering)
+# ═══════════════════════════════════════════════════════════════
+
+def _compute_matrix_data(fmea_data: list[dict]) -> dict:
+    """Compute risk matrix data for interactive SVG rendering in the template.
+
+    Always shows the full 10x10 grid so empty zones are visible for context.
+    """
+    import math
+    from collections import defaultdict
+
+    if not fmea_data:
+        return {"zones": [], "points": [], "cols": 10, "rows": 10}
+
+    # Always full 10x10 grid
+    s_min, s_max = 1, 10
+    o_min, o_max = 1, 10
+    cols, rows = 10, 10
+
+    # Zone colors for each grid cell
+    zones = []
+    for s_val in range(1, 11):
+        for o_val in range(1, 11):
+            rpz_cell = s_val * o_val
+            if rpz_cell >= RPZ_THRESHOLDS["kritisch"] / 10:
+                zone = "kritisch"
+            elif rpz_cell >= RPZ_THRESHOLDS["hoch"] / 10:
+                zone = "hoch"
+            elif rpz_cell >= RPZ_THRESHOLDS["mittel"] / 10:
+                zone = "mittel"
+            else:
+                zone = "niedrig"
+            zones.append({"s": s_val, "o": o_val, "zone": zone,
+                          "col": o_val - 1, "row": 10 - s_val})
+
+    # RPZ → color via linear interpolation
+    cmap_stops = [
+        (0.0, (0, 163, 137)),    # #00A389
+        (0.33, (232, 197, 71)),   # #E8C547
+        (0.66, (253, 126, 20)),   # #FD7E14
+        (1.0, (245, 0, 79)),     # #F5004F
+    ]
+
+    def rpz_to_color(rpz: int) -> str:
+        t = min(rpz, 500) / 500.0
+        for i in range(len(cmap_stops) - 1):
+            t0, c0 = cmap_stops[i]
+            t1, c1 = cmap_stops[i + 1]
+            if t <= t1:
+                f = (t - t0) / (t1 - t0) if t1 > t0 else 0
+                r = int(c0[0] + f * (c1[0] - c0[0]))
+                g = int(c0[1] + f * (c1[1] - c0[1]))
+                b = int(c0[2] + f * (c1[2] - c0[2]))
+                return f"rgb({r},{g},{b})"
+        return f"rgb({cmap_stops[-1][1][0]},{cmap_stops[-1][1][1]},{cmap_stops[-1][1][2]})"
+
+    # Group FMs by cell and compute jittered positions
+    cell_groups: dict[tuple[int, int], list[dict]] = defaultdict(list)
+    for fm in fmea_data:
+        s, o = fm.get("S", 0), fm.get("O", 0)
+        cell_groups[(s, o)].append(fm)
+
+    points = []
+    for (s_cell, o_cell), group in cell_groups.items():
+        n = len(group)
+        group.sort(key=lambda f: f.get("rpz", 0), reverse=True)
+        for i, fm in enumerate(group):
+            d = fm.get("D", 0)
+            rpz = fm.get("rpz", s_cell * o_cell * d)
+            fid = fm.get("fehler_id", "")
+            # Short label: just the FM number (e.g. "FM01" from "KOMP-001-F1-FM01")
+            parts = fid.split("-")
+            short = parts[-1] if parts else fid
+
+            if n == 1:
+                ox, oy = 0.0, 0.0
+            else:
+                radius = 0.28
+                angle = 2 * math.pi * i / n - math.pi / 2
+                ox = radius * math.cos(angle)
+                oy = radius * math.sin(angle)
+
+            col_pos = (o_cell - 1) + 0.5 + ox
+            row_pos = (10 - s_cell) + 0.5 + oy
+
+            points.append({
+                "fehler_id": fid,
+                "short": short,
+                "s": s_cell,
+                "o": o_cell,
+                "d": d,
+                "rpz": rpz,
+                "rpz_status": fm.get("rpz_status", "niedrig"),
+                "fehlermodus": (fm.get("fehlermodus") or "")[:60],
+                "col": round(col_pos, 3),
+                "row": round(row_pos, 3),
+                "size": 5 + d * 1.5,
+                "color": rpz_to_color(rpz),
+                "zindex": i,
+            })
+
+    return {"zones": zones, "points": points, "cols": cols, "rows": rows}
+
+
+def _compute_treemap_data(fmea_data: list[dict], with_measures: bool) -> list[dict]:
+    """Compute treemap rectangles for interactive HTML rendering."""
+    items = []
+    for fm in fmea_data:
+        fid = fm.get("fehler_id", "?")
+        short = "-".join(fid.split("-")[-2:])
+        if with_measures and fm.get("measures"):
+            best = min(fm["measures"], key=lambda m: int(m.get("rpz_neu") or 9999))
+            rpz = int(best.get("rpz_neu") or fm.get("rpz", 1))
+            st = best.get("rpz_status_neu") or fm.get("rpz_status", "niedrig")
+        else:
+            rpz, st = int(fm.get("rpz", 1)), fm.get("rpz_status", "niedrig")
+        items.append({
+            "fehler_id": fid,
+            "short": short,
+            "rpz": max(rpz, 5),
+            "color": RPZ_HEX.get(st, "#AAA"),
+            "status": st,
+            "fehlermodus": (fm.get("fehlermodus") or "")[:50],
+        })
+    items.sort(key=lambda x: -x["rpz"])
+    if not items:
+        return []
+
+    sizes = [i["rpz"] for i in items]
+    normed = squarify.normalize_sizes(sizes, 100.0, 100.0)
+    rects = squarify.squarify(normed, 0, 0, 100.0, 100.0)
+
+    for rect, item in zip(rects, items):
+        item["x"] = round(rect["x"], 2)
+        item["y"] = round(rect["y"], 2)
+        item["w"] = round(rect["dx"], 2)
+        item["h"] = round(rect["dy"], 2)
+    return items
+
+
+# ═══════════════════════════════════════════════════════════════
+# Chart Rendering (matplotlib → file path) — PDF fallback
 # ═══════════════════════════════════════════════════════════════
 
 def _chart_path(tmp_dir: str, name: str) -> str:
     return str(Path(tmp_dir) / f"{name}.png")
-
-
-def _render_rpz_donut(stats: dict, tmp_dir: str) -> str:
-    order = ["kritisch", "hoch", "mittel", "niedrig"]
-    dist = stats.get("rpz_distribution", {})
-    vals = [dist.get(s, 0) for s in order]
-    cols = [RPZ_HEX[s] for s in order]
-    lbls = [f"{s.capitalize()}: {v}" for s, v in zip(order, vals)]
-    total = sum(vals)
-    if total == 0:
-        vals, cols, lbls = [1], ["#CCC"], ["Keine Daten"]
-        total = 1
-
-    fig, ax = plt.subplots(figsize=(4.5, 4.5))
-    ax.pie(vals, colors=cols, autopct="%1.0f%%", startangle=90,
-           pctdistance=0.78, textprops={"fontsize": 9, "color": "white", "fontweight": "bold"})
-    ax.add_patch(plt.Circle((0, 0), 0.55, fc="white"))
-    ax.text(0, 0.08, str(total), ha="center", va="center", fontsize=22, fontweight="bold", color="#1F2937")
-    ax.text(0, -0.15, "Risiken", ha="center", va="center", fontsize=9, color="#6B7280")
-    ax.legend(lbls, loc="lower center", fontsize=8, ncol=2, frameon=False, bbox_to_anchor=(0.5, -0.08))
-    ax.set_title("Risiko-Verteilung", fontsize=12, fontweight="bold", color="#1F2937", pad=12)
-
-    p = _chart_path(tmp_dir, "rpz_donut")
-    fig.savefig(p, dpi=200, bbox_inches="tight", facecolor="white")
-    plt.close(fig)
-    return p
 
 
 def _render_risk_matrix(fmea_data: list[dict], tmp_dir: str) -> str:
@@ -199,16 +313,45 @@ def _render_risk_matrix(fmea_data: list[dict], tmp_dir: str) -> str:
     cmap_colors = ["#00A389", "#E8C547", "#FD7E14", "#F5004F"]
     rpz_cmap = mcolors.LinearSegmentedColormap.from_list("risk_theme", cmap_colors, N=256)
 
+    # Group FMs by grid cell (S, O) to apply jitter for overlapping bubbles
+    from collections import defaultdict
+    cell_groups: dict[tuple[int, int], list[dict]] = defaultdict(list)
     for fm in fmea_data:
-        s, o, d = fm.get("S", 0), fm.get("O", 0), fm.get("D", 0)
-        rpz = fm.get("rpz", s * o * d)
-        size = 6 + d * 2.0
-        color = rpz_cmap(rpz_norm(min(rpz, 500)))
-        ax.scatter(o, s, s=size**2, c=[color], edgecolors="white", linewidths=1.5, zorder=5)
-        short = "-".join(fm.get("fehler_id", "").split("-")[-2:])
-        ax.annotate(short, (o, s), textcoords="offset points", xytext=(8, 8),
-                    fontsize=6.5, color="#1F2937", fontweight="bold",
-                    bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=0.85))
+        s, o = fm.get("S", 0), fm.get("O", 0)
+        cell_groups[(s, o)].append(fm)
+
+    for (s_cell, o_cell), group in cell_groups.items():
+        n = len(group)
+        # Sort by RPZ descending so highest-risk bubble is on top
+        group.sort(key=lambda f: f.get("rpz", 0), reverse=True)
+        for i, fm in enumerate(group):
+            d = fm.get("D", 0)
+            rpz = fm.get("rpz", s_cell * o_cell * d)
+            size = 6 + d * 2.0
+            color = rpz_cmap(rpz_norm(min(rpz, 500)))
+
+            # Jitter: distribute multiple bubbles in a cell around center
+            if n == 1:
+                ox, oy = 0.0, 0.0
+            else:
+                radius = 0.25
+                angle = 2 * np.pi * i / n - np.pi / 2
+                ox = radius * np.cos(angle)
+                oy = radius * np.sin(angle)
+
+            px, py = o_cell + ox, s_cell + oy
+            ax.scatter(px, py, s=size**2, c=[color], edgecolors="white",
+                       linewidths=1.5, zorder=5 + i, alpha=0.9)
+            short = "-".join(fm.get("fehler_id", "").split("-")[-2:])
+            # Stagger annotation positions to avoid label overlap
+            ann_angle = 2 * np.pi * i / max(n, 2)
+            ann_dx = 8 + 6 * np.cos(ann_angle)
+            ann_dy = 8 + 6 * np.sin(ann_angle)
+            ax.annotate(short, (px, py), textcoords="offset points",
+                        xytext=(ann_dx, ann_dy),
+                        fontsize=6.5, color="#1F2937", fontweight="bold",
+                        bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=0.85),
+                        zorder=10 + i)
 
     ax.set(xlabel="Auftreten (O)", ylabel="Bedeutung (S)", xticks=range(1, 11), yticks=range(1, 11),
            xlim=(0.5, 10.5), ylim=(0.5, 10.5))
@@ -346,39 +489,6 @@ def _render_treemap_pair(fmea_data: list[dict], tmp_dir: str) -> str:
     return p
 
 
-def _render_rpz_comparison(fmea_data: list[dict], tmp_dir: str) -> str | None:
-    """RPZ-Vergleich: Nur die vollständige Fehlermodus-ID (z.B. KOMP-001-F2-FM1) auf der Y-Achse."""
-    items = [fm for fm in fmea_data if fm.get("measures")]
-    if not items:
-        return None
-    items.sort(key=lambda x: x.get("rpz", 0), reverse=True)
-    labels, before, after = [], [], []
-    for fm in items:
-        # Nur vollständige ID, kein Komponentenname und kein Fehlermodus-Text
-        labels.append(str(fm.get("fehler_id") or "?"))
-        before.append(fm.get("rpz", 0))
-        best = min(fm["measures"], key=lambda m: (m.get("rpz_neu") or 9999))
-        after.append(best.get("rpz_neu") or fm.get("rpz", 0))
-    y = np.arange(len(labels))
-    h = 0.35
-    fig, ax = plt.subplots(figsize=(10, max(3, len(labels) * 0.5 + 1)))
-    ax.barh(y + h / 2, before, h, label="Vorher", color="#F5004F", alpha=0.85)
-    ax.barh(y - h / 2, after, h, label="Nachher", color="#00A389", alpha=0.85)
-    ax.axvline(x=100, color="#E8C547", linestyle="--", linewidth=1.2, alpha=0.7, label="Grenzwert 100")
-    ax.set(yticks=y, xlabel="RPZ")
-    ax.set_yticklabels(labels, fontsize=8)
-    plt.subplots_adjust(left=0.28)
-    ax.xaxis.label.set(fontsize=11, fontweight="bold")
-    ax.set_title("RPZ-Vergleich: Vorher vs. Nachher", fontsize=12, fontweight="bold", pad=12, color="#1F2937")
-    ax.legend(loc="lower right", fontsize=8)
-    ax.invert_yaxis()
-
-    p = _chart_path(tmp_dir, "rpz_comparison")
-    fig.savefig(p, dpi=200, bbox_inches="tight", facecolor="white")
-    plt.close(fig)
-    return p
-
-
 # ═══════════════════════════════════════════════════════════════
 # Template Helpers (exposed to Jinja2)
 # ═══════════════════════════════════════════════════════════════
@@ -492,17 +602,10 @@ def generate_report(project_id: int, output_path: str | None = None, task_folder
     template_dir = Path(__file__).parent.parent / "templates"
 
     with tempfile.TemporaryDirectory() as tmp_dir:
-        # Render charts (convert to file:// URIs for Playwright)
-        donut_img = Path(_render_rpz_donut(stats, tmp_dir)).as_uri()
-        matrix_img = Path(_render_risk_matrix(fmea_data, tmp_dir)).as_uri()
-        treemap_img = Path(_render_treemap_pair(fmea_data, tmp_dir)).as_uri()
-        _cmp = _render_rpz_comparison(fmea_data, tmp_dir)
-        comparison_img = Path(_cmp).as_uri() if _cmp else None
-        _chart_cmp = _generate_chart_comparison(
-            rpz_distribution=stats.get("rpz_distribution", {}),
-            output_path=str(Path(tmp_dir) / "chart_comparison.png"),
-        )
-        chart_comparison_img = Path(_chart_cmp).as_uri()
+        # Compute interactive chart data (for clickable HTML charts)
+        matrix_data = _compute_matrix_data(fmea_data)
+        treemap_before = _compute_treemap_data(fmea_data, with_measures=False)
+        treemap_after = _compute_treemap_data(fmea_data, with_measures=True)
 
         # Group failure modes by function
         func_groups = OrderedDict()
@@ -680,11 +783,9 @@ def generate_report(project_id: int, output_path: str | None = None, task_folder
             high_risk_count=high_risk_count,
             total_measures=total_measures,
             now=datetime.now().strftime("%d.%m.%Y %H:%M"),
-            donut_img=donut_img,
-            matrix_img=matrix_img,
-            treemap_img=treemap_img,
-            comparison_img=comparison_img,
-            chart_comparison_img=chart_comparison_img,
+            matrix_data=matrix_data,
+            treemap_before=treemap_before,
+            treemap_after=treemap_after,
             scales=[
                 ("S", "Bedeutung (S)", S_INFO),
                 ("O", "Auftreten (O)", O_INFO),

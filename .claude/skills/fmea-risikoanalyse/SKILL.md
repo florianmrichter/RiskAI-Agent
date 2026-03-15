@@ -44,6 +44,8 @@ RPZ = S × O × D
 
 Safety Overrides und Maßnahmen-Klassifizierung (STOP/ABE): siehe `config/fmea_standards.py` und `workflows/fmea-workflow.md`.
 
+**Safety Override Qualifiers:** `SAFETY_OVERRIDES` in `config/fmea_standards.py` unterscheidet via `qualifiers` zwischen permanenter Zone 0 (S=10) und lokaler/temporärer Ex-Gefahr (S=9). Bei Multi-Szenario-FMs (z.B. "offen/undicht"): D gewichtet bestimmen, nicht Worst-Case → siehe `workflows/fmea-workflow.md` → "Multi-Szenario-Fehlermodi".
+
 ## 1. Projekt ermitteln
 
 Prüfe `tasks/Risikoanalyse/` auf vorhandene Projektordner.
@@ -127,14 +129,29 @@ Ab hier gelten **alle Regeln aus `workflows/fmea-workflow.md`**. Wichtigste Punk
 - Proaktiv handeln — nicht bei jedem Teilschritt nachfragen
 - Zwei-Phasen-Ablauf pro Komponente: Fehlermodi sammeln → gruppieren → einzeln durchgehen
 - **Vor jeder Komponente: `get_o_suggestion()` aufrufen** (Schritt 3c) — O-Richtwerte als Basis
+- **In Phase 1: Gefahrenfelder-Checkliste durchgehen** — alle 26 Pflicht-Gefahrenfelder pro Komponente prüfen (siehe `workflows/fmea-workflow.md` → "Zwei-Phasen-Ablauf")
+- **In Phase 1: Prozessübergreifende Risiken** — Utilities/Backflow, manuelle Tätigkeiten, Reinigung, Erstickungsgefahr, AwSV
 - S/O/D immer mit Stufenbezeichnung + Skalenbedeutung (aus `config/fmea_standards.py`: S_SCALE, O_SCALE, D_SCALE)
 - MSR-Kennzeichen korrekt benennen nach `config/msr_glossar.md`
 - Nach jedem Einspielen von Maßnahmen sofort Report neu generieren
 - Niemals FMEA-Daten aus anderen Projekten übernehmen
-- Vor Analyse einer Komponente: `references/fmea-standards.md` lesen (FM-Vorlagen, ATEX, CCF)
+- Vor Analyse einer Komponente: `references/fmea-standards.md` lesen (FM-Vorlagen, ATEX, CCF, Backflow, AwSV, Erstickung)
 
 Alle Detail-Regeln (Konfidenz-Pflicht, Maßnahmen-Felder, Anlagendaten-Write-back, Testmodus, Kalibrierung, Report-Qualität) stehen in `workflows/fmea-workflow.md`.
 
+## 4b. Gesamtprüfung vor Report (Pflicht-Gate)
+
+**Vor der Report-Generierung** muss die Gesamtprüfung aus `workflows/fmea-workflow.md` → "Gesamtprüfung (Pflicht vor Report-Generierung)" durchlaufen werden:
+
+1. **Gefahrenfelder-Matrix:** 26 Pflicht-Gefahrenfelder gegen alle FMs abgleichen
+2. **9-Kategorien-Check:** Jede FM-Kategorie mindestens einmal vertreten
+3. **Schnittstellenanalyse:** Jede Utility/Connected System hat mindestens einen FM
+4. **CCF-Prüfung:** Gemeinsame Versorgungen → gleichzeitiger Ausfall bewertet
+5. **Systemübergreifende Risiken:** Manuelle Tätigkeiten, Reinigung, Verwechslung, Abluft, Erstickung, AwSV
+6. **`validate_completeness(project_id, task_folder)`** aufrufen (wenn verfügbar)
+
+Erst nach Abschluss aller Schritte und Adressierung aller Warnings: Report generieren.
+
 ## 5. Abschluss
 
-Abschluss-Zusammenfassung: Anzahl Komponenten, Fehlermodi, übernommene Maßnahmen, Status DB/Report.
+Abschluss-Zusammenfassung: Anzahl Komponenten, Fehlermodi, übernommene Maßnahmen, Status DB/Report, Gesamtprüfung bestanden/Warnings.

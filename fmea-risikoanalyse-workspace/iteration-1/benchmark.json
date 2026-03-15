@@ -1,0 +1,111 @@
+{
+  "skill_name": "fmea-risikoanalyse",
+  "iteration": 1,
+  "configurations": [
+    {
+      "name": "with_skill",
+      "label": "Mit FMEA-Skill",
+      "evals": [
+        {
+          "eval_name": "single-fm-analysis",
+          "pass_rate": 1.0,
+          "passed": 10,
+          "total": 10,
+          "tokens": 62559,
+          "duration_seconds": 171.6,
+          "sod_deltas": {"S": 1, "O": 0, "D": 0},
+          "text_lengths": {"kontext": 1629, "begruendung_S": 1185, "begruendung_O": 1168, "begruendung_D": 1162, "empfehlung": 605}
+        },
+        {
+          "eval_name": "safety-override-fm",
+          "pass_rate": 0.833,
+          "passed": 5,
+          "total": 6,
+          "tokens": 68413,
+          "duration_seconds": 221.7,
+          "sod_deltas": {"S": 1, "O": 0, "D": 4},
+          "text_lengths": {"kontext": 2165, "begruendung_S": 1300, "begruendung_O": 1200, "begruendung_D": 1350, "empfehlung": 1051},
+          "notes": "S=10 statt 9 (aggressiverer Safety Override), D=10 statt 6 (Überbewertung Detection). RPZ=300 statt 162."
+        },
+        {
+          "eval_name": "reliability-lookup-fm",
+          "pass_rate": 1.0,
+          "passed": 6,
+          "total": 6,
+          "tokens": 82765,
+          "duration_seconds": 169.4,
+          "sod_deltas": {"S": 0, "O": 0, "D": 0},
+          "text_lengths": {"kontext": 1852, "begruendung_S": 949, "begruendung_O": 979, "begruendung_D": 970, "empfehlung": 700}
+        }
+      ],
+      "aggregate": {
+        "mean_pass_rate": 0.944,
+        "mean_tokens": 71246,
+        "mean_duration_seconds": 187.6,
+        "mean_sod_delta": {"S": 0.67, "O": 0.0, "D": 1.33},
+        "mean_kontext_length": 1882
+      }
+    },
+    {
+      "name": "without_skill",
+      "label": "Ohne Skill (Baseline)",
+      "evals": [
+        {
+          "eval_name": "single-fm-analysis",
+          "pass_rate": 1.0,
+          "passed": 10,
+          "total": 10,
+          "tokens": 28386,
+          "duration_seconds": 100.4,
+          "sod_deltas": {"S": 1, "O": 1, "D": 1},
+          "text_lengths": {"kontext": 1005, "begruendung_S": 778, "begruendung_O": 810, "begruendung_D": 805, "empfehlung": 627}
+        },
+        {
+          "eval_name": "safety-override-fm",
+          "pass_rate": 0.667,
+          "passed": 4,
+          "total": 6,
+          "tokens": 30125,
+          "duration_seconds": 100.1,
+          "sod_deltas": {"S": 0, "O": 0, "D": 0},
+          "text_lengths": {"kontext": 1275, "begruendung_S": 0, "begruendung_O": 0, "begruendung_D": 0, "empfehlung": 0},
+          "notes": "S/O/D exakt Goldstandard, ABER: kein override_applied dokumentiert, keine Maßnahmen definiert."
+        },
+        {
+          "eval_name": "reliability-lookup-fm",
+          "pass_rate": 1.0,
+          "passed": 6,
+          "total": 6,
+          "tokens": 28600,
+          "duration_seconds": 82.4,
+          "sod_deltas": {"S": 0, "O": 0, "D": 0},
+          "text_lengths": {"kontext": 599, "begruendung_S": 0, "begruendung_O": 640, "begruendung_D": 0, "empfehlung": 0}
+        }
+      ],
+      "aggregate": {
+        "mean_pass_rate": 0.889,
+        "mean_tokens": 29037,
+        "mean_duration_seconds": 94.3,
+        "mean_sod_delta": {"S": 0.33, "O": 0.33, "D": 0.33},
+        "mean_kontext_length": 960
+      }
+    }
+  ],
+  "delta": {
+    "pass_rate": "+5.5pp (94.4% vs 88.9%)",
+    "tokens": "+145% (71k vs 29k)",
+    "duration": "+99% (188s vs 94s)",
+    "text_quality": "+96% longer kontext (1882z vs 960z)",
+    "sod_accuracy": "With skill: Ø1.33 D-delta (Safety Override Überbewertung) | Without: Ø0.33 gleichmäßig"
+  },
+  "analyst_observations": [
+    "SKILL STÄRKE: Textqualität — with_skill produziert ~2× längere Kontextbeschreibungen und Begründungen, konsistent über alle Evals.",
+    "SKILL STÄRKE: ReliabilityDB-Integration — with_skill referenziert CCPS/OREDA korrekt, daten_quelle korrekt gesetzt.",
+    "SKILL STÄRKE: Maßnahmen — with_skill definiert Maßnahmen bei S≥9 (3 Maßnahmen), without_skill vergisst sie komplett.",
+    "SKILL STÄRKE: Safety Override — with_skill dokumentiert override_applied, without_skill nicht.",
+    "SKILL SCHWÄCHE: Safety Override Überbewertung — S=10 statt 9 und D=10 statt 6 beim Handloch-FM. Der Skill interpretiert die SAFETY_OVERRIDES zu aggressiv.",
+    "SKILL SCHWÄCHE: Token-Kosten — with_skill braucht ~2.5× mehr Tokens (71k vs 29k) und ~2× mehr Zeit (188s vs 94s).",
+    "BASELINE ÜBERRASCHUNG: without_skill trifft S/O/D beim Safety-Override exakt (0 Delta), vergisst aber die Pflicht-Outputs (override, Maßnahmen).",
+    "NICHT-DISKRIMINIEREND: reliability-lookup-fm — beide Varianten erreichen 100% Pass Rate und exakte S/O/D-Werte. Hier differenziert nur die Textqualität."
+  ]
+}

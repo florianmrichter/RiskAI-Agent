@@ -125,21 +125,36 @@
       "type": "Heizmedium",
       "specifications": {"Druck": "6 barg", "Temperatur": "165 °C"},
       "supplySource": "Kesselhaus zentral",
-      "failureConsequence": "Kein Heizen möglich → Reaktion stoppt (FMEA-kritisch)"
+      "failureConsequence": "Kein Heizen möglich → Reaktion stoppt (FMEA-kritisch)",
+      "anschluss": "string — welche Komponente",
+      "rueckschlagklappe": "boolean",
+      "isolationsventil": "boolean",
+      "rueckstroem_risiko": "string",
+      "fmea_critical": "boolean"
     },
     {
       "name": "Kühlwasser",
       "type": "Kühlmedium",
       "specifications": {"Vorlauf": "12 °C", "Rücklauf": "max. 35 °C", "Druck": "4 barg"},
       "supplySource": "Kühlturm CT-01",
-      "failureConsequence": "Kein Kühlen → Temperaturanstieg → Runaway-Risiko (FMEA-kritisch)"
+      "failureConsequence": "Kein Kühlen → Temperaturanstieg → Runaway-Risiko (FMEA-kritisch)",
+      "anschluss": "string — welche Komponente",
+      "rueckschlagklappe": "boolean",
+      "isolationsventil": "boolean",
+      "rueckstroem_risiko": "string",
+      "fmea_critical": "boolean"
     },
     {
       "name": "Stickstoff (N₂)",
       "type": "Inertgas",
       "specifications": {"Reinheit": "99.999%", "Druck": "6 barg"},
       "supplySource": "Hausnetz / Flaschenanlage",
-      "failureConsequence": "Verlust Inertisierung → Ex-Gefahr (FMEA-kritisch)"
+      "failureConsequence": "Verlust Inertisierung → Ex-Gefahr (FMEA-kritisch)",
+      "anschluss": "string — welche Komponente",
+      "rueckschlagklappe": "boolean",
+      "isolationsventil": "boolean",
+      "rueckstroem_risiko": "string",
+      "fmea_critical": "boolean"
     }
   ],
 
@@ -175,6 +190,116 @@
       "massnahmen_getroffen": "Kalibrierungsintervall verkürzt"
     }
   ],
+
+  "processDetails": {
+    "reaktionstyp": "string — Art der Reaktion/des Prozesses",
+    "thermodynamik": "string — exotherm/endotherm/neutral",
+    "einsatzstoffe": [{"name": "string", "aggregatzustand": "string", "menge": "string", "rolle": "string"}],
+    "zwischenprodukte": [{"name": "string", "aggregatzustand": "string", "gefaehrdung": "string"}],
+    "endprodukte": [{"name": "string", "aggregatzustand": "string", "gefaehrdung": "string"}],
+    "nebenprodukte": ["string"],
+    "betriebsbedingungen": {
+      "temperatur_normal": "string",
+      "temperatur_bereich": "string",
+      "druck_normal": "string",
+      "druck_bereich": "string",
+      "typische_chargengroesse": "string",
+      "chargendauer": "string"
+    },
+    "prozessschritte_grob": ["string"]
+  },
+
+  "processSteps": [{
+    "schritt": "number",
+    "name": "string",
+    "beschreibung": "string",
+    "anlage_offen": "boolean",
+    "stoffe": ["string"],
+    "aggregatzustand": ["string"],
+    "manuelle_taetigkeit": "boolean",
+    "ex_relevant": "boolean",
+    "betriebsbedingungen": {"temperatur": "string", "druck": "string"},
+    "dauer": "string",
+    "kritische_hinweise": "string"
+  }],
+
+  "psa": {
+    "standard": ["string"],
+    "zusaetzlich_bei": [{"taetigkeit": "string", "psa": ["string"]}]
+  },
+
+  "sops": [{"nummer": "string", "titel": "string", "version": "string", "datum": "string", "geschult": "boolean"}],
+
+  "physischeSicherheit": {
+    "zutrittskontrolle": "string",
+    "manipulationsrisiken": ["string"],
+    "schutzmassnahmen": ["string"]
+  },
+
+  "cyberSecurity": {
+    "nis2_relevant": "boolean",
+    "kritis_einstufung": "string",
+    "netzwerk": {
+      "steuerung_vernetzt": "boolean",
+      "fernzugriff": "boolean",
+      "scada_system": "string|null",
+      "sps_typ": "string|null"
+    }
+  },
+
+  "notfallinfrastruktur": {
+    "notdusche": {"vorhanden": "boolean", "abstand_m": "number", "geprueft": "string"},
+    "augendusche": {"vorhanden": "boolean", "abstand_m": "number", "geprueft": "string"},
+    "feuerloescher": [{"typ": "string", "abstand_m": "number", "geprueft": "string"}],
+    "fluchtweg": "string",
+    "brandmeldeanlage": "boolean",
+    "sprinkler": "boolean",
+    "notbeleuchtung": "boolean",
+    "werkfeuerwehr": {"vorhanden": "boolean", "eintreffzeit_min": "number"},
+    "ersthelfer": {"vorhanden": "boolean", "anzahl": "number"},
+    "rlt_auf_notstrom": "boolean"
+  },
+
+  "personalQualifikation": {
+    "betriebsart": "string",
+    "mindestbesetzung": "number",
+    "vier_augen_prinzip": "boolean",
+    "qualifikationsstufen": ["string"],
+    "pflichtschulungen": [{"name": "string", "intervall": "string", "letzte": "string"}],
+    "schichtarbeit": "boolean"
+  },
+
+  "raumkontext": {
+    "nachbaranlagen": [{"name": "string", "abstand_m": "number", "stoffe": ["string"], "gefaehrdung": "string"}],
+    "gemeinsame_versorgungen": ["string"],
+    "lagerung_im_raum": "string",
+    "verkehr": "string"
+  },
+
+  "awsv": {
+    "anlage_awsv_relevant": "boolean",
+    "gefaehrdungsstufe": "string — A/B/C/D",
+    "stoffe_wgk": [{"name": "string", "wgk": "number"}],
+    "rueckhaltung": {
+      "primaer": "string",
+      "sekundaer": "string",
+      "tertiaer": "string",
+      "rueckhaltevolumen_l": "number",
+      "ausreichend": "boolean"
+    },
+    "leckageerkennung": {"vorhanden": "boolean", "typ": "string|null"},
+    "pruefungen": {"letzte_pruefung": "string", "pruefintervall": "string", "naechste_pruefung": "string"}
+  },
+
+  "erstickungsgefahr": {
+    "inerte_gase_im_einsatz": ["string"],
+    "einsatzzweck": ["string"],
+    "o2_ueberwachung_raum": "boolean",
+    "raumvolumen_m3": "number",
+    "lueftwechsel_pro_h": "number",
+    "tiefpunkte_vorhanden": "boolean",
+    "warnhinweise_angebracht": "boolean"
+  },
 
   "interview_status": {
     "complete": false,

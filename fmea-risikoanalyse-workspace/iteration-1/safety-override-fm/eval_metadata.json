@@ -1,0 +1,13 @@
+{
+  "eval_id": 1,
+  "eval_name": "safety-override-fm",
+  "prompt": "FMEA für Büchi 15L (Projekt 4, task_folder Risikoanalyse/Buechi_Glasreaktor_15L_20TA43), Modus autonom, Report ausführlich. Analysiere KOMP-006 FM01 (Betrieb mit offenem/undichtem Handloch) — das ist ein Safety-Override-Fall wegen Explosionsschutz. Vollständige Analyse bitte.",
+  "assertions": [
+    {"name": "S_ge_9_safety", "description": "S ≥ 9 wegen Safety Override (Explosionsschutz)"},
+    {"name": "rpz_status_hoch", "description": "RPZ-Status = hoch (S≥9 Override)"},
+    {"name": "override_applied", "description": "Safety Override dokumentiert"},
+    {"name": "kontext_min_400z", "description": "Kontext ≥ 400 Zeichen"},
+    {"name": "empfehlung_interlock", "description": "Empfehlung enthält Interlock/Positionsschalter"},
+    {"name": "massnahmen_vorhanden", "description": "Maßnahmen bei S≥9 sind Pflicht"}
+  ]
+}

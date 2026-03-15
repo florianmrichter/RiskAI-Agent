@@ -78,24 +78,54 @@ TEMPLATES = {
         {"typ": "Kennzeichnungsfehler", "beschreibung": "Falsche Beschriftung von Leitungen oder Handventilen führt zu Verwechslungen bei Wartung/Betrieb."},
         {"typ": "Externe Einwirkung", "beschreibung": "Beschädigung von Rohrleitungen durch Staplerverkehr oder herabfallende Lasten."},
     ],
+    "cyber_sabotage": [
+        {"typ": "Unbefugter Fernzugriff", "beschreibung": "Zugriff auf Prozesssteuerung über Netzwerk/VPN, Manipulation von Sollwerten oder Verriegelungen."},
+        {"typ": "Malware / Ransomware auf OT-System", "beschreibung": "Schadsoftware befällt SPS/SCADA, führt zu Ausfall oder unkontrolliertem Betrieb."},
+        {"typ": "Manipulation vor Ort (Sabotage)", "beschreibung": "Absichtliche Fehlbedienung oder Manipulation durch Personen mit physischem Zugang."},
+        {"typ": "Datenmanipulation / Logikänderung", "beschreibung": "Unerkannte Änderung von SPS-Programm oder Alarmschwellen."},
+    ],
 }
 
 KEYWORD_MAPPING = [
+    # Prozess
     {"keyword": "synthese", "category": "prozess"},
     {"keyword": "reaktion", "category": "prozess"},
+    {"keyword": "lösemittel", "category": "prozess"},
+    {"keyword": "reinig", "category": "prozess"},
+    # Thermisch
     {"keyword": "heizung", "category": "thermisch"},
     {"keyword": "kühlung", "category": "thermisch"},
     {"keyword": "temperatur", "category": "thermisch"},
+    # Mechanisch
     {"keyword": "druck", "category": "mechanisch"},
     {"keyword": "dichtheit", "category": "mechanisch"},
+    {"keyword": "pumpe", "category": "mechanisch"},
+    # Sicherheit
     {"keyword": "emergency", "category": "sicherheit"},
     {"keyword": "schutz", "category": "sicherheit"},
-    {"keyword": "dosier", "category": "dosierung"},
-    {"keyword": "pumpe", "category": "mechanisch"},
     {"keyword": "ventil", "category": "sicherheit"},
+    {"keyword": "abluft", "category": "sicherheit"},
+    {"keyword": "stickstoff", "category": "sicherheit"},
+    {"keyword": "n2", "category": "sicherheit"},
+    {"keyword": "handloch", "category": "sicherheit"},
+    # Dosierung
+    {"keyword": "dosier", "category": "dosierung"},
+    {"keyword": "befüll", "category": "dosierung"},
+    # MSR
     {"keyword": "sensor", "category": "msr"},
     {"keyword": "mess", "category": "msr"},
     {"keyword": "regel", "category": "msr"},
+    {"keyword": "sps", "category": "msr"},
+    {"keyword": "scada", "category": "msr"},
+    {"keyword": "fernzugriff", "category": "msr"},
+    # Utility/Interface (→ Prozess, da Rückströmung dort definiert)
+    {"keyword": "vakuum", "category": "prozess"},
+    {"keyword": "rückfluss", "category": "prozess"},
+    {"keyword": "kühlwasser", "category": "prozess"},
+    {"keyword": "eiswasser", "category": "prozess"},
+    {"keyword": "schnittstelle", "category": "prozess"},
+    # Sonstiges
+    {"keyword": "manuell", "category": "sonstiges"},
 ]
 
 

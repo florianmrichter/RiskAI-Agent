@@ -1,0 +1,98 @@
+{
+  "fehler_id": "20TA43-KOMP-001-FM01",
+  "fehlermodus": "Überfüllung des Glasreaktors über 12 L Maximalfüllvolumen",
+  "S": 5,
+  "O": 4,
+  "D": 5,
+  "rpz": 100,
+  "rpz_status": "mittel",
+  "kontext_beschreibung": "Der Büchi miniPilot Glasreaktor (15 L Nennvolumen, Borosilikatglas 3.3) wird im Technikum für Synthesen unter Rückfluss mit wechselnden organischen Lösemitteln betrieben — darunter Ethanol (Flammpunkt 13 °C), Methanol (Flammpunkt 9 °C), Isopropanol (Flammpunkt 12 °C) und Aceton (Flammpunkt -20 °C). Das maximale Füllvolumen beträgt 12 L. Die Befüllung erfolgt vollständig manuell über ein Handloch in der Deckelplatte mittels Fasspumpe aus 10-Liter-Gebinden. Der Betrieb ist personenüberwacht, es gibt kein Prozessleitsystem.\n\nDas spezifische Risiko der Überfüllung liegt darin, dass bereits zwei Standard-Gebinde (2 × 10 L = 20 L) das Maximalfüllvolumen von 12 L um 67 % überschreiten würden. Es existiert keine instrumentelle Füllstandsüberwachung — weder ein Füllstandssensor (LI/LIC), noch ein Überfüllschalter (LSHH), noch eine Füllstandsmarkierung am Glasgefäß. Die einzige Absicherung ist die visuelle Abschätzung durch den Bediener, der den Füllstand durch die transparente Glaswand beobachtet. Bei einer Überfüllung kann Lösemittel über den Rückflusskühler RK-43 in das Abluftsystem gelangen, aus Dichtungen am Deckel austreten oder bei thermischer Expansion des Mediums während des Aufheizvorgangs unkontrolliert überlaufen — mit der Folge von Lösemittelfreisetzung in der unmittelbaren Arbeitsumgebung.\n\nDie zentrale Schutzlücke: Es fehlt jede technische Barriere zwischen manueller Befüllung und Überfüllung. Der Prozess verlässt sich ausschließlich auf die Aufmerksamkeit und Erfahrung des Bedienpersonals — eine Fehlerquelle, die bei Routinetätigkeiten, Zeitdruck oder wechselndem Personal erfahrungsgemäß zunimmt.",
+  "begruendung_S": "S = 5 (Mäßig — Funktionseinschränkung, 1–7 Tage, 1–10k EUR): Eine Überfüllung über das 12-L-Maximum führt primär zu einem Lösemittelaustritt in die direkte Arbeitsumgebung. Das ausgetretene Lösemittel (Ethanol, Methanol, Isopropanol oder Aceton — alle leicht entzündbar, Flammpunkte zwischen -20 °C und 13 °C) verursacht eine lokale Expositionsgefahr für das Bedienpersonal (Inhalation, Hautkontakt). Bei Methanol besteht zusätzlich eine Vergiftungsgefahr (H301+H311+H331, H370 — giftig bei Einatmen, Hautkontakt und Verschlucken, Organschäden). Die Sachschäden umfassen Chargenverlust, Reinigungskosten und ggf. Kontamination der Arbeitsumgebung, bleiben aber unterhalb von 10k EUR. Die Auffangeinrichtungen (Tropfwanne TW-43, AwSV-Boden) begrenzen Umweltauswirkungen wirksam. Ein höherer S-Wert wäre gerechtfertigt, wenn die Überfüllung während des Heizvorgangs auftritt und die überschüssige Menge in den heißen Rückflusskühler gelangt — dann steigt das Risiko einer unkontrollierten Dampffreisetzung brennbarer Lösemittel. In der Gesamtbetrachtung wird S=5 gewählt, da die maximal austretende Menge durch das Reaktorvolumen begrenzt ist und keine unmittelbare Lebensgefahr besteht.",
+  "begruendung_O": "O = 4 (Relativ gering — ca. 1× in 2 Jahren): Die manuelle Befüllung aus 10-L-Gebinden in einen Reaktor mit nur 12 L Maximalfüllvolumen birgt ein inhärentes Fehlerpotenzial: Bereits zwei Gebinde überschreiten das Maximum um 67 %. Es gibt keine instrumentelle Füllstandsüberwachung (kein LI, kein LSHH), keine Markierung am Glasgefäß und keine automatische Abschaltung. Der Bediener muss die Menge rein visuell und aus Erfahrung abschätzen. Für manuelle Befüllvorgänge ohne instrumentelle Kontrolle werden in der Literatur Fehlhandlungsraten von 1–3 % pro Vorgang angenommen (CCPS Human Reliability Analysis). Bei ca. 50–100 Befüllvorgängen pro Jahr ergibt sich eine erwartete Häufigkeit von ca. 1–3 Vorfällen pro 2 Jahre. Die ReliabilityDB liefert für den Glasreaktor-Typ eine Gesamtausfallrate von 20 FPMH, wobei die Überfüllung als betriebsbedingter Fehlermodus (nicht als Equipment-Ausfall) einzustufen ist — die CCPS/OREDA-Daten sind hier nur indirekt anwendbar. Die Bewertung basiert daher primär auf der Human-Factors-Analyse der manuellen Befüllung. Daten_konfidenz: mittel (Betriebserfahrung + Literaturdaten, keine anlagenspezifischen Vorfallsdaten vorhanden).",
+  "begruendung_D": "D = 5 (Mäßig wahrscheinlich — Entdeckungswahrscheinlichkeit 50–70 %): Die transparente Glaswand des Reaktors erlaubt grundsätzlich eine visuelle Füllstandskontrolle — der Bediener kann den Flüssigkeitspegel direkt beobachten. Dies ist ein Vorteil gegenüber opaken Stahlbehältern. Allerdings fehlt jede Referenzmarkierung (keine 12-L-Linie am Glas), sodass die Einschätzung des korrekten Füllstands rein subjektiv erfolgt und von der Erfahrung des Bedieners abhängt. Die Entdeckungswahrscheinlichkeit wird durch mehrere Faktoren eingeschränkt: (1) Bei trüben, schäumenden oder stark gefärbten Medien ist der Füllstand schwer ablesbar; (2) die zylindrische Geometrie des Reaktors erschwert die volumetrische Abschätzung; (3) eine schleichende Überfüllung (z.B. durch Rückstrom über das Bodenventil) wird möglicherweise erst bei deutlichem Überstand bemerkt. Es gibt keinen instrumentellen Sensor (LI/LSHH), keinen akustischen oder optischen Alarm und kein automatisches Interlock. Die Entdeckung hängt vollständig von der manuellen Stichprobe durch den anwesenden Operator ab, was einer D=5-Bewertung entspricht (Stichprobe mit gewisser Systematik, aber ohne SPC).",
+  "empfehlung": "Anbringung einer dauerhaften 12-L-Füllstandsmarkierung am Glasgefäß als sofort umsetzbare Minimalmaßnahme (Kosten < 100 EUR, Aufwand gering). Ergänzend wird eine standardisierte Befüllprozedur (SOP) empfohlen, die die maximale Anzahl Gebinde pro Charge und eine Zwischenkontrolle des Füllstands nach jedem Gebinde vorschreibt. Bei häufigem Betrieb mit wechselndem Personal zusätzlich einen kapazitiven Füllstandsschalter (LSHH) mit optischem/akustischem Alarm erwägen, der eine unabhängige technische Barriere darstellt. Die Kombination aus Markierung + SOP + Alarm senkt die RPZ auf ein niedriges Niveau.",
+  "controls_einschraenkung": "Die bestehenden Controls sind für die Überfüllungsprävention unzureichend. Die visuelle Kontrolle durch den Bediener (durch die Glaswand) ist die einzige präventive Maßnahme, verfügt aber über keine Referenzmarkierung oder Skalierung am Glasgefäß — der Operator muss das 12-L-Limit rein aus Erfahrung abschätzen. Bei trüben, schäumenden oder stark gefärbten Medien ist die visuelle Beurteilung erheblich eingeschränkt. Die Tropfwanne TW-43 und der AwSV-Boden sind rein reaktive Auffangmaßnahmen, die eine Überfüllung nicht verhindern, sondern nur deren Folgen begrenzen. Es gibt keinen instrumentellen Füllstandssensor, keinen Alarm und kein Interlock.",
+  "daten_quelle": "Betriebserfahrung",
+  "daten_konfidenz": "mittel",
+  "agent_konfidenz": "mittel",
+  "causes": [
+    {
+      "ursache_id": "20TA43-FM01-U1",
+      "beschreibung": "Bedienfehler bei manueller Mengenabschätzung — Der Operator befüllt den Reaktor über das Handloch HL-43 mittels Fasspumpe aus 10-L-Gebinden. Da keine Füllstandsmarkierung am Glasgefäß vorhanden ist und kein instrumenteller Füllstandssensor existiert, muss die Menge rein visuell und aus Erfahrung abgeschätzt werden. Bei Routinetätigkeiten, Ablenkung oder wechselndem Personal steigt die Fehlhandlungsrate. Besonders kritisch: Bereits ein einzelnes 10-L-Gebinde füllt den Reaktor auf 83 % des Maximums.",
+      "herkunft": "Betrieb",
+      "praeventionsphase": "Betrieb",
+      "praeventionshinweis": "Füllstandsmarkierung am Glas, SOP mit Gebinde-Zählung, instrumentelle Überwachung (LSHH)"
+    },
+    {
+      "ursache_id": "20TA43-FM01-U2",
+      "beschreibung": "Unbeabsichtigte Doppelbefüllung — Bei Chargenwechsel oder wenn mehrere Gebinde vorbereitet sind, kann versehentlich ein zweites Gebinde vollständig eingefüllt werden (2 × 10 L = 20 L, das ist 67 % über dem 12-L-Limit). Ursache ist fehlende Chargenverfolgung am Befüllplatz — es gibt kein Zählsystem, keine elektronische Erfassung und keine physische Sperre, die eine Doppelbefüllung verhindert.",
+      "herkunft": "Betrieb",
+      "praeventionsphase": "Betrieb",
+      "praeventionshinweis": "Chargendokumentation mit Gebinde-Zählung, Vier-Augen-Prinzip bei Befüllung"
+    },
+    {
+      "ursache_id": "20TA43-FM01-U3",
+      "beschreibung": "Rückstrom aus nachgeschalteter Anlage über Bodenventil BV-43 — Wenn das Bodenventil nicht vollständig geschlossen ist und in der nachgeschalteten Anlage ein höherer Druck herrscht, kann Medium zurück in den Reaktor strömen. Dies ist besonders gefährlich, weil der Rückstrom schleichend erfolgt und vom Bediener erst bemerkt wird, wenn der Füllstand sichtbar über dem erwarteten Niveau liegt. Eine Rückschlagklappe ist nicht vorhanden.",
+      "herkunft": "Betrieb",
+      "praeventionsphase": "Betrieb",
+      "praeventionshinweis": "Einbau einer Rückschlagklappe in der Bodenventilleitung"
+    },
+    {
+      "ursache_id": "20TA43-FM01-U4",
+      "beschreibung": "Thermische Volumenausdehnung des Mediums — Beim Aufheizen von Raumtemperatur auf Rückflusstemperatur (z.B. 78 °C bei Ethanol) dehnt sich das Lösemittel aus. Der thermische Ausdehnungskoeffizient organischer Lösemittel beträgt ca. 1–1.5 × 10⁻³ K⁻¹. Bei 12 L Füllvolumen und ΔT=60 K ergibt sich eine Volumenvergrößerung von ca. 0.7–1.1 L. Wenn der Reaktor nahe am Maximum befüllt wurde, kann das aufgeheizte Medium den verfügbaren Freiraum überschreiten.",
+      "herkunft": "Betrieb",
+      "praeventionsphase": "Betrieb",
+      "praeventionshinweis": "Befüll-SOP mit Sicherheitsabstand (max. 80 % Füllgrad = 9.6 L kalt)"
+    }
+  ],
+  "effects": {
+    "mensch": {
+      "stufe": "Mäßig",
+      "beschreibung": "Lösemittelexposition, Inhalation, Spritzgefahr. Bei Methanol akute Vergiftungsgefahr."
+    },
+    "umwelt": {
+      "stufe": "Gering",
+      "beschreibung": "Begrenzte Menge, Auffangeinrichtungen vorhanden, WGK 1."
+    },
+    "anlage": {
+      "stufe": "Gering",
+      "beschreibung": "Keine strukturellen Schäden, Reinigung erforderlich."
+    },
+    "kosten": {
+      "stufe": "Gering",
+      "beschreibung": "500–2.000 EUR (Chargenverlust + Reinigung)."
+    }
+  },
+  "controls": [
+    {
+      "name": "Visuelle Füllstandskontrolle durch Bediener",
+      "typ": "Mensch",
+      "wirkung": "B",
+      "beeinflusst": "D",
+      "einschraenkung": "Keine Referenzmarkierung am Glas — der Bediener muss das 12-L-Limit rein aus Erfahrung abschätzen. Bei trüben, schäumenden oder stark gefärbten Medien ist der Füllstand schwer ablesbar. Abhängig von Aufmerksamkeit und Erfahrung des Bedieners."
+    },
+    {
+      "name": "Tropfwanne TW-43",
+      "typ": "Passiv",
+      "wirkung": "B",
+      "beeinflusst": "S",
+      "einschraenkung": "Begrenzte Kapazität — kann den Inhalt einer vollständigen Überfüllung (bis zu 8 L Überschuss) nicht vollständig aufnehmen. Rein reaktive Maßnahme, verhindert Überfüllung nicht."
+    },
+    {
+      "name": "AwSV-Boden (Raum 330)",
+      "typ": "Passiv",
+      "wirkung": "B",
+      "beeinflusst": "S",
+      "einschraenkung": "Rein reaktive Maßnahme. Verhindert Überfüllung nicht, begrenzt nur die Umweltauswirkung. Bei gleichzeitigem Einsatz anderer Anlagen im Technikum kann die Restkapazität eingeschränkt sein."
+    }
+  ],
+  "timestamp": "2026-03-15T16:32:02.822294",
+  "project": "Buechi_Glasreaktor_15L_20TA43",
+  "projekt_id": 4,
+  "reliability_db_match": {
+    "status": "match",
+    "equipment_type": "glasreaktor",
+    "failure_rate_fpmh": 20,
+    "hinweis": "Überfüllung ist betriebsbedingter Fehlermodus (Human Error), nicht Equipment-Ausfall — CCPS/OREDA-Daten nur indirekt anwendbar"
+  }
+}

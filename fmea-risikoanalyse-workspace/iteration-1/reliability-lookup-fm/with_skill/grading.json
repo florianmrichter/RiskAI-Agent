@@ -1,0 +1,55 @@
+{
+  "fehler_id": "20TA43-KOMP-008-FM01",
+  "expectations": [
+    {
+      "text": "S_value_correct: S innerhalb ±1 des Goldstandards (5)",
+      "passed": true,
+      "evidence": "S: 5 (expected 5 ±1)"
+    },
+    {
+      "text": "O_value_correct: O innerhalb ±1 des Goldstandards (4)",
+      "passed": true,
+      "evidence": "O: 4 (expected 4 ±1)"
+    },
+    {
+      "text": "reliability_ref: O-Begründung referenziert Reliability-Daten",
+      "passed": true,
+      "evidence": "begruendung_O: found ['CCPS', 'OREDA', 'FPMH', 'Ausfallrate', 'ausfallrate'] (searched ['CCPS', 'OREDA', 'FPMH', 'Ausfallrate', 'ausfallrate'])"
+    },
+    {
+      "text": "daten_quelle_ccps: Datenquelle = CCPS/OREDA",
+      "passed": true,
+      "evidence": "daten_quelle: found ['CCPS', 'OREDA'] (searched ['CCPS', 'OREDA'])"
+    },
+    {
+      "text": "begruendung_O_min_150z: O-Begründung ≥ 150 Zeichen",
+      "passed": true,
+      "evidence": "begruendung_O: 979z (min 150z)"
+    },
+    {
+      "text": "kontext_min_400z: Kontext ≥ 400 Zeichen",
+      "passed": true,
+      "evidence": "kontext_beschreibung: 1852z (min 400z)"
+    }
+  ],
+  "pass_rate": 1.0,
+  "total_assertions": 6,
+  "passed_assertions": 6,
+  "sod_deltas": {
+    "S": {
+      "gold": 5,
+      "actual": 5,
+      "delta": 0
+    },
+    "O": {
+      "gold": 4,
+      "actual": 4,
+      "delta": 0
+    },
+    "D": {
+      "gold": 4,
+      "actual": 4,
+      "delta": 0
+    }
+  }
+}

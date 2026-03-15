@@ -40,9 +40,19 @@ def check_safety_overrides(failure_mode_data: dict) -> tuple:
 
     for rule in SAFETY_OVERRIDES:
         if any(kw in relevant_fields for kw in rule["keywords"]):
-            if rule["min_S"] > highest_min_S:
-                highest_min_S = rule["min_S"]
-                highest_override = rule["label"]
+            effective_min_S = rule["min_S"]
+            effective_label = rule["label"]
+
+            # Check qualifiers: more specific context → adjusted min_S
+            for qualifier in rule.get("qualifiers", []):
+                if any(qkw in relevant_fields for qkw in qualifier["context_keywords"]):
+                    effective_min_S = qualifier["min_S"]
+                    effective_label = qualifier["label"]
+                    break  # First matching qualifier wins
+
+            if effective_min_S > highest_min_S:
+                highest_min_S = effective_min_S
+                highest_override = effective_label
 
     return (highest_min_S, highest_override) if highest_override else (None, None)
 

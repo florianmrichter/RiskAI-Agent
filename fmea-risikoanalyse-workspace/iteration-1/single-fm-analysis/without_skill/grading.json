@@ -1,0 +1,75 @@
+{
+  "fehler_id": "20TA43-KOMP-001-FM01",
+  "expectations": [
+    {
+      "text": "kontext_min_400z: Kontext-Beschreibung mindestens 400 Zeichen",
+      "passed": true,
+      "evidence": "kontext_beschreibung: 1005z (min 400z)"
+    },
+    {
+      "text": "begruendung_S_min_150z: S-Begründung mindestens 150 Zeichen",
+      "passed": true,
+      "evidence": "begruendung_S: 778z (min 150z)"
+    },
+    {
+      "text": "begruendung_O_min_150z: O-Begründung mindestens 150 Zeichen",
+      "passed": true,
+      "evidence": "begruendung_O: 810z (min 150z)"
+    },
+    {
+      "text": "begruendung_D_min_150z: D-Begründung mindestens 150 Zeichen",
+      "passed": true,
+      "evidence": "begruendung_D: 805z (min 150z)"
+    },
+    {
+      "text": "empfehlung_min_150z: Empfehlung mindestens 150 Zeichen",
+      "passed": true,
+      "evidence": "empfehlung: 627z (min 150z)"
+    },
+    {
+      "text": "S_value_correct: S-Wert innerhalb ±1 des Goldstandards (4)",
+      "passed": true,
+      "evidence": "S: 5 (expected 4 ±1)"
+    },
+    {
+      "text": "O_value_correct: O-Wert innerhalb ±1 des Goldstandards (4)",
+      "passed": true,
+      "evidence": "O: 5 (expected 4 ±1)"
+    },
+    {
+      "text": "D_value_correct: D-Wert innerhalb ±1 des Goldstandards (5)",
+      "passed": true,
+      "evidence": "D: 6 (expected 5 ±1)"
+    },
+    {
+      "text": "rpz_correct: RPZ = S × O × D korrekt berechnet",
+      "passed": true,
+      "evidence": "RPZ=150, S×O×D=5×5×6=150"
+    },
+    {
+      "text": "daten_quelle_set: Datenquelle ist angegeben",
+      "passed": true,
+      "evidence": "daten_quelle: present (value: Anlagendaten (anlagendaten.json), allgemeines Fachwissen zu manuellen Befüllvorgängen, CCPS Human Factors Guidelines, FMEA-Standardbewertungskriterien)"
+    }
+  ],
+  "pass_rate": 1.0,
+  "total_assertions": 10,
+  "passed_assertions": 10,
+  "sod_deltas": {
+    "S": {
+      "gold": 4,
+      "actual": 5,
+      "delta": 1
+    },
+    "O": {
+      "gold": 4,
+      "actual": 5,
+      "delta": 1
+    },
+    "D": {
+      "gold": 5,
+      "actual": 6,
+      "delta": 1
+    }
+  }
+}

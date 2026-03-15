@@ -62,14 +62,17 @@ Modus-Wechsel jederzeit per Nutzereingabe:
 **Geführt:**
 - S/O/D: Skala immer zeigen + 2 plant-spezifische Beispiele aus bereits bewerteten FMs dieses Projekts
 - Vollständigkeitsprüfung am Ende jeder Komponente: alle 9 Kategorien + Utility-Pflichtcheck
-- Safety-Override immer laut erklären: "Ich habe S auf [9] angehoben — [Begründung]"
+- Safety-Override nuanciert anwenden und immer laut erklären: "Ich habe S auf [9] angehoben — [Begründung]"
+  - **Permanente Zone 0** (z.B. Reaktorinnenraum bei Lösemittelbetrieb) → S=10
+  - **Lokale/temporäre Zone 0** (z.B. offenes Handloch, undichte Dichtung) → S=9
+  - Siehe `qualifiers` in `config/fmea_standards.py` SAFETY_OVERRIDES
 - Maßnahmen: `assigned_to` und `target_date` abfragen
 - MoC: Betroffene Komponenten bestätigen lassen
 
 **Experte:**
 - S/O/D: Skala nur auf Anfrage, keine Grundlagenerklärungen
 - Vollständigkeitsprüfung: kompakt, eine Zeile pro Kategorie
-- Safety-Override: kurz benennen
+- Safety-Override: kurz benennen, Qualifiers beachten (permanent vs. lokal/temporär)
 - Maßnahmen: `assigned_to` / `target_date` optional, nicht aktiv abfragen
 
 **Autonom:**
@@ -105,9 +108,18 @@ kosten_klasse = "klein"        # klein (<5k) | mittel (5-50k) | gross (>50k)
 
 **Phase 1: Fehlermodi sammeln und gruppieren**
 1. Alle möglichen Fehlermodi auflisten (basierend auf Funktionen, `config/fmea_standards.FEHLERMODI_VORLAGEN`, Anlagendaten)
-2. Gruppierung vorschlagen: Welche Fehlermodi sind thematisch verwandt und können zusammengefasst werden?
-3. Nach Freigabe: Gruppierung durchführen, Ursachen aus den ursprünglichen Fehlermodi in die konsolidierten übernehmen
-4. Finale Liste präsentieren
+2. **Gefahrenfelder-Checkliste (Pflicht):** Alle 26 Pflicht-Gefahrenfelder (Kat. 1+2 aus `config/fmea_standards.py` GEFAHRENFELDER) für diese Komponente durchgehen. Pro Gefahrenfeld: Ist ein FM vorhanden? → ✓ oder "nicht relevant — [Begründung]". Kein Gefahrenfeld darf stillschweigend übergangen werden.
+3. **Prozessübergreifende Risiken prüfen:**
+   - Welche Utilities sind an diese Komponente angeschlossen? (aus `anlagendaten.json` media[], connectedSystems programmatisch extrahieren) → Utility-FM pro Anschluss
+   - Pro angeschlossene Utility: Backflow-Fragen prüfen (aus `references/fmea-standards.md` Pflicht-Checkliste Rückströmung)
+   - Pro angeschlossene Utility: Utility-Fehlermodi prüfen (aus `references/fmea-standards.md` Pflicht-Checkliste Utility-Schnittstellen)
+   - `processSteps` durchgehen: Welche manuellen Tätigkeiten finden an DIESER Komponente statt? → Bedienfehler-FM
+   - Wird die Komponente gereinigt? Mit welchen Medien? → Reinigungs-FM
+   - Gibt es erstickende Gase (N₂, CO₂) an dieser Komponente? → Erstickungsgefahr-FM
+   - Sind wassergefährdende Stoffe beteiligt? → AwSV-Rückhaltungs-FM prüfen
+4. Gruppierung vorschlagen: Welche Fehlermodi sind thematisch verwandt und können zusammengefasst werden?
+5. Nach Freigabe: Gruppierung durchführen, Ursachen aus den ursprünglichen Fehlermodi in die konsolidierten übernehmen
+6. Finale Liste präsentieren
 
 **Phase 2: Fehlermodi einzeln durchgehen**
 - Jeden Fehlermodus nacheinander: Ursachen, Folgen, S/O/D (mit vollständiger Erklärung), **Maßnahmen direkt danach**
@@ -128,6 +140,23 @@ O = 3 (Occurrence / Auftreten): Gering – ~1 mal in 10 Jahren
 D = 3 (Detection / Entdeckung): Wahrscheinlich – Autom. Prüfung ohne SPC, 80–95%
 ```
 → RPZ = 81 (mittel)
+
+## Multi-Szenario-Fehlermodi (D-Bewertung)
+
+Wenn ein Fehlermodus mehrere Szenarien mit unterschiedlicher Entdeckbarkeit umfasst (z.B. "offen/undicht" → Szenario A visuell erkennbar, Szenario B nicht erkennbar):
+
+1. **Szenarien einzeln bewerten:** D-Wert pro Szenario separat bestimmen
+2. **Gewichtet mitteln:** D = Σ(D_i × w_i), gerundet. Gewichtung nach Eintrittswahrscheinlichkeit
+3. **Nicht Worst-Case nehmen:** D=10 nur wenn ALLE Szenarien schlecht entdeckbar
+4. **Dokumentieren:** In begruendung_D beide Szenarien und ihre D-Werte nennen
+
+**Beispiel:**
+
+- Szenario A: Offenes Handloch → visuell erkennbar, D=4 (Gewicht 40%)
+- Szenario B: Undichte Dichtung → nicht visuell erkennbar, D=8 (Gewicht 60%)
+- D_gewichtet = 0.4 × 4 + 0.6 × 8 = 6.4 → **D=6**
+
+**Erkennungsregel:** Wenn der FM-Titel "oder"/"und" oder einen Schrägstrich enthält (z.B. "offen/undicht"), prüfe ob Multi-Szenario vorliegt.
 
 ## Risiko-Präsentation (bei jedem identifizierten Risiko)
 
@@ -225,6 +254,36 @@ NIEMALS generische Buchstaben (A, B, C) oder nicht-qualifizierte IDs verwenden.
 
 **Beenden:** Testmodus endet, wenn der Nutzer „Testmodus beenden“ oder „Normalmodus“ schreibt – oder wenn die Risikoanalyse vollständig abgeschlossen ist.
 
+## Gesamtprüfung (Pflicht vor Report-Generierung)
+
+Nach Abschluss ALLER Komponenten-Analysen und VOR der Report-Generierung muss diese Prüfung durchlaufen werden. Der Report darf erst generiert werden, wenn alle Warnings adressiert sind (FM nachgeliefert oder explizit begründet).
+
+**Schritt 1: Gefahrenfelder-Matrix**
+Abgleich aller 26 Pflicht-Gefahrenfelder (Kat. 1+2 aus `config/fmea_standards.py` GEFAHRENFELDER) gegen ALLE identifizierten FMs der Teilanlage. Jedes nicht abgedeckte Feld: FM nachliefern oder explizit begründen warum nicht relevant.
+
+**Schritt 2: 9-Kategorien-Check**
+Alle 9 FM-Kategorien (Prozess, Thermisch, Mechanisch, Equipment, Elektrisch, MSR, Sicherheit, Dosierung, Sonstiges) mindestens einmal vertreten? Falls Kategorie fehlt: begründen (z.B. "Dosierung: keine automatische Dosierung, manuelle Befüllung unter Prozess-FMs abgedeckt") oder FMs ergänzen.
+
+**Schritt 3: Schnittstellenanalyse**
+Für jede Utility und jedes Connected System aus `anlagendaten.json`: Mindestens ein FM zugeordnet? Backflow berücksichtigt?
+
+**Schritt 4: CCF-Prüfung (Common Cause Failures)**
+Pro Utility/Versorgungssystem: Welche Komponenten hängen davon ab? Was passiert bei gleichzeitigem Ausfall? Beispiel: N₂-Ausfall → Inertisierung UND Gleitringdichtung UND Sperrgas gleichzeitig betroffen. Für jede identifizierte CCF: Eigenen FM anlegen oder bestehenden FM um CCF-Ursache erweitern.
+
+**Schritt 5: Systemübergreifende Risiken**
+Querschnittsthemen abgedeckt?
+- Manuelle Tätigkeiten (1.24) — besonders bei manuellem Betrieb
+- Reinigung (1.18) — besonders mit brennbaren Lösemitteln
+- Verwechslung (1.7) — besonders bei Multi-Purpose-Anlagen
+- Offenes Stoffhandling (1.26) — besonders bei K1-Gefahrstoffen
+- Wartung (1.25) — Wartungsarbeiten mit Anlagenöffnung
+- Abluft (1.21) — Abluftanlage sicherheitsrelevant für Ex-Zone?
+- Erstickungsgefahr — inerte Gase (N₂, CO₂) ohne O₂-Überwachung?
+- AwSV — Rückhaltung für wassergefährdende Stoffe ausreichend?
+
+**Schritt 6: `validate_completeness(project_id, task_folder)` aufrufen** (wenn Tool verfügbar)
+Programmatische Validierung als Absicherung. Warnings adressieren.
+
 ## Abschluss-Zusammenfassung (immer)
 
 Am Ende jeder Risikoanalyse (unabhängig von Testmodus) gib eine kurze Zusammenfassung aus:
@@ -232,6 +291,7 @@ Am Ende jeder Risikoanalyse (unabhängig von Testmodus) gib eine kurze Zusammenf
 - Anzahl Fehlermodi
 - Anzahl übernommener Maßnahmen (falls zutreffend)
 - Status: DB eingespielt, Report generiert (falls zutreffend)
+- **Gesamtprüfung:** Bestanden / Warnings (Anzahl + welche)
 
 ## Fortschrittsanzeige (Pflicht)
 

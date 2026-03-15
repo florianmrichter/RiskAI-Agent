@@ -182,13 +182,94 @@ Bei jeder Komponente mit Ex-Zone-Einstufung MUSS geprüft werden:
 
 ## Pflicht-Checkliste: Rückströmung (pro Schnittstelle)
 
-Für JEDE Verbindung in `connectedSystems.upstream` und `connectedSystems.downstream`:
+Für JEDE Verbindung in `connectedSystems.upstream`, `connectedSystems.downstream` und `media[]`:
 
 1. Gibt es ein Druckgefälle, das sich umkehren kann?
 2. Gibt es Rückschlagklappen oder andere Rückflusssperren?
 3. Was passiert bei Rückströmung? (Kontamination, gefährliche Reaktion, Druckaufbau?)
 
 Bei Vakuumbetrieb: Auch Falschluft-Eintrag als Rückströmungs-Variante betrachten.
+
+**Wichtig:** "System out of scope" ≠ "Interface out of scope". Auch wenn z.B. das Hausvakuumnetz nicht Bestandteil der Risikoanalyse ist, muss die Schnittstelle Reaktor ↔ Vakuum analysiert werden.
+
+### Typische Rückströmungs-Szenarien (Beispiele)
+
+| Schnittstelle | Szenario | Folge |
+|---|---|---|
+| Vakuumpumpe / Hausvakuum | Pumpe fällt aus, Druckausgleich über Vakuumleitung → Luft + Kontaminanten strömen zurück in Reaktor | Verlust Inertisierung, Kontamination, Ex-Gefahr |
+| Eiswasser / Kühlwasser | Eiswasserdruck übersteigt Reaktordruck (z.B. bei Vakuumbetrieb) → Wasser tritt über undichten Kühler in Prozessraum | Reaktion mit Wasser, Verdünnung, unkontrollierte Exothermie |
+| Abluftsystem (RLA) | Druckumkehr in Abluftleitung (z.B. bei Klappenversagen) → kontaminierte Luft anderer Anlagen strömt zurück | Kontamination, Ex-Gefahr durch Fremdstoffe |
+| Stickstoff (N₂) | N₂-Druckregler versagt (stuck-open) → voller Leitungsdruck (z.B. 6 barg) auf Reaktor (max. 0.5 barg) | Drucküberschreitung, Glasbruch, Bersten |
+| Dosierleitung | Rückstrom aus Reaktor in Vorratsbehälter bei Druckaufbau im Reaktor | Kontamination Vorratsbehälter, verzögerte Reaktion |
+
+---
+
+## Pflicht-Checkliste: Prozessübergreifende Risiken (nach letzter Komponente)
+
+Diese Querschnittsthemen fallen oft zwischen Komponenten-Analysen durch und MÜSSEN explizit geprüft werden:
+
+| Risikotyp | Prüffrage | Gefahrenfeld |
+|---|---|---|
+| Verwechslung | Werden verschiedene Stoffe/Chargen verarbeitet? Verwechslungsgefahr bei Gebinden? | 1.1, 1.2, 1.7 |
+| Dosierung | Wird manuell oder automatisch dosiert? Fehlmengen/falsche Reihenfolge möglich? | 1.3 |
+| Reinigung | Wird mit brennbaren Medien gereinigt? Bei offenem System? | 1.18 |
+| Manuelle Tätigkeiten | Welche Handgriffe erfolgen am offenen System? Spritz-/Verbrühungsgefahr? | 1.24, 1.26 |
+| Wartung | Welche Wartungsarbeiten erfordern Anlagenöffnung? | 1.25 |
+| Abluft | Ist die Abluftanlage sicherheitsrelevant (Ex-Zone-Reduktion)? Was bei Ausfall? | 1.21 |
+
+---
+
+## AwSV-Pflichtprüfung (bei wassergefährdenden Stoffen)
+
+Bei Anlagen mit WGK ≥ 1 Stoffen MUSS geprüft werden:
+
+| Prüfpunkt | Fehlermodus wenn nicht abgedeckt |
+|---|---|
+| Rückhaltevolumen ausreichend? | Überlauf bei Leckage → Boden-/Gewässerkontamination |
+| Sekundärrückhaltung dicht? | Undichter AwSV-Boden → Versickerung ins Erdreich |
+| Leckageerkennung vorhanden? | Leckage bleibt unentdeckt → D steigt signifikant |
+| Materialverträglichkeit Rückhaltung? | Rückhaltematerial unbeständig gegen Medium → Versagen der Rückhaltung |
+| Ableitung/Entsorgung korrekt? | Falsche Entsorgung → Umweltschaden + Ordnungswidrigkeit |
+
+**Regel:** AwSV-Rückhaltung ist ein Control, der S für Umwelt-Folgen beeinflusst. WGK-Einstufung fließt in die Umwelt-Folgenbewertung ein. Prüfintervalle beeinflussen O (ungeprüfte Systeme = höhere Ausfallwahrscheinlichkeit).
+
+---
+
+## Erstickungsgefahr-Pflichtprüfung (bei inerten Gasen)
+
+Bei Anlagen mit N₂, CO₂, Argon oder anderen erstickenden Gasen MUSS geprüft werden:
+
+| Prüfpunkt | Fehlermodus wenn nicht abgedeckt |
+|---|---|
+| N₂-Leckage an Leitung/Armatur | O₂-Verdrängung im Raum → Erstickung (S=10 bei fehlender Warnung) |
+| N₂-Austritt bei offenem System | Großflächiger N₂-Austritt bei Handlochöffnung unter N₂-Überdruck |
+| Ausfall RLT bei N₂-Leckage | Keine Verdünnung → O₂ sinkt schneller unter kritischen Wert |
+| Fehlende O₂-Überwachung | Erstickung wird nicht rechtzeitig erkannt (D=9-10) |
+| Arbeiten in Tiefpunkten/Gruben | N₂/CO₂ sammelt sich in Senken → lokale O₂-Armut ohne Raumwarnung |
+
+**Wichtig:** N₂-Erstickung ist S=10 (tödlich) bei fehlender Warnung. N₂ ist geruchlos und unsichtbar — die Erstickung tritt ohne Vorwarnung ein. Bei vorhandener O₂-Überwachung mit Alarm (< 19.5 Vol.-%) und funktionierender RLT sinkt D erheblich. Dieser Fehlermodus wird oft übersehen, weil N₂ als "harmlos" wahrgenommen wird.
+
+---
+
+## Cyber Security & Sabotage-Pflichtprüfung
+
+**Gefahrenfeld 2.6 (Cyber Security) — Pflicht.** Gefahrenfeld 3.6 (Sabotage) — bei KRITIS/NIS2-Anlagen Pflicht, sonst empfohlen.
+
+### Bei manuellen Anlagen (kein DCS/SPS):
+
+| Prüfpunkt | Fehlermodus wenn nicht abgedeckt |
+|---|---|
+| Physischer Zugang ungesichert? | Manipulation: falscher Stoff eingefüllt, Ventile geöffnet, N₂ unterbrochen |
+| Keine Verriegelungen vorhanden? | Absichtliche Fehlbedienung ohne technische Barriere möglich |
+
+### Bei vernetzten Anlagen (DCS/SPS/SCADA):
+
+| Prüfpunkt | Fehlermodus wenn nicht abgedeckt |
+|---|---|
+| Unbefugter Fernzugriff möglich? | Manipulation von Sollwerten oder Verriegelungen über Netzwerk |
+| Kein IT/OT-Segmentierung? | Malware/Ransomware befällt OT-System → Ausfall oder unkontrollierter Betrieb |
+| SPS-Programm ungeschützt? | Unerkannte Änderung von Alarmschwellen oder Logik |
+| Kein Patch-Management? | Bekannte Schwachstellen bleiben offen |
 
 ---
 
@@ -199,5 +280,6 @@ Nach Abschluss aller Einzel-Fehlermodi MUSS eine CCF-Prüfung durchgeführt werd
 1. Welche Fehlermodi haben **gemeinsame Ursachen**? (z.B. Stromausfall betrifft Rührwerk + Thermostat + Anzeigen)
 2. Welche **Schutzschichten sind voneinander abhängig**? (z.B. DHV und PSV am selben Stutzen)
 3. Gibt es **Kaskaden-Szenarien**? (z.B. Kühlungsausfall → Übertemperatur → Druckaufbau → Glasbruch)
+4. **Pro Utility/Versorgungssystem:** Welche Komponenten hängen davon ab? Was passiert bei gleichzeitigem Ausfall? (z.B. N₂-Ausfall → Inertisierung + Gleitringdichtung + Sperrgas gleichzeitig betroffen)
 
 Für jede identifizierte CCF: Eigenen Fehlermodus anlegen oder bestehenden FM um CCF-Ursache erweitern. S/O/D separat bewerten.

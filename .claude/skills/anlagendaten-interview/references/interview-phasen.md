@@ -250,3 +250,174 @@ Frage nach Hilfsmedien:
 > "Welche angrenzenden Systeme werden separat betrachtet?"
 
 Liste der ausgeschlossenen Systeme aufnehmen + kurze Begründung (z. B. "separate Genehmigung", "eigene Anlage", "nicht prozessrelevant").
+
+---
+
+## Phase 4b — Prozessbeschreibung und Arbeitsablauf (FMEA-kritisch)
+
+**Ziel:** Erfassung des verfahrenstechnischen Prozesses und des konkreten Arbeitsablaufs des Bedieners. Ohne diese Daten kann der FMEA-Agent keine Risiken für manuelle Tätigkeiten, Reinigung, Dosierung oder Betriebszustands-Übergänge identifizieren.
+
+**Ebene 1: Verfahrenstechnische Prozessbeschreibung** → `processDetails`
+
+Fragen:
+1. Welche Reaktion / welcher Prozess wird durchgeführt? (Typ, exotherm/endotherm?)
+2. Welche Einsatzstoffe werden verwendet? (Name, Aggregatzustand, Menge, Rolle — Reaktand/Lösemittel/Katalysator)
+3. Welche Zwischen- und Endprodukte entstehen? (Gefährdungspotenzial?)
+4. Welche Betriebsbedingungen herrschen? (Temperatur, Druck, Dauer — Normalwerte und Grenzen)
+5. Welche groben Prozessschritte gibt es? (Reihenfolge von Anfahren bis Reinigung)
+
+**Ebene 2: Detaillierter Arbeitsablauf** → `processSteps[]`
+
+Pro Schritt erfassen:
+- Name und Beschreibung
+- Anlage offen oder geschlossen?
+- Welche Stoffe? Aggregatzustand?
+- Manuelle Tätigkeit? Ex-relevant?
+- Betriebsbedingungen (Temperatur, Druck)
+- Dauer
+- Kritische Hinweise
+
+Fragen:
+6. Beschreibe den typischen Arbeitsablauf Schritt für Schritt — vom Anfahren bis zum Abschluss
+7. Pro Schritt: Ist die Anlage offen oder geschlossen? Welche Stoffe? Welcher Druck/Temperatur?
+8. Gibt es Probenahmen? Wo, wie, welche Gefährdung?
+9. Wird die Anlage gereinigt? Mit welchen Medien? Bei offenem System?
+10. Werden verschiedene Produkte/Chargen gefahren? Wie wird zwischen Chargen gewechselt?
+11. Gibt es kritische Übergänge? (z.B. Vakuum → atmosphärisch, Heizung → Kühlung)
+
+**PSA und SOPs** → `psa`, `sops`
+
+12. Welche PSA wird getragen? Standard-PSA und zusätzliche PSA pro Tätigkeit?
+13. Gibt es SOPs für diese Arbeiten? Welche? Sind sie aktuell? Werden sie geschult?
+
+---
+
+## Phase 4c — Sicherheit und Zugang
+
+**Ziel:** Physische Sicherheit und ggf. IT/OT-Sicherheit erfassen. Bei manuellen Anlagen: Kurzform. Bei vernetzten Anlagen: Vollform.
+
+**Kurzform (immer)** → `physischeSicherheit`
+
+1. Wie ist der physische Zugang geregelt? (Zutrittskontrolle, Schlüssel?)
+2. Wer hat Zugang? (Nur Betriebspersonal? Fremdfirmen? Besucher?)
+3. Was könnte ein Unbefugter manipulieren? (Stoffe, Ventile, Versorgungen)
+
+**Vollform (nur bei vernetzten Anlagen: SPS, SCADA, Fernzugriff)** → `cyberSecurity`
+
+4. Ist die Anlage vernetzt? (SPS, SCADA, Fernzugriff, Cloud?)
+5. NIS2-Relevanz: Fällt der Betrieb unter KRITIS/NIS2?
+6. IT/OT-Segmentierung? (Firewall, DMZ, Patchmanagement?)
+
+---
+
+## Phase 5b — Utility-Schnittstellen und Rückflussschutz (FMEA-kritisch)
+
+**Ziel:** Pro angeschlossene Utility/Medium die Schnittstellendetails erfassen — insbesondere Rückströmungsschutz. "System out of scope" ≠ "Interface out of scope".
+
+Pro Medium/Utility aus Phase 5 zusätzlich erfragen → erweitert `media[]` Einträge:
+
+1. Wo ist das Medium angeschlossen? (Welche Komponente?)
+2. Gibt es eine Rückschlagklappe oder Rückflusssperre?
+3. Gibt es ein Absperrventil zur Isolation?
+4. Was passiert, wenn der Druck sich umkehrt? (Kann Medium in den Reaktor gelangen?)
+
+Neue Felder pro media-Eintrag: `anschluss`, `rueckschlagklappe` (bool), `isolationsventil` (bool), `rueckstroem_risiko` (text), `fmea_critical` (bool)
+
+---
+
+## Phase 5c — Notfallinfrastruktur (FMEA-kritisch)
+
+**Ziel:** Notfalleinrichtungen erfassen, die S-Werte in der FMEA direkt beeinflussen.
+
+→ `notfallinfrastruktur`
+
+1. Notdusche / Augendusche vorhanden? Abstand zur Anlage? Letzte Prüfung?
+2. Welche Feuerlöscher? (Typ: CO2/Schaum/Pulver, Abstand?)
+3. Fluchtweg? (Länge, Hindernisse?)
+4. Brandmeldeanlage? Sprinkler? Notbeleuchtung?
+5. Werkfeuerwehr / Rettungsdienst? Eintreffzeit?
+6. Ersthelfer im Bereich?
+7. RLT auf Notstrom? (Kritisch für Ex-Zone-Aufrechterhaltung bei Stromausfall)
+
+---
+
+## Phase 5d — Bediener-Qualifikation und Besetzung
+
+**Ziel:** Erfassung des Besetzungsmodells und der Qualifikation — besonders kritisch bei manuellem Betrieb, da der Mensch das primäre Kontrollsystem ist.
+
+→ `personalQualifikation`
+
+1. Einzelpersonen- oder Mehrpersonenbetrieb?
+2. Gibt es ein Vier-Augen-Prinzip bei kritischen Schritten?
+3. Welche Qualifikation ist Mindestvoraussetzung? (Chemielaborant, Chemikant, Chemiker, ...)
+4. Welche Pflichtschulungen gibt es? (Intervall, letzter Termin?)
+5. Schichtarbeit? (Ermüdung beeinflusst Human Error Rate)
+6. Sprachkenntnisse? (SOPs in welcher Sprache verfügbar?)
+
+---
+
+## Phase 5e — Nachbaranlagen und Raumkontext
+
+**Ziel:** Domino-Effekte und gemeinsame Versorgungsausfälle erfassen (CCF-relevant).
+
+→ `raumkontext`
+
+1. Was steht noch im selben Raum? (Andere Anlagen, Zündquellen, Gefahrstoffe?)
+2. Teilen sich Anlagen Versorgungen? (N₂, Eiswasser, Strom — Ausfall betrifft dann alle!)
+3. Gefahrstofflagerung im Raum? (Menge, Sicherheitsschrank?)
+4. Verkehr / Zugänglichkeit? (Staplerverkehr, Fluchtweg blockiert?)
+
+---
+
+## Phase 5f — AwSV-Compliance
+
+**Ziel:** Anforderungen nach Anlagenverordnung zum Umgang mit wassergefährdenden Stoffen (AwSV) erfassen. Beeinflusst Umwelt-S-Werte und Rückhaltungs-Controls in der FMEA.
+
+→ `awsv`
+
+1. Welche wassergefährdenden Stoffe werden verwendet? (WGK pro Stoff — aus Stoffdaten Phase 3 ableiten)
+2. Welche Gefährdungsstufe hat die Anlage? (A, B, C, D nach AwSV §39)
+3. Rückhaltesystem: Tropfwanne? AwSV-Boden? Rückhaltevolumen ausreichend?
+4. Leckageerkennung: Automatisch (Sensor) oder nur visuell?
+5. Letzte AwSV-Prüfung? Nächster Termin? Durch wen?
+6. Abwasser/Entsorgung: Wie werden Rückstände entsorgt?
+
+---
+
+## Phase 5g — Erstickungsgefahr durch inerte Gase
+
+**Ziel:** Erstickungsrisiko durch N₂, CO₂ oder andere inerte Gase systematisch erfassen. Oft übersehen, weil N₂ als "harmlos" wahrgenommen wird — ist aber S=10 (tödlich) bei fehlender Warnung.
+
+→ `erstickungsgefahr`
+
+1. Welche inerten/erstickenden Gase werden eingesetzt? (N₂, CO₂, Argon, ...)
+2. Wofür? (Inertisierung, Sperrgas, Fördergas, Schutzgas)
+3. Gibt es eine O₂-Überwachung im Raum? (Alarm bei < 19.5 Vol.-%?)
+4. Raumgröße und Lüftwechselrate? (Für Verdünnungsrechnung)
+5. Gibt es Tiefpunkte/Gruben? (CO₂ und kalter N₂ sammeln sich in Senken)
+6. Warnhinweise an Zugängen angebracht?
+
+---
+
+## Phase 7b — Betriebserfahrungen (Prompted Checklist)
+
+**Ziel:** Vorfälle und Beinahe-Unfälle systematisch erfassen. Die offene Frage "Gab es Vorfälle?" liefert selten vollständige Antworten. Stattdessen eine Erkennungs-Checkliste verwenden.
+
+→ erweitert `betriebserfahrungen[]`
+
+**Checkliste vorlegen — In den letzten 3 Jahren aufgetreten?**
+
+- Leckage / Undichtigkeit (Produkt, Kühlwasser, Inertgas)?
+- Unerwarteter Druckanstieg / -abfall?
+- Temperaturüberschreitung / Runaway-Verdacht?
+- Glasbruch oder Rissbildung?
+- Beinahe-Unfall bei manueller Tätigkeit (Spritzer, Verbrühung)?
+- Falscher Stoff eingefüllt / Verwechslung?
+- Dichtungswechsel wegen Versagen (nicht planmäßig)?
+- Sicherheitsventil hat angesprochen?
+- Stromausfall während Betrieb?
+- Alarm ignoriert oder zu spät bemerkt?
+- Reinigungsproblem (Verschleppung, Rückstände)?
+- Vakuumverlust während Destillation?
+
+Treffer als strukturierte Einträge speichern mit: Datum (ca.), Kurzbeschreibung, Konsequenz (was wurde geändert/repariert?).

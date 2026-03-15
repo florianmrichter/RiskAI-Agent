@@ -83,6 +83,17 @@ SAFETY_OVERRIDES = [
         "keywords": ["ex-schutz", "explosionsschutz", "zone 0", "zone 1", "atex"],
         "min_S": 10,
         "label": "Explosionsschutz-Spezifikation",
+        "qualifiers": [
+            {
+                "context_keywords": ["offen", "handloch", "undicht", "leckage", "lokal", "temporär"],
+                "min_S": 9,
+                "label": "Explosionsschutz — lokale/temporäre Ex-Gefahr",
+                "guidance": (
+                    "Zone 0 entsteht lokal/temporär (z.B. offenes Handloch, undichte Dichtung). "
+                    "Nicht gleichzusetzen mit permanenter Zone 0 im geschlossenen Reaktor. S=9 angemessen."
+                ),
+            },
+        ],
     },
     {
         "keywords": ["säure", "lauge", "toxisch", "giftig", "chlor", "schwefelsäure", "essigsäure"],
@@ -296,6 +307,12 @@ FEHLERMODI_VORLAGEN = {
         {"typ": "Bedienfehler (Human Error)", "beschreibung": "Falsche Sollwertvorgabe oder Fehlinterpretation von Alarmen durch das Personal."},
         {"typ": "Kennzeichnungsfehler", "beschreibung": "Falsche Beschriftung von Leitungen oder Handventilen führt zu Verwechslungen bei Wartung/Betrieb."},
         {"typ": "Externe Einwirkung", "beschreibung": "Beschädigung von Rohrleitungen durch Staplerverkehr oder herabfallende Lasten."},
+    ],
+    "cyber_sabotage": [
+        {"typ": "Unbefugter Fernzugriff", "beschreibung": "Zugriff auf Prozesssteuerung über Netzwerk/VPN, Manipulation von Sollwerten oder Verriegelungen."},
+        {"typ": "Malware / Ransomware auf OT-System", "beschreibung": "Schadsoftware befällt SPS/SCADA, führt zu Ausfall oder unkontrolliertem Betrieb."},
+        {"typ": "Manipulation vor Ort (Sabotage)", "beschreibung": "Absichtliche Fehlbedienung oder Manipulation durch Personen mit physischem Zugang."},
+        {"typ": "Datenmanipulation / Logikänderung", "beschreibung": "Unerkannte Änderung von SPS-Programm oder Alarmschwellen."},
     ],
 }
 

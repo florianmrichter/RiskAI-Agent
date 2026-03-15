@@ -165,6 +165,42 @@ class TestSafetyOverrides(unittest.TestCase):
         s_val, label = check_safety_overrides(data)
         self.assertEqual(s_val, 10)
 
+    def test_ex_schutz_qualifier_handloch(self):
+        """Local/temporary Zone 0 (open handhole) should get S=9, not S=10."""
+        data = {
+            "fehlermodus": "Betrieb mit offenem Handloch — Zone 0 lokal",
+            "fehlerart": "",
+            "komponente": "Handloch HL-43",
+            "typ": "",
+        }
+        s_val, label = check_safety_overrides(data)
+        self.assertEqual(s_val, 9)
+        self.assertIn("lokal", label.lower())
+
+    def test_permanent_zone0_still_10(self):
+        """Permanent Zone 0 (N2 loss in reactor) should stay S=10."""
+        data = {
+            "fehlermodus": "Verlust N2-Inertisierung — Zone 0 im Reaktor",
+            "fehlerart": "",
+            "komponente": "Reaktor R-43",
+            "typ": "",
+        }
+        s_val, label = check_safety_overrides(data)
+        self.assertEqual(s_val, 10)
+        self.assertIn("Explosionsschutz", label)
+
+    def test_qualifier_undicht_leckage(self):
+        """Leak-related Zone 0 should also get S=9 via qualifier."""
+        data = {
+            "fehlermodus": "Leckage an Dichtung — explosionsfähige Atmosphäre Zone 0",
+            "fehlerart": "",
+            "komponente": "",
+            "typ": "",
+        }
+        s_val, label = check_safety_overrides(data)
+        self.assertEqual(s_val, 9)
+        self.assertIn("lokal", label.lower())
+
 
 if __name__ == "__main__":
     unittest.main()

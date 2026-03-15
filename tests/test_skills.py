@@ -342,5 +342,90 @@ class TestSkillStructure(unittest.TestCase):
         self.assertNotIn("db.close()", content, "Manuelles db.close() noch in fmea-training")
 
 
+# ═══════════════════════════════════════════════════════════════
+# 5. Vollständigkeits-Features (Gefahrenfelder, Keywords, Schema)
+# ═══════════════════════════════════════════════════════════════
+
+class TestCompletenessFeatures(unittest.TestCase):
+    """Prüft die neuen Vollständigkeits-Features aus dem Upgrade."""
+
+    def test_workflow_has_gefahrenfelder_checkliste(self):
+        """Workflow muss Gefahrenfelder-Checkliste in Phase 1 referenzieren."""
+        content = (PROJ_ROOT / "workflows" / "fmea-workflow.md").read_text()
+        self.assertIn("Gefahrenfelder-Checkliste", content)
+        self.assertIn("26 Pflicht-Gefahrenfelder", content)
+
+    def test_workflow_has_gate_vor_report(self):
+        """Workflow muss Gesamtprüfung als Gate vor Report enthalten."""
+        content = (PROJ_ROOT / "workflows" / "fmea-workflow.md").read_text()
+        self.assertIn("Gesamtprüfung (Pflicht vor Report-Generierung)", content)
+        self.assertIn("CCF-Prüfung", content)
+
+    def test_keyword_mapping_has_utility_keywords(self):
+        """Keyword-Mapping muss Utility-Keywords enthalten."""
+        from tools.failure_templates import KEYWORD_MAPPING
+        keywords = {m["keyword"] for m in KEYWORD_MAPPING}
+        required = {"vakuum", "eiswasser", "abluft", "stickstoff", "n2", "kühlwasser", "manuell"}
+        missing = required - keywords
+        self.assertEqual(missing, set(), f"Fehlende Keywords: {missing}")
+
+    def test_templates_have_cyber_sabotage(self):
+        """Failure Templates müssen cyber_sabotage Kategorie enthalten."""
+        from tools.failure_templates import TEMPLATES
+        self.assertIn("cyber_sabotage", TEMPLATES)
+        self.assertGreaterEqual(len(TEMPLATES["cyber_sabotage"]), 3)
+
+    def test_fmea_standards_have_cyber_sabotage(self):
+        """FEHLERMODI_VORLAGEN muss cyber_sabotage enthalten."""
+        from config.fmea_standards import FEHLERMODI_VORLAGEN
+        self.assertIn("cyber_sabotage", FEHLERMODI_VORLAGEN)
+
+    def test_validate_completeness_importable(self):
+        """validate_completeness muss importierbar sein."""
+        from tools.validate_completeness import validate_completeness, format_report
+        self.assertTrue(callable(validate_completeness))
+        self.assertTrue(callable(format_report))
+
+    def test_fmea_standards_md_has_awsv(self):
+        """fmea-standards.md muss AwSV-Pflichtprüfung enthalten."""
+        content = (SKILLS_DIR / "fmea-risikoanalyse" / "references" / "fmea-standards.md").read_text()
+        self.assertIn("AwSV-Pflichtprüfung", content)
+        self.assertIn("Rückhaltevolumen", content)
+
+    def test_fmea_standards_md_has_erstickung(self):
+        """fmea-standards.md muss Erstickungsgefahr-Pflichtprüfung enthalten."""
+        content = (SKILLS_DIR / "fmea-risikoanalyse" / "references" / "fmea-standards.md").read_text()
+        self.assertIn("Erstickungsgefahr-Pflichtprüfung", content)
+        self.assertIn("O₂-Verdrängung", content)
+
+    def test_fmea_standards_md_has_backflow_examples(self):
+        """fmea-standards.md muss Rückströmungs-Szenarien enthalten."""
+        content = (SKILLS_DIR / "fmea-risikoanalyse" / "references" / "fmea-standards.md").read_text()
+        self.assertIn("Typische Rückströmungs-Szenarien", content)
+        self.assertIn("Vakuumpumpe", content)
+
+    def test_schema_has_new_fields(self):
+        """Anlagendaten-Schema muss alle neuen Felder enthalten."""
+        import json
+        schema = json.loads((SKILLS_DIR / "anlagendaten-interview" / "references" / "anlagendaten-schema.json").read_text())
+        required = ["processDetails", "processSteps", "psa", "sops", "notfallinfrastruktur",
+                     "personalQualifikation", "raumkontext", "awsv", "erstickungsgefahr"]
+        for field in required:
+            self.assertIn(field, schema, f"Feld '{field}' fehlt im Schema")
+
+    def test_interview_phasen_has_new_phases(self):
+        """Interview-Phasen muss neue Sub-Phasen enthalten."""
+        content = (SKILLS_DIR / "anlagendaten-interview" / "references" / "interview-phasen.md").read_text()
+        required = ["Phase 4b", "Phase 5b", "Phase 5c", "Phase 5f", "Phase 5g", "Phase 7b"]
+        for phase in required:
+            self.assertIn(phase, content, f"{phase} fehlt in interview-phasen.md")
+
+    def test_skill_md_references_gate(self):
+        """FMEA SKILL.md muss Gate vor Report referenzieren."""
+        content = (SKILLS_DIR / "fmea-risikoanalyse" / "SKILL.md").read_text()
+        self.assertIn("Gesamtprüfung vor Report", content)
+        self.assertIn("validate_completeness", content)
+
+
 if __name__ == "__main__":
     unittest.main()

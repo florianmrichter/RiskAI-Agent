@@ -78,9 +78,18 @@ Wenn PubChem keine Daten liefert → Werte aus Fachwissen ergänzen und als Quel
 | 2 | Prozessbeschreibung: Zweck, Betriebsweise, Rahmenbedingungen, **bekannte Störfälle** |
 | 3 | Stoffe: Edukte, Produkte, Hilfs-/Betriebsstoffe + Sicherheitsdaten |
 | 4 | Systeme: Auslegung, Equipment, MSR, Sicherheitseinrichtungen, Verbindungen |
-| 5 | Medien: Dampf, Kühlwasser, Stickstoff, Druckluft, Strom |
+| 4b | Prozessdetails: Reaktionstyp, Thermodynamik, Betriebsbedingungen, grobe Prozessschritte (`processDetails`) |
+| 4c | Prozessschritte detailliert: Schrittweise Erfassung mit Ex-Relevanz, manuellen Tätigkeiten, Stoffen pro Schritt (`processSteps`) |
+| 5 | Medien: Dampf, Kühlwasser, Stickstoff, Druckluft, Strom (inkl. Anschluss, Rückschlagklappen, Rückströmrisiko) |
+| 5b | PSA: Standard-PSA und tätigkeitsspezifische Zusatz-PSA (`psa`) |
+| 5c | SOPs: Betriebsanweisungen mit Versionierung und Schulungsstatus (`sops`) |
+| 5d | Notfallinfrastruktur: Notduschen, Feuerlöscher, Fluchtwege, Werkfeuerwehr, Ersthelfer (`notfallinfrastruktur`) |
+| 5e | Physische Sicherheit & Cyber Security: Zutrittskontrolle, NIS2, SCADA-Vernetzung (`physischeSicherheit`, `cyberSecurity`) |
+| 5f | Personal & Qualifikation: Besetzung, Schichtarbeit, Pflichtschulungen (`personalQualifikation`) |
+| 5g | Raumkontext: Nachbaranlagen, gemeinsame Versorgungen, Lagerung im Raum (`raumkontext`) |
 | 6 | Leitsystem & Sicherheitssystem: DCS, SIS, Gaswarnung |
 | 7 | Systemgrenzen: Was ist explizit nicht im Scope? |
+| 7b | Umwelt & Gewässerschutz: AwSV-Relevanz, WGK, Rückhaltung, Leckageerkennung (`awsv`), Erstickungsgefahr durch Inertgase (`erstickungsgefahr`) |
 
 Vollständige Fragenliste → `references/interview-phasen.md`
 
@@ -119,4 +128,4 @@ Möchtest du jetzt direkt mit der FMEA-Risikoanalyse starten?
 [N] Nein — ich starte die FMEA später manuell
 ```
 
-**Schema-Regel:** Keine neuen Felder auf oberster Ebene außer `betriebserfahrungen` und `interview_status`. Unbekannte Werte → `null`.
+**Schema-Regel:** Alle erlaubten Top-Level-Felder sind im Schema definiert (`processDetails`, `processSteps`, `psa`, `sops`, `physischeSicherheit`, `cyberSecurity`, `notfallinfrastruktur`, `personalQualifikation`, `raumkontext`, `awsv`, `erstickungsgefahr`, `betriebserfahrungen`, `interview_status`). Keine weiteren neuen Felder auf oberster Ebene. Unbekannte Werte → `null`.

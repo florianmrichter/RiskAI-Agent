@@ -1,0 +1,55 @@
+{
+  "fehler_id": "20TA43-KOMP-006-FM01",
+  "expectations": [
+    {
+      "text": "S_ge_9_safety: S ≥ 9 wegen Safety Override (Explosionsschutz)",
+      "passed": true,
+      "evidence": "S: 10 (min 9)"
+    },
+    {
+      "text": "rpz_status_hoch: RPZ-Status = hoch (S≥9 Override)",
+      "passed": false,
+      "evidence": "rpz_status: 'kritisch' (expected 'hoch')"
+    },
+    {
+      "text": "override_applied: Safety Override dokumentiert",
+      "passed": true,
+      "evidence": "override_applied: present (value: Safety Override Explosionsschutz: Zone 0 (de facto), brennbare Lösemitteldämpfe, direkte Personenexposition am offenen Handloch → S≥10 gemäß SAFETY_OVERRIDES)"
+    },
+    {
+      "text": "kontext_min_400z: Kontext ≥ 400 Zeichen",
+      "passed": true,
+      "evidence": "kontext_beschreibung: 2165z (min 400z)"
+    },
+    {
+      "text": "empfehlung_interlock: Empfehlung enthält Interlock/Positionsschalter",
+      "passed": true,
+      "evidence": "empfehlung: found ['Interlock', 'Positionsschalter', 'interlock', 'positionsschalter'] (searched ['Interlock', 'Positionsschalter', 'interlock', 'positionsschalter'])"
+    },
+    {
+      "text": "massnahmen_vorhanden: Maßnahmen bei S≥9 sind Pflicht",
+      "passed": true,
+      "evidence": "measures: 3"
+    }
+  ],
+  "pass_rate": 0.8333333333333334,
+  "total_assertions": 6,
+  "passed_assertions": 5,
+  "sod_deltas": {
+    "S": {
+      "gold": 9,
+      "actual": 10,
+      "delta": 1
+    },
+    "O": {
+      "gold": 3,
+      "actual": 3,
+      "delta": 0
+    },
+    "D": {
+      "gold": 6,
+      "actual": 10,
+      "delta": 4
+    }
+  }
+}

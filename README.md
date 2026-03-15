@@ -81,7 +81,8 @@ pip install -e ".[dev]"
 - 10-Punkte Bewertungsskalen für Severity (S), Occurrence (O), Detection (D)
 - RPZ-Klassifizierung: kritisch (≥300), hoch (≥200), mittel (≥100), niedrig (<100)
 - Safety-Guard-System für automatische Risiko-Overrides (S≥9 → mind. hoch; D≥9 & S≥7 → kritisch)
-- Kontextbasierte S-Anhebung: Explosionsschutz (→S≥10), Gefahrstoffe (→S≥9), Sicherheitsbauteile (→S≥10)
+- Kontextbasierte S-Anhebung mit **Qualifier-System**: Explosionsschutz (→S≥10, bei lokaler/temporärer Ex-Gefahr →S≥9), Gefahrstoffe (→S≥9), Sicherheitsbauteile (→S≥10)
+- **Multi-Szenario D-Bewertung**: Bei Fehlermodi mit mehreren Szenarien (z.B. "offen/undicht") wird der D-Wert gewichtet gemittelt statt Worst-Case genommen
 - **9 Fehlermodi-Kategorien** (Prozess, Thermisch, Mechanisch, Equipment, Elektrisch, MSR, Sicherheit, Dosierung, Sonstiges) — jede Komponente wird systematisch gegen alle Kategorien geprüft
 - **35 Gefahrenfelder-Checkpunkte** (26 Pflicht-Prozessbedingungen, 6 Pflicht-Energie/Medien, 3 optionale externe Einflüsse)
 - Datenquellen-Priorisierung für O-Bewertung: CCPS → OREDA → Betriebserfahrung → Expertenschätzung → KI-Vorschlag
@@ -261,3 +262,5 @@ Jeder Projektordner enthält: `anlagendaten.json`, `fmea_explicit.py`, `measures
 **Änderungen (2026-03-14):** FMEA-Report-Template (`templates/fmea_report.html`) und CSS (`templates/fmea_style.css`) zu einem thematischen App-Shell-Layout mit Komponenten-/Themen-Ansicht ausgebaut. Report-Generator (`tools/report_generator.py`) erzeugt zusätzliche Vergleichs- und Treemap-Charts, MoC-Deltas und Maßnahmen-Cockpit. Chat-Panel im Report wieder entfernt — FMEA-Interaktion läuft direkt über Claude Code.
 
 **Optimierung (2026-03-15):** Umfassendes Projekt-Review und Optimierung: ~11k LOC Duplikate eliminiert (Skill-Kopien von tools/config/templates), Token-Ladung bei Session-Start um ~50% reduziert (Lazy-Loading, Inline-Regeln), fmea-training auf Sonnet gewechselt, Interview-Schema von 1310→185 Zeilen komprimiert. Code-Qualität: pyproject.toml (Python 3.10+), zentrales Logging (tools/_base.py), storage.py schema_version (18x Speedup), GitHub Actions CI, sys.path.insert Cleanup, Type Hints, Auto-Backup, Token-Usage-Tracking.
+
+**Eval & Qualitäts-Upgrade (2026-03-15):** Büchi 15L Detail-Upgrade — 17 FMs auf A+ Textqualität gebracht (Kontext ≥400z, Begründungen ≥150z). Goldstandard v2.0 exportiert. Skill-Creator Eval-Run: 3 Test-Cases (single-FM, Safety Override, Reliability Lookup) mit 6 Subagent-Runs (with/without skill), Grading + Benchmark-Viewer. Safety-Override-Fix: `SAFETY_OVERRIDES` mit Qualifier-System erweitert (permanente vs. lokale Zone 0), Multi-Szenario D-Gewichtung im Workflow. Report-Methodik um Qualifier-Dokumentation und Multi-Szenario-Bewertung ergänzt.

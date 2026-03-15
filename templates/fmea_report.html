@@ -13,7 +13,7 @@
 {# ═══════════════════════  COVER — Navy full-bleed  ═══════════════════════ #}
 <div class="cover">
   <div class="cover-logo">
-    <div class="cover-logo-icon">⚙</div>
+    <img class="cover-logo-icon-img" src="{{ scholar_logo_path }}" alt="RiskAI Agent">
     <span class="cover-logo-name">RiskAI Agent</span>
   </div>
   <div class="cover-body">
@@ -80,8 +80,8 @@
   <aside class="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo">
-        <div class="sidebar-logo-icon">⚙</div>
-        <span class="sidebar-logo-name">RiskAI</span>
+        <img class="sidebar-logo-icon-img" src="{{ scholar_logo_path }}" alt="RiskAI Agent">
+        <span class="sidebar-logo-name">RiskAI Agent</span>
       </div>
       <div class="sidebar-project">{{ project.anlage_name }}</div>
       <div class="sidebar-project-sub">{{ project.name }} · Rev. {{ report_context.version }}</div>
@@ -101,42 +101,43 @@
     <nav class="sidebar-nav" id="nav-thematic">
       <div class="nav-section">
         <div class="nav-section-label">Bericht</div>
-        <a class="nav-link active" href="#summary">📊 Executive Summary</a>
-        <a class="nav-link" href="#sec-methodik">📖 Methodik</a>
+        <a class="nav-link active" href="#summary"><span class="nav-num">1</span> Executive Summary</a>
+        <a class="nav-link" href="#sec-methodik"><span class="nav-num">2</span> Methodik</a>
         <a class="nav-link nav-sub" href="#sec-methodik-grundlagen">2.1 Grundlagen &amp; Normen</a>
         <a class="nav-link nav-sub" href="#sec-methodik-bewertung">2.2 Risikobewertung</a>
         <a class="nav-link nav-sub" href="#sec-methodik-fehleridentifikation">2.3 Fehleridentifikation</a>
         <a class="nav-link nav-sub" href="#sec-methodik-konfidenz">2.4 Datenquellen &amp; Konfidenz</a>
         <a class="nav-link nav-sub" href="#sec-methodik-massnahmen">2.5 Maßnahmen &amp; Akzeptanz</a>
         <a class="nav-link nav-sub" href="#sec-methodik-recht">2.6 Rechtliche Einordnung</a>
-        <a class="nav-link" href="#sec-anlage">🏭 Anlagenbeschreibung</a>
-        {% if plant.get('outOfScope') %}<a class="nav-link" href="#sec-abgrenzung">🚫 Abgrenzung (Out of Scope)</a>{% endif %}
-        {% if moc_changes %}<a class="nav-link" href="#sec-moc">🔄 Management of Change</a>{% endif %}
-        <a class="nav-link" href="#sec-risikouebersicht">📈 Risiko-Übersicht</a>
+        <a class="nav-link" href="#sec-anlage"><span class="nav-num">3</span> Anlagenbeschreibung</a>
+        {% if plant.get('outOfScope') %}<a class="nav-link" href="#sec-abgrenzung"><span class="nav-num">3+</span> Abgrenzung (Out of Scope)</a>{% endif %}
+        {% if moc_changes %}<a class="nav-link" href="#sec-moc"><span class="nav-num">3+</span> Management of Change</a>{% endif %}
+        <a class="nav-link" href="#sec-risikouebersicht"><span class="nav-num">4</span> Risiko-Übersicht</a>
       </div>
-      <div class="nav-section" style="margin-top:8px;">
-        <div class="nav-section-label">5. Risikoanalyse — Thematisch</div>
+      <div class="nav-section">
+        <div class="nav-section-label"><span class="nav-num">5</span> Risikoanalyse — Thematisch</div>
         {# Dynamisch: alle fehlerart-Gruppen #}
-        {% set ns = namespace(seen=[]) %}
+        {% set ns = namespace(seen=[], idx=1) %}
         {% for fm in fmea_sorted %}
           {% if fm.fehlerart and fm.fehlerart not in ns.seen %}
             {% set ns.seen = ns.seen + [fm.fehlerart] %}
             {% set dot_color = {'kritisch':'var(--risk-kritisch)','hoch':'var(--risk-hoch)','mittel':'var(--risk-mittel)','niedrig':'var(--risk-niedrig)'}.get(fm.rpz_status, 'var(--text-muted)') %}
             <a class="nav-link" href="#cat-{{ fm.fehlerart|lower|replace(' ','_')|replace('/','_')|replace('ä','ae')|replace('ö','oe')|replace('ü','ue') }}">
               <span class="nav-dot" style="background:{{ dot_color }}"></span>
-              {{ fm.fehlerart }}
+              5.{{ ns.idx }} {{ fm.fehlerart }}
             </a>
+            {% set ns.idx = ns.idx + 1 %}
           {% endif %}
         {% endfor %}
       </div>
-      <div class="nav-section" style="margin-top:8px;">
-        <div class="nav-section-label">Bewertung</div>
-        {% if compliance_findings is defined and compliance_findings %}<a class="nav-link" href="#sec-compliance">Compliance-Status</a>{% endif %}
-        {% if akzeptierte_risiken is defined and akzeptierte_risiken %}<a class="nav-link" href="#sec-akzeptanz">Akzeptierte Risiken</a>{% endif %}
-        {% if wartungsmatrix is defined and wartungsmatrix %}<a class="nav-link" href="#sec-wartung">Wartungsmatrix</a>{% endif %}
+      <div class="nav-section">
+        <div class="nav-section-label"><span class="nav-num">6</span> Bewertung</div>
+        {% if compliance_findings is defined and compliance_findings %}<a class="nav-link" href="#sec-compliance">6.1 Compliance-Status</a>{% endif %}
+        {% if akzeptierte_risiken is defined and akzeptierte_risiken %}<a class="nav-link" href="#sec-akzeptanz">6.2 Akzeptierte Risiken</a>{% endif %}
+        {% if wartungsmatrix is defined and wartungsmatrix %}<a class="nav-link" href="#sec-wartung">6.3 Wartungsmatrix</a>{% endif %}
       </div>
-      <div class="nav-section" style="margin-top:8px;">
-        <div class="nav-section-label">Anhang</div>
+      <div class="nav-section">
+        <div class="nav-section-label"><span class="nav-num">7</span> Anhang</div>
         <a class="nav-link" href="#sec-anhang">Anhang &amp; Tabellen</a>
       </div>
     </nav>
@@ -145,36 +146,37 @@
     <nav class="sidebar-nav" id="nav-component" style="display:none;">
       <div class="nav-section">
         <div class="nav-section-label">Bericht</div>
-        <a class="nav-link active" href="#summary">📊 Executive Summary</a>
-        <a class="nav-link" href="#sec-methodik">📖 Methodik</a>
+        <a class="nav-link active" href="#summary"><span class="nav-num">1</span> Executive Summary</a>
+        <a class="nav-link" href="#sec-methodik"><span class="nav-num">2</span> Methodik</a>
         <a class="nav-link nav-sub" href="#sec-methodik-grundlagen">2.1 Grundlagen &amp; Normen</a>
         <a class="nav-link nav-sub" href="#sec-methodik-bewertung">2.2 Risikobewertung</a>
         <a class="nav-link nav-sub" href="#sec-methodik-fehleridentifikation">2.3 Fehleridentifikation</a>
         <a class="nav-link nav-sub" href="#sec-methodik-konfidenz">2.4 Datenquellen &amp; Konfidenz</a>
         <a class="nav-link nav-sub" href="#sec-methodik-massnahmen">2.5 Maßnahmen &amp; Akzeptanz</a>
         <a class="nav-link nav-sub" href="#sec-methodik-recht">2.6 Rechtliche Einordnung</a>
-        <a class="nav-link" href="#sec-anlage">🏭 Anlagenbeschreibung</a>
-        {% if plant.get('outOfScope') %}<a class="nav-link" href="#sec-abgrenzung">🚫 Abgrenzung (Out of Scope)</a>{% endif %}
-        {% if moc_changes %}<a class="nav-link" href="#sec-moc">🔄 Management of Change</a>{% endif %}
-        <a class="nav-link" href="#sec-risikouebersicht">📈 Risiko-Übersicht</a>
+        <a class="nav-link" href="#sec-anlage"><span class="nav-num">3</span> Anlagenbeschreibung</a>
+        {% if plant.get('outOfScope') %}<a class="nav-link" href="#sec-abgrenzung"><span class="nav-num">3+</span> Abgrenzung (Out of Scope)</a>{% endif %}
+        {% if moc_changes %}<a class="nav-link" href="#sec-moc"><span class="nav-num">3+</span> Management of Change</a>{% endif %}
+        <a class="nav-link" href="#sec-risikouebersicht"><span class="nav-num">4</span> Risiko-Übersicht</a>
       </div>
-      <div class="nav-section" style="margin-top:8px;">
-        <div class="nav-section-label">5. Risikoanalyse — Komponenten</div>
-        {% set ns2 = namespace(seen_comp=[]) %}
+      <div class="nav-section">
+        <div class="nav-section-label"><span class="nav-num">5</span> Risikoanalyse — Komponenten</div>
+        {% set ns2 = namespace(seen_comp=[], idx=1) %}
         {% for fm in fmea_sorted %}
           {% set comp = fm.get('component_name') or fm.get('komponente','?') %}
           {% if comp not in ns2.seen_comp %}
             {% set ns2.seen_comp = ns2.seen_comp + [comp] %}
             <a class="nav-link" href="#comp-{{ comp|lower|replace(' ','_')|replace('-','_') }}">
               <span class="nav-dot" style="background:var(--text-muted)"></span>
-              {{ comp }}
+              5.{{ ns2.idx }} {{ comp }}
             </a>
+            {% set ns2.idx = ns2.idx + 1 %}
           {% endif %}
         {% endfor %}
       </div>
-      <div class="nav-section" style="margin-top:8px;">
-        <div class="nav-section-label">Anhang</div>
-        <a class="nav-link" href="#sec-anhang">📎 Anhang &amp; Tabellen</a>
+      <div class="nav-section">
+        <div class="nav-section-label"><span class="nav-num">7</span> Anhang</div>
+        <a class="nav-link" href="#sec-anhang">Anhang &amp; Tabellen</a>
       </div>
     </nav>
 
@@ -272,34 +274,27 @@
 
       {# Warnhinweise #}
       {% if report_context.konfidenz_warning %}
-      <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:6px;padding:10px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start;">
-        <span style="font-size:16px;flex-shrink:0;">⚠</span>
+      <div class="alert-box alert-warning">
+        <span class="alert-icon">⚠</span>
         <div>
-          <strong style="color:#92400E;">KI-Bewertung unsicher</strong>
-          <span style="color:#78350F;font-size:13px;"> — {{ report_context.low_konfidenz_count }} Fehlermodi mit niedrigem Agent-Konfidenz-Level. Expertenprüfung empfohlen.</span>
+          <strong>KI-Bewertung unsicher</strong>
+          <span> — {{ report_context.low_konfidenz_count }} Fehlermodi mit niedrigem Agent-Konfidenz-Level. Expertenprüfung empfohlen.</span>
         </div>
       </div>
       {% endif %}
 
       {% if report_context.pflicht_massnahmen_count > 0 %}
-      <div style="background:#FEE2E2;border:1px solid #FECACA;border-radius:6px;padding:10px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start;">
-        <span style="font-size:16px;flex-shrink:0;">🔴</span>
+      <div class="alert-box alert-danger">
+        <span class="alert-icon">🔴</span>
         <div>
-          <strong style="color:#991B1B;">{{ report_context.pflicht_massnahmen_count }} Pflicht-Maßnahmen sofort erforderlich</strong>
-          <span style="color:#7F1D1D;font-size:13px;"> — S ≥ 9 oder RPZ ≥ 300. Details im Maßnahmen-Cockpit unten.</span>
+          <strong>{{ report_context.pflicht_massnahmen_count }} Pflicht-Maßnahmen sofort erforderlich</strong>
+          <span> — S ≥ 9 oder RPZ ≥ 300. Details im Maßnahmen-Cockpit unten.</span>
         </div>
       </div>
       {% endif %}
 
-      {# Donut Chart #}
-      {% if donut_img %}
-      <div class="chart-container">
-        <img src="{{ donut_img }}" alt="RPZ-Verteilung Donut" style="max-width:55%;">
-      </div>
-      {% endif %}
-
       {# Top 5 #}
-      <h3 style="margin-top:24px;margin-bottom:12px;">Top-5 Risiken</h3>
+      <h3>Top-5 Risiken</h3>
       <div class="top5-table-shell">
         <div class="top5-header">
           <span class="top5-header-cell">ID</span>
@@ -309,7 +304,7 @@
           <span class="top5-header-cell" style="text-align:center;">Kategorie</span>
         </div>
         {% for fm in top5 %}
-        <div class="top5-row">
+        <a href="#risk-{{ fm.fehler_id }}" class="top5-row" style="text-decoration:none;color:inherit;">
           <span class="top5-cell id">{{ fm.fehler_id }}</span>
           <span class="top5-cell">{{ fm.fehlermodus }}</span>
           <span class="top5-cell rpz" style="color:var(--risk-{{ fm.rpz_status }});">{{ fm.rpz }}</span>
@@ -319,7 +314,7 @@
             </span>
           </span>
           <span class="top5-cell center"><span class="tag">{{ fm.fehlerart }}</span></span>
-        </div>
+        </a>
         {% endfor %}
       </div>
     </section>
@@ -352,8 +347,8 @@
           {% for row in cockpit_rows %}
           {% set prio_color = {'pflicht':'#DC2626','empfohlen':'#EA580C','optional':'#6B7280'}.get(row.prioritaet, '#6B7280') %}
           <tr>
-            <td style="font-weight:600;white-space:nowrap;font-size:11px;">{{ row.fehler_id }}</td>
-            <td style="font-size:12px;">{{ row.fehlermodus[:50] }}{% if row.fehlermodus|length > 50 %}…{% endif %}</td>
+            <td style="font-weight:600;white-space:nowrap;font-size:11px;"><a href="#risk-{{ row.fehler_id }}" class="risk-toc-link">{{ row.fehler_id }}</a></td>
+            <td style="font-size:12px;"><a href="#risk-{{ row.fehler_id }}" class="risk-toc-link">{{ row.fehlermodus[:50] }}{% if row.fehlermodus|length > 50 %}…{% endif %}</a></td>
             <td style="font-size:12px;">{{ row.massnahme_name }}</td>
             <td style="text-align:center;white-space:nowrap;">
               <span class="badge" style="background:#1F293710;color:#1F2937;font-size:10px;">{{ row.stop_kategorie or '–' }}</span>
@@ -457,16 +452,21 @@
         <h4>Safety-Overrides (kontextbasierte S-Anhebung)</h4>
         <p>
           Zusätzlich zu den AIAG-VDA Sonderregeln werden S-Werte automatisch angehoben,
-          wenn sicherheitskritische Kontexte in der Fehlermodus-Beschreibung erkannt werden:
+          wenn sicherheitskritische Kontexte in der Fehlermodus-Beschreibung erkannt werden.
+          Das System unterscheidet über <strong>Qualifiers</strong> zwischen verschiedenen Gefährdungsgraden desselben Kontexts:
         </p>
         <table>
           <thead><tr><th>Kontext</th><th>Erkennungsmerkmale</th><th>Mindest-S</th><th>Begründung</th></tr></thead>
           <tbody>
-            <tr><td><strong>Explosionsschutz</strong></td><td>Ex-Schutz, ATEX, Zone 0/1</td><td>S ≥ 10</td><td>Explosionsschutz-Spezifikation erfordert höchste Einstufung</td></tr>
+            <tr><td><strong>Explosionsschutz — permanent</strong></td><td>Ex-Schutz, ATEX, Zone&nbsp;0/1 (ohne lokale Einschränkung)</td><td>S ≥ 10</td><td>Permanente explosionsfähige Atmosphäre (z.&nbsp;B. Reaktorinnenraum bei Lösemittelbetrieb) erfordert höchste Einstufung</td></tr>
+            <tr style="background:#f8f9fa;"><td><strong>Explosionsschutz — lokal/temporär</strong></td><td>Zone&nbsp;0 + Qualifier: offen, Handloch, undicht, Leckage, lokal, temporär</td><td>S ≥ 9</td><td>Explosionsfähige Atmosphäre entsteht lokal und/oder temporär (z.&nbsp;B. am offenen Handloch, bei undichter Dichtung). Nicht gleichzusetzen mit permanenter Zone&nbsp;0 im geschlossenen Reaktor.</td></tr>
             <tr><td><strong>Gefahrstoff-Handling</strong></td><td>Säure, Lauge, toxisch, Chlor</td><td>S ≥ 9</td><td>Kontakt mit Gefahrstoffen kann schwere Verletzungen verursachen</td></tr>
             <tr><td><strong>Sicherheitsgerichtete Bauteile</strong></td><td>Berstscheibe, PSV, Not-Aus</td><td>S ≥ 10</td><td>Versagen von Sicherheitseinrichtungen hat katastrophales Potenzial</td></tr>
           </tbody>
         </table>
+        <div class="info-box">
+          <strong>Qualifier-Logik:</strong> Wenn ein Safety-Override-Kontext erkannt wird und gleichzeitig ein Qualifier greift (z.&nbsp;B. „Zone&nbsp;0" + „offen"), wird der spezifischere, niedrigere Mindest-S verwendet. Ohne Qualifier-Match gilt der Standard-Mindest-S. Dies verhindert systematische Überbewertung lokaler/temporärer Gefährdungen.
+        </div>
 
         <h4>Bewertungsskalen</h4>
         {% for scale_key, scale_title, info_dict in scales %}
@@ -480,6 +480,33 @@
           </tbody>
         </table>
         {% endfor %}
+      </div>
+
+      {# ── Multi-Szenario D-Bewertung (Teil von 2.2) ── #}
+      <div class="methodik-sub" style="margin-top:-0.5rem;">
+        <h4>Multi-Szenario-Fehlermodi (D-Bewertung)</h4>
+        <p>
+          Wenn ein Fehlermodus mehrere Szenarien mit unterschiedlicher Entdeckbarkeit umfasst
+          (z.&nbsp;B. „offen <em>oder</em> undicht"), wird der D-Wert <strong>gewichtet gemittelt</strong>,
+          nicht am Worst-Case orientiert. Dies verhindert systematische Überbewertung bei Fehlermodi,
+          die sowohl leicht erkennbare als auch schwer erkennbare Teilszenarien umfassen.
+        </p>
+        <table>
+          <thead><tr><th>Schritt</th><th>Beschreibung</th></tr></thead>
+          <tbody>
+            <tr><td>1. Szenarien identifizieren</td><td>Fehlermodus in Teilszenarien aufteilen (Erkennungsregel: FM-Titel enthält „oder", „und" oder Schrägstrich)</td></tr>
+            <tr><td>2. D pro Szenario bewerten</td><td>Jeden D-Wert separat bestimmen, basierend auf vorhandenen Detection-Mechanismen</td></tr>
+            <tr><td>3. Gewichtung nach Eintritt</td><td>Gewichte anhand der relativen Eintrittswahrscheinlichkeit der Szenarien vergeben</td></tr>
+            <tr><td>4. Gewichtetes Mittel</td><td>D = Σ(D<sub>i</sub> × w<sub>i</sub>), gerundet auf ganze Zahl</td></tr>
+          </tbody>
+        </table>
+        <div class="info-box">
+          <strong>Beispiel:</strong> Fehlermodus „Betrieb mit offenem/undichtem Handloch" →
+          Szenario A: Offenes Handloch, visuell erkennbar (D=4, Gewicht 40%) ·
+          Szenario B: Undichte Dichtung, nicht erkennbar (D=8, Gewicht 60%) →
+          D<sub>gewichtet</sub> = 0,4 × 4 + 0,6 × 8 = 6,4 → <strong>D = 6</strong>.
+          Begründung und Gewichtung werden in begruendung_D dokumentiert.
+        </div>
       </div>
 
       {# ── 2.3 Systematische Fehleridentifikation ── #}
@@ -710,7 +737,7 @@
           </tbody>
         </table>
 
-        <div class="info-box" style="border-left: 4px solid #00A389; background: #f0faf7;">
+        <div class="info-box info-box-success">
           <strong>Fazit:</strong> Die vorliegende KI-gestützte Risikoanalyse erfüllt alle Anforderungen des EU AI Act.
           Der Einsatz von KI als unterstützendes Werkzeug unter durchgängiger Fachaufsicht (Human-in-the-Loop)
           entspricht der Einstufung als System mit minimalem Risiko gemäß Art.&nbsp;6 Abs.&nbsp;3 der Verordnung (EU) 2024/1689.
@@ -890,7 +917,7 @@
       </div>
 
       {% if oos.get('description') %}
-      <div class="info-box" style="margin-bottom:20px;">{{ oos.description }}</div>
+      <div class="info-box">{{ oos.description }}</div>
       {% endif %}
 
       {% if oos.get('excludedSystems') %}
@@ -980,7 +1007,7 @@
 
       {# Betroffene Fehlermodi #}
       {% if moc_fms %}
-      <h3 style="margin-top:28px;">Betroffene Fehlermodi ({{ moc_fms|length }})</h3>
+      <h3>Betroffene Fehlermodi ({{ moc_fms|length }})</h3>
       <p>Die folgenden Fehlermodi wurden im Rahmen dieser Änderung neu erfasst und bewertet.
         Alle Risiken sind im Abschnitt «Detaillierte Risiko-Dokumentation» vollständig beschrieben.</p>
       <table class="risk-toc-table">
@@ -1019,7 +1046,7 @@
       {% set moc_mittel  = moc_fms | selectattr('rpz_status', 'equalto', 'mittel')  | list | length %}
       {% set moc_hoch    = moc_fms | selectattr('rpz_status', 'equalto', 'hoch')    | list | length %}
       {% set moc_krit    = moc_fms | selectattr('rpz_status', 'equalto', 'kritisch')| list | length %}
-      <div class="info-box" style="margin-top:16px;">
+      <div class="info-box">
         <strong>Risiko-Zusammenfassung (MoC-Fehlermodi):</strong>
         {% if moc_krit > 0 %}<span class="badge badge-kritisch">{{ moc_krit }} Kritisch</span> {% endif %}
         {% if moc_hoch  > 0 %}<span class="badge badge-hoch">{{ moc_hoch }} Hoch</span> {% endif %}
@@ -1042,27 +1069,258 @@
         <div class="section-desc">Visualisierungen der Risikolandschaft aller {{ stats.failure_modes }} Fehlermodi.</div>
       </div>
 
-      {% if matrix_img %}
-      <h3 id="chart-risikomatrix">Risikomatrix (S vs. O · Größe = D · Farbe = RPZ)</h3>
-      <div class="chart-container">
-        <img src="{{ matrix_img }}" alt="Risikomatrix" style="max-width:100%;">
+      {# ── Chart-Toggle ── #}
+      <div class="chart-toggle-bar">
+        <button class="chart-toggle-btn active" onclick="switchChart('matrix',this)">Risikomatrix</button>
+        <button class="chart-toggle-btn" onclick="switchChart('parallel',this)">Parallel Coordinates</button>
+        <button class="chart-toggle-btn" onclick="switchChart('treemap',this)">Treemap</button>
       </div>
-      {% endif %}
 
-      {% if chart_comparison_img %}
-      <h3 id="chart-rpz-vergleich" style="margin-top:32px;">RPZ-Verteilung — 6 Visualisierungen</h3>
-      <div class="chart-container">
-        <img src="{{ chart_comparison_img }}" alt="RPZ-Verteilung" style="max-width:100%;">
-      </div>
-      {% endif %}
+      {# ── Panel 1: Risikomatrix ── #}
+      <div class="chart-panel active" id="chart-panel-matrix">
+      {% if matrix_data and matrix_data.points %}
+      <div class="chart-panel-inner">
+      {% set zone_colors = {'kritisch': 'rgba(245,0,79,0.13)', 'hoch': 'rgba(253,126,20,0.13)', 'mittel': 'rgba(232,197,71,0.10)', 'niedrig': 'rgba(0,163,137,0.08)'} %}
+      {% set cell = 16 %}
+      {% set pad_l = 18 %}
+      {% set gw = 10 * cell %}
+      {% set gh = 10 * cell %}
+      {% set leg_x = pad_l + gw + 10 %}
+      {% set svgw = leg_x + 50 %}
+      {% set svgh = gh + 22 %}
+      <div class="matrix-wrap">
+        <svg class="risk-matrix-svg" viewBox="0 0 {{ svgw }} {{ svgh }}" xmlns="http://www.w3.org/2000/svg">
+          {# Achsenlabels #}
+          <text x="{{ pad_l + gw / 2 }}" y="{{ gh + 18 }}" text-anchor="middle" class="matrix-axis-label">Auftreten (O)</text>
+          <text x="6" y="{{ gh / 2 + 5 }}" text-anchor="middle" class="matrix-axis-label" transform="rotate(-90,6,{{ gh / 2 + 5 }})">Bedeutung (S)</text>
 
-      {% if treemap_img %}
-      <h3 id="chart-treemap" style="margin-top:32px;">Risiko-Treemap: Vorher vs. Nachher</h3>
-      <p>Die Fläche jedes Blocks ist proportional zum RPZ-Wert, die Farbe entspricht der Risikokategorie.</p>
-      <div class="chart-container">
-        <img src="{{ treemap_img }}" alt="Treemap" style="max-width:100%;">
+          <g transform="translate({{ pad_l }},5)">
+            {# Hintergrund-Zonen #}
+            {% for z in matrix_data.zones %}
+            <rect x="{{ z.col * cell }}" y="{{ z.row * cell }}" width="{{ cell }}" height="{{ cell }}"
+                  fill="{{ zone_colors[z.zone] }}" stroke="white" stroke-width="0.5"/>
+            {% endfor %}
+
+            {# Achsen-Ticks #}
+            {% for i in range(1, 11) %}
+            <text x="{{ (i - 1) * cell + cell / 2 }}" y="{{ gh + 9 }}" text-anchor="middle" class="matrix-tick">{{ i }}</text>
+            <text x="-3" y="{{ (10 - i) * cell + cell / 2 + 2 }}" text-anchor="end" class="matrix-tick">{{ i }}</text>
+            {% endfor %}
+
+            {# Fehlermodus-Bubbles (klickbar, Tooltip via JS) #}
+            {% for pt in matrix_data.points %}
+            <a href="#risk-{{ pt.fehler_id }}" class="matrix-bubble-link"
+               data-tip-id="{{ pt.fehler_id }}" data-tip-name="{{ pt.fehlermodus }}"
+               data-tip-s="{{ pt.s }}" data-tip-o="{{ pt.o }}" data-tip-d="{{ pt.d }}"
+               data-tip-rpz="{{ pt.rpz }}" data-tip-status="{{ pt.rpz_status }}">
+              <circle cx="{{ (pt.col * cell)|round(1) }}"
+                      cy="{{ (pt.row * cell)|round(1) }}"
+                      r="{{ (pt.size / 2)|round(1) }}"
+                      fill="{{ pt.color }}" fill-opacity="0.9"
+                      stroke="white" stroke-width="1.5"/>
+              <text x="{{ (pt.col * cell)|round(1) }}"
+                    y="{{ (pt.row * cell + 3)|round(1) }}"
+                    text-anchor="middle" class="matrix-bubble-text">{{ pt.short }}</text>
+            </a>
+            {% endfor %}
+          </g>
+
+          {# Legende (rechts neben dem Grid) #}
+          <g transform="translate({{ leg_x }}, 10)">
+            <text x="0" y="0" class="matrix-legend-title">Risikozonen</text>
+            <rect x="0" y="4" width="6" height="6" rx="1" fill="rgba(245,0,79,0.13)"/><text x="9" y="9" class="matrix-legend">Kritisch</text>
+            <rect x="0" y="14" width="6" height="6" rx="1" fill="rgba(253,126,20,0.13)"/><text x="9" y="19" class="matrix-legend">Hoch</text>
+            <rect x="0" y="24" width="6" height="6" rx="1" fill="rgba(232,197,71,0.10)"/><text x="9" y="29" class="matrix-legend">Mittel</text>
+            <rect x="0" y="34" width="6" height="6" rx="1" fill="rgba(0,163,137,0.08)"/><text x="9" y="39" class="matrix-legend">Niedrig</text>
+
+            <text x="0" y="54" class="matrix-legend-title">Bubble = D</text>
+            <circle cx="3" cy="61" r="2" fill="#999" opacity="0.5"/><text x="9" y="63" class="matrix-legend">D klein</text>
+            <circle cx="3" cy="72" r="3.5" fill="#999" opacity="0.5"/><text x="9" y="74" class="matrix-legend">D mittel</text>
+            <circle cx="3" cy="84" r="5" fill="#999" opacity="0.5"/><text x="9" y="87" class="matrix-legend">D groß</text>
+          </g>
+        </svg>
       </div>
+      </div>{# /chart-panel-inner #}
       {% endif %}
+      </div>{# /chart-panel-matrix #}
+
+      {# ── Panel 2: Parallel Coordinates (8 Achsen: Vorher + Nachher) ── #}
+      <div class="chart-panel" id="chart-panel-parallel">
+      {% if fmea_sorted %}
+      <div class="chart-panel-inner">
+
+      <div class="pc-toolbar">
+        <div class="pc-filters" id="pc-filters">
+          <button class="pc-chip active" data-class="niedrig" onclick="togglePcClass(this)"><span class="pc-chip-dot" style="background:var(--risk-niedrig)"></span>Niedrig</button>
+          <button class="pc-chip active" data-class="mittel" onclick="togglePcClass(this)"><span class="pc-chip-dot" style="background:var(--risk-mittel)"></span>Mittel</button>
+          <button class="pc-chip active" data-class="hoch" onclick="togglePcClass(this)"><span class="pc-chip-dot" style="background:var(--risk-hoch)"></span>Hoch</button>
+        </div>
+        <label class="pc-toggle-label">
+          <input type="checkbox" id="pc-after-toggle" checked onchange="togglePcAfter(this.checked)">
+          <span class="pc-toggle-text">Nach Maßnahmen anzeigen</span>
+        </label>
+      </div>
+
+      <div class="pc-wrap">
+        {# 8 Achsen: S, O, D, RPZ | S', O', D', RPZ' #}
+        {% set ax = [44, 128, 212, 316, 484, 568, 652, 756] %}
+        {% set atop = 42 %}
+        {% set abot = 380 %}
+        {% set ah = abot - atop %}
+        {% set div_x = 400 %}
+        <svg id="pc-svg" class="pc-svg" viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg">
+
+          {# Hintergrund-Bereiche #}
+          <rect x="20" y="{{ atop - 18 }}" width="{{ div_x - 28 }}" height="{{ ah + 28 }}" rx="6" fill="rgba(0,0,0,0.015)"/>
+          <g class="pc-after-group">
+            <rect x="{{ div_x + 8 }}" y="{{ atop - 18 }}" width="{{ 790 - div_x }}" height="{{ ah + 28 }}" rx="6" fill="rgba(0,163,137,0.03)"/>
+          </g>
+          <text x="{{ (20 + div_x) / 2 }}" y="{{ atop - 6 }}" text-anchor="middle" class="pc-zone-label">VOR Maßnahmen</text>
+          <text x="{{ (div_x + 790) / 2 }}" y="{{ atop - 6 }}" text-anchor="middle" class="pc-zone-label pc-after-group" style="fill:var(--risk-niedrig);">NACH Maßnahmen</text>
+
+          {# Trennlinie #}
+          <line x1="{{ div_x }}" y1="{{ atop - 12 }}" x2="{{ div_x }}" y2="{{ abot + 4 }}" stroke="#D1D5DB" stroke-width="1" stroke-dasharray="4,3"/>
+
+          {# RPZ-Zonen-Hintergrund (beide RPZ-Achsen: ax[3] und ax[7]) #}
+          {% for rpz_ax in [ax[3], ax[7]] %}
+          <rect x="{{ rpz_ax - 11 }}" y="{{ atop }}" width="22" height="{{ (ah * 800 / 999)|round }}" rx="3" fill="rgba(245,0,79,0.06)" {% if rpz_ax == ax[7] %}class="pc-after-group"{% endif %}/>
+          <rect x="{{ rpz_ax - 11 }}" y="{{ atop + (ah * 800 / 999)|round }}" width="22" height="{{ (ah * 100 / 999)|round }}" rx="3" fill="rgba(253,126,20,0.06)" {% if rpz_ax == ax[7] %}class="pc-after-group"{% endif %}/>
+          <rect x="{{ rpz_ax - 11 }}" y="{{ abot - (ah * 100 / 999)|round }}" width="22" height="{{ (ah * 100 / 999)|round }}" rx="3" fill="rgba(0,163,137,0.06)" {% if rpz_ax == ax[7] %}class="pc-after-group"{% endif %}/>
+          {% endfor %}
+
+          {# Achsenlinien + Labels #}
+          {% set albl = ['S', 'O', 'D', 'RPZ', "S'", "O'", "D'", "RPZ'"] %}
+          {% for i in range(8) %}
+          <line x1="{{ ax[i] }}" y1="{{ atop }}" x2="{{ ax[i] }}" y2="{{ abot }}" stroke="#E5E7EB" stroke-width="1" {% if i >= 4 %}class="pc-after-group"{% endif %}/>
+          <text x="{{ ax[i] }}" y="{{ abot + 14 }}" text-anchor="middle" class="pc-axis-label{% if i >= 4 %} pc-after-group{% endif %}">{{ albl[i] }}</text>
+          {% endfor %}
+
+          {# Ticks: S/O/D = 1–10 (Achsen 0,1,2 und 4,5,6) #}
+          {% for v in range(1, 11) %}
+            {% set y = abot - ((v - 1) / 9 * ah) %}
+            {% for ai in [0, 1, 2] %}
+            <text x="{{ ax[ai] - 6 }}" y="{{ y|round(1) + 3 }}" text-anchor="end" class="pc-tick">{{ v }}</text>
+            {% endfor %}
+            {% for ai in [4, 5, 6] %}
+            <text x="{{ ax[ai] - 6 }}" y="{{ y|round(1) + 3 }}" text-anchor="end" class="pc-tick pc-after-group">{{ v }}</text>
+            {% endfor %}
+          {% endfor %}
+          {# RPZ-Ticks #}
+          {% for v in [0, 100, 200, 500, 1000] %}
+            {% set y = abot - (v / 999 * ah) %}
+            <text x="{{ ax[3] + 8 }}" y="{{ y|round(1) + 3 }}" text-anchor="start" class="pc-tick">{{ v }}</text>
+            <text x="{{ ax[7] + 8 }}" y="{{ y|round(1) + 3 }}" text-anchor="start" class="pc-tick pc-after-group">{{ v }}</text>
+          {% endfor %}
+
+          {# Linien pro Fehlermodus #}
+          {% for fm in fmea_sorted %}
+            {% set s = fm.S or 1 %}
+            {% set o = fm.O or 1 %}
+            {% set d = fm.D or 1 %}
+            {% set rpz = fm.rpz or (s * o * d) %}
+            {% set best = fm.get('measures', []) | sort(attribute='rpz_neu') | first %}
+            {% set s2 = best.S_neu if best else s %}
+            {% set o2 = best.O_neu if best else o %}
+            {% set d2 = best.D_neu if best else d %}
+            {% set rpz2 = best.rpz_neu if best else rpz %}
+            {% set has_m = true if best else false %}
+            {# Y-Positionen Vorher #}
+            {% set ys  = abot - ((s - 1) / 9 * ah) %}
+            {% set yo  = abot - ((o - 1) / 9 * ah) %}
+            {% set yd  = abot - ((d - 1) / 9 * ah) %}
+            {% set yr  = abot - (rpz / 999 * ah) %}
+            {# Y-Positionen Nachher #}
+            {% set ys2 = abot - (((s2 or s) - 1) / 9 * ah) %}
+            {% set yo2 = abot - (((o2 or o) - 1) / 9 * ah) %}
+            {% set yd2 = abot - (((d2 or d) - 1) / 9 * ah) %}
+            {% set yr2 = abot - ((rpz2 or rpz) / 999 * ah) %}
+            {% set pc_class = 'hoch' if rpz > 200 else ('mittel' if rpz > 100 else 'niedrig') %}
+            {% set lc = 'var(--risk-hoch)' if rpz > 200 else ('var(--risk-mittel)' if rpz > 100 else 'var(--risk-niedrig)') %}
+            {% set lc2 = 'var(--risk-hoch)' if (rpz2 or rpz) > 200 else ('var(--risk-mittel)' if (rpz2 or rpz) > 100 else 'var(--risk-niedrig)') %}
+
+            <g class="pc-line" data-pc-class="{{ pc_class }}"
+               data-tip-id="{{ fm.fehler_id }}" data-tip-name="{{ (fm.fehlermodus or '')[:55] }}"
+               data-tip-s="{{ s }}" data-tip-o="{{ o }}" data-tip-d="{{ d }}"
+               data-tip-rpz="{{ rpz }}" data-tip-status="{{ fm.rpz_status }}"
+               data-tip-o2="{{ o2 or o }}" data-tip-d2="{{ d2 or d }}" data-tip-rpz2="{{ rpz2 or rpz }}">
+              <a href="#risk-{{ fm.fehler_id }}">
+                {# Vorher-Linie #}
+                <polyline points="{{ ax[0] }},{{ ys|round(1) }} {{ ax[1] }},{{ yo|round(1) }} {{ ax[2] }},{{ yd|round(1) }} {{ ax[3] }},{{ yr|round(1) }}"
+                          fill="none" stroke="{{ lc }}" stroke-width="1.8" opacity="0.5" stroke-linecap="round" stroke-linejoin="round"/>
+                {# Nachher-Linie #}
+                <polyline class="pc-after-line" points="{{ ax[3] }},{{ yr|round(1) }} {{ ax[4] }},{{ ys2|round(1) }} {{ ax[5] }},{{ yo2|round(1) }} {{ ax[6] }},{{ yd2|round(1) }} {{ ax[7] }},{{ yr2|round(1) }}"
+                          fill="none" stroke="{{ lc2 }}" stroke-width="1.8" opacity="{{ '0.5' if has_m else '0.12' }}" stroke-linecap="round" stroke-linejoin="round"
+                          {% if not has_m %}stroke-dasharray="3,3"{% endif %}/>
+                {# Punkte Vorher #}
+                {% for ci in [0,1,2,3] %}
+                <circle cx="{{ ax[ci] }}" cy="{{ [ys,yo,yd,yr][ci]|round(1) }}" r="3" fill="{{ lc }}"/>
+                {% endfor %}
+                {# Punkte Nachher #}
+                {% for ci in [4,5,6,7] %}
+                <circle class="pc-after-dot" cx="{{ ax[ci] }}" cy="{{ [ys2,yo2,yd2,yr2][ci-4]|round(1) }}" r="3" fill="{{ lc2 }}" opacity="{{ '1' if has_m else '0.15' }}"/>
+                {% endfor %}
+              </a>
+            </g>
+          {% endfor %}
+        </svg>
+      </div>
+
+      {# Detail-Zeile #}
+      <div class="pc-detail" id="pc-detail"><span class="pc-detail-placeholder">Bewegen Sie den Mauszeiger über eine Linie, um Details anzuzeigen.</span></div>
+      </div>{# /chart-panel-inner #}
+      {% endif %}
+      </div>{# /chart-panel-parallel #}
+
+      {# ── Panel 3: Treemap ── #}
+      <div class="chart-panel" id="chart-panel-treemap">
+      {% if treemap_before %}
+      <div class="chart-panel-inner">
+      <p>Die Fläche jedes Blocks ist proportional zum RPZ-Wert. Klicken Sie auf einen Block, um zur Bewertung zu springen.</p>
+      <div class="treemap-pair">
+        <div class="treemap-col">
+          <div class="treemap-title">Initial-Risiko (Vor Maßnahmen)</div>
+          <div class="treemap-container">
+            {% for item in treemap_before %}
+            <a href="#risk-{{ item.fehler_id }}" class="treemap-block"
+               style="left:{{ item.x }}%;top:{{ item.y }}%;width:{{ item.w }}%;height:{{ item.h }}%;background:{{ item.color }};"
+               data-tip-id="{{ item.fehler_id }}" data-tip-name="{{ item.fehlermodus }}" data-tip-rpz="{{ item.rpz }}" data-tip-status="{{ item.status }}">
+              {% if item.w > 8 and item.h > 8 %}
+              <span class="treemap-id">{{ item.short }}</span>
+              <span class="treemap-rpz">{{ item.rpz }}</span>
+              {% elif item.w > 4 or item.h > 4 %}
+              <span class="treemap-id-sm">{{ item.short }}</span>
+              {% endif %}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="treemap-col">
+          <div class="treemap-title">Residual-Risiko (Nach Maßnahmen)</div>
+          <div class="treemap-container">
+            {% for item in treemap_after %}
+            <a href="#risk-{{ item.fehler_id }}" class="treemap-block"
+               style="left:{{ item.x }}%;top:{{ item.y }}%;width:{{ item.w }}%;height:{{ item.h }}%;background:{{ item.color }};"
+               data-tip-id="{{ item.fehler_id }}" data-tip-name="{{ item.fehlermodus }}" data-tip-rpz="{{ item.rpz }}" data-tip-status="{{ item.status }}">
+              {% if item.w > 8 and item.h > 8 %}
+              <span class="treemap-id">{{ item.short }}</span>
+              <span class="treemap-rpz">{{ item.rpz }}</span>
+              {% elif item.w > 4 or item.h > 4 %}
+              <span class="treemap-id-sm">{{ item.short }}</span>
+              {% endif %}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="treemap-legend">
+        <span class="treemap-legend-item"><span class="treemap-legend-dot" style="background:var(--risk-kritisch)"></span>Kritisch</span>
+        <span class="treemap-legend-item"><span class="treemap-legend-dot" style="background:var(--risk-hoch)"></span>Hoch</span>
+        <span class="treemap-legend-item"><span class="treemap-legend-dot" style="background:var(--risk-mittel)"></span>Mittel</span>
+        <span class="treemap-legend-item"><span class="treemap-legend-dot" style="background:var(--risk-niedrig)"></span>Niedrig</span>
+      </div>
+      </div>{# /chart-panel-inner #}
+      {% endif %}
+      </div>{# /chart-panel-treemap #}
     </section>
 
     {# ══════════════════  5. DETAILLIERTE RISIKO-DOKUMENTATION  ══════════════════ #}
@@ -1255,29 +1513,48 @@
               </div>
               {% endif %}
 
-              {# Konfidenz-Badges #}
+              {# Konfidenz-Badges mit Hover-Tooltips #}
               {% set risk = fm.get('risk') or {} %}
+              {% set dk_explain = {
+                'hoch': 'Quantitative Ausfallraten aus industriellen Datenbanken (CCPS/OREDA) verfügbar.',
+                'mittel': 'Keine anlagenspezifischen Ausfalldaten. Einstufung basiert auf allgemeinem Branchenwissen und Literaturwerten des KI-Agents.',
+                'niedrig': 'Keine belastbaren Daten verfügbar. Einstufung ist eine KI-gestützte Schätzung auf Basis von Analogieschlüssen — Validierung durch Fachexperten erforderlich.'
+              } %}
+              {% set ak_explain = {
+                'hoch': 'Eindeutige Gefahrenlage mit klaren Standards — die Bewertung ist gut abgesichert.',
+                'mittel': 'Mehrere plausible Einstufungen möglich. Die S/O/D-Begründungen zeigen die Abwägung im Detail.',
+                'niedrig': 'Hohe Unsicherheit bei dieser Bewertung. Bitte die S/O/D-Begründungen prüfen und ggf. korrigieren.'
+              } %}
+              {% set dq_explain = {
+                'CCPS/OREDA': 'Ausfallrate aus industrieller Zuverlässigkeitsdatenbank. CCPS = Center for Chemical Process Safety, OREDA = Offshore &amp; Onshore Reliability Data.',
+                'CCPS': 'Referenzwert aus CCPS Guidelines for Chemical Process Safety (Center for Chemical Process Safety).',
+                'OREDA': 'Ausfallrate aus OREDA Handbook (Offshore &amp; Onshore Reliability Data).',
+                'Betriebserfahrung': 'Achtung: Keine tatsächlichen Betriebsdaten dieser Anlage. Der KI-Agent nutzt allgemeines Branchenwissen über typische Ausfallraten dieses Anlagentyps.',
+                'Expertenschätzung': 'Einstufung ohne quantitative Datenbasis — basiert auf Erfahrungswissen, das im Rahmen der Analyse eingebracht wurde.',
+                'KI-Vorschlag': 'Vom KI-Agent vorgeschlagene Einstufung auf Basis von Analogieschlüssen. Keine quantitativen Daten verfügbar — unbedingt durch Fachexperten validieren.'
+              } %}
               {% if risk.get('daten_konfidenz') or risk.get('agent_konfidenz') %}
               <div class="sub-section" style="padding-top:8px;padding-bottom:8px;">
                 <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
                   {% if risk.get('daten_konfidenz') %}
                   {% set dk = risk.daten_konfidenz %}
                   {% set dk_color = {'hoch':'#16A34A','mittel':'#CA8A04','niedrig':'#DC2626'}.get(dk,'#6B7280') %}
-                  <span style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid {{ dk_color }};color:{{ dk_color }};font-weight:600;">Datenbasis: {{ dk }}</span>
+                  {% set dk_tip %}<b>Datenbasis: {{ dk }}</b><br>{{ dk_explain.get(dk, '') }}<br><br><span style="color:#9CA3AF;font-size:11px;">Details: S/O/D-Begründungen auf dieser Karte aufklappen.</span>{% endset %}
+                  <span style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid {{ dk_color }};color:{{ dk_color }};font-weight:600;" data-badge-tip="{{ dk_tip | e }}">Datenbasis: {{ dk }}</span>
                   {% endif %}
                   {% if risk.get('agent_konfidenz') %}
                   {% set ak = risk.agent_konfidenz %}
                   {% set ak_color = {'hoch':'#16A34A','mittel':'#CA8A04','niedrig':'#DC2626'}.get(ak,'#6B7280') %}
-                  <span style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid {{ ak_color }};color:{{ ak_color }};font-weight:600;">KI-Konfidenz: {{ ak }}</span>
+                  {% set ak_tip %}<b>KI-Konfidenz: {{ ak }}</b><br>{{ ak_explain.get(ak, '') }}{% if risk.get('agent_konfidenz_begruendung') %}<br><br><b>Detail:</b> {{ risk.agent_konfidenz_begruendung | e }}{% endif %}{% endset %}
+                  <span style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid {{ ak_color }};color:{{ ak_color }};font-weight:600;" data-badge-tip="{{ ak_tip | e }}">KI-Konfidenz: {{ ak }}</span>
                   {% endif %}
                   {% if risk.get('agent_konfidenz') == 'niedrig' %}
                   <span style="font-size:10px;color:#991B1B;font-weight:600;">⚠ Expertenprüfung empfohlen</span>
                   {% endif %}
-                  {% if risk.get('agent_konfidenz_begruendung') %}
-                  <div style="font-size:10px;color:var(--text-secondary);margin-top:4px;line-height:1.4;width:100%;">{{ risk.agent_konfidenz_begruendung }}</div>
-                  {% endif %}
                   {% if risk.get('daten_quelle') %}
-                  <span style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid #6B7280;color:#6B7280;font-weight:600;">Quelle: {{ risk.daten_quelle }}</span>
+                  {% set dq = risk.daten_quelle %}
+                  {% set dq_tip %}<b>Quelle: {{ dq }}</b><br>{{ dq_explain.get(dq, 'Datenquelle: ' ~ dq) }}{% endset %}
+                  <span style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid #6B7280;color:#6B7280;font-weight:600;" data-badge-tip="{{ dq_tip | e }}">Quelle: {{ dq }}</span>
                   {% endif %}
                 </div>
               </div>
@@ -1691,11 +1968,11 @@
         <div class="section-desc">Bewertung der regulatorischen Konformität basierend auf den FMEA-Ergebnissen.</div>
       </div>
       {% for finding in compliance_findings %}
-      <div style="padding:10px 14px;margin-bottom:8px;border-radius:6px;border-left:4px solid {% if finding.status == 'konform' %}var(--risk-niedrig){% elif finding.status == 'bedingt_konform' %}var(--risk-mittel){% else %}var(--risk-kritisch){% endif %};background:var(--bg-secondary);">
-        <div style="font-size:13px;font-weight:700;color:var(--text-primary);">{{ finding.regelwerk }}</div>
-        <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">{{ finding.aussage }}</div>
+      <div class="compliance-card" style="border-left-color:{% if finding.status == 'konform' %}var(--risk-niedrig){% elif finding.status == 'bedingt_konform' %}var(--risk-mittel){% else %}var(--risk-kritisch){% endif %};">
+        <div class="compliance-title">{{ finding.regelwerk }}</div>
+        <div class="compliance-desc">{{ finding.aussage }}</div>
         {% if finding.pflichtmassnahmen %}
-        <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">Pflichtmaßnahmen: {{ finding.pflichtmassnahmen | join(', ') }}</div>
+        <div class="compliance-actions">Pflichtmaßnahmen: {{ finding.pflichtmassnahmen | join(', ') }}</div>
         {% endif %}
       </div>
       {% endfor %}
@@ -1842,19 +2119,8 @@
       <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Version 1.0 — keine Vorversion vorhanden.</p>
       {% endif %}
 
-      {# RPZ-Vergleich Chart #}
-      {% if comparison_img %}
-      <h3 id="chart-rpz-vorher-nachher">A. RPZ-Vergleich: Vorher vs. Nachher</h3>
-      <p>Fehlermodi mit Maßnahmen, sortiert nach RPZ-Wert. Die Differenz entspricht der erwarteten Risikoreduktion.
-        {% if report_context.best_reduction %}Maximale Einzelreduktion: <strong>{{ report_context.best_reduction }}</strong> Punkte.{% endif %}
-      </p>
-      <div class="chart-container">
-        <img src="{{ comparison_img }}" alt="RPZ-Vergleich" style="max-width:95%;">
-      </div>
-      {% endif %}
-
       {# Maßnahmentabelle #}
-      <h3>{% if comparison_img %}B.{% else %}A.{% endif %} Maßnahmentabelle</h3>
+      <h3>A. Maßnahmentabelle</h3>
       <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">
         Alle {{ total_measures }} Maßnahmen — zum Übertragen in Tracking-Systeme oder Projektmanagement-Tools.
       </p>
@@ -1888,7 +2154,7 @@
       </table>
 
       {# Abkürzungsverzeichnis #}
-      <h3>{% if comparison_img %}C.{% else %}B.{% endif %} Abkürzungsverzeichnis</h3>
+      <h3>B. Abkürzungsverzeichnis</h3>
       <table>
         <thead><tr><th>Abkürzung</th><th>Bedeutung</th></tr></thead>
         <tbody>
@@ -1912,7 +2178,7 @@
       </table>
 
       {# Glossar #}
-      <h3>{% if comparison_img %}D.{% else %}C.{% endif %} Glossar</h3>
+      <h3>C. Glossar</h3>
       <table class="glossary-table">
         <thead><tr><th>Begriff</th><th>Beschreibung</th></tr></thead>
         <tbody>
@@ -2063,7 +2329,26 @@ function toggleSectionDetail(btn) {
 var hoverTimer = null;
 var tooltip = null;
 
-function showTooltip(el, text) {
+var statusColors = {kritisch:'var(--risk-kritisch)',hoch:'var(--risk-hoch)',mittel:'var(--risk-mittel)',niedrig:'var(--risk-niedrig)'};
+
+function showTooltip(el, html) {
+  tooltip = document.getElementById('hover-tooltip');
+  var rect = el.getBoundingClientRect();
+  tooltip.innerHTML = html;
+  tooltip.style.left = (rect.right + 8) + 'px';
+  tooltip.style.top = (rect.top + window.scrollY - 10) + 'px';
+  tooltip.classList.add('visible');
+  /* Keep tooltip within viewport */
+  var tr = tooltip.getBoundingClientRect();
+  if (tr.right > window.innerWidth - 10) {
+    tooltip.style.left = (rect.left - tr.width - 8) + 'px';
+  }
+  if (tr.bottom > window.innerHeight - 10) {
+    tooltip.style.top = (rect.top + window.scrollY - tr.height + rect.height) + 'px';
+  }
+}
+
+function showSimpleTooltip(el, text) {
   tooltip = document.getElementById('hover-tooltip');
   var rect = el.getBoundingClientRect();
   tooltip.textContent = text;
@@ -2074,25 +2359,115 @@ function showTooltip(el, text) {
 
 function hideTooltip() {
   var t = document.getElementById('hover-tooltip');
-  if (t) t.classList.remove('visible');
+  if (t) { t.classList.remove('visible'); t.innerHTML = ''; }
 }
 
+/* ═══ Chart Tooltips (Matrix-Bubbles + Treemap-Blöcke + Konfidenz-Badges) ═══ */
 document.addEventListener('mouseover', function(e) {
+  /* Konfidenz-Badge tooltips */
+  var badge = e.target.closest('[data-badge-tip]');
+  if (badge) {
+    var tip = badge.dataset.badgeTip;
+    if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
+    hoverTimer = setTimeout(function() { showTooltip(badge, tip); }, 200);
+    return;
+  }
+
+  /* Matrix bubbles or treemap blocks with data-tip-id */
+  var el = e.target.closest('[data-tip-id]');
+  if (el) {
+    var id = el.dataset.tipId;
+    var name = el.dataset.tipName || '';
+    var rpz = el.dataset.tipRpz || '';
+    var status = el.dataset.tipStatus || '';
+    var s = el.dataset.tipS, o = el.dataset.tipO, d = el.dataset.tipD;
+    var dotColor = statusColors[status] || '#999';
+    var html = '<span class="tip-id">' + id + '</span>';
+    if (name) html += '<span class="tip-name">' + name + '</span>';
+    if (s) html += '<div class="tip-sod"><span>S=' + s + '</span><span>O=' + o + '</span><span>D=' + d + '</span></div>';
+    html += '<div class="tip-rpz"><span class="tip-rpz-dot" style="background:' + dotColor + '"></span>RPZ = ' + rpz + ' (' + status + ')</div>';
+    if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
+    hoverTimer = setTimeout(function() { showTooltip(el, html); }, 120);
+    return;
+  }
+
+  /* Collapsible section previews (existing behavior) */
   var toggle = e.target.closest('.sub-toggle');
   if (!toggle) return;
   var section = toggle.closest('.sub-collapsible');
   if (section.classList.contains('section-open')) return;
   var preview = section.dataset.preview;
   if (!preview) return;
-  hoverTimer = setTimeout(function() { showTooltip(toggle, preview); }, 300);
+  hoverTimer = setTimeout(function() { showSimpleTooltip(toggle, preview); }, 300);
 });
 
 document.addEventListener('mouseout', function(e) {
-  var toggle = e.target.closest('.sub-toggle');
-  if (!toggle) return;
+  var el = e.target.closest('[data-tip-id]') || e.target.closest('.sub-toggle') || e.target.closest('[data-badge-tip]');
+  if (!el) return;
   if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
   hideTooltip();
 });
+
+/* ═══ PC After-Toggle (Nachher ein/aus) ═══ */
+function togglePcAfter(show) {
+  var svg = document.getElementById('pc-svg');
+  if (!svg) return;
+  if (show) svg.classList.remove('pc-hide-after');
+  else svg.classList.add('pc-hide-after');
+}
+
+/* ═══ Chart-Panel Toggle ═══ */
+function switchChart(name, btn) {
+  document.querySelectorAll('.chart-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.chart-toggle-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById('chart-panel-' + name);
+  if (panel) panel.classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+/* ═══ Parallel Coordinates: Hover + Filter ═══ */
+(function() {
+  var pcLines = document.querySelectorAll('.pc-line');
+  var pcDetail = document.getElementById('pc-detail');
+  if (!pcLines.length) return;
+
+  /* Hover: highlight one line, dim all others */
+  pcLines.forEach(function(g) {
+    g.addEventListener('mouseenter', function() {
+      pcLines.forEach(function(other) {
+        if (other === g) { other.classList.add('highlighted'); other.classList.remove('dimmed'); }
+        else { other.classList.add('dimmed'); other.classList.remove('highlighted'); }
+      });
+      /* Show detail bar */
+      if (pcDetail) {
+        var d = g.dataset;
+        var st = d.tipStatus || '';
+        var dotColor = statusColors[st] || '#999';
+        var after = (d.tipRpz2 && d.tipRpz2 !== d.tipRpz) ?
+          ' → O\u2019=' + d.tipO2 + ' D\u2019=' + d.tipD2 +
+          ' <span style="color:var(--risk-niedrig);font-weight:700;">RPZ\u2019 ' + d.tipRpz2 + '</span>' : '';
+        pcDetail.innerHTML = '<strong>' + (d.tipId || '') + '</strong> · ' + (d.tipName || '') +
+          ' · S=' + d.tipS + ' O=' + d.tipO + ' D=' + d.tipD +
+          ' · <span style="color:' + dotColor + ';font-weight:700;">RPZ ' + d.tipRpz + '</span>' + after;
+      }
+    });
+    g.addEventListener('mouseleave', function() {
+      pcLines.forEach(function(other) { other.classList.remove('highlighted', 'dimmed'); });
+      if (pcDetail) pcDetail.innerHTML = '<span class="pc-detail-placeholder">Bewegen Sie den Mauszeiger über eine Linie, um Details anzuzeigen.</span>';
+    });
+  });
+})();
+
+/* Filter-Chips: toggle RPZ classes */
+function togglePcClass(btn) {
+  btn.classList.toggle('active');
+  var cls = btn.dataset['class'];
+  var show = btn.classList.contains('active');
+  document.querySelectorAll('.pc-line[data-pc-class="' + cls + '"]').forEach(function(g) {
+    if (show) g.classList.remove('pc-hidden');
+    else g.classList.add('pc-hidden');
+  });
+}
 
 /* ═══ Sidebar-Link: Zielkarte aufklappen ═══ */
 function expandTarget() {

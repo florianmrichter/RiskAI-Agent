@@ -166,6 +166,13 @@ small { font-size: 0.78rem; color: var(--text-muted); }
   font-size: 18px;
 }
 
+.cover-logo-icon-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  object-fit: contain;
+}
+
 .cover-logo-name {
   font-size: 15px;
   font-weight: 700;
@@ -307,6 +314,13 @@ small { font-size: 0.78rem; color: var(--text-muted); }
   justify-content: center;
   font-size: 13px;
   color: white;
+}
+
+.sidebar-logo-icon-img {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  object-fit: contain;
 }
 
 .sidebar-logo-name { font-size: 12px; font-weight: 700; color: var(--brand); }
@@ -506,24 +520,32 @@ p.text-kurz { display: block; }
 .hover-tooltip {
   position: absolute;
   z-index: 100;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 8px 12px;
+  background: #1F2937;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
   font-size: 12px;
-  color: var(--text-secondary);
-  max-width: 400px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  color: #F3F4F6;
+  max-width: 300px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.15s ease;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 .hover-tooltip.visible { opacity: 1; }
+.hover-tooltip .tip-id { font-weight: 700; color: white; font-size: 13px; }
+.hover-tooltip .tip-name { color: #D1D5DB; display: block; margin: 2px 0 6px; }
+.hover-tooltip .tip-sod { display: flex; gap: 8px; font-size: 11px; font-weight: 600; color: #9CA3AF; }
+.hover-tooltip .tip-sod span { background: rgba(255,255,255,0.1); padding: 1px 6px; border-radius: 4px; }
+.hover-tooltip .tip-rpz { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-weight: 700; font-size: 13px; }
+.hover-tooltip .tip-rpz-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+[data-badge-tip] { cursor: help; }
 
 .sidebar-nav { flex: 1; padding: 16px 12px; }
 
-.nav-section { margin-bottom: 6px; }
+.nav-section { margin-bottom: 6px; margin-top: 8px; }
+.nav-section:first-child { margin-top: 0; }
 
 .nav-section-label {
   font-size: 10px;
@@ -551,6 +573,8 @@ p.text-kurz { display: block; }
 .nav-link.nav-sub:hover { color: var(--text-secondary); }
 
 .nav-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.nav-num { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; border-radius: 4px; background: var(--bg); font-size: 10px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
+.nav-link.active .nav-num { background: var(--brand); color: white; }
 
 .sidebar-risks {
   padding: 16px 12px;
@@ -627,6 +651,8 @@ p.text-kurz { display: block; }
   border-top: 1px solid var(--border);
 }
 .methodik-sub:first-of-type { margin-top: 24px; border-top: none; padding-top: 0; }
+.methodik-sub ul, .methodik-sub ol { padding-left: 20px; margin-bottom: 8px; }
+.methodik-sub li { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 4px; }
 .methodik-sub > h3 {
   font-size: 17px;
   font-weight: 700;
@@ -1396,6 +1422,27 @@ tbody tr:last-child td { border-bottom: none; }
   color: var(--text-secondary);
   line-height: 1.7;
 }
+.info-box-success { border-left-color: #00A389; background: #f0faf7; }
+
+/* Alert-Boxen (Warning / Danger) */
+.alert-box {
+  display: flex; gap: 10px; align-items: flex-start;
+  border-radius: 6px; padding: 10px 14px; margin-bottom: 12px;
+  font-size: 13px;
+}
+.alert-icon { font-size: 16px; flex-shrink: 0; }
+.alert-warning { background: #FEF3C7; border: 1px solid #FDE68A; }
+.alert-warning strong { color: #92400E; }
+.alert-warning span { color: #78350F; }
+.alert-danger { background: #FEE2E2; border: 1px solid #FECACA; }
+.alert-danger strong { color: #991B1B; }
+.alert-danger span { color: #7F1D1D; }
+
+/* Compliance-Karten */
+.compliance-card { padding: 10px 14px; margin-bottom: 8px; border-radius: 6px; border-left: 4px solid var(--text-muted); background: var(--bg-secondary); }
+.compliance-title { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+.compliance-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.compliance-actions { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
 
 /* ═══════════════════════════════════════════════════════════════
    PROCESS STEPS
@@ -1438,6 +1485,90 @@ tbody tr:last-child td { border-bottom: none; }
 
 .chart-container { text-align: center; margin: 16px 0; }
 .chart-container img { max-width: 100%; height: auto; border-radius: var(--radius-md); }
+
+/* ── Chart Toggle (Abschnitt 4) ── */
+.chart-toggle-bar { display: flex; gap: 6px; margin-bottom: 16px; }
+.chart-toggle-btn {
+  padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border);
+  background: white; font-size: 12px; font-weight: 600; color: var(--text-muted);
+  cursor: pointer; transition: all 0.15s;
+}
+.chart-toggle-btn:hover { border-color: var(--brand); color: var(--text-primary); }
+.chart-toggle-btn.active { background: var(--brand); color: white; border-color: var(--brand); }
+.chart-panel { display: none; }
+.chart-panel.active { display: block; }
+.chart-panel-inner { height: 420px; }
+
+/* ── Interactive Risk Matrix (SVG) ── */
+.matrix-wrap { height: 100%; }
+.risk-matrix-svg { height: 100%; width: auto; max-width: 100%; }
+.matrix-axis-label { font-size: 5px; font-weight: 700; fill: #1F2937; font-family: var(--font-body); }
+.matrix-tick { font-size: 4px; fill: #6B7280; font-family: var(--font-body); }
+.matrix-legend { font-size: 3.5px; fill: #6B7280; font-family: var(--font-body); }
+.matrix-bubble-text { font-size: 3px; font-weight: 700; fill: white; font-family: var(--font-body); pointer-events: none; text-shadow: 0 0.5px 1px rgba(0,0,0,0.4); }
+.matrix-bubble-link { cursor: pointer; }
+.matrix-bubble-link:hover circle { stroke: var(--brand); stroke-width: 1.5; filter: drop-shadow(0 0 3px rgba(0,0,0,0.35)); }
+.matrix-bubble-link:hover .matrix-bubble-text { fill: white; }
+.matrix-legend-title { font-size: 4px; font-weight: 700; fill: #1F2937; font-family: var(--font-body); text-transform: uppercase; letter-spacing: 0.03em; }
+
+/* ── Interactive Treemap (HTML/CSS) ── */
+.treemap-pair { display: flex; gap: 16px; height: calc(100% - 30px); }
+.treemap-col { flex: 1; min-width: 0; }
+.treemap-title { font-size: 12px; font-weight: 700; color: var(--text-primary); text-align: center; margin-bottom: 8px; }
+.treemap-container { position: relative; width: 100%; height: calc(100% - 24px); border-radius: var(--radius-sm); overflow: hidden; background: #f9fafb; }
+.treemap-block {
+  position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border-radius: 4px; border: 1.5px solid white; box-sizing: border-box;
+  text-decoration: none; color: white; cursor: pointer;
+  transition: filter 0.15s, transform 0.15s;
+}
+.treemap-block:hover { filter: brightness(1.15); transform: scale(1.03); z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+.treemap-id { font-size: 9px; font-weight: 700; line-height: 1.2; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+.treemap-rpz { font-size: 8px; font-weight: 400; opacity: 0.85; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+.treemap-id-sm { font-size: 7px; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+.treemap-legend { display: flex; gap: 16px; justify-content: center; margin-top: 8px; }
+.treemap-legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-secondary); }
+.treemap-legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+/* ── Parallel Coordinates ── */
+.pc-wrap { height: 100%; }
+.pc-svg { height: 100%; width: auto; max-width: 100%; }
+.pc-axis-label { font-size: 9px; font-weight: 700; fill: #1F2937; font-family: var(--font-body); }
+.pc-tick { font-size: 7px; fill: #9CA3AF; font-family: var(--font-body); }
+.pc-line { cursor: pointer; }
+.pc-line a { text-decoration: none; }
+.pc-line.dimmed polyline { opacity: 0.06 !important; }
+.pc-line.dimmed circle { opacity: 0.06 !important; }
+.pc-line.highlighted polyline { stroke-width: 3.5; opacity: 1 !important; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.25)); }
+.pc-line.highlighted circle { r: 5; stroke: white; stroke-width: 1.5; }
+.pc-line.pc-hidden { display: none; }
+.pc-filters { display: flex; gap: 8px; margin: 8px 0; flex-wrap: wrap; }
+.pc-chip {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border);
+  background: white; font-size: 11px; font-weight: 600; color: var(--text-secondary);
+  cursor: pointer; transition: all 0.15s;
+}
+.pc-chip:hover { border-color: var(--brand); }
+.pc-chip.active { background: var(--bg); border-color: var(--text-muted); }
+.pc-chip:not(.active) { opacity: 0.4; }
+.pc-chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.pc-detail {
+  height: 24px; padding: 6px 12px; margin-top: 4px;
+  font-size: 12px; color: var(--text-secondary); background: var(--bg-secondary);
+  border-radius: 6px; line-height: 24px; overflow: hidden;
+}
+.pc-detail strong { color: var(--text-primary); }
+.pc-detail-placeholder { color: var(--text-muted); font-style: italic; font-size: 11px; }
+.pc-zone-label { font-size: 8px; font-weight: 700; fill: #9CA3AF; font-family: var(--font-body); text-transform: uppercase; letter-spacing: 0.06em; }
+.pc-toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+.pc-toggle-label { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-secondary); cursor: pointer; margin-left: auto; }
+.pc-toggle-label input { accent-color: var(--brand); }
+.pc-toggle-text { font-weight: 600; }
+/* Toggle: hide right half */
+.pc-svg.pc-hide-after .pc-after-group,
+.pc-svg.pc-hide-after .pc-after-line,
+.pc-svg.pc-hide-after .pc-after-dot { display: none; }
 
 /* ═══════════════════════════════════════════════════════════════
    SYSTEM CARDS (Chapter 3)
@@ -1618,7 +1749,9 @@ tbody tr:last-child td { border-bottom: none; }
   .cover { page-break-after: always; min-height: 297mm; }
   .risk-card { page-break-inside: avoid; }
   .page-break { page-break-before: always; }
-  .view-toggle-btns, .detail-toggle-btns { display: none; }
+  .view-toggle-btns, .detail-toggle-btns, .chart-toggle-bar, .pc-filters { display: none; }
+  .chart-panel { display: block !important; page-break-inside: avoid; }
+  .chart-panel-inner { height: auto !important; }
   .card-chevron, .section-chevron, .hover-tooltip, .sod-expand-hint, .section-detail-btn { display: none !important; }
   .risk-card .card-body,
   .risk-card .sod-rationale,
