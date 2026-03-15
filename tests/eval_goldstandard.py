@@ -178,53 +178,68 @@ def eval_completeness(assessments: list[dict], db: FMEAStorage) -> dict:
 # Eval 3: Plausibilität
 # ═══════════════════════════════════════════════════════════════
 
-def eval_plausibility(assessments: list[dict]) -> dict:
-    """Prüft ob S/O/D-Werte im Kontext plausibel sind."""
+def eval_plausibility(assessments: list[dict], db: FMEAStorage) -> dict:
+    """Prüft ob S/O/D-Werte im Kontext plausibel sind.
+
+    Wichtig: Prüft Ex/Gefahrstoff/Sicherheit-Keywords nur in den FOLGEN
+    und im Fehlermodus selbst — nicht im allgemeinen Anlagen-Kontext.
+    Ein FM an einer Ex-Anlage ist nur dann Ex-relevant, wenn die FOLGEN
+    dieses spezifischen FM eine Explosion/Brand beschreiben.
+    """
     results = {"total": 0, "plausible": 0, "warnings": []}
 
     # Keywords für Safety-Overrides
-    ex_keywords = ["ex-schutz", "atex", "zone 0", "zone 1", "zone 2",
-                   "explosionsschutz", "explosionsfähig", "ex-zone"]
-    hazmat_keywords = ["säure", "lauge", "toxisch", "giftig", "gefahrstoff",
-                       "ätzend", "karzinogen", "schwefelsäure", "salzsäure"]
+    ex_keywords = ["explosion", "verpuffung", "zündung", "brand", "stichflamme",
+                   "explosionsfähig", "ex-atmosphäre", "zündquelle", "funken"]
+    hazmat_keywords = ["verätzung", "vergiftung", "toxisch", "verbrühung",
+                       "säurekontakt", "laugenkontakt", "inhalation"]
     safety_keywords = ["berstscheibe", "psv", "not-aus", "sicherheitsventil",
-                       "sicherheitsbauteil", "bsv", "sil"]
+                       "sicherheitsbauteil", "bsv"]
 
     for a in assessments:
         results["total"] += 1
         warnings = []
 
-        # Kontext-Text zusammenbauen
-        context_text = " ".join(filter(None, [
-            a.get("kontext_beschreibung", ""),
-            a.get("fehlermodus", ""),
-            a.get("komponente", ""),
-            str(a.get("komp_kontext", "")),
-            str(a.get("komp_params", "")),
-        ])).lower()
+        # Nur FOLGEN + FEHLERMODUS-Titel prüfen
+        # NICHT kontext_beschreibung — dort stehen auch narrative Worst-Cases,
+        # die nicht zwingend die S-Bewertung bestimmen
+        effects = db.get_failure_effect(a["fm_id"])
+        effects_text = ""
+        if effects:
+            effects_text = " ".join(filter(None, [
+                effects.get("mensch_beschreibung", ""),
+                effects.get("umwelt_beschreibung", ""),
+                effects.get("anlage_beschreibung", ""),
+            ])).lower()
 
-        # 3a. Ex-Schutz → S sollte >= 8 sein
-        if any(kw in context_text for kw in ex_keywords):
+        fm_text = (a.get("fehlermodus", "") or "").lower()
+
+        # Für Sicherheitsbauteil-Check: Komponentenname reicht
+        component_text = (a.get("komponente", "") or "").lower()
+
+        # 3a. Ex-Folgen → S sollte >= 8 sein
+        if any(kw in effects_text or kw in fm_text for kw in ex_keywords):
             if a["S"] < 8:
-                warnings.append(f"S={a['S']} zu niedrig bei Ex-Kontext (erwartet ≥8)")
+                warnings.append(f"S={a['S']} zu niedrig — Folgen beschreiben Ex-Szenario (erwartet ≥8)")
 
-        # 3b. Gefahrstoff → S sollte >= 7 sein
-        if any(kw in context_text for kw in hazmat_keywords):
+        # 3b. Gefahrstoff-Folgen → S sollte >= 7 sein
+        if any(kw in effects_text for kw in hazmat_keywords):
             if a["S"] < 7:
-                warnings.append(f"S={a['S']} zu niedrig bei Gefahrstoff-Kontext (erwartet ≥7)")
+                warnings.append(f"S={a['S']} zu niedrig — Folgen beschreiben Gefahrstoff-Exposition (erwartet ≥7)")
 
-        # 3c. Sicherheitsbauteil → S sollte >= 8 sein
-        if any(kw in context_text for kw in safety_keywords):
+        # 3c. Sicherheitsbauteil (Komponente ist PSV/BSV/Not-Aus) → S sollte >= 8 sein
+        if any(kw in component_text for kw in safety_keywords):
             if a["S"] < 8:
-                warnings.append(f"S={a['S']} zu niedrig bei Sicherheitsbauteil-Kontext (erwartet ≥8)")
+                warnings.append(f"S={a['S']} zu niedrig — Komponente ist Sicherheitsbauteil (erwartet ≥8)")
 
         # 3d. O-Wert-Plausibilität: O=1 bedeutet < 1 in 1000 Jahren — extrem selten
         if a["O"] <= 1 and a["S"] >= 8:
             warnings.append(f"O={a['O']} bei S={a['S']} — sehr optimistisch? Bitte prüfen.")
 
         # 3e. D-Plausibilität: D=1 (autom. Abschaltung) nur wenn tatsächlich SIL/Interlock
+        all_text = (fm_text + " " + effects_text + " " + component_text).lower()
         if a["D"] == 1:
-            if "sil" not in context_text and "interlock" not in context_text:
+            if "sil" not in all_text and "interlock" not in all_text:
                 warnings.append(f"D=1 (autom. Abschaltung) ohne SIL/Interlock im Kontext")
 
         if warnings:
@@ -391,7 +406,7 @@ def main():
 
         # Eval 3: Plausibilität
         print("\n━━━ Eval 3: Plausibilität ━━━")
-        plausibility = eval_plausibility(assessments)
+        plausibility = eval_plausibility(assessments, db)
         print(f"  Geprüft: {plausibility['total']} | Plausibel: {plausibility['plausible']} | Warnungen: {len(plausibility['warnings'])}")
         for warn in plausibility["warnings"][:10]:
             print(f"  ⚠ {warn}")
