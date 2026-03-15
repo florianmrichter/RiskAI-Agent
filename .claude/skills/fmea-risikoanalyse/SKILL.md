@@ -156,12 +156,34 @@ db.record_correction(
 
 Bei Korrektur: RPZ wird automatisch neu berechnet. `daten_quelle` auf `"calibration_rule:CAL-XXX"` setzen wenn Kalibrierung angewendet wurde.
 
+## 3c. ReliabilityDB-Lookup laden (Pflicht pro Komponente)
+
+**Vor der Analyse jeder Komponente** die ReliabilityDB abfragen:
+
+```python
+from tools.reliability_lookup import get_o_suggestion
+result = get_o_suggestion(komp_id, project_id)
+```
+
+- **Bei Match** (`status: "match"`): O-Richtwerte für die Fehlermodi dieser Komponente sind verfügbar.
+  Im Dialog anzeigen: *"ReliabilityDB: [Komponente] → [Equipment-Typ], Ausfallrate [X] FPMH"*
+  Die O-Richtwerte als Ausgangspunkt für die O-Bewertung verwenden.
+  `daten_konfidenz = "hoch"`, `daten_quelle = "CCPS/OREDA"`.
+  In `begruendung_O` referenzieren: *"O-Richtwert [X] nach CCPS/OREDA für [Equipment-Typ], [Fehlermodus] ([Y]% aller Ausfälle)"*
+
+- **Bei kein Match** (`status: "no_match"`): Kein passender Equipment-Typ vorhanden.
+  Im Dialog erwähnen: *"Für [Komponente] liegen keine CCPS/OREDA-Referenzdaten vor."*
+  `daten_konfidenz = "mittel"`, `daten_quelle = "Betriebserfahrung"` (oder `"Expertenschätzung"` / `"KI-Vorschlag"`).
+
+**Regel:** `daten_quelle` darf NIEMALS NULL sein. Bei jeder Bewertung muss dokumentiert werden, woher der O-Wert stammt.
+
 ## 4. FMEA-Session durchführen
 
 Ab hier gelten **alle Regeln aus `references/fmea-workflow.md`**. Wichtigste Punkte:
 
 - Proaktiv handeln — nicht bei jedem Teilschritt nachfragen
 - Zwei-Phasen-Ablauf pro Komponente: Fehlermodi sammeln → gruppieren → einzeln durchgehen
+- **Vor jeder Komponente: `get_o_suggestion()` aufrufen** (Schritt 3c) — O-Richtwerte als Basis
 - S/O/D immer mit Stufenbezeichnung + Skalenbedeutung (aus `config/fmea_standards.py`: S_SCALE, O_SCALE, D_SCALE)
 - MSR-Kennzeichen korrekt benennen nach `config/msr_glossar.md`
 - Nach jedem Einspielen von Maßnahmen sofort Report neu generieren

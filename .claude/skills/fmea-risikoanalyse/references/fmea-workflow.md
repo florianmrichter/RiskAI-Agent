@@ -285,21 +285,20 @@ Am Ende der Analyse: Gesamtdauer der Session anzeigen.
 
 ## ReliabilityDB-Referenz (Pflicht bei O-Bewertung)
 
-Vor jeder O-Bewertung `reliability_data.json` konsultieren.
-Wenn ein passender Equipment-Typ vorhanden ist, den Wert als Ausgangspunkt
-für die Bewertung verwenden und in `begruendung_O` referenzieren.
+**Vor der Analyse jeder Komponente** `get_o_suggestion(komp_id, project_id)` aufrufen (siehe SKILL.md Schritt 3c).
+Die Funktion matcht die Komponente automatisch gegen 49 Equipment-Typen und liefert O-Richtwerte.
 
-**Wenn KEIN passender Equipment-Typ in der ReliabilityDB vorhanden ist:**
-1. Den Nutzer informieren: "Für [Equipment-Typ] liegen keine Referenz-Ausfallraten vor."
+**Bei Match:** O-Richtwerte als Ausgangspunkt verwenden. `daten_konfidenz = "hoch"`, `daten_quelle = "CCPS/OREDA"`.
+In `begruendung_O` referenzieren: *"O-Richtwert [X] nach CCPS/OREDA für [Equipment-Typ]"*.
+
+**Bei kein Match:**
+1. Den Nutzer informieren: "Für [Komponente] liegen keine Referenz-Ausfallraten vor."
 2. Fragen: "Soll ich im Internet nach Zuverlässigkeitsdaten für [Hersteller/Typ] suchen?"
-3. Bei Bestätigung: Nach OREDA-Daten, Herstellerangaben, CCPS-Referenzen oder
-   Fachpublikationen recherchieren.
-4. Gefundene Daten in `reliability_data.json` ergänzen (neuer Equipment-Typ),
-   damit sie für zukünftige Analysen verfügbar sind.
-5. In `begruendung_O` die Quelle dokumentieren (z.B. "Herstellerangabe Büchi" oder
-   "OREDA 2014, Tabelle 3.2").
-6. Falls keine Daten findbar: `daten_konfidenz = niedrig` setzen und
-   `daten_quelle = KI-Vorschlag` verwenden.
+3. Bei Bestätigung: Recherchieren, gefundene Daten in `reliability_data.json` ergänzen.
+4. In `begruendung_O` die Quelle dokumentieren.
+5. Falls keine Daten findbar: `daten_konfidenz = niedrig`, `daten_quelle = KI-Vorschlag`.
+
+**Regel:** `daten_quelle` darf NIEMALS NULL sein.
 
 ## Kalibrierung und Feedback-Erfassung (Pflicht)
 
