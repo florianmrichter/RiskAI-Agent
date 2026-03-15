@@ -63,13 +63,31 @@ pip install -r requirements.txt
 - API-Schlüssel in `.env` (siehe `claude.md` für Details)
 - Optional: `.env` aus `.env.example` kopieren – enthält u.a. `FMEA_TESTMODE_PASSWORD` für den Testmodus
 
-## Standards
+## Standards & Methodik
 
-- FMEA nach **AIAG-VDA** (harmonisierter Standard)
-- 10-Punkte Bewertungsskalen für Severity, Occurrence, Detection
-- Safety-Guard-System für automatische Risiko-Overrides
-- ABE-Hierarchie für Maßnahmen (Vermeidung → Entdeckung → Abschwächung)
+- FMEA nach **AIAG-VDA** (harmonisierter Standard, 1. Auflage 2019)
+- 10-Punkte Bewertungsskalen für Severity (S), Occurrence (O), Detection (D)
+- RPZ-Klassifizierung: kritisch (≥300), hoch (≥200), mittel (≥100), niedrig (<100)
+- Safety-Guard-System für automatische Risiko-Overrides (S≥9 → mind. hoch; D≥9 & S≥7 → kritisch)
+- Kontextbasierte S-Anhebung: Explosionsschutz (→S≥10), Gefahrstoffe (→S≥9), Sicherheitsbauteile (→S≥10)
+- **9 Fehlermodi-Kategorien** (Prozess, Thermisch, Mechanisch, Equipment, Elektrisch, MSR, Sicherheit, Dosierung, Sonstiges) — jede Komponente wird systematisch gegen alle Kategorien geprüft
+- **35 Gefahrenfelder-Checkpunkte** (26 Pflicht-Prozessbedingungen, 6 Pflicht-Energie/Medien, 3 optionale externe Einflüsse)
+- Datenquellen-Priorisierung für O-Bewertung: CCPS → OREDA → Betriebserfahrung → Expertenschätzung → KI-Vorschlag
+- Dreistufiges **Konfidenz-System**: Daten-Konfidenz, Agent-Konfidenz, Daten-Quelle pro Bewertung
 - STOP-Prinzip (Substitution → Technisch → Organisatorisch → Persönlich)
+- ABE-Hierarchie (Abschaffend → Begrenzend → Entdeckend)
+- ATEX-Validierung für Ex-Zonen, Common-Cause-Failure-Prüfung (CCF)
+- Akzeptanzkriterium: RPZ < 100 nach Maßnahmen; formale Risikoakzeptanz bei Abweichung
+
+### Rechtliche Einordnung
+
+Die KI-gestützte Risikoanalyse ist konform mit dem **EU AI Act (Verordnung (EU) 2024/1689)**:
+- **Einstufung:** Minimales Risiko gemäß Art. 6(3)(b)-(d) — KI als vorbereitendes/unterstützendes Werkzeug
+- **Menschliche Aufsicht:** Human-in-the-Loop (HITL) nach Art. 14 — Fachingenieur validiert, korrigiert und genehmigt jede Bewertung
+- **Transparenz:** KI-Einsatz wird im Report offengelegt (Art. 50)
+- Weitere relevante Regelwerke: Maschinenverordnung (EU) 2023/1230, Seveso-III-Richtlinie, IEC 60812:2018
+
+Die vollständige Methodik-Dokumentation einschließlich rechtlicher Einordnung ist im FMEA-Report (Abschnitt 2 — Methodik) enthalten.
 
 ## Berichts-Features
 

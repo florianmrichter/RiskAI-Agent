@@ -6,7 +6,7 @@ Persistiert den Fortschritt pro task_folder. Ermöglicht dem Agent,
 beim Session-Start den nächsten offenen Schritt zu ermitteln.
 
 Usage:
-    from tools.workflow_state import load_state, get_next_action, mark_component_done, get_autonomy_mode, set_autonomy_mode
+    from tools.workflow_state import load_state, get_next_action, mark_component_done, get_autonomy_mode, set_autonomy_mode, get_report_quality, set_report_quality
     state = load_state("Risikoanalyse/Ethylacetatproduktion_20TA42")
     action = get_next_action("Risikoanalyse/Ethylacetatproduktion_20TA42")
     mode = get_autonomy_mode("Risikoanalyse/Ethylacetatproduktion_20TA42")
@@ -165,6 +165,26 @@ def set_autonomy_mode(task_folder: str, mode: str) -> None:
     if state is None:
         state = _default_state(task_folder)
     state["autonomy_mode"] = mode
+    save_state(task_folder, state)
+
+
+def get_report_quality(task_folder: str) -> str:
+    """Returns the current report quality: 'ausfuehrlich' | 'reduziert'. Default: 'ausfuehrlich'."""
+    state = load_state(task_folder)
+    if state is None:
+        return "ausfuehrlich"
+    return state.get("report_quality", "ausfuehrlich")
+
+
+def set_report_quality(task_folder: str, quality: str) -> None:
+    """Persist report quality in workflow_state.json. quality: 'ausfuehrlich' | 'reduziert'."""
+    valid = {"ausfuehrlich", "reduziert"}
+    if quality not in valid:
+        raise ValueError(f"Ungültige Report-Qualität '{quality}'. Erlaubt: {valid}")
+    state = load_state(task_folder)
+    if state is None:
+        state = _default_state(task_folder)
+    state["report_quality"] = quality
     save_state(task_folder, state)
 
 

@@ -388,6 +388,13 @@ def _sod_data(fm: dict):
     yield ("D", fm.get("D", 0), "d", "Entdeckung (D)", D_INFO.get(fm.get("D", 0), ("", "")))
 
 
+def _strip_sod_prefix(text: str) -> str:
+    """Entfernt redundanten SOD-Prefix wie 'S=7 (Sehr hoch): ' aus Begründungstext."""
+    if not text:
+        return text
+    return re.sub(r'^[SOD]\s*=\s*\d+\s*(\([^)]*\))?\s*:?\s*', '', text).strip()
+
+
 def _rpz_color(status: str) -> str:
     return RPZ_HEX.get(status, "#6B7280")
 
@@ -656,6 +663,7 @@ def generate_report(project_id: int, output_path: str = None, task_folder: str =
 
         # Jinja2 rendering
         env = Environment(loader=FileSystemLoader(str(template_dir)), autoescape=False)
+        env.filters['strip_sod_prefix'] = _strip_sod_prefix
         template = env.get_template("fmea_report.html")
 
         css_file = template_dir / css_name

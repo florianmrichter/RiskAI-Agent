@@ -1,0 +1,49 @@
+{
+    "generated_at": "2026-03-15T00:00:00",
+    "based_on_corrections": 0,
+    "rules": [],
+    "plausibility_checks": [
+        {
+            "id": "PLZ-001",
+            "condition": "ex_schutz AND S < 8",
+            "warning": "S verdächtig niedrig bei Ex-Schutz-Kontext (erwarte S ≥ 8)",
+            "field": "S",
+            "suggested_value": 8
+        },
+        {
+            "id": "PLZ-002",
+            "condition": "sicherheitsventil AND S < 9",
+            "warning": "S verdächtig niedrig bei Sicherheitsventil/PSV (erwarte S ≥ 9)",
+            "field": "S",
+            "suggested_value": 9
+        },
+        {
+            "id": "PLZ-003",
+            "condition": "redundante_messung AND D > 5",
+            "warning": "D verdächtig hoch bei redundanter Messung (erwarte D ≤ 5)",
+            "field": "D",
+            "suggested_value": 4
+        },
+        {
+            "id": "PLZ-004",
+            "condition": "sil_absicherung AND D > 3",
+            "warning": "D verdächtig hoch bei SIL-Absicherung (erwarte D ≤ 3)",
+            "field": "D",
+            "suggested_value": 2
+        },
+        {
+            "id": "PLZ-005",
+            "condition": "gefahrstoff AND S < 7",
+            "warning": "S verdächtig niedrig bei Gefahrstoff-Kontext (erwarte S ≥ 7)",
+            "field": "S",
+            "suggested_value": 7
+        },
+        {
+            "id": "PLZ-006",
+            "condition": "pumpe AND S < 5",
+            "warning": "S verdächtig niedrig bei Pumpen-Fehlermodus (erwarte S ≥ 5)",
+            "field": "S",
+            "suggested_value": 5
+        }
+    ]
+}

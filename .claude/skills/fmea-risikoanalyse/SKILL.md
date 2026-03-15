@@ -34,28 +34,46 @@ projekte = [p for p in os.listdir("tasks/Risikoanalyse")
 - **Projekte vorhanden:** Liste zeigen → fragen ob bestehendes fortsetzen oder neues anlegen.
 - **Kein Projekt:** Hinweis geben → zuerst den `anlagendaten-interview`-Skill ausführen um `anlagendaten.json` zu erzeugen, dann hierher zurückkehren.
 
-## 2. Autonomiemodus bestimmen (Pflicht bei neuer Session)
+## 2. Autonomiemodus und Report-Qualität bestimmen (Pflicht bei neuer Session)
 
 ```python
-from tools.workflow_state import get_autonomy_mode, set_autonomy_mode
+from tools.workflow_state import get_autonomy_mode, set_autonomy_mode, get_report_quality, set_report_quality
 mode = get_autonomy_mode("Risikoanalyse/{projektname}")
+quality = get_report_quality("Risikoanalyse/{projektname}")
 ```
 
-- **Modus vorhanden:** Kurz benennen ("Modus: Geführt"), direkt weiter.
+- **Modus vorhanden:** Kurz benennen ("Modus: Geführt, Report: ausführlich"), direkt weiter.
 - **Kein Modus gesetzt (neue Analyse):** Modus-Auswahl einmalig präsentieren:
 
 ```
 Wie möchtest du arbeiten?
+
+ Interaktionsmodus:
 [G] Geführt   — ich erkläre jeden Schritt, zeige Skalen, gebe Beispiele
 [E] Experte   — direkt, kein Grundlagenwissen, kompakte Vollständigkeitsprüfung
 [A] Autonom   — ich mache alles, du bestätigst nur Highlight-Punkte
 
+ Report-Qualität:
+[+] Ausführlich — narrative Kontexte, detaillierte Begründungen, Gesamteinschätzungen
+                   (Empfohlen für Audits, Behörden, erstmalige Analysen)
+[-] Reduziert   — kompakte Stichworte, kurze Begründungen, Fakten ohne Erläuterung
+                   (Für interne Dokumentation, Wiederholungsanalysen)
+
+Beispiel: G+ = Geführt mit ausführlichem Report
+          A- = Autonom mit reduziertem Report
+
 Du kannst jederzeit wechseln: /modus G | /modus E | /modus A
+                               /report + | /report -
 ```
 
 Modus persistieren: `set_autonomy_mode(task_folder, mode)`.
+Report-Qualität persistieren: `set_report_quality(task_folder, quality)`. Default: `"ausfuehrlich"`.
 
 **Modus-Wechsel erkennen:** Wenn der Nutzer `/modus G`, `/modus E` oder `/modus A` schreibt, sofort wechseln und bestätigen: "Modus gewechselt zu [Geführt]. Ab jetzt erkläre ich wieder jeden Schritt."
+
+**Report-Qualität-Wechsel erkennen:** Wenn der Nutzer `/report +` oder `/report -` schreibt, sofort wechseln und bestätigen: "Report-Qualität gewechselt zu [ausführlich/reduziert]."
+
+Der Agent prüft `get_report_quality(task_folder)` vor jedem Schreiben in die DB und passt die Textlänge/Tiefe entsprechend an. Interaktionsmodus (G/E/A) und Report-Qualität (+/-) sind unabhängig — jede Kombination ist möglich (z.B. A+ = autonom mit ausführlichem Report).
 
 ## 3. State laden und nächsten Schritt ausführen
 
@@ -66,6 +84,44 @@ next_action = get_next_action("Risikoanalyse/{projektname}")
 
 - **State vorhanden:** Stand kurz nennen, sofort nächsten offenen Schritt ausführen.
 - **Kein State:** Struktur initialisieren (Anlagendaten laden, Komponenten in DB), State anlegen, Schritt 1 starten.
+
+## 3b. Kalibrierung laden (automatisch bei Session-Start)
+
+```python
+from tools.calibration import load_calibration_rules, check_plausibility, apply_calibration
+cal_rules = load_calibration_rules()
+if cal_rules.get("rules"):
+    print(f"Kalibrierung geladen: {len(cal_rules['rules'])} Regeln aus {cal_rules.get('based_on_corrections', 0)} Korrekturen")
+```
+
+- `config/calibration_rules.json` — Lernregeln aus bisherigen Experten-Korrekturen
+- Vor jeder S/O/D-Bewertung: Kalibrierungsregeln prüfen und Plausibilitäts-Checks ausführen
+- Bei Treffer: Wert anpassen UND Hinweis geben:
+  *"Kalibrierung CAL-001: S von 5 auf 7 angehoben (Pumpen-Muster aus 8 Korrekturen)"*
+- Bei Plausibilitäts-Warning: Dem Nutzer anzeigen:
+  *"⚠ PLZ-001: S verdächtig niedrig bei Ex-Schutz (erwarte S ≥ 8)"*
+
+### Feedback erfassen (Pflicht nach jeder S/O/D-Bestätigung)
+
+Nach jeder Experten-Bestätigung oder -Korrektur einer S/O/D-Bewertung:
+
+```python
+from tools.storage import FMEAStorage
+db = FMEAStorage()
+
+# Experte bestätigt den Wert:
+db.record_confirmation(fm_id, project_id, field="S", value=7, source="workflow")
+
+# Experte korrigiert den Wert:
+db.record_correction(
+    fm_id, project_id, field="S", original=5, corrected=8,
+    reason="Lösemittel-Brandgefahr",
+    context={"komponenten_typ": "mechanisch", "fehlerart": "Mechanisch", "medium": "Ethylacetat"},
+    source="workflow"
+)
+```
+
+Bei Korrektur: RPZ wird automatisch neu berechnet. `daten_quelle` auf `"calibration_rule:CAL-XXX"` setzen wenn Kalibrierung angewendet wurde.
 
 ## 4. FMEA-Session durchführen
 

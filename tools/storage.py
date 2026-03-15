@@ -42,6 +42,8 @@ class FMEAStorage:
         self._migrate_failure_modes_empfehlung()
         self._migrate_risk_assessments_akzeptanz()
         self._migrate_measures_implementation_status()
+        self._migrate_assessment_feedback_table()
+        self._migrate_risk_assessments_feedback_fields()
 
     def _create_tables(self):
         self.conn.executescript("""
@@ -311,6 +313,44 @@ class FMEAStorage:
             self.conn.execute("ALTER TABLE measures ADD COLUMN implementation_status TEXT DEFAULT 'geplant'")
             self.conn.commit()
 
+    def _migrate_assessment_feedback_table(self):
+        """Create assessment_feedback table for tracking expert corrections and confirmations."""
+        self.conn.execute("""
+        CREATE TABLE IF NOT EXISTS assessment_feedback (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            failure_mode_id INTEGER NOT NULL,
+            project_id INTEGER NOT NULL,
+            feedback_type TEXT NOT NULL CHECK(feedback_type IN ('correction', 'confirmation')),
+            field TEXT NOT NULL CHECK(field IN ('S', 'O', 'D')),
+            agent_value INTEGER NOT NULL,
+            final_value INTEGER NOT NULL,
+            delta INTEGER NOT NULL,
+            reason TEXT,
+            context_json TEXT DEFAULT '{}',
+            source TEXT DEFAULT 'workflow' CHECK(source IN ('workflow', 'training')),
+            created_at TEXT NOT NULL,
+            FOREIGN KEY (failure_mode_id) REFERENCES failure_modes(id),
+            FOREIGN KEY (project_id) REFERENCES projects(id)
+        )
+        """)
+        self.conn.commit()
+
+    def _migrate_risk_assessments_feedback_fields(self):
+        """Add original_S/O/D, human_corrected, correction_count to risk_assessments."""
+        cursor = self.conn.execute("PRAGMA table_info(risk_assessments)")
+        existing_cols = {row[1] for row in cursor.fetchall()}
+        new_cols = {
+            "original_S": "INTEGER",
+            "original_O": "INTEGER",
+            "original_D": "INTEGER",
+            "human_corrected": "BOOLEAN DEFAULT 0",
+            "correction_count": "INTEGER DEFAULT 0",
+        }
+        for col, definition in new_cols.items():
+            if col not in existing_cols:
+                self.conn.execute(f"ALTER TABLE risk_assessments ADD COLUMN {col} {definition}")
+        self.conn.commit()
+
     # ── Project CRUD ──
 
     def create_project(self, name: str, anlage_name: str = None, task_folder: str = None,
@@ -558,7 +598,8 @@ class FMEAStorage:
     def update_risk_assessment(self, failure_mode_id: int, **kwargs):
         allowed = {"S", "O", "D", "begruendung_S", "begruendung_O", "begruendung_D",
                     "rpz", "rpz_status", "override_applied",
-                    "daten_konfidenz", "agent_konfidenz", "agent_konfidenz_begruendung", "daten_quelle"}
+                    "daten_konfidenz", "agent_konfidenz", "agent_konfidenz_begruendung", "daten_quelle",
+                    "original_S", "original_O", "original_D", "human_corrected", "correction_count"}
         updates = {k: v for k, v in kwargs.items() if k in allowed}
         if not updates:
             return
@@ -673,6 +714,168 @@ class FMEAStorage:
         )
         self.conn.commit()
         return self.conn.total_changes > 0
+
+    # ── Assessment Feedback CRUD ──
+
+    def record_feedback(self, failure_mode_id: int, project_id: int,
+                        feedback_type: str, field: str,
+                        agent_value: int, final_value: int,
+                        reason: str = None, context: dict = None,
+                        source: str = "workflow") -> int:
+        """Record expert feedback (correction or confirmation) for an S/O/D value."""
+        delta = final_value - agent_value
+        cur = self.conn.execute(
+            """INSERT INTO assessment_feedback
+               (failure_mode_id, project_id, feedback_type, field,
+                agent_value, final_value, delta, reason, context_json, source, created_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (failure_mode_id, project_id, feedback_type, field,
+             agent_value, final_value, delta, reason,
+             json.dumps(context or {}, ensure_ascii=False), source,
+             datetime.now().isoformat())
+        )
+        self.conn.commit()
+        return cur.lastrowid
+
+    def record_correction(self, failure_mode_id: int, project_id: int,
+                          field: str, original: int, corrected: int,
+                          reason: str, context: dict = None,
+                          source: str = "workflow") -> int:
+        """Record a human correction with full context. Updates risk_assessments too."""
+        fb_id = self.record_feedback(
+            failure_mode_id, project_id, "correction", field,
+            original, corrected, reason, context, source
+        )
+        # Update original values and correction flag on risk_assessments
+        ra = self.get_risk_assessment(failure_mode_id)
+        if ra:
+            updates = {"human_corrected": 1}
+            orig_field = f"original_{field}"
+            if ra.get(orig_field) is None:
+                updates[orig_field] = original
+            updates["correction_count"] = (ra.get("correction_count") or 0) + 1
+            updates[field] = corrected
+            # Recalculate RPZ
+            S = updates.get("S", ra["S"])
+            O = updates.get("O", ra["O"])
+            D = updates.get("D", ra["D"])
+            rpz = S * O * D
+            updates["rpz"] = rpz
+            updates["rpz_status"] = self._classify_rpz(rpz)
+            self.update_risk_assessment(failure_mode_id, **updates)
+        return fb_id
+
+    def record_confirmation(self, failure_mode_id: int, project_id: int,
+                            field: str, value: int,
+                            reason: str = None, context: dict = None,
+                            source: str = "workflow") -> int:
+        """Record expert confirmation (agent value was correct)."""
+        return self.record_feedback(
+            failure_mode_id, project_id, "confirmation", field,
+            value, value, reason, context, source
+        )
+
+    def get_feedback_history(self, project_id: int = None,
+                             feedback_type: str = None) -> list:
+        """Get all feedback, optionally filtered by project and type."""
+        query = "SELECT * FROM assessment_feedback WHERE 1=1"
+        params = []
+        if project_id is not None:
+            query += " AND project_id = ?"
+            params.append(project_id)
+        if feedback_type is not None:
+            query += " AND feedback_type = ?"
+            params.append(feedback_type)
+        query += " ORDER BY created_at DESC"
+        rows = self.conn.execute(query, params).fetchall()
+        result = []
+        for r in rows:
+            d = dict(r)
+            d["context"] = json.loads(d.pop("context_json"))
+            result.append(d)
+        return result
+
+    def get_feedback_patterns(self) -> dict:
+        """Aggregated correction patterns across all projects."""
+        corrections = self.conn.execute("""
+            SELECT af.field, af.delta, af.context_json,
+                   c.typ as komponenten_typ, fm.fehlerart
+            FROM assessment_feedback af
+            JOIN failure_modes fm ON af.failure_mode_id = fm.id
+            JOIN functions f ON fm.function_id = f.id
+            JOIN components c ON f.component_id = c.id
+            WHERE af.feedback_type = 'correction'
+        """).fetchall()
+
+        if not corrections:
+            return {"total_corrections": 0, "field_bias": {}, "patterns": []}
+
+        # Field bias
+        field_deltas = {}
+        for row in corrections:
+            field = row["field"]
+            if field not in field_deltas:
+                field_deltas[field] = []
+            field_deltas[field].append(row["delta"])
+
+        field_bias = {}
+        for field, deltas in field_deltas.items():
+            avg = sum(deltas) / len(deltas)
+            field_bias[field] = {
+                "avg_delta": round(avg, 1),
+                "count": len(deltas),
+                "direction": "zu_niedrig" if avg > 0 else "zu_hoch" if avg < 0 else "neutral",
+            }
+
+        # Patterns by komponenten_typ + fehlerart + field
+        pattern_groups = {}
+        for row in corrections:
+            ctx = json.loads(row["context_json"]) if row["context_json"] else {}
+            key = (row["komponenten_typ"] or ctx.get("komponenten_typ", "unbekannt"),
+                   row["fehlerart"] or ctx.get("fehlerart", "unbekannt"),
+                   row["field"])
+            if key not in pattern_groups:
+                pattern_groups[key] = []
+            pattern_groups[key].append(row["delta"])
+
+        patterns = []
+        for (komp_typ, fehlerart, field), deltas in pattern_groups.items():
+            if len(deltas) >= 2:  # Minimum 2 occurrences for a pattern
+                avg_delta = sum(deltas) / len(deltas)
+                patterns.append({
+                    "komponenten_typ": komp_typ,
+                    "fehlerart": fehlerart,
+                    "field": field,
+                    "avg_delta": round(avg_delta, 1),
+                    "occurrences": len(deltas),
+                    "confidence": "hoch" if len(deltas) >= 5 else "mittel" if len(deltas) >= 3 else "niedrig",
+                })
+
+        patterns.sort(key=lambda p: p["occurrences"], reverse=True)
+
+        return {
+            "total_corrections": len(corrections),
+            "field_bias": field_bias,
+            "patterns": patterns,
+        }
+
+    def get_correction_rate(self, project_id: int) -> dict:
+        """Get correction rate for a specific project."""
+        total = self.conn.execute(
+            "SELECT COUNT(*) FROM assessment_feedback WHERE project_id = ?",
+            (project_id,)
+        ).fetchone()[0]
+        corrections = self.conn.execute(
+            "SELECT COUNT(*) FROM assessment_feedback WHERE project_id = ? AND feedback_type = 'correction'",
+            (project_id,)
+        ).fetchone()[0]
+        confirmations = total - corrections
+        return {
+            "total": total,
+            "corrections": corrections,
+            "confirmations": confirmations,
+            "correction_rate": round(corrections / total, 2) if total > 0 else 0.0,
+        }
 
     # ── Query Helpers ──
 

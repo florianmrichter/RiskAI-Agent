@@ -16,7 +16,7 @@ Du führst den Nutzer aktiv durch die Risikoanalyse. Nimm ihn an die Hand – fr
 Bei Session-Start:
 
 1. **S/O/D Referenzkarte bereitstellen:** Teile dem Nutzer mit, dass die Bewertungsskalen unter `.claude/skills/fmea-risikoanalyse/references/sod-referenzkarte.md` verfügbar sind — zum Ausdrucken oder auf einem zweiten Bildschirm. Kurz die RPZ-Einstufung und Sonderregeln nennen.
-2. **Autonomiemodus laden:** `get_autonomy_mode(task_folder)`. Falls kein Modus gesetzt → einmalige Modus-Auswahl präsentieren (G/E/A). Modus persistieren mit `set_autonomy_mode()`. Modus-Wechsel per `/modus G|E|A` jederzeit möglich.
+2. **Autonomiemodus und Report-Qualität laden:** `get_autonomy_mode(task_folder)` und `get_report_quality(task_folder)`. Falls kein Modus gesetzt → einmalige Auswahl präsentieren (Interaktionsmodus G/E/A + Report-Qualität +/-). Persistieren mit `set_autonomy_mode()` und `set_report_quality()`. Wechsel per `/modus G|E|A` bzw. `/report +|-` jederzeit möglich.
 3. **Kontext-Recherche:** Anlagendaten laden, Prozesstyp/Stoffe/Branche ermitteln. Kurze Recherche zu typischen Gefahren, Regulierung, Fachbegriffen. Neues Wissen in `config/wissen/{domaene}.md` speichern. Bei unbekannten Begriffen während der Analyse: erneut recherchieren.
 4. Prüfe ob `tasks/Risikoanalyse/{projekt}/workflow_state.json` existiert (z.B. Ethylacetatproduktion_20TA42).
 5. Falls nein: Struktur initialisieren (Anlagendaten laden, Komponenten in DB), State anlegen, dann mit nächstem Schritt fortfahren.
@@ -35,6 +35,8 @@ Bei Session-Start:
 
 ## Tools
 - `tools/workflow_state.get_next_action("Risikoanalyse/Ethylacetatproduktion_20TA42")` – nächste Aktion
+- `tools/workflow_state.get_report_quality(task_folder)` → `"ausfuehrlich"` (default) oder `"reduziert"`
+- `tools/workflow_state.set_report_quality(task_folder, quality)` → Report-Qualität persistieren
 - `tools/workflow_state.init_state_from_structure(...)` – nach Strukturanalyse
 - `tools/insert_fmea_explicit.insert_fmea_for_component(project_id, komp_id, task_folder="...")` – FMEA einspielen
 - `tools/update_checklist.update_checklist("Risikoanalyse/Ethylacetatproduktion_20TA42")` – Checkliste aktualisieren
@@ -85,7 +87,7 @@ D = 3 (Detection / Entdeckung): Wahrscheinlich – Autom. Prüfung ohne SPC, 80�
 
 **Ablauf pro Fehlermodus (Moderator-Stil, Standardformat):**
 
-1. **Worum geht es?** – Kurze Einordnung, freundlich und verständlich. Diese narrative Einordnung in `fmea_explicit.py` als `kontext_beschreibung` speichern, damit sie im Report erscheint.
+1. **Worum geht es?** – Kurze Einordnung, freundlich und verständlich. Diese narrative Einordnung in `fmea_explicit.py` als `kontext_beschreibung` speichern, damit sie im Report erscheint. **Der gespeicherte `kontext_beschreibung`-Text muss die gleiche Qualität haben wie die Moderation im Dialog** — nicht kürzen für die DB.
 2. **Ursachen** – Was kann schiefgehen? In verständlicher Sprache
 3. **Folgen** – Was passiert im Worst Case?
 4. **Was ist bereits vorhanden?** – Bestehende Absicherung (Controls), MSR korrekt benannt und erklärt. Einschränkungen der Controls als `controls_einschraenkung` (pro Fehlermodus) bzw. `einschraenkung` (pro Control) in `fmea_explicit.py` speichern.
@@ -160,6 +162,61 @@ Jeder Fehlermodus muss im Report eigenständig verständlich sein.
 
 Bei Kreuzverweisen auf andere Fehlermodi: Immer die vollständige FM-ID verwenden
 (z.B. "→ Verweis auf FM 20TA42-KOMP-001-FM03").
+
+**Regel:** Interaktionsmodus (G/E/A) und Report-Qualität (+/-) sind unabhängig. Jede Kombination ist möglich (z.B. A+ = autonom mit ausführlichem Report).
+
+## Datenqualität im Report (zwei Stufen)
+
+Die Report-Qualität (+/-) bestimmt die Texttiefe in der DB. Vor jedem Schreiben `get_report_quality(task_folder)` prüfen.
+
+**Der Text, der in die DB geschrieben wird, IST der Report-Text. Nicht kürzen für die DB.**
+
+### Stufe "ausführlich" (+) — Default
+
+Für Audits, Behörden, erstmalige Analysen. Alle Felder müssen die unten beschriebene Mindesttiefe erreichen.
+
+#### kontext_beschreibung (2-3 Absätze)
+- Absatz 1: Was ist die Komponente, welche Stoffe/Bedingungen, warum ist das relevant
+- Absatz 2: Was ist das spezifische Risiko, wo liegt die Schutzlücke
+- Absatz 3 (optional): Was fehlt aktuell, was ist das Kernproblem
+- **Negativbeispiel:** "Reaktorinnenraum = Zone 0. N2-Inertisierung Pflicht."
+- **Positivbeispiel:** "Der Glasreaktor arbeitet mit Ethanol (FP 13°C), Methanol (FP 9°C)... Über der Flüssigkeit bilden sich immer brennbare Dämpfe..."
+
+#### causes.beschreibung (Ursache + Erklärung)
+- Nicht nur die Ursache benennen, sondern verständlich erklären WAS passiert
+- **Negativ:** "Ausfall N2-Versorgung (Leitungsbruch, leere Flasche)"
+- **Positiv:** "N2-Versorgungsausfall — Das Hausnetz liefert keinen Stickstoff mehr (Leitungsbruch, Druckabfall im Netz, geplante Wartung). Betrifft gleichzeitig Sperrgas und Inertisierung."
+
+#### effects.*_beschreibung (kontextuell)
+- Nicht nur WAS passiert, sondern WARUM es hier besonders kritisch ist
+- **Negativ:** "Explosion: Glasbruch + Splitter + Flammen"
+- **Positiv:** "Bei Zündung: Explosion des Glasreaktors, Splitterwurf, Brandverletzungen — potenziell tödlich, da Bedienpersonal bei manuellem Betrieb direkt am Reaktor steht."
+
+#### begruendung_S/O/D (je ein Absatz, 3-5 Sätze)
+- Nicht nur den Wert begründen, sondern das Reasoning zeigen
+- Bei S: Safety-Override erwähnen wenn anwendbar, Kostendimension referenzieren
+- Bei O: Was die Zahl praktisch bedeutet, Datenquelle benennen, Einschränkungen
+- Bei D: Welche Detection-Mechanismen existieren/fehlen, warum der Score, ob Alternativen erwogen
+- **Negativ:** "Safety Override Explosionsschutz. > 1 Mio EUR."
+- **Positiv:** "Eine Explosion eines Glasreaktors mit brennbaren Lösemitteldämpfen bei personenüberwachtem Betrieb kann tödlich enden. Der Operator steht direkt am Reaktor. Der Safety Override für Explosionsschutz greift (Zone 0, explosionsfähig) → mindestens S=10."
+
+#### controls_einschraenkung (FM-Level) — Gesamteinschätzung
+- Nicht nur Einschränkungen auflisten, sondern bewerten ob Controls AUSREICHEND sind
+- **Negativ:** "Keine O2-Überwachung. ATEX 2G nicht ausreichend."
+- **Positiv:** "Die bestehenden Controls sind unzureichend. Die Inertisierung ist die zentrale Schutzmaßnahme, aber ihre Wirksamkeit wird nicht überwacht (kein O2-Sensor). Es gibt keinen automatischen Alarm bei Verlust der Inertisierung und kein Interlock, das den Heizstart ohne bestätigte Inertisierung verhindert."
+
+#### empfehlung (Strategie, 2-4 Sätze)
+- Nicht nur "PFLICHT: Maßnahme X" sondern WARUM und welche Kombination
+- **Negativ:** "PFLICHT: O2-Überwachung mit Alarm."
+- **Positiv:** "Maßnahme 1 + 3 in Kombination empfohlen. Der O2-Analysator macht den unsichtbaren Zustand sichtbar, das Interlock verhindert den gefährlichsten Bedienfehler (Heizstart ohne Inertisierung). Zusammen RPZ = 40 (niedrig). Maßnahmen 4+5 als Sofortmaßnahme bis zur technischen Umsetzung."
+
+#### measures.beschreibung (verständlich)
+- "Was meinen wir?" Ton — für Nicht-Experten verständlich
+- Konkret: Was wird installiert/geändert, wie funktioniert es, was ist der Effekt
+
+### Stufe "reduziert" (-) — Kompakte Stichworte
+
+Für interne Dokumentation, Wiederholungsanalysen. Kompakte Stichworte wie bisher. Keine Mindestlängen, aber alle Pflichtfelder müssen befüllt sein.
 
 ## Daten-Anreicherung während der Analyse
 
@@ -243,6 +300,27 @@ für die Bewertung verwenden und in `begruendung_O` referenzieren.
    "OREDA 2014, Tabelle 3.2").
 6. Falls keine Daten findbar: `daten_konfidenz = niedrig` setzen und
    `daten_quelle = KI-Vorschlag` verwenden.
+
+## Kalibrierung und Feedback-Erfassung (Pflicht)
+
+### Vor jeder S/O/D-Bewertung
+1. Kalibrierungsregeln prüfen: `apply_calibration(fm_data, S, O, D)` aufrufen
+2. Bei Treffer: Wert automatisch anpassen, Hinweis an Nutzer geben
+3. Plausibilitäts-Checks ausführen: `check_plausibility(fm_data, S, O, D)`
+4. Bei Warning: Dem Nutzer anzeigen, Bewertung ggf. anpassen
+
+### Nach jeder Experten-Bestätigung/Korrektur
+- **Bestätigung** (Nutzer sagt "passt", geht ohne Einwand weiter):
+  `db.record_confirmation(fm_id, project_id, "S", value, source="workflow")`
+  → Positives Signal: Agent lag richtig bei diesem Kontext
+
+- **Korrektur** (Nutzer sagt "S sollte 8 sein, weil..."):
+  `db.record_correction(fm_id, project_id, "S", original=5, corrected=8, reason="...", context={...}, source="workflow")`
+  → RPZ wird automatisch neu berechnet, original_S gespeichert
+
+### Im Testmodus
+- Feedback-Erfassung entfällt (keine Experten-Interaktion)
+- Kalibrierungsregeln und Plausibilitäts-Checks werden trotzdem angewendet
 
 ## Bewährte Praktiken (nicht ändern)
 
