@@ -770,9 +770,13 @@ def generate_report(project_id: int, output_path: str | None = None, task_folder
         template = env.get_template("fmea_report.html")
 
         css_file = template_dir / css_name
+        scholar_navy = template_dir / "assets" / "scholar-navy.png"
+        scholar_white = template_dir / "assets" / "scholar-white.png"
 
         html_content = template.render(
             css_path=css_file.as_uri(),
+            scholar_navy_path=scholar_navy.as_uri(),
+            scholar_white_path=scholar_white.as_uri(),
             project=project,
             stats=stats,
             components=components,
