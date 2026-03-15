@@ -19,7 +19,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
 TASKS_ROOT = Path(__file__).parent.parent / "tasks"
 PHASES_ORDER = ["struktur", "fmea", "rpz_validierung", "massnahmen", "report"]
@@ -285,6 +286,57 @@ def _default_state(task_folder: str) -> dict:
         "last_updated": datetime.now().isoformat(),
         "phases": {p: "pending" for p in PHASES_ORDER},
         "components": {},
+    }
+
+
+# --- Token-Usage-Tracking ---
+
+def _token_log_path(task_folder: str) -> Path:
+    return TASKS_ROOT / task_folder / "token_usage.json"
+
+
+def log_token_usage(task_folder: str, session_id: str, input_tokens: int, output_tokens: int, model: str = "opus") -> dict:
+    """Log token usage for a session. Appends to per-project token_usage.json."""
+    path = _token_log_path(task_folder)
+    if path.exists():
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    else:
+        data = {"sessions": [], "total_input": 0, "total_output": 0}
+
+    entry = {
+        "session_id": session_id,
+        "timestamp": datetime.now().isoformat(),
+        "model": model,
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+        "total_tokens": input_tokens + output_tokens,
+    }
+    data["sessions"].append(entry)
+    data["total_input"] = sum(s["input_tokens"] for s in data["sessions"])
+    data["total_output"] = sum(s["output_tokens"] for s in data["sessions"])
+    data["total_tokens"] = data["total_input"] + data["total_output"]
+    data["session_count"] = len(data["sessions"])
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+    return entry
+
+
+def get_token_summary(task_folder: str) -> dict:
+    """Get token usage summary for a project."""
+    path = _token_log_path(task_folder)
+    if not path.exists():
+        return {"total_tokens": 0, "session_count": 0, "message": "Keine Token-Daten vorhanden."}
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+    return {
+        "total_input": data.get("total_input", 0),
+        "total_output": data.get("total_output", 0),
+        "total_tokens": data.get("total_tokens", 0),
+        "session_count": data.get("session_count", 0),
     }
 
 

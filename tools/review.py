@@ -15,7 +15,8 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 from tools.storage import FMEAStorage
 from config.fmea_standards import (
     S_SCALE, O_SCALE, D_SCALE,

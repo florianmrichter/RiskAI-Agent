@@ -32,7 +32,8 @@ import squarify
 from jinja2 import Environment, FileSystemLoader
 from playwright.sync_api import sync_playwright
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 from tools.storage import FMEAStorage
 from tools.chart_comparison import generate_comparison as _generate_chart_comparison
 from config.fmea_standards import (

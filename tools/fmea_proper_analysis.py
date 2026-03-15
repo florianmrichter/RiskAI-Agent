@@ -13,7 +13,8 @@ Anlagendaten-Lookup). Keine _build_functions, _build_failure_modes mehr.
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from tools.load_plant_data import load_plant_data
 from tools.storage import FMEAStorage

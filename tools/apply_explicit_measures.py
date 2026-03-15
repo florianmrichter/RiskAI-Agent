@@ -17,7 +17,8 @@ wird aber nicht mehr im Standard-Workflow verwendet.
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from tools.generate_measures import run_generate_measures
 

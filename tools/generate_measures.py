@@ -13,7 +13,8 @@ Usage:
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from tools.storage import FMEAStorage
 from tools.insert_measures import insert_measures_for_fehlermodus

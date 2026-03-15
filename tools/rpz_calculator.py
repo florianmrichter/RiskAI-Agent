@@ -13,7 +13,8 @@ import json
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 from tools.storage import FMEAStorage
 from config.fmea_standards import (
     classify_rpz, apply_special_rules, SAFETY_OVERRIDES, RPZ_THRESHOLDS,

@@ -14,7 +14,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
 DEFAULT_DB_DIR = Path(__file__).parent.parent / "data"
 
@@ -990,6 +991,22 @@ class FMEAStorage:
         stats["measures"] = measures_count
 
         return stats
+
+    def backup(self) -> str:
+        """Create a timestamped backup of the database. Returns the backup path."""
+        import shutil
+        backup_dir = Path(self.db_path).parent / "backups"
+        backup_dir.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_path = backup_dir / f"fmea_{timestamp}.db"
+        # Flush WAL to main DB before copying
+        self.conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+        shutil.copy2(self.db_path, backup_path)
+        # Keep only last 10 backups
+        backups = sorted(backup_dir.glob("fmea_*.db"))
+        for old in backups[:-10]:
+            old.unlink()
+        return str(backup_path)
 
     def close(self):
         self.conn.close()

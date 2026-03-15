@@ -18,7 +18,8 @@ import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from tools.load_plant_data import load_plant_data
 from tools.structure_analysis import analyze_structure, save_components_to_db
