@@ -641,11 +641,12 @@ def update_component(project_id: int, komp_id: str, db_path=None, **kwargs) -> d
         db.close()
         raise ValueError(f"Komponente '{komp_id}' nicht gefunden")
 
-    allowed = {"name", "typ", "kategorie", "system_name", "beschreibung"}
-    updates = {k: v for k, v in kwargs.items() if k in allowed}
+    ALLOWED_COLUMNS = {"name", "typ", "kategorie", "system_name", "beschreibung"}
+    updates = {k: v for k, v in kwargs.items() if k in ALLOWED_COLUMNS}
     if updates:
-        set_clause = ", ".join(f"{k} = ?" for k in updates)
-        values = list(updates.values()) + [komp_id]
+        # Column names are validated against ALLOWED_COLUMNS whitelist above
+        set_clause = ", ".join(f"{col} = ?" for col in updates if col in ALLOWED_COLUMNS)
+        values = [v for k, v in updates.items() if k in ALLOWED_COLUMNS] + [komp_id]
         db.conn.execute(f"UPDATE components SET {set_clause} WHERE komp_id = ?", values)
         db.conn.commit()
 

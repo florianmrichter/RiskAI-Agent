@@ -30,20 +30,7 @@ class FMEAStorage:
         self.conn.execute("PRAGMA journal_mode=WAL")
         self.conn.execute("PRAGMA foreign_keys=ON")
         self._create_tables()
-        self._migrate_measures_table()
-        self._migrate_projects_task_folder()
-        self._migrate_failure_modes_extended()
-        self._migrate_current_controls_einschraenkung()
-        self._migrate_measures_hinweis()
-        self._migrate_risk_assessments_konfidenz()
-        self._migrate_measures_new_fields()
-        self._migrate_projects_version()
-        self._migrate_failure_modes_moc()
-        self._migrate_failure_modes_empfehlung()
-        self._migrate_risk_assessments_akzeptanz()
-        self._migrate_measures_implementation_status()
-        self._migrate_assessment_feedback_table()
-        self._migrate_risk_assessments_feedback_fields()
+        self._run_migrations_if_needed()
 
     def _create_tables(self):
         self.conn.executescript("""
@@ -159,6 +146,41 @@ class FMEAStorage:
             FOREIGN KEY (failure_mode_id) REFERENCES failure_modes(id)
         );
         """)
+        self.conn.commit()
+
+    # Schema version: 15 = all migrations applied
+    CURRENT_SCHEMA_VERSION = 15
+
+    def _run_migrations_if_needed(self):
+        """Run migrations only if schema is outdated. Uses schema_version table to skip already-applied migrations."""
+        self.conn.execute("CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL)")
+        row = self.conn.execute("SELECT version FROM schema_version").fetchone()
+        current = row[0] if row else 0
+
+        if current >= self.CURRENT_SCHEMA_VERSION:
+            return  # All migrations already applied
+
+        # Run all migrations (each is idempotent — safe to re-run)
+        self._migrate_measures_table()
+        self._migrate_projects_task_folder()
+        self._migrate_failure_modes_extended()
+        self._migrate_current_controls_einschraenkung()
+        self._migrate_measures_hinweis()
+        self._migrate_risk_assessments_konfidenz()
+        self._migrate_measures_new_fields()
+        self._migrate_projects_version()
+        self._migrate_failure_modes_moc()
+        self._migrate_failure_modes_empfehlung()
+        self._migrate_risk_assessments_akzeptanz()
+        self._migrate_measures_implementation_status()
+        self._migrate_assessment_feedback_table()
+        self._migrate_risk_assessments_feedback_fields()
+
+        # Update version
+        if row:
+            self.conn.execute("UPDATE schema_version SET version = ?", (self.CURRENT_SCHEMA_VERSION,))
+        else:
+            self.conn.execute("INSERT INTO schema_version (version) VALUES (?)", (self.CURRENT_SCHEMA_VERSION,))
         self.conn.commit()
 
     def _migrate_measures_table(self):

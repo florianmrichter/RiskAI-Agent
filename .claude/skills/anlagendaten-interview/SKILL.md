@@ -14,9 +14,10 @@ Führe das Interview wie ein erfahrener Moderator — nicht wie eine Checkliste.
 ## Referenzdateien (in dieser Skill enthalten)
 
 - `references/interview-phasen.md` — Vollständige Fragenliste für alle 7 Phasen (inkl. FMEA-kritische Markierungen)
-- `references/anlagendaten-schema.json` — Referenzschema (Ethylacetatproduktion als Beispiel)
+- `references/anlagendaten-schema.json` — Kompaktes Referenzschema (Struktur, Pflichtfelder, FMEA-kritische Markierungen)
+- `references/anlagendaten-schema-full-example.json` — Vollständiges Beispiel (Ethylacetat, nur bei Bedarf lesen)
 
-Lies beide Dateien bevor du Phase 1 startest.
+Lies `interview-phasen.md` und das kompakte Schema bevor du Phase 1 startest. Das vollständige Beispiel nur lesen wenn unklar ist, wie ein bestimmtes Feld zu befüllen ist.
 
 ## 1. Autonomiemodus bestimmen (Pflicht beim Start)
 

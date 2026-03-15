@@ -1,100 +1,7 @@
-# FMEA Standards — Referenz
+# FMEA Standards — Fehlermodi-Vorlagen & Pflichtprüfungen
 
-Kanonische Quelle: `config/fmea_standards.py`. Diese Datei ist eine lesbare Kopie für die Skill.
-
----
-
-## RPZ-Klassifizierung
-
-RPZ = S × O × D
-
-| Stufe | RPZ-Bereich | Maßnahme | Farbe |
-|---|---|---|---|
-| kritisch | ≥ 300 | Sofortige Maßnahme | #F5004F |
-| hoch | 200 ≤ RPZ < 300 | Maßnahme zeitnah umsetzen | #FD7E14 |
-| mittel | 100 ≤ RPZ < 200 | Maßnahme planen | #E8C547 |
-| niedrig | RPZ < 100 | Monitoring | #00A389 |
-
-**Klassifizierungsregel:** Die Stufe ist diejenige, deren Bereich den berechneten RPZ-Wert enthält.
-
-**Beispiele:**
-
-- RPZ = 168 → **mittel** (100 ≤ 168 < 200)
-- RPZ = 200 → **hoch** (200 ≤ 200 < 300)
-- RPZ = 84 → **niedrig** (84 < 100)
-- RPZ = 315 → **kritisch** (315 ≥ 300)
-
-**Zielwert:** RPZ < 100 gilt als akzeptables Restrisiko.
-
----
-
-## Sonderregeln (AIAG-VDA Overrides)
-
-Diese Regeln überschreiben die RPZ-Einstufung unabhängig vom berechneten Wert:
-
-| Regel | Bedingung | Ergebnis |
-|---|---|---|
-| Sicherheitsrelevanz | S ≥ 9 und Stufe nicht kritisch/hoch | → mindestens **hoch** |
-| Schlechte Entdeckbarkeit | D ≥ 9 und S ≥ 7 | → **kritisch** |
-
-## Safety Overrides (kontext-basierte S-Erhöhung)
-
-| Kontext | Schlüsselwörter | Min. S |
-|---|---|---|
-| Explosionsschutz | ex-schutz, explosionsschutz, zone 0, zone 1, atex | 10 |
-| Gefahrstoff-Handling | säure, lauge, toxisch, giftig, chlor, schwefelsäure, essigsäure | 9 |
-| Sicherheitsgerichtetes Bauteil | berstscheibe, psv, sicherheitsventil, not-aus, not-halt | 10 |
-
----
-
-## S — Severity / Bedeutung (1–10)
-
-| S | Stufe | Beschreibung |
-|---|---|---|
-| 1 | Keine Auswirkung | Keine Auswirkung auf Funktion/Sicherheit |
-| 2 | Sehr gering | Minimale Qualitätsabweichung |
-| 3 | Gering | Leichte Qualitätsminderung, Ausfall < 1h |
-| 4 | Relativ gering | Deutliche Qualitätsminderung, < 1 Tag, < 1k € |
-| 5 | Mäßig | Funktionseinschränkung, 1–7 Tage, 1–10k € |
-| 6 | Hoch | Teilausfall, 1–4 Wochen, 10–50k € |
-| 7 | Sehr hoch | Vollausfall, 1–3 Monate, 50–250k € |
-| 8 | Extrem hoch | Vollausfall, > 3 Mon., 250–500k €, Verletzte |
-| 9 | Kritisch | Katastrophal, > 500k €, Schwerverletzte |
-| 10 | Gefährlich | Katastrophal, > 1 Mio €, Todesfälle |
-
----
-
-## O — Occurrence / Auftreten (1–10)
-
-| O | Stufe | Beschreibung |
-|---|---|---|
-| 1 | Unwahrscheinlich | < 1 mal in 1.000 Jahren |
-| 2 | Sehr gering | ~1 mal in 100 Jahren |
-| 3 | Gering | ~1 mal in 10 Jahren |
-| 4 | Relativ gering | ~1 mal in 2 Jahren |
-| 5 | Gelegentlich | ~2–3 mal/Jahr |
-| 6 | Mäßig | ~10 mal/Jahr |
-| 7 | Häufig | ~50 mal/Jahr |
-| 8 | Sehr häufig | ~125 mal/Jahr |
-| 9 | Extrem häufig | ~300 mal/Jahr |
-| 10 | Sehr hoch | > 500 mal/Jahr |
-
----
-
-## D — Detection / Entdeckung (1–10)
-
-| D | Stufe | Beschreibung |
-|---|---|---|
-| 1 | Fast sicher | Automatische Abschaltung, 100% |
-| 2 | Sehr wahrscheinlich | Autom. Prüfung mit SPC, > 95% |
-| 3 | Wahrscheinlich | Autom. Prüfung ohne SPC, 80–95% |
-| 4 | Relativ wahrscheinlich | 100% manuelle Prüfung, 70–80% |
-| 5 | Mäßig wahrscheinlich | Stichprobe mit SPC, 50–70% |
-| 6 | Unwahrscheinlich | Stichprobe ohne SPC, 30–50% |
-| 7 | Sehr unwahrscheinlich | Nur visuelle Prüfung, 10–30% |
-| 8 | Extrem unwahrscheinlich | Keine Prüfung, < 10% |
-| 9 | Absolut unsicher | Erst beim Kunden erkannt, < 5% |
-| 10 | Absolut unsicher | Nicht erkennbar, ≈ 0% |
+Kanonische Quelle für RPZ-Regeln, S/O/D-Skalen und Safety Overrides: `config/fmea_standards.py` + SKILL.md (inline).
+Diese Datei enthält: FM-Vorlagen (9 Kategorien), ATEX-Validierung, Backflow-Prüfung, CCF-Prüfung.
 
 ---
 
@@ -103,7 +10,7 @@ Diese Regeln überschreiben die RPZ-Einstufung unabhängig vom berechneten Wert:
 Für jede Komponente prüfen, welche Typen relevant sind. Keine generische Übernahme — S/O/D immer individuell bewerten.
 
 **Dokumentationspflicht:** Alle 9 Kategorien müssen pro Komponente durchgegangen werden. Nicht-relevante Kategorien oder einzelne Typen darin sind explizit mit Begründung zu dokumentieren:
-> „nicht relevant — [Begründung, z.B.: kein rotierendes Equipment / keine thermische Prozessführung / kein Druckbehälter]"
+> "nicht relevant — [Begründung, z.B.: kein rotierendes Equipment / keine thermische Prozessführung / kein Druckbehälter]"
 
 Kein Typ darf stillschweigend übergangen werden. Die Dokumentation nicht-relevanter Fehlermodi ist der Nachweis, dass man sich darüber Gedanken gemacht hat.
 
@@ -119,176 +26,119 @@ Kein Typ darf stillschweigend übergangen werden. Die Dokumentation nicht-releva
 | Abluft | Ausfall / Verstopfung → Druckaufbau oder unkontrollierte Emission |
 | Elektrische Versorgung | Ausfall → Stillstand aktiver Komponenten (Pumpen, Rührwerke, Regler) |
 
-**Regel:** Jede Utility, die im `connectedSystems`-Feld (upstream/downstream) oder in `utilities` der `anlagendaten.json` gelistet ist, muss als eigener Fehlermodus oder explizit als "nicht relevant — Begründung" dokumentiert werden. Kein Utility darf ohne Prüfung übergangen werden.
-
-**Hintergrund:** Temperaturfehler wurden bei der Confidence-Anlage (20TA24) initial nicht erfasst, weil der Lauda-Thermostat als internes PU-Element betrachtet wurde — obwohl er eine externe Utility-Schnittstelle darstellt (analog zu Eiswasser am Kondensator).
+**Regel:** Jede Utility, die im `connectedSystems`-Feld oder in `utilities` der `anlagendaten.json` gelistet ist, muss als eigener Fehlermodus oder explizit als "nicht relevant — Begründung" dokumentiert werden.
 
 ### Prozess
+
 | Typ | Beschreibung |
 |---|---|
 | Mehr Stoffstrom (High Flow) | Überschreitung der Auslegungskapazität, verringerte Verweilzeit oder Überfüllung nachgeschalteter Apparate. |
 | Weniger Stoffstrom (Low Flow) | Unterschreitung der Mindestströmung, Gefahr von Ablagerungen oder unzureichender Durchmischung. |
 | Kein Stoffstrom (No Flow) | Vollständiger Abriss der Versorgung, Trockenlauf von Pumpen oder Entstehen von gefährlichen Totvolumina. |
-| Rückstrom (Reverse Flow) | Umkehrung der Fließrichtung durch Druckunterschiede, führt zu Kontamination von Vorlagen oder Reaktionen in Zuleitungen. **→ Backflow-Pflichtprüfung bei jeder upstream/downstream-Schnittstelle** |
+| Rückstrom (Reverse Flow) | Umkehrung der Fließrichtung durch Druckunterschiede, führt zu Kontamination oder Reaktionen in Zuleitungen. **→ Backflow-Pflichtprüfung** |
 | Mehr Druck (High Pressure) | Überschreitung des zulässigen Betriebsdrucks (PS), Gefahr des Berstens oder Ansprechen von Sicherheitseinrichtungen. |
 | Weniger Druck (Low Pressure/Vacuum) | Unterschreitung des Mindestdrucks, Gefahr der Kavitation oder Implosion bei nicht vakuumfesten Apparaten. |
 | Konzentrationsabweichung | Falsches stöchiometrisches Verhältnis, führt zu Nebenreaktionen, Ausbeuteverlust oder thermischer Instabilität. |
-| Phasentrennung / Entmischung | Ungewollte Bildung von Schichten (z.B. Emulsionsbruch), führt zu Fehlmessungen oder lokalen Reaktions-Hotspots. |
+| Phasentrennung / Entmischung | Ungewollte Bildung von Schichten, führt zu Fehlmessungen oder lokalen Reaktions-Hotspots. |
 | Verschleppung / Kontamination | Eintrag von Fremdstoffen oder Rückständen aus Vorchargen, die als Katalysator oder Inhibitor wirken. |
 
-**Gefahrenfelder-Prüfpunkte (Prozess):**
-
-| Prüfpunkt | Prüffrage |
-|---|---|
-| 1.1 Spezifikation / Verunreinigungen | Qualität der Ausgangsstoffe? Verunreinigungen möglich? |
-| 1.2 Präsenz der Ausgangsstoffe | Versorgungsunterbrechung? Fehlende Ausgangsstoffe? |
-| 1.4 Reaktionsbedingungen | pH-Wert, Konzentration, Reaktionsparameter korrekt? |
-| 1.5 Druck | Über-/Unterdruck-Szenarien? Vakuumfestigkeit? |
-| 1.7 Vermischung / Verwechslung | Falsche Stoffe gemischt? Verwechslung von Leitungen? |
-| 1.9 Stoffströme / Rückströmung | Rückfluss? Falschströme? → Backflow-Pflichtprüfung |
-| 1.10 Füllstand / Überfüllung | Überlaufszenarien? Füllstandsüberwachung? |
-| 1.16 Pumpen / Leeren / Transfer | Trockenlauf? Kavitation? Leckage beim Transfer? |
-| 1.20 Evakuieren / Entlasten | Druckentlastung funktionsfähig? |
-| 1.22 Prozessunterbruch | Not-Halt-Folgen? Störungsreaktion? Wiederanfahren? |
+**Gefahrenfelder-Prüfpunkte:** 1.1 Spezifikation/Verunreinigungen, 1.2 Präsenz Ausgangsstoffe, 1.4 Reaktionsbedingungen, 1.5 Druck, 1.7 Vermischung/Verwechslung, 1.9 Stoffströme/Rückströmung, 1.10 Füllstand/Überfüllung, 1.16 Pumpen/Transfer, 1.20 Evakuieren/Entlasten, 1.22 Prozessunterbruch
 
 ### Thermisch
+
 | Typ | Beschreibung |
 |---|---|
-| Mehr Temperatur (High Temperature) | Beschleunigung exothermer Reaktionen (Runaway-Gefahr), thermische Zersetzung des Mediums oder Materialerweichung. |
-| Weniger Temperatur (Low Temperature) | Einfrieren von Medien, Auskristallisation (Blockade), Viskositätsanstieg (Pumpenüberlastung) oder Sprödbruch von Werkstoffen. |
-| Thermischer Schock | Extreme Temperaturgradienten führen zu Spannungsrissen in Emaille-Auskleidungen oder Schweißnähten. |
-| Verlust der Wärmeabfuhr | Ausfall des Kühlmediums oder Fouling, führt zu unkontrolliertem Temperaturanstieg. |
-| Lokale Überhitzung (Hot Spot) | Ungleichmäßige Wärmeverteilung, z.B. durch defekte Rührwerke oder Wandbeläge, führt zu lokalem Materialversagen. |
+| Mehr Temperatur (High Temperature) | Beschleunigung exothermer Reaktionen (Runaway-Gefahr), thermische Zersetzung oder Materialerweichung. |
+| Weniger Temperatur (Low Temperature) | Einfrieren, Auskristallisation, Viskositätsanstieg oder Sprödbruch. |
+| Thermischer Schock | Extreme Temperaturgradienten → Spannungsrisse in Emaille oder Schweißnähten. |
+| Verlust der Wärmeabfuhr | Ausfall Kühlmedium oder Fouling → unkontrollierter Temperaturanstieg. |
+| Lokale Überhitzung (Hot Spot) | Ungleichmäßige Wärmeverteilung durch defekte Rührwerke oder Beläge. |
 
-**Gefahrenfelder-Prüfpunkte (Thermisch):**
-
-| Prüfpunkt | Prüffrage |
-|---|---|
-| 1.6 Temperatur | Temperaturabweichungen? Runaway? Thermischer Schock? |
-| 1.13 Reaktion mit Wärmeträger | Vermischung Produkt/Wärmeträger? Doppelmantelbruch? |
-| 1.17 Heizen / Kühlen | Kühlungsausfall? Unkontrolliertes Heizen? Fouling? |
-| 2.2 Heiz-/Kühlmedien | Dampfausfall? Kühlwassermangel? Sole-Leckage? |
+**Gefahrenfelder-Prüfpunkte:** 1.6 Temperatur, 1.13 Reaktion mit Wärmeträger, 1.17 Heizen/Kühlen, 2.2 Heiz-/Kühlmedien
 
 ### Mechanisch
+
 | Typ | Beschreibung |
 |---|---|
-| Erosion / Abrasion | Materialabtrag durch feststoffhaltige Medien oder hohe Strömungsgeschwindigkeiten, führt zu Wandstärkenunterschreitung. |
-| Kavitation | Dampfblasenbildung und schlagartige Kondensation, führt zu Materialzerstörung an Laufrädern und Ventilsitzen. |
-| Vibration / Resonanz | Mechanische Schwingungen führen zu Ermüdungsbrüchen an Kleinstutzen und Verschraubungen. |
-| Äußere Leckage (Integritätsverlust) | Versagen von Flanschdichtungen oder Stopfbuchsen, Medienaustritt in die Umwelt. |
-| Innere Leckage (Bypass) | Durchbruch an Wärmetauscherrohren oder defekte Ventilsitze, prozessinterne Vermischung. |
-| Materialermüdung | Rissbildung durch zyklische Druck- oder Temperaturbelastungen. |
+| Erosion / Abrasion | Materialabtrag durch feststoffhaltige Medien → Wandstärkenunterschreitung. |
+| Kavitation | Dampfblasenbildung und Kondensation → Materialzerstörung an Laufrädern. |
+| Vibration / Resonanz | Schwingungen → Ermüdungsbrüche an Stutzen und Verschraubungen. |
+| Äußere Leckage | Versagen von Flanschdichtungen oder Stopfbuchsen, Medienaustritt. |
+| Innere Leckage (Bypass) | Durchbruch an Wärmetauscherrohren, prozessinterne Vermischung. |
+| Materialermüdung | Rissbildung durch zyklische Druck-/Temperaturbelastungen. |
 
-**Gefahrenfelder-Prüfpunkte (Mechanisch):**
-
-| Prüfpunkt | Prüffrage |
-|---|---|
-| 1.11 Rührung / Rührgeschwindigkeit | Trockenlauf? Überdrehzahl? Vibration? Wellendichtung? |
-| 1.16 Pumpen / Leeren / Transfer | Kavitation? Mechanische Belastung? |
-| 1.23 Stoff-/Chemikalienaustritt | Flanschdichtungen? Gleitringdichtung? Leckagen? |
-| 2.4 Integrität der Bauteile | Korrosion? Materialermüdung? Werkstoffverträglichkeit? |
+**Gefahrenfelder-Prüfpunkte:** 1.11 Rührung, 1.16 Pumpen/Transfer, 1.23 Chemikalienaustritt, 2.4 Integrität
 
 ### Equipment
+
 | Typ | Beschreibung |
 |---|---|
-| Fouling / Belagbildung | Feststoffschichten auf Funktionsflächen, reduziert Wärmeübergang oder verengt Querschnitte. |
+| Fouling / Belagbildung | Feststoffschichten reduzieren Wärmeübergang oder verengen Querschnitte. |
 | Verstopfung / Blockade | Verschluss von Filtern, Sieben oder Rohrleitungen. |
-| Gleitringdichtungsversagen | Ausfall der Wellenabdichtung an rotierendem Equipment. |
+| Gleitringdichtungsversagen | Ausfall der Wellenabdichtung. |
 | Innere Beschädigung (Einbauten) | Bruch von Stromstörern, Füllkörpern oder Filterkerzen. |
-| Vakuumverlust | Eindringen von Falschluft in evakuierte Systeme, beeinträchtigt Siedepunkte oder führt zu explosiven Gemischen. |
+| Vakuumverlust | Falschluft → beeinträchtigt Siedepunkte oder führt zu explosiven Gemischen. |
 
-**Gefahrenfelder-Prüfpunkte (Equipment):**
-
-| Prüfpunkt | Prüffrage |
-|---|---|
-| 1.15 Filtrieren / Abtrennen | Filterdurchbruch? Verstopfung? Feststoffaustrag? |
-| 1.18 Reinigung | Restmengen? Reinigungserfolg? Rückstände? |
-| 2.4 Integrität der Bauteile | Werkstoffverträglichkeit? Alterung? |
+**Gefahrenfelder-Prüfpunkte:** 1.15 Filtrieren/Abtrennen, 1.18 Reinigung, 2.4 Integrität
 
 ### Elektrisch
+
 | Typ | Beschreibung |
 |---|---|
-| Vollständiger Spannungsausfall (Blackout) | Absturz aller aktiven Komponenten, Übergang der Anlage in den undefinierten Zustand. |
-| Spannungseinbruch (Brownout) | Kurzzeitige Unterspannung, unkontrollierte Resets oder Abfallen von Schützen. |
-| Phasenausfall / Asymmetrie | Unregelmäßige Versorgung von Drehstrommotoren, Überhitzung und Wicklungsschäden. |
-| EMV-Einkopplung | Elektromagnetische Störsignale auf Signalleitungen, sporadische Fehlmessungen. |
-| Erdschluss / Isolationsfehler | Fehlerstrom gegen Gehäuse, Auslösung von Schutzeinrichtungen oder Personengefahr. |
+| Vollständiger Spannungsausfall (Blackout) | Absturz aller aktiven Komponenten, undefinierter Zustand. |
+| Spannungseinbruch (Brownout) | Unkontrollierte Resets oder Abfallen von Schützen. |
+| Phasenausfall / Asymmetrie | Überhitzung und Wicklungsschäden bei Drehstrommotoren. |
+| EMV-Einkopplung | Störsignale → sporadische Fehlmessungen. |
+| Erdschluss / Isolationsfehler | Fehlerstrom → Personengefahr oder Schutzauslösung. |
 
-**Gefahrenfelder-Prüfpunkte (Elektrisch):**
-
-| Prüfpunkt | Prüffrage |
-|---|---|
-| 1.12 Elektrostatische Aufladung | Erdung? Ableitfähige Materialien? Schüttgut/Pulver? |
-| 2.1 Hilfsenergien | Stromausfall? Druckluft-/Steuerluftausfall? USV vorhanden? |
+**Gefahrenfelder-Prüfpunkte:** 1.12 Elektrostatische Aufladung, 2.1 Hilfsenergien
 
 ### MSR
+
 | Typ | Beschreibung |
 |---|---|
-| Eingefrorener Messwert (Frozen Value) | Sensor liefert konstanten Wert trotz Prozessänderung (z.B. durch verstopfte Impulsleitung), Regelung reagiert nicht. |
-| Messwertdrift | Schleichende Kalibrierungsabweichung, unbemerktes Verlassen des optimalen Betriebspunkts. |
-| Signalrauschen / Spikes | Instabile Signale, hohe mechanische Belastung der Aktoren. |
-| Aktor-Blockade (Stuck-at) | Stellventil oder Klappe klemmt mechanisch, Reglerausgang ohne Wirkung. |
-| Logikfehler / Software-Bug | Fehlerhafte Verriegelungen oder Schrittketten, falsche Fahrweise. |
-| Kommunikationsabriss (Busfehler) | Verlust Verbindung E/A-Ebene zu CPU, Aktoren gehen in Fail-Safe. |
-| Antivalenzfehler | Widersprüchliche Rückmeldungen von Endlagenschaltern. |
+| Eingefrorener Messwert (Frozen Value) | Sensor liefert konstanten Wert, Regelung reagiert nicht. |
+| Messwertdrift | Schleichende Kalibrierungsabweichung. |
+| Signalrauschen / Spikes | Instabile Signale, hohe Aktorbelastung. |
+| Aktor-Blockade (Stuck-at) | Stellventil klemmt, Reglerausgang ohne Wirkung. |
+| Logikfehler / Software-Bug | Fehlerhafte Verriegelungen oder Schrittketten. |
+| Kommunikationsabriss (Busfehler) | Verlust E/A-Verbindung, Aktoren gehen in Fail-Safe. |
+| Antivalenzfehler | Widersprüchliche Endlagenschalter-Rückmeldungen. |
 
-**Gefahrenfelder-Prüfpunkte (MSR):**
-
-| Prüfpunkt | Prüffrage |
-|---|---|
-| 1.19 Kontrolle / Überwachung / Detektion | Sensorausfall? Fehlende Redundanz? Alarmkette? |
-| 2.3 PLT-Einrichtungen | SPS-Ausfall? Regelung? Automatisierung? |
-| 2.6 Cyber Security | Netzwerk? Fernwartung? SCADA? Zugriffsschutz? |
+**Gefahrenfelder-Prüfpunkte:** 1.19 Kontrolle/Überwachung, 2.3 PLT-Einrichtungen, 2.6 Cyber Security
 
 ### Sicherheit
+
 | Typ | Beschreibung |
 |---|---|
-| Nicht-Öffnen (Safety Valve) | Sicherheitsventil klemmt, unzulässiger Druckaufbau wird nicht begrenzt. |
-| Frühzeitiges Ansprechen | Sicherheitsventil/Berstscheibe löst unterhalb Ansprechdruck aus. |
-| Ausfall der Inertisierung | Verlust des Stickstoffpolsters, explosionsfähige Atmosphäre im Behälter. |
-| Flammendurchschlag | Defekt an Deflagrationssicherungen, Brandübertragung in andere Anlagenteile. |
-| Fehlauslösung Not-Halt | Unberechtigtes Auslösen der Schutzkette, instabile Zustände durch plötzlichen Stillstand. |
+| Nicht-Öffnen (Safety Valve) | PSV klemmt, unzulässiger Druckaufbau. |
+| Frühzeitiges Ansprechen | PSV/BSV löst unterhalb Ansprechdruck aus. |
+| Ausfall der Inertisierung | Verlust N₂-Polster → explosionsfähige Atmosphäre. |
+| Flammendurchschlag | Defekt an Deflagrationssicherungen. |
+| Fehlauslösung Not-Halt | Plötzlicher Stillstand → instabile Zustände. |
 
-**Gefahrenfelder-Prüfpunkte (Sicherheit):**
-
-| Prüfpunkt | Prüffrage |
-|---|---|
-| 1.8 Explosionsfähige Atmosphäre | Ex-Zone? Zündquellen? ATEX-Konformität? → **ATEX-Validierung Pflicht** |
-| 1.12 Elektrostatische Aufladung | Zündquelle durch Aufladung? Erdung? |
-| 1.21 Abluft / Ableitung | Sicherheitsventile korrekt dimensioniert? Abluftleitung frei? |
-| 1.24 Manuelle Tätigkeiten | Exposition bei offenem Mannloch/Handloch? PSA? |
-| 1.26 Offenes Stoffhandling | Exposition bei Befüllung/Entleerung? Absaugung? |
-| 2.5 CE-Konformität | Konformitätsbewertung aktuell? Dokumentation? |
+**Gefahrenfelder-Prüfpunkte:** 1.8 Explosionsfähige Atmosphäre (→ ATEX-Pflicht), 1.12 Elektrostatische Aufladung, 1.21 Abluft/Ableitung, 1.24 Manuelle Tätigkeiten, 1.26 Offenes Stoffhandling, 2.5 CE-Konformität
 
 ### Dosierung
+
 | Typ | Beschreibung |
 |---|---|
-| Überdosierung (Single Point Failure) | Zuviel Komponente A, unkontrollierte Exothermie oder Produktverlust. |
-| Unterdosierung | Zuwenig Katalysator/Reaktant, Reaktionsstart verhindert (Akkumulationsgefahr). |
-| Falsche Dosierreihenfolge | Abweichung vom Rezept, gefährliche Zwischenprodukte oder Feststoffausfall. |
-| Gasblasen im Dosierstrom | Inhomogenität im Medium, massive Volumenstromfehler bei Verdrängerpumpen. |
+| Überdosierung (Single Point Failure) | Unkontrollierte Exothermie oder Produktverlust. |
+| Unterdosierung | Reaktionsstart verhindert (Akkumulationsgefahr). |
+| Falsche Dosierreihenfolge | Gefährliche Zwischenprodukte oder Feststoffausfall. |
+| Gasblasen im Dosierstrom | Massive Volumenstromfehler bei Verdrängerpumpen. |
 
-**Gefahrenfelder-Prüfpunkte (Dosierung):**
-
-| Prüfpunkt | Prüffrage |
-|---|---|
-| 1.3 Dosierung / Menge / Reihenfolge | Korrekte Zugabe? Falsche Reihenfolge? |
-| 1.14 Katalysator / Inhibitor | Deaktivierung? Falscher Katalysator? Inhibitor verbraucht? |
+**Gefahrenfelder-Prüfpunkte:** 1.3 Dosierung/Menge/Reihenfolge, 1.14 Katalysator/Inhibitor
 
 ### Sonstiges
+
 | Typ | Beschreibung |
 |---|---|
 | Bedienfehler (Human Error) | Falsche Sollwertvorgabe oder Fehlinterpretation von Alarmen. |
 | Kennzeichnungsfehler | Falsche Beschriftung von Leitungen oder Handventilen. |
-| Externe Einwirkung | Beschädigung von Rohrleitungen durch Staplerverkehr oder herabfallende Lasten. |
+| Externe Einwirkung | Beschädigung durch Staplerverkehr oder herabfallende Lasten. |
 
-**Gefahrenfelder-Prüfpunkte (Sonstiges):**
-
-| Prüfpunkt | Prüffrage |
-|---|---|
-| 1.24 Manuelle Tätigkeiten | Mannloch/Handloch offen? Probenahme? Filterwechsel? |
-| 1.25 Wartungs-/Reparaturarbeiten | Freigabeverfahren? Restenergie? Isolation? |
-| 1.26 Offenes Stoffhandling | Befüllung/Entleerung? Exposition? PSA? |
+**Gefahrenfelder-Prüfpunkte:** 1.24 Manuelle Tätigkeiten, 1.25 Wartung/Reparatur, 1.26 Offenes Stoffhandling
 
 ---
 
@@ -298,38 +148,35 @@ Bei jeder Komponente mit Ex-Zone-Einstufung MUSS geprüft werden:
 
 ### Gas-Ex (Gruppe II G)
 
-| Bedingung | Prüfung | Pflichtmaßnahme |
-|---|---|---|
-| Zone 0 + brennbare Gase/Dämpfe | Geräte-Kategorie 1G erforderlich | Falls 2G/3G: Inertisierung PFLICHT |
-| Zone 1 + brennbare Gase/Dämpfe | Geräte-Kategorie 2G erforderlich | Falls 3G: Inertisierung oder Upgrade |
-| Zone 0/1 + keine Inertisierung | ATEX-Lücke! | Explizit ansprechen |
+| Bedingung | Pflichtmaßnahme |
+|---|---|
+| Zone 0 + brennbare Gase/Dämpfe | Geräte-Kategorie 1G erforderlich. Falls 2G/3G: Inertisierung PFLICHT |
+| Zone 1 + brennbare Gase/Dämpfe | Geräte-Kategorie 2G erforderlich. Falls 3G: Inertisierung oder Upgrade |
+| Zone 0/1 + keine Inertisierung | ATEX-Lücke! Explizit ansprechen |
 
 ### Staub-Ex (Gruppe II D)
 
-| Bedingung | Prüfung | Pflichtmaßnahme |
-|---|---|---|
-| Zone 20 + brennbarer Staub | Geräte-Kategorie 1D erforderlich | Falls 2D/3D: Inertisierung PFLICHT |
-| Zone 21 + brennbarer Staub | Geräte-Kategorie 2D erforderlich | Falls 3D: Inertisierung oder Upgrade |
-| Staubablagerungen auf heißen Oberflächen | Glimmtemperatur prüfen | Max. Oberflächentemperatur < 2/3 Glimmtemperatur |
+| Bedingung | Pflichtmaßnahme |
+|---|---|
+| Zone 20 + brennbarer Staub | Geräte-Kategorie 1D erforderlich. Falls 2D/3D: Inertisierung PFLICHT |
+| Zone 21 + brennbarer Staub | Geräte-Kategorie 2D erforderlich |
+| Staubablagerungen auf heißen Oberflächen | Max. Oberflächentemperatur < 2/3 Glimmtemperatur |
 
 ### Hybride Gemische (Gas + Staub gleichzeitig)
 
-| Bedingung | Prüfung | Pflichtmaßnahme |
-|---|---|---|
-| Gas + Staub gleichzeitig möglich | Strengere Zone gilt | UEG sinkt bei Hybridgemischen → konservativ bewerten |
-| Zone G + Zone D überlappen | Beide Kategorien (G+D) erforderlich | Geräte müssen beide Anforderungen erfüllen |
+| Bedingung | Pflichtmaßnahme |
+|---|---|
+| Gas + Staub gleichzeitig möglich | Strengere Zone gilt. UEG sinkt bei Hybridgemischen → konservativ bewerten |
+| Zone G + Zone D überlappen | Geräte müssen beide Anforderungen erfüllen |
 
-### Entscheidungsbaum (alle drei Fälle)
+### Entscheidungsbaum
 
-1. Sind brennbare Stoffe im System?
-   - Gase/Dämpfe: Flammpunkt < Betriebstemperatur? → Gas-Ex
-   - Stäube: Brennbarer Staub vorhanden? Kst > 0? → Staub-Ex
-   - Beides möglich? → Hybridgemisch
-2. Welche Ex-Zone im Inneren / im Raum?
+1. Brennbare Stoffe im System? Gase/Dämpfe (Flammpunkt < Betriebstemp?) → Gas-Ex. Stäube (Kst > 0?) → Staub-Ex. Beides? → Hybrid.
+2. Welche Ex-Zone (innen / Raum)?
 3. Welche ATEX-Gerätekategorie? (G, D, oder beides?)
-4. Inertisierung vorhanden? Wenn nein: als PFLICHTMASSNAHME vorschlagen
+4. Inertisierung vorhanden? Wenn nein: als PFLICHTMASSNAHME vorschlagen.
 
-**WICHTIG:** Der Agent MUSS diese Prüfung proaktiv durchführen. Der Nutzer darf nicht darauf hinweisen müssen. Immer ALLE drei Fälle (Gas, Staub, Hybrid) prüfen.
+**WICHTIG:** Der Agent MUSS diese Prüfung proaktiv durchführen. Immer ALLE drei Fälle (Gas, Staub, Hybrid) prüfen.
 
 ---
 
@@ -343,65 +190,14 @@ Für JEDE Verbindung in `connectedSystems.upstream` und `connectedSystems.downst
 
 Bei Vakuumbetrieb: Auch Falschluft-Eintrag als Rückströmungs-Variante betrachten.
 
-**Trigger:** Gefahrenfeld 1.9 (Stoffströme, Rückströmung) löst diese Prüfung aus.
-
 ---
 
 ## Common Cause Failure (CCF) Prüfung
 
 Nach Abschluss aller Einzel-Fehlermodi MUSS eine CCF-Prüfung durchgeführt werden:
 
-1. Welche Fehlermodi haben **gemeinsame Ursachen**?
-   (z.B. Stromausfall betrifft Rührwerk + Thermostat + Anzeigen)
-2. Welche **Schutzschichten sind voneinander abhängig**?
-   (z.B. DHV und PSV am selben Stutzen → Verstopfung betrifft beide)
-3. Gibt es **Kaskaden-Szenarien**?
-   (z.B. Kühlungsausfall → Übertemperatur → Druckaufbau → Glasbruch)
+1. Welche Fehlermodi haben **gemeinsame Ursachen**? (z.B. Stromausfall betrifft Rührwerk + Thermostat + Anzeigen)
+2. Welche **Schutzschichten sind voneinander abhängig**? (z.B. DHV und PSV am selben Stutzen)
+3. Gibt es **Kaskaden-Szenarien**? (z.B. Kühlungsausfall → Übertemperatur → Druckaufbau → Glasbruch)
 
 Für jede identifizierte CCF: Eigenen Fehlermodus anlegen oder bestehenden FM um CCF-Ursache erweitern. S/O/D separat bewerten.
-
----
-
-## Konfidenz-Dokumentation (Pflicht bei jeder Bewertung)
-
-### daten_konfidenz — Qualität der Eingangsdaten
-
-| Stufe | Bedeutung |
-|---|---|
-| hoch | CCPS/OREDA-Referenzdaten, IEC 61508-Datenbank, publizierte Ausfallraten |
-| mittel | Betriebserfahrung des Kunden, interne Störfalldaten, Herstellerangaben |
-| niedrig | KI-Schätzung, grobe Analogie, keine belastbaren Daten verfügbar |
-
-### agent_konfidenz — Selbsteinschätzung des Agenten
-
-| Stufe | Bedeutung |
-|---|---|
-| hoch | Klare Datenlage, Standardfall, Skalenbedeutung eindeutig anwendbar |
-| mittel | Leichte Unsicherheit bei O-Wert oder D-Wert; kein Review-Flag nötig |
-| niedrig | Unklare Datenlage, stark domänenspezifisch, menschliche Überprüfung empfohlen |
-
-**Regel:** Bei `agent_konfidenz = niedrig` → `agent_konfidenz_begruendung` ist Pflichtfeld + explizit im Dialog ansprechen + Review-Flag im Report.
-
-### daten_quelle — Herkunft der O-Bewertung
-
-| Quelle | Beschreibung |
-|---|---|
-| CCPS | Center for Chemical Process Safety — Guidelines for CPQRA |
-| OREDA | Offshore and Onshore Reliability Data Handbook |
-| Betriebserfahrung | Kundeneigene Störfalldaten, Wartungsprotokolle |
-| Expertenschätzung | Einschätzung durch Fachingenieur ohne Datenbankreferenz |
-| KI-Vorschlag | Agent-Schätzung ohne externe Referenz — immer niedrige daten_konfidenz |
-
----
-
-## Maßnahmen-Klassifizierung
-
-**STOP-Prinzip** (Priorität): Substitution → Technisch → Organisatorisch → Persönlich
-
-**ABE-Hierarchie**: Abschaffend → Begrenzend → Entdeckend
-
-**Umsetzbarkeit**: schnell · mittelfristig · langfristig
-
-**Kosten**: gering · mittel · hoch
-
-**Empfehlungsmethode**: lexicographic (Grenzwert → Reduktion → Kosten → Zeit)
