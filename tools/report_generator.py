@@ -8,6 +8,7 @@ Usage:
     from tools.report_generator import generate_report
     pdf_path = generate_report(project_id)
 """
+from __future__ import annotations
 
 import base64
 import json
@@ -18,6 +19,7 @@ import tempfile
 import time
 import urllib.request
 from collections import OrderedDict
+from collections.abc import Generator
 from datetime import datetime
 from pathlib import Path
 
@@ -47,9 +49,9 @@ from config.fmea_standards import (
     apply_special_rules,
 )
 
-_OUTFIT_FONT_STYLE_CACHE = None
+_OUTFIT_FONT_STYLE_CACHE: str | None = None
 
-def _get_outfit_font_style():
+def _get_outfit_font_style() -> str:
     """Build <style> with @font-face for Outfit 400+800, base64-encoded TTF."""
     global _OUTFIT_FONT_STYLE_CACHE
     if _OUTFIT_FONT_STYLE_CACHE is not None:
@@ -81,7 +83,7 @@ def _get_outfit_font_style():
 
 def _embed_images_base64(html: str) -> str:
     """Replace file:// image src URIs with base64 data URIs for standalone HTML viewing."""
-    def replace_uri(m):
+    def replace_uri(m: re.Match) -> str:
         raw = m.group(1)
         # file:///path → /path
         if raw.startswith("file:///"):
@@ -168,7 +170,7 @@ def _render_rpz_donut(stats: dict, tmp_dir: str) -> str:
     return p
 
 
-def _render_risk_matrix(fmea_data: list, tmp_dir: str) -> str:
+def _render_risk_matrix(fmea_data: list[dict], tmp_dir: str) -> str:
     from config.fmea_standards import RPZ_THRESHOLDS
 
     fig, ax = plt.subplots(figsize=(9, 7.5))
@@ -241,8 +243,8 @@ def _render_risk_matrix(fmea_data: list, tmp_dir: str) -> str:
     return p
 
 
-def _render_treemap_single(fmea_data: list, with_measures: bool, title: str,
-                           ax, corner_radius: float = 0.012):
+def _render_treemap_single(fmea_data: list[dict], with_measures: bool, title: str,
+                           ax: plt.Axes, corner_radius: float = 0.012) -> None:
     """Render one treemap with rounded rectangles and modern styling."""
     from matplotlib.patches import FancyBboxPatch
 
@@ -318,7 +320,7 @@ def _render_treemap_single(fmea_data: list, with_measures: bool, title: str,
                     fontfamily="sans-serif", zorder=4)
 
 
-def _render_treemap_pair(fmea_data: list, tmp_dir: str) -> str:
+def _render_treemap_pair(fmea_data: list[dict], tmp_dir: str) -> str:
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6.5))
     fig.patch.set_facecolor("white")
     fig.subplots_adjust(wspace=0.08)
@@ -345,7 +347,7 @@ def _render_treemap_pair(fmea_data: list, tmp_dir: str) -> str:
     return p
 
 
-def _render_rpz_comparison(fmea_data: list, tmp_dir: str):
+def _render_rpz_comparison(fmea_data: list[dict], tmp_dir: str) -> str | None:
     """RPZ-Vergleich: Nur die vollständige Fehlermodus-ID (z.B. KOMP-001-F2-FM1) auf der Y-Achse."""
     items = [fm for fm in fmea_data if fm.get("measures")]
     if not items:
@@ -382,14 +384,14 @@ def _render_rpz_comparison(fmea_data: list, tmp_dir: str):
 # Template Helpers (exposed to Jinja2)
 # ═══════════════════════════════════════════════════════════════
 
-def _sod_data(fm: dict):
+def _sod_data(fm: dict) -> Generator[tuple[str, int, str, str, tuple[str, str]], None, None]:
     """Yield (key, value, css_class, label, info_tuple) for S, O, D."""
     yield ("S", fm.get("S", 0), "s", "Bedeutung (S)", S_INFO.get(fm.get("S", 0), ("", "")))
     yield ("O", fm.get("O", 0), "o", "Auftreten (O)", O_INFO.get(fm.get("O", 0), ("", "")))
     yield ("D", fm.get("D", 0), "d", "Entdeckung (D)", D_INFO.get(fm.get("D", 0), ("", "")))
 
 
-def _strip_sod_prefix(text: str) -> str:
+def _strip_sod_prefix(text: str | None) -> str | None:
     """Entfernt redundanten SOD-Prefix wie 'S=7 (Sehr hoch): ' aus Begründungstext."""
     if not text:
         return text
@@ -404,7 +406,7 @@ def _rpz_color(status: str) -> str:
 # Plant Data Loader (RTF → JSON)
 # ═══════════════════════════════════════════════════════════════
 
-def _load_plant_data(path: str = None, task_folder: str = None) -> dict:
+def _load_plant_data(path: str | None = None, task_folder: str | None = None) -> dict:
     """Load plant data from JSON or RTF file."""
     tasks_root = Path(__file__).parent.parent / "tasks"
     if path:
@@ -456,7 +458,7 @@ def _load_plant_data(path: str = None, task_folder: str = None) -> dict:
 # Main Entry Point
 # ═══════════════════════════════════════════════════════════════
 
-def generate_report(project_id: int, output_path: str = None, task_folder: str = None, db_path: str = None, css_name: str = "fmea_style.css") -> str:
+def generate_report(project_id: int, output_path: str | None = None, task_folder: str | None = None, db_path: str | None = None, css_name: str = "fmea_style.css") -> str:
     """Generate the FMEA PDF report for a given project."""
 
     db = FMEAStorage(db_path)
@@ -512,7 +514,7 @@ def generate_report(project_id: int, output_path: str = None, task_folder: str =
                 func_groups[fid] = {"beschreibung": fm.get("funktion_beschreibung", ""), "fms": []}
             func_groups[fid]["fms"].append(fm)
 
-        def _stop_sort_key(m):
+        def _stop_sort_key(m: dict) -> int:
             return STOP_ORDER.get(m.get("stop_kategorie", ""), 99)
 
         for fm in fmea_data:

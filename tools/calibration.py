@@ -14,6 +14,8 @@ Usage:
     python tools/calibration.py --generate-rules
 """
 
+from __future__ import annotations
+
 import json
 import sys
 from pathlib import Path
@@ -25,7 +27,7 @@ if __name__ == "__main__":
 RULES_PATH = Path(__file__).parent.parent / "config" / "calibration_rules.json"
 
 
-def load_calibration_rules():
+def load_calibration_rules() -> dict:
     """Load calibration rules from config file."""
     if not RULES_PATH.exists():
         return {"rules": [], "plausibility_checks": []}
@@ -33,7 +35,7 @@ def load_calibration_rules():
         return json.load(f)
 
 
-def check_plausibility(fm_data, S, O, D):
+def check_plausibility(fm_data: dict, S: int, O: int, D: int) -> list[dict]:
     """
     Check if S/O/D values are plausible given the failure mode context.
 
@@ -61,7 +63,7 @@ def check_plausibility(fm_data, S, O, D):
     return warnings
 
 
-def _evaluate_plausibility_condition(condition, fm_data, S, O, D):
+def _evaluate_plausibility_condition(condition: str, fm_data: dict, S: int, O: int, D: int) -> bool:
     """Evaluate a plausibility check condition string against context."""
     # Build a searchable context string from fm_data
     context_text = " ".join(str(v) for v in fm_data.values() if v).lower()
@@ -114,7 +116,7 @@ def _evaluate_plausibility_condition(condition, fm_data, S, O, D):
     return True
 
 
-def apply_calibration(fm_data, S, O, D):
+def apply_calibration(fm_data: dict, S: int, O: int, D: int) -> dict:
     """
     Apply calibration rules to adjust S/O/D values based on learned patterns.
 
@@ -174,7 +176,7 @@ def apply_calibration(fm_data, S, O, D):
     return {**adjusted, "adjustments": adjustments}
 
 
-def analyze_corrections(db_path=None):
+def analyze_corrections(db_path: str | None = None) -> dict:
     """
     Analyze correction history and identify systematic patterns.
 
@@ -204,7 +206,7 @@ def analyze_corrections(db_path=None):
         db.close()
 
 
-def generate_rules(db_path=None, min_occurrences=3):
+def generate_rules(db_path: str | None = None, min_occurrences: int = 3) -> dict:
     """
     Generate calibration rules from correction patterns and save to config file.
 
@@ -264,7 +266,7 @@ def generate_rules(db_path=None, min_occurrences=3):
     return config
 
 
-def select_training_candidates(db_path=None, n=10):
+def select_training_candidates(db_path: str | None = None, n: int = 10) -> list[dict]:
     """
     Select assessments that would benefit most from expert training.
 
