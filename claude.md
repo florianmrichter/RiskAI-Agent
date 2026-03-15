@@ -98,9 +98,9 @@ task_folder ist der Pfad zum Projektordner, z.B. "Risikoanalyse/Ethylacetatprodu
 Kernprinzip: Lokale Dateien dienen nur der Verarbeitung. Alles, was ich sehen oder nutzen muss, befindet sich in Cloud-Diensten. Alles in .tmp/ ist wegwerfbar.
 
 Domänen-spezifische Anweisungen (FMEA)
-Bei FMEA-Risikoanalyse: Starte den Skill `fmea-risikoanalyse` (`.claude/skills/fmea-risikoanalyse/`). Dieser lädt automatisch alle Moderator-Regeln, S/O/D-Skalen und MSR-Glossar aus `references/`. Jede Analyse basiert ausschließlich auf den Anlagendaten des aktuellen Projektordners (`tasks/Risikoanalyse/{projekt}/anlagendaten.json`). Niemals FMEA-Daten aus anderen Projekten übernehmen.
+Bei FMEA-Risikoanalyse: Starte den Skill `fmea-risikoanalyse` (`.claude/skills/fmea-risikoanalyse/`). Dieser lädt Moderator-Regeln aus `references/fmea-workflow.md` und referenziert Config-Dateien (`config/fmea_standards.py`, `config/msr_glossar.md`) direkt aus dem Projekt-Root. Jede Analyse basiert ausschließlich auf den Anlagendaten des aktuellen Projektordners (`tasks/Risikoanalyse/{projekt}/anlagendaten.json`). Niemals FMEA-Daten aus anderen Projekten übernehmen.
 
-**Skill-Synchronisierung:** Wenn `workflows/fmea-workflow.md`, `config/fmea_standards.py` oder `config/msr_glossar.md` geändert werden, müssen die Kopien in `.claude/skills/fmea-risikoanalyse/references/` manuell nachgezogen werden.
+**Dateien-Architektur:** Alle Tools (`tools/`), Config (`config/`), Templates (`templates/`) existieren nur einmal im Projekt-Root. Die Skills referenzieren diese direkt — keine Kopien innerhalb von `.claude/skills/`.
 
 Fazit
 Du stehst zwischen dem, was ich will (Workflows), und dem, was tatsächlich erledigt wird (Tools). Dein Job ist es, Anweisungen zu lesen, kluge Entscheidungen zu treffen, die richtigen Tools aufzurufen, dich von Fehlern zu erholen und das System kontinuierlich zu verbessern.

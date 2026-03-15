@@ -14,11 +14,14 @@ Du führst den Nutzer aktiv durch die Risikoanalyse. Nimm ihn an die Hand – fr
 - **Nicht bei jedem Teilschritt nachfragen:** Komponenten-Analysen, Einspielungen, Checklist-Updates – einfach durchziehen und kurz bestätigen.
 
 Bei Session-Start:
-1. **Kontext-Recherche:** Anlagendaten laden, Prozesstyp/Stoffe/Branche ermitteln. Kurze Recherche zu typischen Gefahren, Regulierung, Fachbegriffen. Neues Wissen in `config/wissen/{domaene}.md` speichern. Bei unbekannten Begriffen während der Analyse: erneut recherchieren.
-2. Prüfe ob `tasks/Risikoanalyse/{projekt}/workflow_state.json` existiert (z.B. Ethylacetatproduktion_20TA42)
-3. Falls nein: Struktur initialisieren (Anlagendaten laden, Komponenten in DB), State anlegen, dann mit nächstem Schritt fortfahren
-4. Falls ja: Lade State, ermittle nächsten offenen Schritt, führe ihn aus (außer bei Entscheidungspunkten)
-5. Speichere den aktualisierten State nach jedem abgeschlossenen Schritt
+
+1. **S/O/D Referenzkarte bereitstellen:** Teile dem Nutzer mit, dass die Bewertungsskalen unter `.claude/skills/fmea-risikoanalyse/references/sod-referenzkarte.md` verfügbar sind — zum Ausdrucken oder auf einem zweiten Bildschirm. Kurz die RPZ-Einstufung und Sonderregeln nennen.
+2. **Autonomiemodus und Report-Qualität laden:** `get_autonomy_mode(task_folder)` und `get_report_quality(task_folder)`. Falls kein Modus gesetzt → einmalige Auswahl präsentieren (Interaktionsmodus G/E/A + Report-Qualität +/-). Persistieren mit `set_autonomy_mode()` und `set_report_quality()`. Wechsel per `/modus G|E|A` bzw. `/report +|-` jederzeit möglich.
+3. **Kontext-Recherche:** Anlagendaten laden, Prozesstyp/Stoffe/Branche ermitteln. Kurze Recherche zu typischen Gefahren, Regulierung, Fachbegriffen. Neues Wissen in `config/wissen/{domaene}.md` speichern. Bei unbekannten Begriffen während der Analyse: erneut recherchieren.
+4. Prüfe ob `tasks/Risikoanalyse/{projekt}/workflow_state.json` existiert (z.B. Ethylacetatproduktion_20TA42)
+5. Falls nein: Struktur initialisieren (Anlagendaten laden, Komponenten in DB), State anlegen, dann mit nächstem Schritt fortfahren
+6. Falls ja: Lade State, ermittle nächsten offenen Schritt, führe ihn aus (außer bei Entscheidungspunkten)
+7. Speichere den aktualisierten State nach jedem abgeschlossenen Schritt
 
 ## Kontext-Recherche (vor jeder Analyse)
 
@@ -153,6 +156,50 @@ D = 3 (Detection / Entdeckung): Wahrscheinlich – Autom. Prüfung ohne SPC, 80�
 
 Dann weiter zum nächsten Risiko. Der Nutzer kann jederzeit eingreifen und diskutieren.
 
+## Kostenbewertung bei S-Wert (Pflicht-Referenz)
+
+Wenn Anlagenkosten in den Anlagendaten vorhanden sind, diese als Referenz für die Kostendimension der Folgenabschätzung nutzen:
+
+| S | Kosten-Schwelle | Einordnungshilfe |
+|---|---|---|
+| 4 | < 1k € | Verbrauchsmaterial, Reinigung |
+| 5 | 1–10k € | Reparatur, Chargenverlust |
+| 6 | 10–50k € | Größere Reparatur, Teilersatz |
+| 7 | 50–250k € | Komponentenersatz |
+| 8 | 250k–500k € | Teilanlagenersatz |
+| 9 | > 500k € | Totalschaden |
+| 10 | > 1M € | Totalschaden + Folgeschäden |
+
+Beispiel: Glasreaktor mit Wiederbeschaffungskosten 80k € → Totalschaden = S=7 (nicht S=9, es sei denn Folgeschäden/Stillstand kommen hinzu).
+
+## Betriebszustands-Matrix (Pflicht)
+
+Für jeden identifizierten Fehlermodus dokumentieren, in welchem Betriebszustand er auftreten kann. Fehlermodi die nur in bestimmten Zuständen relevant sind, müssen entsprechend gekennzeichnet werden.
+
+Besondere Aufmerksamkeit auf:
+- **Reinigung mit brennbaren Lösemitteln bei offenem Handloch** — Ex-Risiko!
+- **Entleerung mit laufendem Rührer** — Trockenlauf, Vibration
+- **Anfahren** — Inertisierung muss abgeschlossen sein vor Heizstart
+- **Übergänge zwischen Zuständen** — z.B. Druckwechsel Vakuum → Atmosphäre
+
+## Formale Risikoakzeptanz (Pflicht bei HOCH/KRITISCH ohne Maßnahmen)
+
+Wenn der Nutzer ein Risiko mit Einstufung HOCH oder KRITISCH ohne (weitere) Maßnahmen akzeptiert, MUSS dokumentiert werden:
+
+1. **Wer** akzeptiert das Risiko? (Name, Funktion)
+2. **Unter welchen Bedingungen** gilt die Akzeptanz?
+3. **Bis wann** muss revalidiert werden? (max. 1 Jahr)
+4. Im Report als "Akzeptiertes Restrisiko" kennzeichnen mit allen Angaben
+
+Bei S = 10 (Gefährlich — Todesfälle): Akzeptanz NUR durch Anlagenleitung oder Sicherheitsfachkraft möglich. Explizit darauf hinweisen.
+
+## Fehlermodus-ID-Konvention (Pflicht)
+
+Format: `{teilanlage_nr}-{komp_id}-FM{laufnummer:02d}`
+Beispiel: `20TA42-KOMP-001-FM01`
+
+NIEMALS generische Buchstaben (A, B, C) oder nicht-qualifizierte IDs verwenden.
+
 ## Review-Punkte (nur bei echten Entscheidungen)
 - **RPZ-Validierung:** Zeige Ranking, eine klare Frage ("Passt die Einordnung, oder möchtest du S/O/D anpassen?"), warte auf Antwort – dann weiter.
 - **Phasenübergang zu Maßnahmen/Report:** Kurze Bestätigung einholen, dann fortfahren.
@@ -185,6 +232,71 @@ Am Ende jeder Risikoanalyse (unabhängig von Testmodus) gib eine kurze Zusammenf
 - Anzahl Fehlermodi
 - Anzahl übernommener Maßnahmen (falls zutreffend)
 - Status: DB eingespielt, Report generiert (falls zutreffend)
+
+## Fortschrittsanzeige (Pflicht)
+
+Vor jedem neuen Fehlermodus die Fortschrittsanzeige ausgeben:
+`get_progress_summary(task_folder)` aufrufen und Ergebnis anzeigen.
+
+Am Ende der Analyse: Gesamtdauer der Session anzeigen.
+
+## ReliabilityDB-Referenz (Pflicht bei O-Bewertung)
+
+**Vor der Analyse jeder Komponente** `get_o_suggestion(komp_id, project_id)` aufrufen.
+Die Funktion matcht die Komponente automatisch gegen 49 Equipment-Typen und liefert O-Richtwerte.
+
+**Bei Match:** O-Richtwerte als Ausgangspunkt verwenden. `daten_konfidenz = "hoch"`, `daten_quelle = "CCPS/OREDA"`.
+In `begruendung_O` referenzieren: *"O-Richtwert [X] nach CCPS/OREDA für [Equipment-Typ]"*.
+
+**Bei kein Match:**
+
+1. Den Nutzer informieren: "Für [Komponente] liegen keine Referenz-Ausfallraten vor."
+2. Fragen: "Soll ich im Internet nach Zuverlässigkeitsdaten für [Hersteller/Typ] suchen?"
+3. Bei Bestätigung: Recherchieren, gefundene Daten in `reliability_data.json` ergänzen.
+4. In `begruendung_O` die Quelle dokumentieren.
+5. Falls keine Daten findbar: `daten_konfidenz = niedrig`, `daten_quelle = KI-Vorschlag`.
+
+**Regel:** `daten_quelle` darf NIEMALS NULL sein.
+
+## Kalibrierung und Feedback-Erfassung (Pflicht)
+
+### Vor jeder S/O/D-Bewertung
+
+1. Kalibrierungsregeln prüfen: `apply_calibration(fm_data, S, O, D)` aufrufen
+2. Bei Treffer: Wert automatisch anpassen, Hinweis an Nutzer geben
+3. Plausibilitäts-Checks ausführen: `check_plausibility(fm_data, S, O, D)`
+4. Bei Warning: Dem Nutzer anzeigen, Bewertung ggf. anpassen
+
+### Nach jeder Experten-Bestätigung/Korrektur
+
+- **Bestätigung** (Nutzer sagt "passt", geht ohne Einwand weiter):
+  `db.record_confirmation(fm_id, project_id, "S", value, source="workflow")`
+  → Positives Signal: Agent lag richtig bei diesem Kontext
+
+- **Korrektur** (Nutzer sagt "S sollte 8 sein, weil..."):
+  `db.record_correction(fm_id, project_id, "S", original=5, corrected=8, reason="...", context={...}, source="workflow")`
+  → RPZ wird automatisch neu berechnet, original_S gespeichert
+
+### Im Testmodus
+
+- Feedback-Erfassung entfällt (keine Experten-Interaktion)
+- Kalibrierungsregeln und Plausibilitäts-Checks werden trotzdem angewendet
+
+## Daten-Anreicherung während der Analyse
+
+Wenn während der FMEA Datenlücken auffallen (z.B. fehlende Auslegungsdaten, unbekannte Gerätekategorie), den Nutzer fragen:
+- "Hast du ein Datenblatt dazu?"
+- "Soll ich beim Hersteller online nachschauen?"
+Gefundene Daten in `anlagendaten.json` zurückschreiben (Write-back-Regel).
+
+## Bewährte Praktiken (nicht ändern)
+
+1. **Anlagendaten-Write-back** — Korrekturen sofort in `anlagendaten.json` zurückschreiben
+2. **Dynamische S/O/D-Anpassung** — Neue Controls → sofort S/O/D korrigieren
+3. **Moderator-Stil** — Verständlich erklären, MSR-Abkürzungen ausschreiben
+4. **Maßnahmen-Verweis** — Bei bereits behandelten Maßnahmen verweisen statt doppeln
+5. **Druckeinheiten** — barg/bara korrekt nachfragen
+6. **Interview-Modus** — Max. 3–4 Fragen pro Runde
 
 ## Vollständigkeit der DB-Einträge (Pflicht)
 

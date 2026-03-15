@@ -33,11 +33,10 @@ RPZ_COLORS = {
 
 def export_json(project_id: int, output_path: str, db_path: str = None) -> str:
     """Export full FMEA data as JSON."""
-    db = FMEAStorage(db_path)
-    project = db.get_project(project_id)
-    data = db.get_full_fmea_data(project_id)
-    stats = db.get_project_statistics(project_id)
-    db.close()
+    with FMEAStorage(db_path) as db:
+        project = db.get_project(project_id)
+        data = db.get_full_fmea_data(project_id)
+        stats = db.get_project_statistics(project_id)
 
     report = {
         "metadata": {
@@ -63,12 +62,11 @@ def export_excel(project_id: int, output_path: str, db_path: str = None) -> str:
     if not HAS_OPENPYXL:
         raise ImportError("openpyxl is required for Excel export. Install with: pip install openpyxl")
 
-    db = FMEAStorage(db_path)
-    project = db.get_project(project_id)
-    components = db.get_components(project_id)
-    full_data = db.get_full_fmea_data(project_id)
-    stats = db.get_project_statistics(project_id)
-    db.close()
+    with FMEAStorage(db_path) as db:
+        project = db.get_project(project_id)
+        components = db.get_components(project_id)
+        full_data = db.get_full_fmea_data(project_id)
+        stats = db.get_project_statistics(project_id)
 
     wb = Workbook()
 
@@ -257,19 +255,7 @@ def _create_causes_sheet(wb, full_data):
     ws.column_dimensions["H"].width = 50
 
 
-STOP_ORDER = {"S": 0, "T": 1, "O": 2, "P": 3}
-
-STOP_LABELS = {
-    "S": "Substitution",
-    "T": "Technisch",
-    "O": "Organisatorisch",
-    "P": "Persönlich",
-}
-
-
-def _sort_measures_by_stop(measures: list) -> list:
-    """Sort measures by STOP hierarchy (S before T before O before P)."""
-    return sorted(measures, key=lambda m: STOP_ORDER.get(m.get("stop_kategorie", ""), 99))
+from tools._base import STOP_LABELS, STOP_ORDER, _sort_measures_by_stop
 
 
 def _create_measures_sheet(wb, full_data):

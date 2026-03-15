@@ -237,11 +237,11 @@ def suggest_for_component(name: str, typ: str = "", beschreibung: str = "") -> d
         None if no match found.
     """
     search_text = f"{name} {typ} {beschreibung}".lower()
+    rdb = ReliabilityDB()
 
     for keywords, equipment_type in COMPONENT_KEYWORDS:
         for kw in keywords:
             if kw.lower() in search_text:
-                rdb = ReliabilityDB()
                 info = rdb.get_equipment_info(equipment_type)
                 if info:
                     return {
@@ -271,9 +271,8 @@ def get_o_suggestion(komp_id: str, project_id: int, db_path: str | None = None) 
         Dict with match info, O-richtwerte per failure mode, or "no_match" info.
     """
     from tools.storage import FMEAStorage
-    db = FMEAStorage(db_path)
-    comp = db.get_component_by_komp_id(komp_id, project_id)
-    db.close()
+    with FMEAStorage(db_path) as db:
+        comp = db.get_component_by_komp_id(komp_id, project_id)
 
     if not comp:
         return {"status": "error", "message": f"Komponente {komp_id} nicht gefunden"}

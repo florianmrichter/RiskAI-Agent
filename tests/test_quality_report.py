@@ -10,7 +10,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from tools.storage import FMEAStorage
-from tools.quality_report import generate_quality_report
+from tools.observability import generate_quality_report
 
 
 class TestQualityReport(unittest.TestCase):

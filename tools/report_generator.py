@@ -101,8 +101,7 @@ def _embed_images_base64(html: str) -> str:
     return re.sub(r'src="(file://[^"]+)"', replace_uri, html)
 
 
-STOP_ORDER = {"S": 0, "T": 1, "O": 2, "P": 3}
-STOP_LABELS = {"S": "Substitution", "T": "Technisch", "O": "Organisatorisch", "P": "Persönlich"}
+from tools._base import STOP_ORDER, STOP_LABELS
 STOP_ICONS = {"S": "↻", "T": "⚙", "O": "☰", "P": "👤"}
 
 LOGO_SVG_SMALL = """<svg style="height:6mm;width:auto;" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
@@ -461,27 +460,26 @@ def _load_plant_data(path: str | None = None, task_folder: str | None = None) ->
 def generate_report(project_id: int, output_path: str | None = None, task_folder: str | None = None, db_path: str | None = None, css_name: str = "fmea_style.css") -> str:
     """Generate the FMEA PDF report for a given project."""
 
-    db = FMEAStorage(db_path)
-    project = db.get_project(project_id)
-    if not project:
-        raise ValueError(f"Project {project_id} not found")
+    with FMEAStorage(db_path) as db:
+        project = db.get_project(project_id)
+        if not project:
+            raise ValueError(f"Project {project_id} not found")
 
-    stats = db.get_project_statistics(project_id)
-    fmea_data = db.get_full_fmea_data(project_id)
-    components = db.get_components(project_id)
+        stats = db.get_project_statistics(project_id)
+        fmea_data = db.get_full_fmea_data(project_id)
+        components = db.get_components(project_id)
 
-    func_details = {}
-    for comp in components:
-        functions = db.get_functions(comp["id"])
-        for f in functions:
-            func_details[f["funktion_id"]] = {
-                "beschreibung": f["beschreibung"],
-                "typ": f["typ"],
-                "anforderungen": f.get("anforderungen", []),
-                "component_name": comp["name"],
-                "component_typ": comp.get("typ", ""),
-            }
-    db.close()
+        func_details = {}
+        for comp in components:
+            functions = db.get_functions(comp["id"])
+            for f in functions:
+                func_details[f["funktion_id"]] = {
+                    "beschreibung": f["beschreibung"],
+                    "typ": f["typ"],
+                    "anforderungen": f.get("anforderungen", []),
+                    "component_name": comp["name"],
+                    "component_typ": comp.get("typ", ""),
+                }
 
     if output_path is None:
         if task_folder:
@@ -637,10 +635,9 @@ def generate_report(project_id: int, output_path: str | None = None, task_folder
         moc_delta = None
         parent_version_id = project.get("parent_version_id")
         if parent_version_id:
-            db2 = FMEAStorage(db_path)
-            parent_project = db2.get_project(parent_version_id)
-            parent_fmea = db2.get_full_fmea_data(parent_version_id)
-            db2.close()
+            with FMEAStorage(db_path) as db2:
+                parent_project = db2.get_project(parent_version_id)
+                parent_fmea = db2.get_full_fmea_data(parent_version_id)
             parent_by_id = {fm["fehler_id"]: fm for fm in parent_fmea}
             current_by_id = {fm["fehler_id"]: fm for fm in fmea_data}
             changed = []

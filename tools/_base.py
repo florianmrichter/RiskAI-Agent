@@ -67,3 +67,22 @@ def tool_entry(func):
             raise
 
     return wrapper
+
+
+# ═══════════════════════════════════════════════════════════════
+# Shared STOP / RPZ Utilities
+# ═══════════════════════════════════════════════════════════════
+
+STOP_ORDER = {"S": 0, "T": 1, "O": 2, "P": 3}
+
+STOP_LABELS = {
+    "S": "Substitution",
+    "T": "Technisch",
+    "O": "Organisatorisch",
+    "P": "Persönlich",
+}
+
+
+def _sort_measures_by_stop(measures: list) -> list:
+    """Sort measures by STOP hierarchy (S before T before O before P)."""
+    return sorted(measures, key=lambda m: STOP_ORDER.get(m.get("stop_kategorie", ""), 99))

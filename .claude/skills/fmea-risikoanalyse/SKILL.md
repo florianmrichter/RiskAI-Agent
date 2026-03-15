@@ -14,7 +14,7 @@ Du bist der FMEA-Moderator für das RiskAI-Agent-System. Dieses Projekt folgt de
 ## Referenzdateien — Lade-Strategie
 
 ### Immer bei Session-Start laden:
-- `references/fmea-workflow.md` — Moderator-Rolle, Zwei-Phasen-Ablauf, S/O/D-Format, Testmodus, Report-Qualität
+- `workflows/fmea-workflow.md` — Moderator-Rolle, Zwei-Phasen-Ablauf, S/O/D-Format, Testmodus, Report-Qualität
 - `config/msr_glossar.md` — Korrekte Benennung aller MSR-Kennzeichen (TIC, PIC, LIC, PSV, ...)
 
 ### Bei Bedarf laden (vor FMEA-Analyse pro Komponente):
@@ -42,19 +42,7 @@ RPZ = S × O × D
 | S ≥ 9 und Stufe nicht kritisch/hoch | → mindestens **hoch** |
 | D ≥ 9 und S ≥ 7 | → **kritisch** |
 
-### Safety Overrides (kontext-basierte S-Erhöhung)
-
-| Kontext | Schlüsselwörter | Min. S |
-|---|---|---|
-| Explosionsschutz | ex-schutz, atex, zone 0/1 | 10 |
-| Gefahrstoff-Handling | säure, lauge, toxisch, giftig | 9 |
-| Sicherheitsgerichtetes Bauteil | berstscheibe, psv, not-aus | 10 |
-
-### Maßnahmen-Klassifizierung
-
-**STOP-Prinzip** (Priorität): Substitution → Technisch → Organisatorisch → Persönlich
-**ABE-Hierarchie**: Abschaffend → Begrenzend → Entdeckend
-**Zielwert:** RPZ_neu < 100
+Safety Overrides und Maßnahmen-Klassifizierung (STOP/ABE): siehe `config/fmea_standards.py` und `workflows/fmea-workflow.md`.
 
 ## 1. Projekt ermitteln
 
@@ -123,38 +111,9 @@ next_action = get_next_action("Risikoanalyse/{projektname}")
 ```python
 from tools.calibration import load_calibration_rules, check_plausibility, apply_calibration
 cal_rules = load_calibration_rules()
-if cal_rules.get("rules"):
-    print(f"Kalibrierung geladen: {len(cal_rules['rules'])} Regeln aus {cal_rules.get('based_on_corrections', 0)} Korrekturen")
 ```
 
-- `config/calibration_rules.json` — Lernregeln aus bisherigen Experten-Korrekturen
-- Vor jeder S/O/D-Bewertung: Kalibrierungsregeln prüfen und Plausibilitäts-Checks ausführen
-- Bei Treffer: Wert anpassen UND Hinweis geben:
-  *"Kalibrierung CAL-001: S von 5 auf 7 angehoben (Pumpen-Muster aus 8 Korrekturen)"*
-- Bei Plausibilitäts-Warning: Dem Nutzer anzeigen:
-  *"PLZ-001: S verdächtig niedrig bei Ex-Schutz (erwarte S ≥ 8)"*
-
-### Feedback erfassen (Pflicht nach jeder S/O/D-Bestätigung)
-
-Nach jeder Experten-Bestätigung oder -Korrektur einer S/O/D-Bewertung:
-
-```python
-from tools.storage import FMEAStorage
-db = FMEAStorage()
-
-# Experte bestätigt den Wert:
-db.record_confirmation(fm_id, project_id, field="S", value=7, source="workflow")
-
-# Experte korrigiert den Wert:
-db.record_correction(
-    fm_id, project_id, field="S", original=5, corrected=8,
-    reason="Lösemittel-Brandgefahr",
-    context={"komponenten_typ": "mechanisch", "fehlerart": "Mechanisch", "medium": "Ethylacetat"},
-    source="workflow"
-)
-```
-
-Bei Korrektur: RPZ wird automatisch neu berechnet. `daten_quelle` auf `"calibration_rule:CAL-XXX"` setzen wenn Kalibrierung angewendet wurde.
+Kalibrierungs- und Feedback-Regeln: siehe `workflows/fmea-workflow.md` → "Kalibrierung und Feedback-Erfassung".
 
 ## 3c. ReliabilityDB-Lookup laden (Pflicht pro Komponente)
 
@@ -179,7 +138,7 @@ result = get_o_suggestion(komp_id, project_id)
 
 ## 4. FMEA-Session durchführen
 
-Ab hier gelten **alle Regeln aus `references/fmea-workflow.md`**. Wichtigste Punkte:
+Ab hier gelten **alle Regeln aus `workflows/fmea-workflow.md`**. Wichtigste Punkte:
 
 - Proaktiv handeln — nicht bei jedem Teilschritt nachfragen
 - Zwei-Phasen-Ablauf pro Komponente: Fehlermodi sammeln → gruppieren → einzeln durchgehen
@@ -190,38 +149,7 @@ Ab hier gelten **alle Regeln aus `references/fmea-workflow.md`**. Wichtigste Pun
 - Niemals FMEA-Daten aus anderen Projekten übernehmen
 - Vor Analyse einer Komponente: `references/fmea-standards.md` lesen (FM-Vorlagen, ATEX, CCF)
 
-### Konfidenz-Pflicht (bei jeder S/O/D-Vergabe)
-
-Nach jeder S/O/D-Bewertung MÜSSEN diese Felder in `fmea_explicit.py` / `insert_risk_assessment()` gesetzt werden:
-
-- `daten_konfidenz`: `hoch` (CCPS/OREDA-Referenz) | `mittel` (Betriebserfahrung) | `niedrig` (Schätzung/unklar)
-- `agent_konfidenz`: `hoch` | `mittel` | `niedrig` (Selbsteinschätzung, mit Begründungspflicht)
-- `agent_konfidenz_begruendung`: Pflichtfeld wenn `niedrig` — was unklar ist
-- `daten_quelle`: `CCPS` | `OREDA` | `Betriebserfahrung` | `Expertenschätzung` | `KI-Vorschlag`
-
-**Bei `agent_konfidenz = niedrig`:** Explizit ansprechen, egal welcher Modus:
-> "Ich bin bei diesem O-Wert unsicher, weil [Grund]. Empfehle Überprüfung durch Fachkraft."
-
-### Anlagendaten-Write-back (Pflicht)
-
-Wenn während der FMEA-Session neue Anlagendaten erhoben werden (fehlende Auslegungstemperatur, unbekanntes Sicherheitsventil, neue MSR-Stelle etc.):
-
-```python
-from tools.load_plant_data import update_plant_data
-update_plant_data(task_folder, "systems[0].equipment[3].designPressure", "4.5 bar")
-```
-
-Danach im Dialog dokumentieren: *"Ich habe [PSV-101, Ansprechdruck 3.5 bar] in den Anlagendaten ergänzt."*
-
-### Maßnahmen-Felder (Pflicht bei RPZ ≥ 100 oder S ≥ 9)
-
-Beim Maßnahmen-Vorschlag immer setzen:
-- `prioritaet`: `pflicht` (wenn S≥9 oder RPZ≥300) | `empfohlen` | `optional`
-- `aufwand`: `gering` | `mittel` | `hoch`
-- `kosten_klasse`: `klein` (<5k) | `mittel` (5-50k) | `gross` (>50k)
-- `assigned_to`, `target_date`: nur im Modus "Geführt" abfragen
-
-**Testmodus:** Aktivierung durch Passwort aus `.env` (FMEA_TESTMODE_PASSWORD) → vollautomatischer Durchlauf, alle Maßnahmen übernehmen, keine Rückfragen bis Abschluss.
+Alle Detail-Regeln (Konfidenz-Pflicht, Maßnahmen-Felder, Anlagendaten-Write-back, Testmodus, Kalibrierung, Report-Qualität) stehen in `workflows/fmea-workflow.md`.
 
 ## 5. Abschluss
 
