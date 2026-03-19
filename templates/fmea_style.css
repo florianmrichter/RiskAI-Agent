@@ -1773,3 +1773,101 @@ tbody tr:last-child td { border-bottom: none; }
   .kpi-grid { grid-template-columns: repeat(4, 1fr); }
   .effects-grid { grid-template-columns: repeat(4, 1fr); }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Comprehensive Print Optimisation — page breaks, visibility,
+   colour fidelity, minimum font sizes
+   ═══════════════════════════════════════════════════════════════ */
+@media print {
+
+  /* ── Force background colours & images to print ── */
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* ── Widows & orphans ── */
+  body {
+    widows: 3;
+    orphans: 3;
+  }
+
+  /* ── Major section breaks ── */
+  #sec-methodik,
+  #sec-risikouebersicht,
+  #sec-detail {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+
+  /* ── Avoid breaking inside cards & tables ── */
+  .risk-card,
+  .top5-table-shell,
+  .measures-card {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Also protect KPI cards, SOD grids and measure rows */
+  .kpi-card,
+  .sod-grid,
+  .measure-row,
+  .appendix-measures-table tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* ── Hide interactive / screen-only elements ── */
+  .view-toggle-group,
+  .detail-toggle,
+  .chart-toggle,
+  .tooltip,
+  .interactive-hint,
+  [data-toggle],
+  button.expand-btn {
+    display: none !important;
+  }
+
+  /* ── Minimum font sizes for legibility ── */
+  .appendix-measures-table tbody td {
+    font-size: 0.82rem !important;
+    line-height: 1.35 !important;
+  }
+
+  .appendix-measures-table thead th {
+    font-size: 0.82rem !important;
+  }
+
+  /* Ensure small footnotes remain readable */
+  .footnote,
+  .caption,
+  figcaption {
+    font-size: 0.75rem !important;
+  }
+
+  /* ── Links: show URL after link text ── */
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.7rem;
+    color: #6B7280;
+    word-break: break-all;
+  }
+
+  /* ── Prevent blank trailing pages ── */
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* ── Ensure charts don't overflow pages ── */
+  .chart-container,
+  .matrix-container,
+  .treemap-container {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    max-height: 95vh;
+  }
+}

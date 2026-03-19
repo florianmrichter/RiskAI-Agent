@@ -29,44 +29,27 @@ from tools.rpz_calculator import check_safety_overrides
 from tools.reliability_lookup import suggest_for_component
 
 
-def validate_completeness(project_id: int, task_folder: str = None, db_path: str = None) -> dict:
-    """
-    Validate FMEA completeness for a project before report generation.
+# ---------------------------------------------------------------------------
+# Helper: build combined FM text for keyword searches
+# ---------------------------------------------------------------------------
 
-    Returns:
-        {
-            "passed": bool,  # True if no critical warnings
-            "warnings": [str],  # List of warning messages
-            "details": {
-                "gefahrenfelder": {"covered": [...], "missing": [...]},
-                "categories": {"covered": [...], "missing": [...]},
-                "utilities": {"covered": [...], "missing": [...]},
-                "ccf_candidates": [...]
-            }
-        }
-    """
-    with FMEAStorage(db_path) as db:
-        return _validate_completeness_impl(db, project_id, task_folder)
+def _fm_texts_joined(fms: list[dict]) -> str:
+    """Join fehlermodus + funktion_beschreibung + komponente for all FMs (lowercase)."""
+    return " ".join(
+        (fm.get("fehlermodus", "") + " " +
+         fm.get("funktion_beschreibung", "") + " " +
+         fm.get("komponente", ""))
+        if isinstance(fm, dict) else ""
+        for fm in fms
+    ).lower()
 
 
-def _validate_completeness_impl(db: FMEAStorage, project_id: int, task_folder: str = None) -> dict:
-    warnings = []
-    details = {}
+# ---------------------------------------------------------------------------
+# Phase 1: Category coverage (9 categories)
+# ---------------------------------------------------------------------------
 
-    # Load all failure modes for this project via get_all_failure_modes_with_rpz
-    try:
-        fms = db.get_all_failure_modes_with_rpz(project_id)
-    except Exception:
-        fms = []
-
-    if not fms:
-        return {
-            "passed": False,
-            "warnings": ["Keine Fehlermodi in der DB gefunden."],
-            "details": {}
-        }
-
-    # --- 1. Category check (9 categories) ---
+def _check_categories(fms: list[dict], ad: dict | None) -> tuple[dict, list[str]]:
+    """Return (details_dict, warnings) for category coverage."""
     fm_categories = set()
     for fm in fms:
         cat = fm.get("fehlerart", "").lower() if isinstance(fm, dict) else ""
@@ -75,17 +58,26 @@ def _validate_completeness_impl(db: FMEAStorage, project_id: int, task_folder: s
 
     all_categories = set(FEHLERMODI_VORLAGEN.keys())
     missing_categories = all_categories - fm_categories
-    details["categories"] = {
-        "covered": sorted(fm_categories),
-        "missing": sorted(missing_categories)
-    }
-    for cat in missing_categories:
-        warnings.append(f"Kategorie '{cat}' hat keinen zugeordneten Fehlermodus")
 
-    # --- 2. Gefahrenfelder check (mandatory only) ---
+    details = {
+        "covered": sorted(fm_categories),
+        "missing": sorted(missing_categories),
+    }
+    warnings = [
+        f"Kategorie '{cat}' hat keinen zugeordneten Fehlermodus"
+        for cat in missing_categories
+    ]
+    return details, warnings
+
+
+# ---------------------------------------------------------------------------
+# Phase 2: Gefahrenfelder coverage (mandatory only)
+# ---------------------------------------------------------------------------
+
+def _check_gefahrenfelder(fms: list[dict], ad: dict | None) -> tuple[dict, list[str]]:
+    """Return (details_dict, warnings) for mandatory Gefahrenfelder coverage."""
     pflicht_felder = {k: v for k, v in GEFAHRENFELDER.items() if v.get("pflicht", False)}
-    # We can't automatically determine which GF a FM covers without explicit tagging,
-    # so we check category-level coverage as a proxy
+
     covered_gf_categories = set()
     for fm in fms:
         cat = fm.get("fehlerart", "").lower() if isinstance(fm, dict) else ""
@@ -100,82 +92,98 @@ def _validate_completeness_impl(db: FMEAStorage, project_id: int, task_folder: s
         else:
             missing_gf.append(f"{gf_id}: {gf_data['name']}")
 
-    details["gefahrenfelder"] = {
+    details = {
         "covered": covered_gf,
-        "missing": missing_gf
+        "missing": missing_gf,
     }
-    for gf in missing_gf:
-        warnings.append(f"Pflicht-Gefahrenfeld nicht abgedeckt: {gf}")
+    warnings = [
+        f"Pflicht-Gefahrenfeld nicht abgedeckt: {gf}"
+        for gf in missing_gf
+    ]
+    return details, warnings
 
-    # --- 3. Utility/interface check ---
-    ad = None
-    if task_folder:
-        base = Path(__file__).parent.parent / "tasks" / task_folder
-        anlagendaten_path = base / "anlagendaten.json"
-        if anlagendaten_path.exists():
-            with open(anlagendaten_path, "r") as f:
-                ad = json.load(f)
 
-            # Check media entries
-            media = ad.get("media", [])
-            fm_texts = " ".join([
-                (fm.get("fehlermodus", "") + " " +
-                 fm.get("funktion_beschreibung", "") + " " +
-                 fm.get("komponente", ""))
-                if isinstance(fm, dict) else ""
-                for fm in fms
-            ]).lower()
+# ---------------------------------------------------------------------------
+# Phase 3: Utility/interface coverage
+# ---------------------------------------------------------------------------
 
-            missing_utilities = []
-            covered_utilities = []
-            for m in media:
-                name = m.get("name", "")
-                if name.lower() in fm_texts or any(
-                    kw in fm_texts for kw in name.lower().split()
-                ):
-                    covered_utilities.append(name)
-                else:
-                    missing_utilities.append(name)
+def _check_utilities(fms: list[dict], ad: dict | None) -> tuple[dict | None, list[str]]:
+    """Return (details_dict_or_None, warnings) for utility/interface coverage."""
+    if ad is None:
+        return None, []
 
-            # Check connectedSystems
-            for sys_entry in ad.get("systems", []):
-                cs = sys_entry.get("connectedSystems", {})
-                for direction in ["upstream", "downstream"]:
-                    for connected in cs.get(direction, []):
-                        if isinstance(connected, str) and "nicht im scope" not in connected.lower():
-                            sys_name = connected.split("(")[0].strip()
-                            if sys_name.lower() not in fm_texts:
-                                missing_utilities.append(f"{sys_name} ({direction})")
+    fm_texts = _fm_texts_joined(fms)
 
-            details["utilities"] = {
-                "covered": covered_utilities,
-                "missing": missing_utilities
-            }
-            for u in missing_utilities:
-                warnings.append(f"Utility/Schnittstelle ohne zugeordneten FM: {u}")
+    missing_utilities = []
+    covered_utilities = []
+    for m in ad.get("media", []):
+        name = m.get("name", "")
+        if name.lower() in fm_texts or any(
+            kw in fm_texts for kw in name.lower().split()
+        ):
+            covered_utilities.append(name)
+        else:
+            missing_utilities.append(name)
 
-            # Check for backflow-related FMs
-            backflow_keywords = ["rückstr", "backflow", "rückfluss", "reverse flow", "rückstrom"]
-            has_backflow_fm = any(kw in fm_texts for kw in backflow_keywords)
-            has_pressure_interfaces = len(media) > 0  # simplified check
-            if has_pressure_interfaces and not has_backflow_fm:
-                warnings.append("Keine Rückströmungs-Fehlermodi gefunden, obwohl Utility-Schnittstellen existieren")
+    # Check connectedSystems
+    for sys_entry in ad.get("systems", []):
+        cs = sys_entry.get("connectedSystems", {})
+        for direction in ["upstream", "downstream"]:
+            for connected in cs.get(direction, []):
+                if isinstance(connected, str) and "nicht im scope" not in connected.lower():
+                    sys_name = connected.split("(")[0].strip()
+                    if sys_name.lower() not in fm_texts:
+                        missing_utilities.append(f"{sys_name} ({direction})")
 
-    # --- 4. CCF candidates ---
+    details = {
+        "covered": covered_utilities,
+        "missing": missing_utilities,
+    }
+    warnings = [
+        f"Utility/Schnittstelle ohne zugeordneten FM: {u}"
+        for u in missing_utilities
+    ]
+
+    # Check for backflow-related FMs
+    backflow_keywords = ["rückstr", "backflow", "rückfluss", "reverse flow", "rückstrom"]
+    has_backflow_fm = any(kw in fm_texts for kw in backflow_keywords)
+    has_pressure_interfaces = len(ad.get("media", [])) > 0
+    if has_pressure_interfaces and not has_backflow_fm:
+        warnings.append("Keine Rückströmungs-Fehlermodi gefunden, obwohl Utility-Schnittstellen existieren")
+
+    return details, warnings
+
+
+# ---------------------------------------------------------------------------
+# Phase 4: CCF candidates
+# ---------------------------------------------------------------------------
+
+def _check_ccf_candidates(fms: list[dict], ad: dict | None) -> tuple[list[str], list[str]]:
+    """Return (ccf_candidates_list, warnings) for common cause failure detection."""
+    if ad is None:
+        return [], []
+
     ccf_candidates = []
-    if task_folder and ad is not None:
-        utilities_in_use = ad.get("media", [])
-        for util in utilities_in_use:
-            name = util.get("name", "")
-            if util.get("fmea_critical", False) or util.get("failureConsequence"):
-                ccf_candidates.append(f"{name}: Ausfall betrifft möglicherweise mehrere Komponenten")
+    for util in ad.get("media", []):
+        name = util.get("name", "")
+        if util.get("fmea_critical", False) or util.get("failureConsequence"):
+            ccf_candidates.append(f"{name}: Ausfall betrifft möglicherweise mehrere Komponenten")
 
-        details["ccf_candidates"] = ccf_candidates
-        if ccf_candidates:
-            warnings.append(f"{len(ccf_candidates)} CCF-Kandidaten identifiziert — prüfen ob Kaskaden-FMs vorhanden")
+    warnings = []
+    if ccf_candidates:
+        warnings.append(f"{len(ccf_candidates)} CCF-Kandidaten identifiziert — prüfen ob Kaskaden-FMs vorhanden")
 
-    # --- 5. S/O/D Plausibility ---
+    return ccf_candidates, warnings
+
+
+# ---------------------------------------------------------------------------
+# Phase 5: S/O/D plausibility
+# ---------------------------------------------------------------------------
+
+def _check_sod_plausibility(fms: list[dict], ad: dict | None) -> tuple[list[str], list[str]]:
+    """Return (sod_findings, warnings) for S/O/D plausibility checks."""
     sod_findings = []
+
     for fm in fms:
         fehler_id = fm.get("fehler_id", "?")
         S = fm.get("S")
@@ -206,7 +214,6 @@ def _validate_completeness_impl(db: FMEAStorage, project_id: int, task_folder: s
             except Exception:
                 match = None
             if match:
-                # Use overall failure rate → suggested O as reference
                 from tools.reliability_lookup import ReliabilityDB
                 try:
                     rdb = ReliabilityDB()
@@ -231,11 +238,18 @@ def _validate_completeness_impl(db: FMEAStorage, project_id: int, task_folder: s
                     f"WARNUNG: FM '{fehler_id}' D={D} trotz vorhandener MSR-Ausstattung"
                 )
 
-    details["sod_plausibility"] = sod_findings
-    warnings.extend(sod_findings)
+    # sod_findings are also the warnings
+    return sod_findings, list(sod_findings)
 
-    # --- 6. Measures Effectiveness ---
+
+# ---------------------------------------------------------------------------
+# Phase 6: Measures effectiveness
+# ---------------------------------------------------------------------------
+
+def _check_measures_effectiveness(fms: list[dict], db: FMEAStorage) -> tuple[list[str], list[str]]:
+    """Return (measures_findings, warnings) for measures effectiveness checks."""
     measures_findings = []
+
     for fm in fms:
         fehler_id = fm.get("fehler_id", "?")
         fm_id = fm.get("id")
@@ -250,7 +264,6 @@ def _validate_completeness_impl(db: FMEAStorage, project_id: int, task_folder: s
                     f"KRITISCH: FM '{fehler_id}' RPZ={rpz} ohne Maßnahmen"
                 )
             else:
-                # Check if any measure reduces RPZ
                 rpz_reduced = False
                 for m in measure_rows:
                     m_dict = dict(m)
@@ -263,63 +276,150 @@ def _validate_completeness_impl(db: FMEAStorage, project_id: int, task_folder: s
                         f"WARNUNG: FM '{fehler_id}' Maßnahmen senken RPZ nicht"
                     )
 
-    details["measures_effectiveness"] = measures_findings
-    warnings.extend(measures_findings)
+    return measures_findings, list(measures_findings)
 
-    # --- 7. Cross-FM + Anlagendaten Alignment ---
+
+# ---------------------------------------------------------------------------
+# Phase 7: Cross-FM + Anlagendaten alignment
+# ---------------------------------------------------------------------------
+
+def _check_cross_fm_alignment(fms: list[dict], ad: dict | None) -> tuple[list[str], list[str]]:
+    """Return (alignment_findings, warnings) for cross-FM alignment checks."""
+    if ad is None:
+        return [], []
+
     alignment_findings = []
-    if ad is not None:
-        # 7a: Every system in Anlagendaten should have at least one FM
-        fm_komponenten = set()
-        for fm in fms:
-            komp = fm.get("komponente", "")
-            if komp:
-                fm_komponenten.add(komp.lower())
 
-        for sys_entry in ad.get("systems", []):
-            sys_name = sys_entry.get("name", "")
-            if sys_name:
-                # Check if system name appears in any FM component
-                found = any(sys_name.lower() in k for k in fm_komponenten)
-                if not found:
-                    # Also check if any FM component contains the system name
-                    found = any(sys_name.lower() in k or k in sys_name.lower() for k in fm_komponenten)
-                if not found:
-                    alignment_findings.append(
-                        f"WARNUNG: System '{sys_name}' hat keine Fehlermodi"
-                    )
+    # 7a: Every system in Anlagendaten should have at least one FM
+    fm_komponenten = set()
+    for fm in fms:
+        komp = fm.get("komponente", "")
+        if komp:
+            fm_komponenten.add(komp.lower())
 
-        # 7b: Hazardous substances (WGK>=2 or GHS02/GHS06) should be referenced in FMs
-        fm_texts = " ".join([
-            (fm.get("fehlermodus", "") + " " +
-             fm.get("funktion_beschreibung", "") + " " +
-             fm.get("komponente", ""))
-            if isinstance(fm, dict) else ""
-            for fm in fms
-        ]).lower()
-
-        hazardous_ghs = {"ghs02", "ghs06"}
-        for substance in ad.get("substances", ad.get("gefahrstoffe", [])):
-            name = substance.get("name", "")
-            wgk = substance.get("WGK", substance.get("wgk", 0))
-            ghs_codes = [c.lower() for c in substance.get("ghs", substance.get("GHS", []))]
-
-            is_hazardous = False
-            try:
-                if int(wgk) >= 2:
-                    is_hazardous = True
-            except (ValueError, TypeError):
-                pass
-            if any(g in hazardous_ghs for g in ghs_codes):
-                is_hazardous = True
-
-            if is_hazardous and name and name.lower() not in fm_texts:
+    for sys_entry in ad.get("systems", []):
+        sys_name = sys_entry.get("name", "")
+        if sys_name:
+            found = any(sys_name.lower() in k for k in fm_komponenten)
+            if not found:
+                found = any(sys_name.lower() in k or k in sys_name.lower() for k in fm_komponenten)
+            if not found:
                 alignment_findings.append(
-                    f"WARNUNG: Gefahrstoff '{name}' nicht in Fehlermodi referenziert"
+                    f"WARNUNG: System '{sys_name}' hat keine Fehlermodi"
                 )
 
-    details["alignment"] = alignment_findings
-    warnings.extend(alignment_findings)
+    # 7b: Hazardous substances (WGK>=2 or GHS02/GHS06) should be referenced in FMs
+    fm_texts = _fm_texts_joined(fms)
+    hazardous_ghs = {"ghs02", "ghs06"}
+
+    for substance in ad.get("substances", ad.get("gefahrstoffe", [])):
+        name = substance.get("name", "")
+        wgk = substance.get("WGK", substance.get("wgk", 0))
+        ghs_codes = [c.lower() for c in substance.get("ghs", substance.get("GHS", []))]
+
+        is_hazardous = False
+        try:
+            if int(wgk) >= 2:
+                is_hazardous = True
+        except (ValueError, TypeError):
+            pass
+        if any(g in hazardous_ghs for g in ghs_codes):
+            is_hazardous = True
+
+        if is_hazardous and name and name.lower() not in fm_texts:
+            alignment_findings.append(
+                f"WARNUNG: Gefahrstoff '{name}' nicht in Fehlermodi referenziert"
+            )
+
+    return alignment_findings, list(alignment_findings)
+
+
+# ---------------------------------------------------------------------------
+# Main validation function
+# ---------------------------------------------------------------------------
+
+def validate_completeness(project_id: int, task_folder: str = None, db_path: str = None) -> dict:
+    """
+    Validate FMEA completeness for a project before report generation.
+
+    Returns:
+        {
+            "passed": bool,  # True if no critical warnings
+            "warnings": [str],  # List of warning messages
+            "details": {
+                "gefahrenfelder": {"covered": [...], "missing": [...]},
+                "categories": {"covered": [...], "missing": [...]},
+                "utilities": {"covered": [...], "missing": [...]},
+                "ccf_candidates": [...]
+            }
+        }
+    """
+    with FMEAStorage(db_path) as db:
+        return _validate_completeness_impl(db, project_id, task_folder)
+
+
+def _validate_completeness_impl(db: FMEAStorage, project_id: int, task_folder: str = None) -> dict:
+    warnings = []
+    details = {}
+
+    # Load all failure modes for this project
+    try:
+        fms = db.get_all_failure_modes_with_rpz(project_id)
+    except Exception:
+        fms = []
+
+    if not fms:
+        return {
+            "passed": False,
+            "warnings": ["Keine Fehlermodi in der DB gefunden."],
+            "details": {}
+        }
+
+    # Load Anlagendaten if task_folder is provided
+    ad = None
+    if task_folder:
+        base = Path(__file__).parent.parent / "tasks" / task_folder
+        anlagendaten_path = base / "anlagendaten.json"
+        if anlagendaten_path.exists():
+            with open(anlagendaten_path, "r") as f:
+                ad = json.load(f)
+
+    # --- Phase 1: Category coverage ---
+    cat_details, cat_warnings = _check_categories(fms, ad)
+    details["categories"] = cat_details
+    warnings.extend(cat_warnings)
+
+    # --- Phase 2: Gefahrenfelder coverage ---
+    gf_details, gf_warnings = _check_gefahrenfelder(fms, ad)
+    details["gefahrenfelder"] = gf_details
+    warnings.extend(gf_warnings)
+
+    # --- Phase 3: Utility/interface coverage ---
+    util_details, util_warnings = _check_utilities(fms, ad)
+    if util_details is not None:
+        details["utilities"] = util_details
+    warnings.extend(util_warnings)
+
+    # --- Phase 4: CCF candidates ---
+    ccf_candidates, ccf_warnings = _check_ccf_candidates(fms, ad)
+    if ad is not None:
+        details["ccf_candidates"] = ccf_candidates
+    warnings.extend(ccf_warnings)
+
+    # --- Phase 5: S/O/D plausibility ---
+    sod_findings, sod_warnings = _check_sod_plausibility(fms, ad)
+    details["sod_plausibility"] = sod_findings
+    warnings.extend(sod_warnings)
+
+    # --- Phase 6: Measures effectiveness ---
+    meas_findings, meas_warnings = _check_measures_effectiveness(fms, db)
+    details["measures_effectiveness"] = meas_findings
+    warnings.extend(meas_warnings)
+
+    # --- Phase 7: Cross-FM + Anlagendaten alignment ---
+    align_findings, align_warnings = _check_cross_fm_alignment(fms, ad)
+    details["alignment"] = align_findings
+    warnings.extend(align_warnings)
 
     # passed = False if any KRITISCH finding exists
     passed = not any(w.startswith("KRITISCH:") for w in warnings)

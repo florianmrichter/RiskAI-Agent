@@ -5,8 +5,8 @@ Checks:
 1. Schema completeness (required fields)
 2. FMEA-critical fields (ExZone, SIL, Flammpunkt, etc.)
 3. Value ranges (temperature, pressure, volume, flash point)
-4. Cross-references (feedstocks ↔ systems, media ↔ systems)
-5. Consistency rules (ATEX↔Flammpunkt, WGK↔AwSV, toxicity↔PSA, operating≤design)
+4. Cross-references (feedstocks <-> systems, media <-> systems)
+5. Consistency rules (ATEX<->Flammpunkt, WGK<->AwSV, toxicity<->PSA, operating<=design)
 
 Usage:
     from tools.validate_anlagendaten import validate_anlagendaten
@@ -69,7 +69,7 @@ def _has_toxic_h_statements(h_phrases_str: str) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# Main validation
+# Required fields
 # ---------------------------------------------------------------------------
 
 REQUIRED_ROOT_FIELDS = [
@@ -82,49 +82,17 @@ REQUIRED_ROOT_FIELDS = [
 ]
 
 
-def validate_anlagendaten(task_folder: str, schema_path: str = None) -> dict:
-    """
-    Validate anlagendaten.json for FMEA readiness.
+# ---------------------------------------------------------------------------
+# Validation section helpers
+# ---------------------------------------------------------------------------
 
-    Args:
-        task_folder: Relative path under tasks/Risikoanalyse/, e.g. 'Buechi_Glasreaktor_15L_20TA43'
-        schema_path: Optional path to schema JSON (unused — checks are hardcoded)
+def _validate_schema_completeness(ad: dict) -> tuple[list, list, list, dict]:
+    """Check required top-level fields.
 
     Returns:
-        {
-            "passed": bool,
-            "fmea_readiness_pct": int,
-            "critical": [str],
-            "warnings": [str],
-            "info": [str],
-            "details": {}
-        }
+        (critical, warnings, info, details_section)
     """
-    base = Path(__file__).parent.parent / "tasks" / "Risikoanalyse" / task_folder
-    ad_path = base / "anlagendaten.json"
-
     critical = []
-    warnings = []
-    info = []
-    details = {}
-
-    # --- Load file ---
-    if not ad_path.exists():
-        return {
-            "passed": False,
-            "fmea_readiness_pct": 0,
-            "critical": [f"anlagendaten.json nicht gefunden: {ad_path}"],
-            "warnings": [],
-            "info": [],
-            "details": {},
-        }
-
-    with open(ad_path, "r", encoding="utf-8") as f:
-        ad = json.load(f)
-
-    # -----------------------------------------------------------------------
-    # 1. Schema completeness — required root fields
-    # -----------------------------------------------------------------------
     missing_root = []
     for field in REQUIRED_ROOT_FIELDS:
         val = ad.get(field)
@@ -133,14 +101,22 @@ def validate_anlagendaten(task_folder: str, schema_path: str = None) -> dict:
 
     if missing_root:
         critical.append(f"Pflichtfelder fehlen: {', '.join(missing_root)}")
-    details["schema_completeness"] = {
+
+    details = {
         "required": REQUIRED_ROOT_FIELDS,
         "missing": missing_root,
     }
+    return critical, [], [], details
 
-    # -----------------------------------------------------------------------
-    # 2. FMEA-critical fields
-    # -----------------------------------------------------------------------
+
+def _validate_fmea_critical_fields(ad: dict) -> tuple[list, list, list, dict]:
+    """Check FMEA-critical fields per system.
+
+    Returns:
+        (critical, warnings, info, details_section)
+    """
+    critical = []
+    info = []
     fmea_issues = []
 
     systems = ad.get("systems", [])
@@ -168,7 +144,6 @@ def validate_anlagendaten(task_folder: str, schema_path: str = None) -> dict:
                 has_any_sil = True
                 break
         if msr_list and not has_any_sil:
-            # Only flag as info — many small plants have no SIL-rated instruments
             systems_without_sil_info.append(sys_entry.get("name", "?"))
     if systems_without_sil_info:
         info.append(f"Kein SIL-Eintrag in MSR-Equipment: {', '.join(systems_without_sil_info)}")
@@ -176,7 +151,6 @@ def validate_anlagendaten(task_folder: str, schema_path: str = None) -> dict:
     # 2c. Per feedstock: flashPoint
     feedstocks_without_fp = []
     for fs in feedstocks:
-        # Check both schema variants: properties.flashPoint and parameters.flashPoint
         fp = None
         props = fs.get("properties", {})
         if isinstance(props, dict):
@@ -210,18 +184,27 @@ def validate_anlagendaten(task_folder: str, schema_path: str = None) -> dict:
         for issue in fmea_issues:
             critical.append(f"FMEA-kritisch: {issue}")
 
-    details["fmea_critical"] = {
+    details = {
         "systems_without_exzone": systems_without_exzone,
         "systems_without_sil": systems_without_sil_info,
         "feedstocks_without_flashpoint": feedstocks_without_fp,
         "media_without_failureconsequence": media_without_fc,
         "missing_operating_states": not bool(process_desc.get("operatingStates")),
     }
+    return critical, [], info, details
 
-    # -----------------------------------------------------------------------
-    # 3. Value ranges
-    # -----------------------------------------------------------------------
+
+def _validate_value_ranges(ad: dict) -> tuple[list, list, list, dict]:
+    """Check numeric values are in reasonable ranges.
+
+    Returns:
+        (critical, warnings, info, details_section)
+    """
+    critical = []
     range_issues = []
+
+    systems = ad.get("systems", [])
+    feedstocks = ad.get("feedstocks", [])
 
     RANGES = {
         "Temperatur": (-200, 1000, "°C"),
@@ -275,12 +258,23 @@ def validate_anlagendaten(task_folder: str, schema_path: str = None) -> dict:
         for issue in range_issues:
             critical.append(f"Wertebereich: {issue}")
 
-    details["value_ranges"] = {"issues": range_issues}
+    details = {"issues": range_issues}
+    return critical, [], [], details
 
-    # -----------------------------------------------------------------------
-    # 4. Cross-references
-    # -----------------------------------------------------------------------
+
+def _validate_cross_references(ad: dict) -> tuple[list, list, list, dict]:
+    """Check cross-references between systems/components.
+
+    Returns:
+        (critical, warnings, info, details_section)
+    """
+    warnings = []
+    info = []
     xref_issues = []
+
+    systems = ad.get("systems", [])
+    feedstocks = ad.get("feedstocks", [])
+    media = ad.get("media", [])
 
     # 4a. Feedstocks must appear in at least one system's substanceProcessConditions
     all_spc_substances = set()
@@ -306,7 +300,6 @@ def validate_anlagendaten(task_folder: str, schema_path: str = None) -> dict:
     for m in media:
         anschluss = m.get("anschluss")
         if anschluss and isinstance(anschluss, str):
-            # Check if the anschluss text references any known system
             found = any(sn in anschluss.lower() for sn in system_names_lower if sn)
             if not found:
                 xref_issues.append(f"Media '{m.get('name', '?')}' Anschluss '{anschluss}' referenziert kein bekanntes System")
@@ -318,15 +311,12 @@ def validate_anlagendaten(task_folder: str, schema_path: str = None) -> dict:
         if isinstance(cs, dict):
             for direction in ["upstream", "downstream"]:
                 for connected in cs.get(direction, []):
-                    # connected can be string or dict
                     ref_name = None
                     if isinstance(connected, str):
                         ref_name = connected
                     elif isinstance(connected, dict):
                         ref_name = connected.get("system", "")
-                    # We don't flag out-of-scope as an issue
                     if ref_name and "nicht im scope" not in ref_name.lower():
-                        # Check if this references a known system
                         ref_lower = ref_name.lower()
                         found = any(sn in ref_lower or ref_lower in sn for sn in system_names_lower if sn)
                         if not found:
@@ -336,15 +326,25 @@ def validate_anlagendaten(task_folder: str, schema_path: str = None) -> dict:
         for issue in xref_issues:
             warnings.append(f"Cross-Referenz: {issue}")
 
-    details["cross_references"] = {"issues": xref_issues}
+    details = {"issues": xref_issues}
+    return [], warnings, info, details
 
-    # -----------------------------------------------------------------------
-    # 5. Consistency rules
-    # -----------------------------------------------------------------------
+
+def _validate_consistency_rules(ad: dict) -> tuple[list, list, list, dict]:
+    """Check logical consistency rules.
+
+    Returns:
+        (critical, warnings, info, details_section)
+    """
+    critical = []
+    warnings = []
     consistency_issues_critical = []
     consistency_issues_warning = []
 
-    # 5a. ExZone → at least one feedstock must have flashPoint
+    systems = ad.get("systems", [])
+    feedstocks = ad.get("feedstocks", [])
+
+    # 5a. ExZone -> at least one feedstock must have flashPoint
     has_exzone = any(
         sys_entry.get("parameters", {}).get("ExZone")
         for sys_entry in systems
@@ -364,7 +364,7 @@ def validate_anlagendaten(task_folder: str, schema_path: str = None) -> dict:
             "ExZone definiert, aber kein Feedstock hat einen Flammpunkt — ATEX-Bewertung unvollständig"
         )
 
-    # 5b. WGK >= 2 → awsv.anlage_awsv_relevant should be true
+    # 5b. WGK >= 2 -> awsv.anlage_awsv_relevant should be true
     has_wgk_ge2 = False
     for fs in feedstocks:
         wgk = None
@@ -374,7 +374,6 @@ def validate_anlagendaten(task_folder: str, schema_path: str = None) -> dict:
             wgk = _parse_numeric(props.get("wgk"))
         if wgk is None and isinstance(params, dict):
             wgk = _parse_numeric(params.get("wgk"))
-        # Also check hazards.wgk
         hazards = fs.get("hazards", {})
         if isinstance(hazards, dict) and wgk is None:
             wgk = _parse_numeric(hazards.get("wgk"))
@@ -387,7 +386,7 @@ def validate_anlagendaten(task_folder: str, schema_path: str = None) -> dict:
             "WGK >= 2 bei mindestens einem Feedstock, aber awsv.anlage_awsv_relevant ist nicht true"
         )
 
-    # 5c. Toxic H-statements (H300-H311) → PSA should be defined
+    # 5c. Toxic H-statements (H300-H311) -> PSA should be defined
     has_toxic = False
     for fs in feedstocks:
         h_str = None
@@ -413,11 +412,11 @@ def validate_anlagendaten(task_folder: str, schema_path: str = None) -> dict:
             "Toxische H-Sätze (H300-H311) vorhanden, aber kein PSA-Abschnitt definiert"
         )
 
-    # 5d. Operating conditions ≤ design limits
+    # 5d. Operating conditions <= design limits
     for sys_entry in systems:
         sys_name = sys_entry.get("name", "?")
 
-        # Betriebsdruck ≤ DesignDruck (or MaxDruck)
+        # Betriebsdruck <= DesignDruck (or MaxDruck)
         op_pressure = _get_design_value(sys_entry, "Betriebsdruck")
         if op_pressure is None:
             op_pressure = _get_process_condition_value(sys_entry, "MaxBetriebsdruck")
@@ -430,7 +429,7 @@ def validate_anlagendaten(task_folder: str, schema_path: str = None) -> dict:
                     f"{sys_name}: Betriebsdruck ({op_pressure}) > Auslegungsdruck ({design_pressure})"
                 )
 
-        # Betriebstemperatur ≤ MaxTemperatur
+        # Betriebstemperatur <= MaxTemperatur
         op_temp = _get_design_value(sys_entry, "Betriebstemperatur")
         if op_temp is None:
             op_temp = _get_process_condition_value(sys_entry, "MaxBetriebstemperatur")
@@ -446,14 +445,74 @@ def validate_anlagendaten(task_folder: str, schema_path: str = None) -> dict:
     for issue in consistency_issues_warning:
         warnings.append(f"Konsistenz: {issue}")
 
-    details["consistency"] = {
+    details = {
         "critical": consistency_issues_critical,
         "warnings": consistency_issues_warning,
     }
+    return critical, warnings, [], details
 
-    # -----------------------------------------------------------------------
-    # Result
-    # -----------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Main validation
+# ---------------------------------------------------------------------------
+
+def validate_anlagendaten(task_folder: str, schema_path: str = None) -> dict:
+    """
+    Validate anlagendaten.json for FMEA readiness.
+
+    Args:
+        task_folder: Relative path under tasks/Risikoanalyse/, e.g. 'Buechi_Glasreaktor_15L_20TA43'
+        schema_path: Optional path to schema JSON (unused — checks are hardcoded)
+
+    Returns:
+        {
+            "passed": bool,
+            "fmea_readiness_pct": int,
+            "critical": [str],
+            "warnings": [str],
+            "info": [str],
+            "details": {}
+        }
+    """
+    base = Path(__file__).parent.parent / "tasks" / "Risikoanalyse" / task_folder
+    ad_path = base / "anlagendaten.json"
+
+    # --- Load file ---
+    if not ad_path.exists():
+        return {
+            "passed": False,
+            "fmea_readiness_pct": 0,
+            "critical": [f"anlagendaten.json nicht gefunden: {ad_path}"],
+            "warnings": [],
+            "info": [],
+            "details": {},
+        }
+
+    with open(ad_path, "r", encoding="utf-8") as f:
+        ad = json.load(f)
+
+    # --- Run all validation sections ---
+    critical = []
+    warnings = []
+    info = []
+    details = {}
+
+    validators = [
+        ("schema_completeness", _validate_schema_completeness),
+        ("fmea_critical", _validate_fmea_critical_fields),
+        ("value_ranges", _validate_value_ranges),
+        ("cross_references", _validate_cross_references),
+        ("consistency", _validate_consistency_rules),
+    ]
+
+    for detail_key, validator_fn in validators:
+        v_critical, v_warnings, v_info, v_details = validator_fn(ad)
+        critical.extend(v_critical)
+        warnings.extend(v_warnings)
+        info.extend(v_info)
+        details[detail_key] = v_details
+
+    # --- Result ---
     passed = len(critical) == 0
     fmea_readiness_pct = max(0, 100 - (len(critical) * 10 + len(warnings) * 3))
 

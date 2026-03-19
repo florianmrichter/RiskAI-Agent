@@ -839,26 +839,17 @@ def generate_report(project_id: int, output_path: str | None = None, task_folder
         outfit_style = _get_outfit_font_style()
 
         ff = "Outfit,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
-        header_html = (
-            outfit_style +
-            '<div style="width:100%;font-size:7pt;font-family:' + ff + ' !important;'
-            'padding:5mm 18mm 2mm 18mm;display:flex;justify-content:space-between;'
-            'align-items:center;color:#6B7280;border-bottom:0.5px solid #E5E7EB;">'
-            '<div style="display:flex;align-items:center;gap:2mm;font-family:' + ff + ' !important;">' + LOGO_SVG_SMALL +
-            '<span style="font-weight:800;color:#2C2C54;font-family:' + ff + ' !important;">'
-            'Risk <span style="color:#F5004F;">Agent</span></span></div>'
-            '<span style="font-weight:400;font-family:' + ff + ' !important;">' + header_right_text + '</span>'
-            '</div>'
-        )
-        footer_html = (
-            outfit_style +
-            '<div style="width:100%;font-size:6pt;font-family:' + ff + ' !important;font-weight:400;'
-            'padding:2mm 18mm 5mm 18mm;display:flex;justify-content:space-between;'
-            'align-items:center;color:#D1D5DB;">'
-            '<span style="font-family:' + ff + ' !important;">Vertraulich</span>'
-            '<span style="font-family:' + ff + ' !important;"><span class="pageNumber"></span> / <span class="totalPages"></span></span>'
-            '</div>'
-        )
+
+        # Load header/footer from Jinja2 templates (self-contained HTML for Playwright)
+        hf_env = Environment(loader=FileSystemLoader(str(template_dir)), autoescape=False)
+        hf_vars = {
+            "outfit_style": outfit_style,
+            "ff": ff,
+            "logo_svg": LOGO_SVG_SMALL,
+            "header_right_text": header_right_text,
+        }
+        header_html = hf_env.get_template("header.html").render(**hf_vars)
+        footer_html = hf_env.get_template("footer.html").render(**hf_vars)
 
         # Save rendered HTML alongside the PDF (with embedded base64 images for offline viewing)
         html_output = Path(output_path).with_suffix('.html')
