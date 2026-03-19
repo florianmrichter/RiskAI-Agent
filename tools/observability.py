@@ -148,9 +148,7 @@ def generate_quality_report(db_path: str | None = None, project_id: int | None =
     """
     from tools.calibration import load_calibration_rules, analyze_corrections
 
-    db = FMEAStorage(db_path)
-
-    try:
+    with FMEAStorage(db_path) as db:
         report_lines = []
         report_lines.append("=" * 50)
         report_lines.append("  FMEA Skill Quality Report")
@@ -293,8 +291,6 @@ def generate_quality_report(db_path: str | None = None, project_id: int | None =
         report_lines.append("=" * 50)
 
         return "\n".join(report_lines)
-    finally:
-        db.close()
 
 
 if __name__ == "__main__":

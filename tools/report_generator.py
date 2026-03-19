@@ -68,7 +68,7 @@ def _get_outfit_font_style() -> str:
     for fname, url in font_urls.items():
         local = fonts_dir / fname
         if not local.exists():
-            local.write_bytes(urllib.request.urlopen(url).read())
+            local.write_bytes(urllib.request.urlopen(url, timeout=10).read())
         b64 = base64.b64encode(local.read_bytes()).decode()
         weight = "400" if "400" in fname else "800"
         css_parts.append(

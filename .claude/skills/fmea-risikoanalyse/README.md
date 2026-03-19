@@ -108,7 +108,7 @@ dein-projekt/
 
 | Datei | Inhalt |
 |-------|--------|
-| `references/fmea-workflow.md` | Moderator-Rolle, Ablauf, Phasen |
-| `references/fmea-standards.md` | S/O/D-Skalen, RPZ-Schwellen, Fehlermodi-Vorlagen |
-| `references/msr-glossar.md` | MSR-Kennzeichen (TIC, PIC, LIC, PSV, ...) |
-| `references/sod-referenzkarte.md` | Kompakte S/O/D-Referenz für die Bewertung |
+| `workflows/fmea-workflow.md` | Moderator-Rolle, Ablauf, Phasen |
+| `.claude/skills/fmea-risikoanalyse/references/fmea-standards.md` | S/O/D-Skalen, RPZ-Schwellen, Fehlermodi-Vorlagen |
+| `config/msr_glossar.md` | MSR-Kennzeichen (TIC, PIC, LIC, PSV, ...) |
+| `.claude/skills/fmea-risikoanalyse/references/sod-referenzkarte.md` | Kompakte S/O/D-Referenz für die Bewertung |

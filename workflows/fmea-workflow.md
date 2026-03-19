@@ -113,8 +113,8 @@ kosten_klasse = "klein"        # klein (<5k) | mittel (5-50k) | gross (>50k)
 2. **Gefahrenfelder-Checkliste (Pflicht):** Alle 26 Pflicht-Gefahrenfelder (Kat. 1+2 aus `config/fmea_standards.py` GEFAHRENFELDER) für diese Komponente durchgehen. Pro Gefahrenfeld: Ist ein FM vorhanden? → ✓ oder "nicht relevant — [Begründung]". Kein Gefahrenfeld darf stillschweigend übergangen werden.
 3. **Prozessübergreifende Risiken prüfen:**
    - Welche Utilities sind an diese Komponente angeschlossen? (aus `anlagendaten.json` media[], connectedSystems programmatisch extrahieren) → Utility-FM pro Anschluss
-   - Pro angeschlossene Utility: Backflow-Fragen prüfen (aus `references/fmea-standards.md` Pflicht-Checkliste Rückströmung)
-   - Pro angeschlossene Utility: Utility-Fehlermodi prüfen (aus `references/fmea-standards.md` Pflicht-Checkliste Utility-Schnittstellen)
+   - Pro angeschlossene Utility: Backflow-Fragen prüfen (aus `.claude/skills/fmea-risikoanalyse/references/fmea-standards.md` Pflicht-Checkliste Rückströmung)
+   - Pro angeschlossene Utility: Utility-Fehlermodi prüfen (aus `.claude/skills/fmea-risikoanalyse/references/fmea-standards.md` Pflicht-Checkliste Utility-Schnittstellen)
    - `processSteps` durchgehen: Welche manuellen Tätigkeiten finden an DIESER Komponente statt? → Bedienfehler-FM
    - Wird die Komponente gereinigt? Mit welchen Medien? → Reinigungs-FM
    - Gibt es erstickende Gase (N₂, CO₂) an dieser Komponente? → Erstickungsgefahr-FM

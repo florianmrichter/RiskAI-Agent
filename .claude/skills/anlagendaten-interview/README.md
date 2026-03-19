@@ -71,5 +71,5 @@ Danach kannst du mit dem `fmea-risikoanalyse`-Skill die eigentliche Analyse star
 
 | Datei | Inhalt |
 |-------|--------|
-| `references/interview-phasen.md` | Vollständige Fragenliste für alle 7 Phasen |
-| `references/anlagendaten-schema.json` | JSON-Schema mit Beispiel (Ethylacetatproduktion) |
+| `.claude/skills/anlagendaten-interview/references/interview-phasen.md` | Vollständige Fragenliste für alle 7 Phasen |
+| `.claude/skills/anlagendaten-interview/references/anlagendaten-schema.json` | JSON-Schema mit Beispiel (Ethylacetatproduktion) |

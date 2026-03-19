@@ -26,28 +26,25 @@ def run_migrations(db_path: str = None):
     else:
         print(f"DB: data/fmea.db (default)")
 
-    db = FMEAStorage(db_path)
+    with FMEAStorage(db_path) as db:
+        # Verify new columns are present
+        checks = [
+            ("risk_assessments", ["daten_konfidenz", "agent_konfidenz", "agent_konfidenz_begruendung", "daten_quelle"]),
+            ("measures", ["prioritaet", "aufwand", "kosten_klasse", "assigned_to", "target_date", "implementation_status"]),
+            ("projects", ["version", "parent_version_id", "version_beschreibung", "erstellt_von", "geprueft_von", "frozen"]),
+            ("failure_modes", ["moc_status", "moc_herkunft_version"]),
+        ]
 
-    # Verify new columns are present
-    checks = [
-        ("risk_assessments", ["daten_konfidenz", "agent_konfidenz", "agent_konfidenz_begruendung", "daten_quelle"]),
-        ("measures", ["prioritaet", "aufwand", "kosten_klasse", "assigned_to", "target_date", "implementation_status"]),
-        ("projects", ["version", "parent_version_id", "version_beschreibung", "erstellt_von", "geprueft_von", "frozen"]),
-        ("failure_modes", ["moc_status", "moc_herkunft_version"]),
-    ]
-
-    all_ok = True
-    for table, cols in checks:
-        cursor = db.conn.execute(f"PRAGMA table_info({table})")
-        existing = {row[1] for row in cursor.fetchall()}
-        missing = [c for c in cols if c not in existing]
-        if missing:
-            print(f"  ERROR: {table} — fehlende Spalten: {missing}")
-            all_ok = False
-        else:
-            print(f"  OK: {table} — alle {len(cols)} neuen Spalten vorhanden")
-
-    db.close()
+        all_ok = True
+        for table, cols in checks:
+            cursor = db.conn.execute(f"PRAGMA table_info({table})")
+            existing = {row[1] for row in cursor.fetchall()}
+            missing = [c for c in cols if c not in existing]
+            if missing:
+                print(f"  ERROR: {table} — fehlende Spalten: {missing}")
+                all_ok = False
+            else:
+                print(f"  OK: {table} — alle {len(cols)} neuen Spalten vorhanden")
 
     if all_ok:
         print("\nMigration erfolgreich — alle Felder vorhanden.")

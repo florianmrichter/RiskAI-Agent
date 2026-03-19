@@ -30,51 +30,49 @@ def update_report_fields(task_folder: str, project_id: int = None, db_path: str 
 
     Returns: {"failure_modes_updated": n, "measures_updated": n}
     """
-    db = FMEAStorage(db_path)
-    if project_id is None:
-        proj = db.get_project_by_task_folder(task_folder)
-        if not proj:
-            db.close()
-            raise ValueError(f"Projekt mit task_folder '{task_folder}' nicht gefunden")
-        project_id = proj["id"]
+    with FMEAStorage(db_path) as db:
+        if project_id is None:
+            proj = db.get_project_by_task_folder(task_folder)
+            if not proj:
+                raise ValueError(f"Projekt mit task_folder '{task_folder}' nicht gefunden")
+            project_id = proj["id"]
 
-    stats = {"failure_modes_updated": 0, "measures_updated": 0}
+        stats = {"failure_modes_updated": 0, "measures_updated": 0}
 
-    # 1. Failure modes: kontext_beschreibung, controls_einschraenkung
-    for komp_id in KOMP_IDS:
-        fmea_data = get_fmea_for_component(task_folder, komp_id)
-        if not fmea_data:
-            continue
-        for fm in fmea_data.get("failure_modes", []):
-            fehler_id = fm.get("fehler_id")
-            if not fehler_id:
+        # 1. Failure modes: kontext_beschreibung, controls_einschraenkung
+        for komp_id in KOMP_IDS:
+            fmea_data = get_fmea_for_component(task_folder, komp_id)
+            if not fmea_data:
                 continue
-            kontext = fm.get("kontext_beschreibung")
-            einschraenkung = fm.get("controls_einschraenkung")
-            if kontext is not None or einschraenkung is not None:
-                if db.update_failure_mode_report_fields(
-                    fehler_id,
-                    kontext_beschreibung=kontext,
-                    controls_einschraenkung=einschraenkung,
-                ):
-                    stats["failure_modes_updated"] += 1
+            for fm in fmea_data.get("failure_modes", []):
+                fehler_id = fm.get("fehler_id")
+                if not fehler_id:
+                    continue
+                kontext = fm.get("kontext_beschreibung")
+                einschraenkung = fm.get("controls_einschraenkung")
+                if kontext is not None or einschraenkung is not None:
+                    if db.update_failure_mode_report_fields(
+                        fehler_id,
+                        kontext_beschreibung=kontext,
+                        controls_einschraenkung=einschraenkung,
+                    ):
+                        stats["failure_modes_updated"] += 1
 
-    # 2. Measures: hinweis
-    mod = load_measures_module(task_folder)
-    if mod and hasattr(mod, "_MEASURES"):
-        _MEASURES = mod._MEASURES
-        for fehler_id, measures in _MEASURES.items():
-            fm = db.get_failure_mode_by_fehler_id(fehler_id)
-            if not fm:
-                continue
-            fm_id = fm["id"]
-            for m in measures:
-                hinweis = m.get("hinweis")
-                if hinweis and m.get("name"):
-                    if db.update_measure_hinweis(fm_id, m["name"], hinweis):
-                        stats["measures_updated"] += 1
+        # 2. Measures: hinweis
+        mod = load_measures_module(task_folder)
+        if mod and hasattr(mod, "_MEASURES"):
+            _MEASURES = mod._MEASURES
+            for fehler_id, measures in _MEASURES.items():
+                fm = db.get_failure_mode_by_fehler_id(fehler_id)
+                if not fm:
+                    continue
+                fm_id = fm["id"]
+                for m in measures:
+                    hinweis = m.get("hinweis")
+                    if hinweis and m.get("name"):
+                        if db.update_measure_hinweis(fm_id, m["name"], hinweis):
+                            stats["measures_updated"] += 1
 
-    db.close()
     return stats
 
 

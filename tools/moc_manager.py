@@ -29,45 +29,42 @@ def freeze_version(project_id: int, db_path: str = None) -> dict:
     Returns:
         {"success": True, "snapshot_path": str, "project": dict}
     """
-    db = FMEAStorage(db_path)
-    project = db.get_project(project_id)
-    if not project:
-        db.close()
-        raise ValueError(f"Projekt {project_id} nicht gefunden")
+    with FMEAStorage(db_path) as db:
+        project = db.get_project(project_id)
+        if not project:
+            raise ValueError(f"Projekt {project_id} nicht gefunden")
 
-    if project.get("frozen"):
-        db.close()
-        return {"success": False, "error": f"Projekt {project_id} ist bereits eingefroren"}
+        if project.get("frozen"):
+            return {"success": False, "error": f"Projekt {project_id} ist bereits eingefroren"}
 
-    # Snapshot erstellen
-    task_folder = project.get("task_folder")
-    if task_folder:
-        versions_dir = TASKS_ROOT / task_folder / "versions"
-        versions_dir.mkdir(parents=True, exist_ok=True)
-        version = project.get("version", "1.0")
-        snapshot_path = versions_dir / f"v{version}_snapshot.json"
+        # Snapshot erstellen
+        task_folder = project.get("task_folder")
+        if task_folder:
+            versions_dir = TASKS_ROOT / task_folder / "versions"
+            versions_dir.mkdir(parents=True, exist_ok=True)
+            version = project.get("version", "1.0")
+            snapshot_path = versions_dir / f"v{version}_snapshot.json"
 
-        fmea_data = db.get_full_fmea_data(project_id)
-        snapshot = {
-            "project": dict(project),
-            "fmea_data": fmea_data,
-            "frozen_at": datetime.now().isoformat(),
+            fmea_data = db.get_full_fmea_data(project_id)
+            snapshot = {
+                "project": dict(project),
+                "fmea_data": fmea_data,
+                "frozen_at": datetime.now().isoformat(),
+            }
+            with open(snapshot_path, "w", encoding="utf-8") as f:
+                json.dump(snapshot, f, indent=2, ensure_ascii=False)
+        else:
+            snapshot_path = None
+
+        # Einfrieren in DB
+        db.freeze_project(project_id)
+        updated = db.get_project(project_id)
+
+        return {
+            "success": True,
+            "snapshot_path": str(snapshot_path) if snapshot_path else None,
+            "project": updated,
         }
-        with open(snapshot_path, "w", encoding="utf-8") as f:
-            json.dump(snapshot, f, indent=2, ensure_ascii=False)
-    else:
-        snapshot_path = None
-
-    # Einfrieren in DB
-    db.freeze_project(project_id)
-    updated = db.get_project(project_id)
-    db.close()
-
-    return {
-        "success": True,
-        "snapshot_path": str(snapshot_path) if snapshot_path else None,
-        "project": updated,
-    }
 
 
 # ── Neue Version anlegen ──
@@ -89,104 +86,102 @@ def create_new_version(project_id: int, change_description: str,
     Returns:
         {"success": True, "new_project_id": int, "copied_fms": int, "affected_components": list}
     """
-    db = FMEAStorage(db_path)
-    parent = db.get_project(project_id)
-    if not parent:
-        db.close()
-        raise ValueError(f"Eltern-Projekt {project_id} nicht gefunden")
+    with FMEAStorage(db_path) as db:
+        parent = db.get_project(project_id)
+        if not parent:
+            raise ValueError(f"Eltern-Projekt {project_id} nicht gefunden")
 
-    # Eltern-Version einfrieren
-    if not parent.get("frozen"):
-        freeze_version(project_id, db_path)
+        # Eltern-Version einfrieren
+        if not parent.get("frozen"):
+            freeze_version(project_id, db_path)
 
-    # Versionsnummer ableiten
-    if new_version is None:
-        parent_ver = parent.get("version", "1.0")
-        try:
-            major, minor = parent_ver.split(".")
-            new_version = f"{major}.{int(minor) + 1}"
-        except Exception:
-            new_version = "2.0"
+        # Versionsnummer ableiten
+        if new_version is None:
+            parent_ver = parent.get("version", "1.0")
+            try:
+                major, minor = parent_ver.split(".")
+                new_version = f"{major}.{int(minor) + 1}"
+            except Exception:
+                new_version = "2.0"
 
-    # Neues Projekt anlegen
-    new_project_id = db.create_project(
-        name=parent["name"],
-        anlage_name=parent.get("anlage_name"),
-        task_folder=parent.get("task_folder"),
-        version=new_version,
-        parent_version_id=project_id,
-        version_beschreibung=change_description,
-        erstellt_von=erstellt_von,
-    )
-
-    # Komponenten, Funktionen, Fehlermodi kopieren
-    components = db.get_components(project_id)
-    changed_set = set(changed_components)
-    copied_fms = 0
-
-    for comp in components:
-        komp_id = comp["komp_id"]
-        is_changed = komp_id in changed_set
-
-        new_comp_id = db.insert_component(
-            project_id=new_project_id,
-            komp_id=komp_id,
-            name=comp["name"],
-            typ=comp["typ"],
-            kategorie=comp["kategorie"],
-            system_name=comp.get("system_name"),
-            beschreibung=comp.get("beschreibung"),
-            parameters=comp.get("parameters", {}),
-            kontext=comp.get("kontext", {}),
+        # Neues Projekt anlegen
+        new_project_id = db.create_project(
+            name=parent["name"],
+            anlage_name=parent.get("anlage_name"),
+            task_folder=parent.get("task_folder"),
+            version=new_version,
+            parent_version_id=project_id,
+            version_beschreibung=change_description,
+            erstellt_von=erstellt_von,
         )
 
-        functions = db.get_functions(comp["id"])
-        for func in functions:
-            new_func_id = db.insert_function(
-                component_id=new_comp_id,
-                funktion_id=func["funktion_id"],
-                typ=func["typ"],
-                beschreibung=func["beschreibung"],
-                anforderungen=func.get("anforderungen", []),
-            )
-            if not new_func_id:
-                continue
+        # Komponenten, Funktionen, Fehlermodi kopieren
+        components = db.get_components(project_id)
+        changed_set = set(changed_components)
+        copied_fms = 0
 
-            fms = db.get_failure_modes(func["id"])
-            for fm in fms:
-                moc_status = "neu_bewertet" if is_changed else "unverändert"
-                new_fm_id = db.insert_failure_mode(
-                    function_id=new_func_id,
-                    fehler_id=fm["fehler_id"],
-                    fehlermodus=fm["fehlermodus"],
-                    fehlerart=fm["fehlerart"],
-                    kontext_beschreibung=fm.get("kontext_beschreibung"),
-                    controls_einschraenkung=fm.get("controls_einschraenkung"),
+        for comp in components:
+            komp_id = comp["komp_id"]
+            is_changed = komp_id in changed_set
+
+            new_comp_id = db.insert_component(
+                project_id=new_project_id,
+                komp_id=komp_id,
+                name=comp["name"],
+                typ=comp["typ"],
+                kategorie=comp["kategorie"],
+                system_name=comp.get("system_name"),
+                beschreibung=comp.get("beschreibung"),
+                parameters=comp.get("parameters", {}),
+                kontext=comp.get("kontext", {}),
+            )
+
+            functions = db.get_functions(comp["id"])
+            for func in functions:
+                new_func_id = db.insert_function(
+                    component_id=new_comp_id,
+                    funktion_id=func["funktion_id"],
+                    typ=func["typ"],
+                    beschreibung=func["beschreibung"],
+                    anforderungen=func.get("anforderungen", []),
                 )
-                if not new_fm_id:
+                if not new_func_id:
                     continue
 
-                # moc_status + herkunft setzen
-                db.conn.execute(
-                    "UPDATE failure_modes SET moc_status=?, moc_herkunft_version=? WHERE id=?",
-                    (moc_status, parent.get("version", "1.0"), new_fm_id)
-                )
-                db.conn.commit()
+                fms = db.get_failure_modes(func["id"])
+                for fm in fms:
+                    moc_status = "neu_bewertet" if is_changed else "unverändert"
+                    new_fm_id = db.insert_failure_mode(
+                        function_id=new_func_id,
+                        fehler_id=fm["fehler_id"],
+                        fehlermodus=fm["fehlermodus"],
+                        fehlerart=fm["fehlerart"],
+                        kontext_beschreibung=fm.get("kontext_beschreibung"),
+                        controls_einschraenkung=fm.get("controls_einschraenkung"),
+                    )
+                    if not new_fm_id:
+                        continue
 
-                if not is_changed:
-                    # Unveränderte FMs: Daten 1:1 übernehmen
-                    _copy_fm_data(db, fm["id"], new_fm_id)
-                    copied_fms += 1
+                    # moc_status + herkunft setzen
+                    db.conn.execute(
+                        "UPDATE failure_modes SET moc_status=?, moc_herkunft_version=? WHERE id=?",
+                        (moc_status, parent.get("version", "1.0"), new_fm_id)
+                    )
+                    db.conn.commit()
 
-    db.close()
-    return {
-        "success": True,
-        "new_project_id": new_project_id,
-        "new_version": new_version,
-        "copied_fms": copied_fms,
-        "affected_components": list(changed_set),
-        "unchanged_components": [c["komp_id"] for c in components if c["komp_id"] not in changed_set],
-    }
+                    if not is_changed:
+                        # Unveränderte FMs: Daten 1:1 übernehmen
+                        _copy_fm_data(db, fm["id"], new_fm_id)
+                        copied_fms += 1
+
+        return {
+            "success": True,
+            "new_project_id": new_project_id,
+            "new_version": new_version,
+            "copied_fms": copied_fms,
+            "affected_components": list(changed_set),
+            "unchanged_components": [c["komp_id"] for c in components if c["komp_id"] not in changed_set],
+        }
 
 
 def _copy_fm_data(db: FMEAStorage, source_fm_id: int, target_fm_id: int):
@@ -276,10 +271,9 @@ def _copy_fm_data(db: FMEAStorage, source_fm_id: int, target_fm_id: int):
 
 def get_version_history(task_folder: str, db_path: str = None) -> list:
     """Gibt alle Versionen eines Projekts zurück, geordnet nach ID."""
-    db = FMEAStorage(db_path)
-    versions = db.get_project_versions(task_folder)
-    db.close()
-    return versions
+    with FMEAStorage(db_path) as db:
+        versions = db.get_project_versions(task_folder)
+        return versions
 
 
 # ── Delta zwischen Versionen ──
@@ -296,10 +290,9 @@ def get_delta(project_id_old: int, project_id_new: int, db_path: str = None) -> 
             "unchanged_count": int,
         }
     """
-    db = FMEAStorage(db_path)
-    old_fmea = {fm["fehler_id"]: fm for fm in db.get_full_fmea_data(project_id_old)}
-    new_fmea = {fm["fehler_id"]: fm for fm in db.get_full_fmea_data(project_id_new)}
-    db.close()
+    with FMEAStorage(db_path) as db:
+        old_fmea = {fm["fehler_id"]: fm for fm in db.get_full_fmea_data(project_id_old)}
+        new_fmea = {fm["fehler_id"]: fm for fm in db.get_full_fmea_data(project_id_new)}
 
     changed = []
     added = []

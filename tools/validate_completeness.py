@@ -45,7 +45,11 @@ def validate_completeness(project_id: int, task_folder: str = None, db_path: str
             }
         }
     """
-    db = FMEAStorage(db_path)
+    with FMEAStorage(db_path) as db:
+        return _validate_completeness_impl(db, project_id, task_folder)
+
+
+def _validate_completeness_impl(db: FMEAStorage, project_id: int, task_folder: str = None) -> dict:
     warnings = []
     details = {}
 
@@ -56,7 +60,6 @@ def validate_completeness(project_id: int, task_folder: str = None, db_path: str
         fms = []
 
     if not fms:
-        db.close()
         return {
             "passed": False,
             "warnings": ["Keine Fehlermodi in der DB gefunden."],
@@ -317,8 +320,6 @@ def validate_completeness(project_id: int, task_folder: str = None, db_path: str
 
     details["alignment"] = alignment_findings
     warnings.extend(alignment_findings)
-
-    db.close()
 
     # passed = False if any KRITISCH finding exists
     passed = not any(w.startswith("KRITISCH:") for w in warnings)

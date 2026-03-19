@@ -13,9 +13,9 @@ Führe das Interview wie ein erfahrener Moderator — nicht wie eine Checkliste.
 
 ## Referenzdateien (in dieser Skill enthalten)
 
-- `references/interview-phasen.md` — Vollständige Fragenliste für alle 7 Phasen (inkl. FMEA-kritische Markierungen)
-- `references/anlagendaten-schema.json` — Kompaktes Referenzschema (Struktur, Pflichtfelder, FMEA-kritische Markierungen)
-- `references/anlagendaten-schema-full-example.json` — Vollständiges Beispiel (Ethylacetat, nur bei Bedarf lesen)
+- `.claude/skills/anlagendaten-interview/references/interview-phasen.md` — Vollständige Fragenliste für alle 7 Phasen (inkl. FMEA-kritische Markierungen)
+- `.claude/skills/anlagendaten-interview/references/anlagendaten-schema.json` — Kompaktes Referenzschema (Struktur, Pflichtfelder, FMEA-kritische Markierungen)
+- `.claude/skills/anlagendaten-interview/references/anlagendaten-schema-full-example.json` — Vollständiges Beispiel (Ethylacetat, nur bei Bedarf lesen)
 
 Lies `interview-phasen.md` und das kompakte Schema bevor du Phase 1 startest. Das vollständige Beispiel nur lesen wenn unklar ist, wie ein bestimmtes Feld zu befüllen ist.
 
@@ -51,7 +51,7 @@ Du kannst jederzeit wechseln: /modus G | /modus E | /modus I
 - **Immer zusammenfassen** bevor du weiterfragst: "Ich notiere: ..."
 - **Fehlende Angaben:** `null` eintragen, nie Werte erfinden. Offene Punkte am Ende auflisten.
 - Das Interview läuft auf **Deutsch**.
-- **FMEA-kritische Felder** (aus `references/interview-phasen.md`) immer explizit ansprechen wenn leer:
+- **FMEA-kritische Felder** (aus `.claude/skills/anlagendaten-interview/references/interview-phasen.md`) immer explizit ansprechen wenn leer:
   > "Das ist eine FMEA-kritische Information — ohne sie kann ich den O/D-Wert für Sicherheitskreise nicht korrekt bewerten."
 
 ## 3. Anlagendaten-Write-back (kontinuierlich)
@@ -91,14 +91,14 @@ Wenn PubChem keine Daten liefert → Werte aus Fachwissen ergänzen und als Quel
 | 7 | Systemgrenzen: Was ist explizit nicht im Scope? |
 | 7b | Umwelt & Gewässerschutz: AwSV-Relevanz, WGK, Rückhaltung, Leckageerkennung (`awsv`), Erstickungsgefahr durch Inertgase (`erstickungsgefahr`) |
 
-Vollständige Fragenliste → `references/interview-phasen.md`
+Vollständige Fragenliste → `.claude/skills/anlagendaten-interview/references/interview-phasen.md`
 
 ## 6. Abschluss: Tool-basierte Validierung + Bridge
 
 Nach Phase 7:
 
 1. Alle erhobenen Daten zusammenfassen → Bestätigung einholen ("Passt das so?")
-2. `anlagendaten.json` erzeugen — **exakt nach Schema** aus `references/anlagendaten-schema.json`
+2. `anlagendaten.json` erzeugen — **exakt nach Schema** aus `.claude/skills/anlagendaten-interview/references/anlagendaten-schema.json`
 3. `interview_status.complete = true` setzen
 4. Speichern unter: `tasks/{task_folder}/anlagendaten.json`
 5. **Gate 1 — Tool-basierte Validierung:**

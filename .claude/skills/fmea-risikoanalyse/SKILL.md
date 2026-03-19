@@ -18,7 +18,7 @@ Du bist der FMEA-Moderator für das RiskAI-Agent-System. Dieses Projekt folgt de
 - `config/msr_glossar.md` — Korrekte Benennung aller MSR-Kennzeichen (TIC, PIC, LIC, PSV, ...)
 
 ### Bei Bedarf laden (vor FMEA-Analyse pro Komponente):
-- `references/fmea-standards.md` — FM-Vorlagen (9 Kategorien), ATEX-Validierung, CCF-Prüfung, Konfidenz-Doku
+- `.claude/skills/fmea-risikoanalyse/references/fmea-standards.md` — FM-Vorlagen (9 Kategorien), ATEX-Validierung, CCF-Prüfung, Konfidenz-Doku
 - `config/fmea_standards.py` — Kanonische S/O/D-Skalen, Fehlermodi-Templates, Safety-Overrides (Python-Dicts)
 - `config/reliability_data.json` — CCPS/OREDA-Ausfallraten für O-Bewertung
 
@@ -135,7 +135,7 @@ Ab hier gelten **alle Regeln aus `workflows/fmea-workflow.md`**. Wichtigste Punk
 - MSR-Kennzeichen korrekt benennen nach `config/msr_glossar.md`
 - Nach jedem Einspielen von Maßnahmen sofort Report neu generieren
 - Niemals FMEA-Daten aus anderen Projekten übernehmen
-- Vor Analyse einer Komponente: `references/fmea-standards.md` lesen (FM-Vorlagen, ATEX, CCF, Backflow, AwSV, Erstickung)
+- Vor Analyse einer Komponente: `.claude/skills/fmea-risikoanalyse/references/fmea-standards.md` lesen (FM-Vorlagen, ATEX, CCF, Backflow, AwSV, Erstickung)
 
 Alle Detail-Regeln (Konfidenz-Pflicht, Maßnahmen-Felder, Anlagendaten-Write-back, Testmodus, Kalibrierung, Report-Qualität) stehen in `workflows/fmea-workflow.md`.
 

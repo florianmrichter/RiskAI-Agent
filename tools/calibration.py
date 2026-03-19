@@ -183,9 +183,8 @@ def analyze_corrections(db_path: str | None = None) -> dict:
     Returns dict with total_corrections, correction_rate, patterns, field_bias.
     """
     from tools.storage import FMEAStorage
-    db = FMEAStorage(db_path)
 
-    try:
+    with FMEAStorage(db_path) as db:
         patterns = db.get_feedback_patterns()
 
         # Add per-project correction rates
@@ -202,8 +201,6 @@ def analyze_corrections(db_path: str | None = None) -> dict:
 
         patterns["project_rates"] = project_rates
         return patterns
-    finally:
-        db.close()
 
 
 def generate_rules(db_path: str | None = None, min_occurrences: int = 3) -> dict:
@@ -278,9 +275,8 @@ def select_training_candidates(db_path: str | None = None, n: int = 10) -> list[
     Returns list of candidate dicts.
     """
     from tools.storage import FMEAStorage
-    db = FMEAStorage(db_path)
 
-    try:
+    with FMEAStorage(db_path) as db:
         # Get assessments with low confidence
         candidates = db.conn.execute("""
             SELECT ra.*, fm.fehler_id, fm.fehlermodus, fm.fehlerart,
@@ -335,8 +331,6 @@ def select_training_candidates(db_path: str | None = None, n: int = 10) -> list[
 
         scored.sort(key=lambda x: x[0], reverse=True)
         return [item[1] for item in scored[:n]]
-    finally:
-        db.close()
 
 
 if __name__ == "__main__":
