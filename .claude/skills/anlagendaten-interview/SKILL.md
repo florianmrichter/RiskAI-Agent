@@ -19,6 +19,18 @@ Führe das Interview wie ein erfahrener Moderator — nicht wie eine Checkliste.
 
 Lies `interview-phasen.md` und das kompakte Schema bevor du Phase 1 startest. Das vollständige Beispiel nur lesen wenn unklar ist, wie ein bestimmtes Feld zu befüllen ist.
 
+## Startup-Check (bei Session-Start ausführen)
+Prüfe ob diese Dateien existieren und lesbar sind:
+- `.claude/skills/anlagendaten-interview/references/interview-phasen.md`
+- `.claude/skills/anlagendaten-interview/references/anlagendaten-schema.json`
+- `tools/validate_anlagendaten.py`
+Bei fehlender Datei → Fehlermeldung und Session abbrechen.
+
+## Pflicht-Validierung vor Abschluss
+Bevor `interview_status.complete = true` gesetzt wird, MUSS `validate_anlagendaten(task_folder)` ausgeführt werden.
+Ergebnis muss `"passed": true` sein. Bei `"passed": false` → Fehler beheben, erneut validieren.
+Kein Abschluss des Interviews ohne bestandene Validierung.
+
 ## 1. Autonomiemodus bestimmen (Pflicht beim Start)
 
 Prüfe zuerst ob `anlagendaten.json` bereits existiert mit `interview_status`.

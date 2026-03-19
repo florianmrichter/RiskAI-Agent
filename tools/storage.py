@@ -22,6 +22,11 @@ DEFAULT_DB_DIR = Path(__file__).parent.parent / "data"
 
 
 class FMEAStorage:
+    """SQLite-backed storage for FMEA projects with full CRUD for all entities."""
+
+    # Schema version: 15 = all migrations applied
+    CURRENT_SCHEMA_VERSION = 15
+
     def __init__(self, db_path: str | None = None):
         if db_path is None:
             DEFAULT_DB_DIR.mkdir(parents=True, exist_ok=True)
@@ -33,6 +38,10 @@ class FMEAStorage:
         self.conn.execute("PRAGMA foreign_keys=ON")
         self._create_tables()
         self._run_migrations_if_needed()
+
+    # ═══════════════════════════════════════════════════════════════════
+    # ── Internal: Schema & Migrations ──
+    # ═══════════════════════════════════════════════════════════════════
 
     def _create_tables(self):
         self.conn.executescript("""
@@ -150,9 +159,6 @@ class FMEAStorage:
         """)
         self.conn.commit()
 
-    # Schema version: 15 = all migrations applied
-    CURRENT_SCHEMA_VERSION = 15
-
     def _run_migrations_if_needed(self):
         """Run migrations only if schema is outdated. Uses schema_version table to skip already-applied migrations."""
         self.conn.execute("CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL)")
@@ -162,7 +168,7 @@ class FMEAStorage:
         if current >= self.CURRENT_SCHEMA_VERSION:
             return  # All migrations already applied
 
-        # Run all migrations (each is idempotent — safe to re-run)
+        # Run all migrations (each is idempotent -- safe to re-run)
         from tools.storage_migrations import run_all
         run_all(self.conn)
 
@@ -173,12 +179,21 @@ class FMEAStorage:
             self.conn.execute("INSERT INTO schema_version (version) VALUES (?)", (self.CURRENT_SCHEMA_VERSION,))
         self.conn.commit()
 
+    @staticmethod
+    def _classify_rpz(rpz: int) -> str:
+        """Classify an RPZ value into a risk category using project standards."""
+        from config.fmea_standards import classify_rpz
+        return classify_rpz(rpz)
+
+    # ═══════════════════════════════════════════════════════════════════
     # ── Project CRUD ──
+    # ═══════════════════════════════════════════════════════════════════
 
     def create_project(self, name: str, anlage_name: str | None = None, task_folder: str | None = None,
                        version: str = "1.0", parent_version_id: int | None = None,
                        version_beschreibung: str | None = None, erstellt_von: str | None = None,
                        geprueft_von: str | None = None) -> int:
+        """Create a new FMEA project. Returns the project ID."""
         cur = self.conn.execute(
             """INSERT INTO projects
                (name, anlage_name, datum, task_folder,
@@ -196,6 +211,19 @@ class FMEAStorage:
         self.conn.commit()
         return self.conn.total_changes > 0
 
+    def get_project(self, project_id: int) -> dict | None:
+        """Return a single project by ID, or None if not found."""
+        row = self.conn.execute("SELECT * FROM projects WHERE id = ?", (project_id,)).fetchone()
+        return dict(row) if row else None
+
+    def get_project_by_task_folder(self, task_folder: str) -> dict | None:
+        """Return the latest project for a given task_folder, or None."""
+        row = self.conn.execute(
+            "SELECT * FROM projects WHERE task_folder = ? ORDER BY id DESC LIMIT 1",
+            (task_folder,)
+        ).fetchone()
+        return dict(row) if row else None
+
     def get_project_versions(self, task_folder: str) -> list[dict]:
         """Return all versions of a project ordered by id."""
         rows = self.conn.execute(
@@ -204,28 +232,21 @@ class FMEAStorage:
         ).fetchall()
         return [dict(r) for r in rows]
 
-    def get_project(self, project_id: int) -> dict | None:
-        row = self.conn.execute("SELECT * FROM projects WHERE id = ?", (project_id,)).fetchone()
-        return dict(row) if row else None
-
-    def get_project_by_task_folder(self, task_folder: str) -> dict | None:
-        row = self.conn.execute(
-            "SELECT * FROM projects WHERE task_folder = ? ORDER BY id DESC LIMIT 1",
-            (task_folder,)
-        ).fetchone()
-        return dict(row) if row else None
-
     def update_project_status(self, project_id: int, status: str):
+        """Update the status field of a project."""
         self.conn.execute("UPDATE projects SET status = ? WHERE id = ?", (status, project_id))
         self.conn.commit()
 
+    # ═══════════════════════════════════════════════════════════════════
     # ── Component CRUD ──
+    # ═══════════════════════════════════════════════════════════════════
 
     def insert_component(self, project_id: int, komp_id: str, name: str, typ: str,
                          kategorie: str, system_name: str | None = None, beschreibung: str | None = None,
                          parameters: dict | None = None, kontext: dict | None = None) -> int:
+        """Insert a component into the project. Returns the component ID."""
         cur = self.conn.execute(
-            """INSERT INTO components 
+            """INSERT INTO components
                (project_id, komp_id, name, typ, kategorie, system_name, beschreibung,
                 parameters_json, kontext_json)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
@@ -237,12 +258,14 @@ class FMEAStorage:
         return cur.lastrowid
 
     def get_components(self, project_id: int) -> list[dict]:
+        """Return all components for a project, ordered by komp_id."""
         rows = self.conn.execute(
             "SELECT * FROM components WHERE project_id = ? ORDER BY komp_id", (project_id,)
         ).fetchall()
         return [self._parse_component(r) for r in rows]
 
     def get_component_by_komp_id(self, komp_id: str, project_id: int | None = None) -> dict | None:
+        """Look up a component by its komp_id. Optionally scope to a project."""
         if project_id is not None:
             row = self.conn.execute(
                 "SELECT * FROM components WHERE komp_id = ? AND project_id = ?", (komp_id, project_id)
@@ -257,10 +280,13 @@ class FMEAStorage:
         d["kontext"] = json.loads(d.pop("kontext_json"))
         return d
 
+    # ═══════════════════════════════════════════════════════════════════
     # ── Function CRUD ──
+    # ═══════════════════════════════════════════════════════════════════
 
     def insert_function(self, component_id: int, funktion_id: str, typ: str,
                         beschreibung: str, anforderungen: list | None = None) -> int:
+        """Insert a function for a component. Uses INSERT OR IGNORE for idempotency. Returns the function ID."""
         cur = self.conn.execute(
             """INSERT OR IGNORE INTO functions (component_id, funktion_id, typ, beschreibung, anforderungen_json)
                VALUES (?, ?, ?, ?, ?)""",
@@ -274,12 +300,14 @@ class FMEAStorage:
         return row[0] if row else None
 
     def get_functions(self, component_id: int) -> list[dict]:
+        """Return all functions for a component, ordered by funktion_id."""
         rows = self.conn.execute(
             "SELECT * FROM functions WHERE component_id = ? ORDER BY funktion_id", (component_id,)
         ).fetchall()
         return [self._parse_function(r) for r in rows]
 
     def get_function_by_funktion_id(self, funktion_id: str) -> dict | None:
+        """Look up a function by its funktion_id."""
         row = self.conn.execute("SELECT * FROM functions WHERE funktion_id = ?", (funktion_id,)).fetchone()
         return self._parse_function(row) if row else None
 
@@ -288,12 +316,15 @@ class FMEAStorage:
         d["anforderungen"] = json.loads(d.pop("anforderungen_json"))
         return d
 
+    # ═══════════════════════════════════════════════════════════════════
     # ── FailureMode CRUD ──
+    # ═══════════════════════════════════════════════════════════════════
 
     def insert_failure_mode(self, function_id: int, fehler_id: str,
                             fehlermodus: str, fehlerart: str,
                             kontext_beschreibung: str | None = None,
                             controls_einschraenkung: str | None = None) -> int:
+        """Insert a failure mode. Uses INSERT OR IGNORE for idempotency. Returns the failure mode ID."""
         cur = self.conn.execute(
             """INSERT OR IGNORE INTO failure_modes
                (function_id, fehler_id, fehlermodus, fehlerart, kontext_beschreibung, controls_einschraenkung)
@@ -307,42 +338,25 @@ class FMEAStorage:
         return row[0] if row else None
 
     def get_failure_modes(self, function_id: int) -> list[dict]:
+        """Return all failure modes for a function, ordered by fehler_id."""
         rows = self.conn.execute(
             "SELECT * FROM failure_modes WHERE function_id = ? ORDER BY fehler_id", (function_id,)
         ).fetchall()
         return [dict(r) for r in rows]
 
     def get_failure_mode_by_fehler_id(self, fehler_id: str) -> dict | None:
+        """Look up a failure mode by its fehler_id."""
         row = self.conn.execute("SELECT * FROM failure_modes WHERE fehler_id = ?", (fehler_id,)).fetchone()
         return dict(row) if row else None
 
-    def update_failure_mode_report_fields(self, fehler_id: str,
-                                          kontext_beschreibung: str | None = None,
-                                          controls_einschraenkung: str | None = None) -> bool:
-        """Update kontext_beschreibung and/or controls_einschraenkung for existing failure mode."""
-        updates = []
-        values = []
-        if kontext_beschreibung is not None:
-            updates.append("kontext_beschreibung = ?")
-            values.append(kontext_beschreibung)
-        if controls_einschraenkung is not None:
-            updates.append("controls_einschraenkung = ?")
-            values.append(controls_einschraenkung)
-        if not updates:
-            return False
-        values.append(fehler_id)
-        self.conn.execute(
-            f"UPDATE failure_modes SET {', '.join(updates)} WHERE fehler_id = ?",
-            values
-        )
-        self.conn.commit()
-        return self.conn.total_changes > 0
-
+    # ═══════════════════════════════════════════════════════════════════
     # ── FailureCause CRUD ──
+    # ═══════════════════════════════════════════════════════════════════
 
     def insert_failure_cause(self, failure_mode_id: int, ursache_id: str, beschreibung: str,
                              herkunft: str, praeventionsphase: str,
                              praeventionshinweis: str | None = None) -> int:
+        """Insert a failure cause. Validates herkunft and praeventionsphase. Returns the cause ID."""
         valid_herkunft = {"Design", "Fertigung", "Betrieb", "Wartung"}
         valid_phase = {"Konzept", "Detaildesign", "Fertigung", "Inbetriebnahme", "Betrieb", "Wartung"}
         if herkunft not in valid_herkunft:
@@ -350,7 +364,7 @@ class FMEAStorage:
         if praeventionsphase not in valid_phase:
             raise ValueError(f"praeventionsphase must be one of {valid_phase}, got '{praeventionsphase}'")
         cur = self.conn.execute(
-            """INSERT INTO failure_causes 
+            """INSERT INTO failure_causes
                (failure_mode_id, ursache_id, beschreibung, herkunft, praeventionsphase, praeventionshinweis)
                VALUES (?, ?, ?, ?, ?, ?)""",
             (failure_mode_id, ursache_id, beschreibung, herkunft, praeventionsphase, praeventionshinweis)
@@ -359,21 +373,25 @@ class FMEAStorage:
         return cur.lastrowid
 
     def get_failure_causes(self, failure_mode_id: int) -> list[dict]:
+        """Return all failure causes for a failure mode, ordered by ursache_id."""
         rows = self.conn.execute(
             "SELECT * FROM failure_causes WHERE failure_mode_id = ? ORDER BY ursache_id",
             (failure_mode_id,)
         ).fetchall()
         return [dict(r) for r in rows]
 
+    # ═══════════════════════════════════════════════════════════════════
     # ── FailureEffect CRUD ──
+    # ═══════════════════════════════════════════════════════════════════
 
     def insert_failure_effect(self, failure_mode_id: int,
                               mensch_stufe: str | None = None, mensch_beschreibung: str | None = None,
                               umwelt_stufe: str | None = None, umwelt_beschreibung: str | None = None,
                               anlage_stufe: str | None = None, anlage_beschreibung: str | None = None,
                               kosten_stufe: str | None = None, kosten_beschreibung: str | None = None) -> int:
+        """Insert failure effects (human, environment, plant, cost) for a failure mode. Returns the effect ID."""
         cur = self.conn.execute(
-            """INSERT INTO failure_effects 
+            """INSERT INTO failure_effects
                (failure_mode_id, mensch_stufe, mensch_beschreibung,
                 umwelt_stufe, umwelt_beschreibung, anlage_stufe, anlage_beschreibung,
                 kosten_stufe, kosten_beschreibung)
@@ -386,12 +404,15 @@ class FMEAStorage:
         return cur.lastrowid
 
     def get_failure_effect(self, failure_mode_id: int) -> dict | None:
+        """Return the failure effect for a failure mode, or None."""
         row = self.conn.execute(
             "SELECT * FROM failure_effects WHERE failure_mode_id = ?", (failure_mode_id,)
         ).fetchone()
         return dict(row) if row else None
 
+    # ═══════════════════════════════════════════════════════════════════
     # ── RiskAssessment CRUD ──
+    # ═══════════════════════════════════════════════════════════════════
 
     def insert_risk_assessment(self, failure_mode_id: int, S: int, O: int, D: int,
                                begruendung_S: str | None = None, begruendung_O: str | None = None,
@@ -400,6 +421,7 @@ class FMEAStorage:
                                daten_konfidenz: str = "mittel", agent_konfidenz: str = "mittel",
                                agent_konfidenz_begruendung: str | None = None,
                                daten_quelle: str | None = None) -> int:
+        """Insert a risk assessment (S, O, D) for a failure mode. Auto-calculates RPZ if not provided."""
         if rpz is None:
             rpz = S * O * D
         if rpz_status is None:
@@ -418,6 +440,7 @@ class FMEAStorage:
         return cur.lastrowid
 
     def update_risk_assessment(self, failure_mode_id: int, **kwargs) -> None:
+        """Update specific fields of an existing risk assessment. Only allowed fields are written."""
         allowed = {"S", "O", "D", "begruendung_S", "begruendung_O", "begruendung_D",
                     "rpz", "rpz_status", "override_applied",
                     "daten_konfidenz", "agent_konfidenz", "agent_konfidenz_begruendung", "daten_quelle",
@@ -433,24 +456,23 @@ class FMEAStorage:
         self.conn.commit()
 
     def get_risk_assessment(self, failure_mode_id: int) -> dict | None:
+        """Return the risk assessment for a failure mode, or None."""
         row = self.conn.execute(
             "SELECT * FROM risk_assessments WHERE failure_mode_id = ?", (failure_mode_id,)
         ).fetchone()
         return dict(row) if row else None
 
-    @staticmethod
-    def _classify_rpz(rpz: int) -> str:
-        from config.fmea_standards import classify_rpz
-        return classify_rpz(rpz)
-
+    # ═══════════════════════════════════════════════════════════════════
     # ── CurrentControl CRUD ──
+    # ═══════════════════════════════════════════════════════════════════
 
     def insert_current_control(self, failure_mode_id: int, name: str, typ: str,
                                wirkung: str, sil_level: str | None = None,
                                beschreibung: str | None = None, beeinflusst: str | None = None,
                                einschraenkung: str | None = None) -> int:
+        """Insert a current control for a failure mode. Returns the control ID."""
         cur = self.conn.execute(
-            """INSERT INTO current_controls 
+            """INSERT INTO current_controls
                (failure_mode_id, name, typ, wirkung, sil_level, beschreibung, beeinflusst, einschraenkung)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
             (failure_mode_id, name, typ, wirkung, sil_level, beschreibung, beeinflusst, einschraenkung)
@@ -459,12 +481,15 @@ class FMEAStorage:
         return cur.lastrowid
 
     def get_current_controls(self, failure_mode_id: int) -> list[dict]:
+        """Return all current controls for a failure mode."""
         rows = self.conn.execute(
             "SELECT * FROM current_controls WHERE failure_mode_id = ?", (failure_mode_id,)
         ).fetchall()
         return [dict(r) for r in rows]
 
-    # ── Measure CRUD ──
+    # ═══════════════════════════════════════════════════════════════════
+    # ── Measures CRUD ──
+    # ═══════════════════════════════════════════════════════════════════
 
     def insert_measure(self, failure_mode_id: int, name: str, abe_kategorie: str,
                        beschreibung: str, stop_kategorie: str | None = None,
@@ -476,6 +501,7 @@ class FMEAStorage:
                        kosten_klasse: str | None = None, assigned_to: str | None = None,
                        target_date: str | None = None,
                        implementation_status: str = "geplant") -> int:
+        """Insert a measure for a failure mode. Auto-calculates rpz_neu if S/O/D_neu are all provided."""
         if rpz_neu is None and all(v is not None for v in [S_neu, O_neu, D_neu]):
             rpz_neu = S_neu * O_neu * D_neu
         if rpz_status_neu is None and rpz_neu is not None:
@@ -523,6 +549,7 @@ class FMEAStorage:
         return ids
 
     def get_measures(self, failure_mode_id: int) -> list[dict]:
+        """Return all measures for a failure mode."""
         rows = self.conn.execute(
             "SELECT * FROM measures WHERE failure_mode_id = ?", (failure_mode_id,)
         ).fetchall()
@@ -537,7 +564,35 @@ class FMEAStorage:
         self.conn.commit()
         return self.conn.total_changes > 0
 
+    # ═══════════════════════════════════════════════════════════════════
+    # ── Report Fields ──
+    # ═══════════════════════════════════════════════════════════════════
+
+    def update_failure_mode_report_fields(self, fehler_id: str,
+                                          kontext_beschreibung: str | None = None,
+                                          controls_einschraenkung: str | None = None) -> bool:
+        """Update kontext_beschreibung and/or controls_einschraenkung for existing failure mode."""
+        updates = []
+        values = []
+        if kontext_beschreibung is not None:
+            updates.append("kontext_beschreibung = ?")
+            values.append(kontext_beschreibung)
+        if controls_einschraenkung is not None:
+            updates.append("controls_einschraenkung = ?")
+            values.append(controls_einschraenkung)
+        if not updates:
+            return False
+        values.append(fehler_id)
+        self.conn.execute(
+            f"UPDATE failure_modes SET {', '.join(updates)} WHERE fehler_id = ?",
+            values
+        )
+        self.conn.commit()
+        return self.conn.total_changes > 0
+
+    # ═══════════════════════════════════════════════════════════════════
     # ── Assessment Feedback CRUD ──
+    # ═══════════════════════════════════════════════════════════════════
 
     def record_feedback(self, failure_mode_id: int, project_id: int,
                         feedback_type: str, field: str,
@@ -617,8 +672,100 @@ class FMEAStorage:
             result.append(d)
         return result
 
+    # ═══════════════════════════════════════════════════════════════════
+    # ── Queries & Analytics ──
+    # ═══════════════════════════════════════════════════════════════════
+
+    def get_all_failure_modes_with_rpz(self, project_id: int, min_rpz: int = 0) -> list[dict]:
+        """Return all failure modes for a project with their risk assessment, filtered by min RPZ."""
+        rows = self.conn.execute("""
+            SELECT fm.*, ra.S, ra.O, ra.D, ra.rpz, ra.rpz_status,
+                   f.funktion_id, f.beschreibung as funktion_beschreibung,
+                   c.komp_id, c.name as komponente, c.typ as komponenten_typ, c.system_name
+            FROM failure_modes fm
+            JOIN functions f ON fm.function_id = f.id
+            JOIN components c ON f.component_id = c.id
+            JOIN risk_assessments ra ON ra.failure_mode_id = fm.id
+            WHERE c.project_id = ? AND ra.rpz >= ?
+            ORDER BY ra.rpz DESC
+        """, (project_id, min_rpz)).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_failure_modes_needing_measures(self, project_id: int) -> list[dict]:
+        """Return failure modes that need measures: RPZ >= 100 OR rpz_status in ('hoch', 'kritisch').
+        Ensures Sonderregel cases (e.g. S>=9 -> hoch despite RPZ<100) are included."""
+        rows = self.conn.execute("""
+            SELECT fm.*, ra.S, ra.O, ra.D, ra.rpz, ra.rpz_status,
+                   f.funktion_id, f.beschreibung as funktion_beschreibung,
+                   c.komp_id, c.name as komponente, c.typ as komponenten_typ, c.system_name
+            FROM failure_modes fm
+            JOIN functions f ON fm.function_id = f.id
+            JOIN components c ON f.component_id = c.id
+            JOIN risk_assessments ra ON ra.failure_mode_id = fm.id
+            WHERE c.project_id = ?
+              AND (ra.rpz >= 100 OR ra.rpz_status IN ('hoch', 'kritisch'))
+            ORDER BY ra.rpz DESC, ra.rpz_status DESC
+        """, (project_id,)).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_full_fmea_data(self, project_id: int) -> list[dict]:
+        """Return the complete FMEA dataset for export, with nested causes/effects/controls/measures/risk."""
+        failure_modes = self.get_all_failure_modes_with_rpz(project_id)
+        result = []
+        for fm in failure_modes:
+            fm_id = fm["id"]
+            entry = {
+                **fm,
+                "causes": self.get_failure_causes(fm_id),
+                "effects": self.get_failure_effect(fm_id),
+                "controls": self.get_current_controls(fm_id),
+                "measures": self.get_measures(fm_id),
+                "risk": self.get_risk_assessment(fm_id),
+            }
+            result.append(entry)
+        return result
+
+    def get_project_statistics(self, project_id: int) -> dict:
+        """Return summary statistics for a project (counts + RPZ distribution)."""
+        stats = {}
+        stats["components"] = self.conn.execute(
+            "SELECT COUNT(*) FROM components WHERE project_id = ?", (project_id,)
+        ).fetchone()[0]
+        stats["functions"] = self.conn.execute(
+            """SELECT COUNT(*) FROM functions f
+               JOIN components c ON f.component_id = c.id
+               WHERE c.project_id = ?""", (project_id,)
+        ).fetchone()[0]
+        stats["failure_modes"] = self.conn.execute(
+            """SELECT COUNT(*) FROM failure_modes fm
+               JOIN functions f ON fm.function_id = f.id
+               JOIN components c ON f.component_id = c.id
+               WHERE c.project_id = ?""", (project_id,)
+        ).fetchone()[0]
+
+        rpz_rows = self.conn.execute("""
+            SELECT ra.rpz_status, COUNT(*) as cnt FROM risk_assessments ra
+            JOIN failure_modes fm ON ra.failure_mode_id = fm.id
+            JOIN functions f ON fm.function_id = f.id
+            JOIN components c ON f.component_id = c.id
+            WHERE c.project_id = ?
+            GROUP BY ra.rpz_status
+        """, (project_id,)).fetchall()
+        stats["rpz_distribution"] = {row["rpz_status"]: row["cnt"] for row in rpz_rows}
+
+        measures_count = self.conn.execute("""
+            SELECT COUNT(*) FROM measures m
+            JOIN failure_modes fm ON m.failure_mode_id = fm.id
+            JOIN functions f ON fm.function_id = f.id
+            JOIN components c ON f.component_id = c.id
+            WHERE c.project_id = ?
+        """, (project_id,)).fetchone()[0]
+        stats["measures"] = measures_count
+
+        return stats
+
     def get_feedback_patterns(self) -> dict:
-        """Aggregated correction patterns across all projects."""
+        """Return aggregated correction patterns across all projects for calibration."""
         corrections = self.conn.execute("""
             SELECT af.field, af.delta, af.context_json,
                    c.typ as komponenten_typ, fm.fehlerart
@@ -682,7 +829,7 @@ class FMEAStorage:
         }
 
     def get_correction_rate(self, project_id: int) -> dict:
-        """Get correction rate for a specific project."""
+        """Return correction rate for a specific project."""
         total = self.conn.execute(
             "SELECT COUNT(*) FROM assessment_feedback WHERE project_id = ?",
             (project_id,)
@@ -699,97 +846,9 @@ class FMEAStorage:
             "correction_rate": round(corrections / total, 2) if total > 0 else 0.0,
         }
 
-    # ── Query Helpers ──
-
-    def get_all_failure_modes_with_rpz(self, project_id: int, min_rpz: int = 0) -> list[dict]:
-        """Returns all failure modes for a project with their risk assessment, filtered by min RPZ."""
-        rows = self.conn.execute("""
-            SELECT fm.*, ra.S, ra.O, ra.D, ra.rpz, ra.rpz_status,
-                   f.funktion_id, f.beschreibung as funktion_beschreibung,
-                   c.komp_id, c.name as komponente, c.typ as komponenten_typ, c.system_name
-            FROM failure_modes fm
-            JOIN functions f ON fm.function_id = f.id
-            JOIN components c ON f.component_id = c.id
-            JOIN risk_assessments ra ON ra.failure_mode_id = fm.id
-            WHERE c.project_id = ? AND ra.rpz >= ?
-            ORDER BY ra.rpz DESC
-        """, (project_id, min_rpz)).fetchall()
-        return [dict(r) for r in rows]
-
-    def get_failure_modes_needing_measures(self, project_id: int) -> list[dict]:
-        """
-        Returns failure modes that need measures: RPZ >= 100 OR rpz_status in ('hoch', 'kritisch').
-        Ensures Sonderregel-Fälle (z.B. S>=9 → hoch trotz RPZ<100) werden berücksichtigt.
-        """
-        rows = self.conn.execute("""
-            SELECT fm.*, ra.S, ra.O, ra.D, ra.rpz, ra.rpz_status,
-                   f.funktion_id, f.beschreibung as funktion_beschreibung,
-                   c.komp_id, c.name as komponente, c.typ as komponenten_typ, c.system_name
-            FROM failure_modes fm
-            JOIN functions f ON fm.function_id = f.id
-            JOIN components c ON f.component_id = c.id
-            JOIN risk_assessments ra ON ra.failure_mode_id = fm.id
-            WHERE c.project_id = ?
-              AND (ra.rpz >= 100 OR ra.rpz_status IN ('hoch', 'kritisch'))
-            ORDER BY ra.rpz DESC, ra.rpz_status DESC
-        """, (project_id,)).fetchall()
-        return [dict(r) for r in rows]
-
-    def get_full_fmea_data(self, project_id: int) -> list[dict]:
-        """Returns the complete FMEA dataset for export."""
-        failure_modes = self.get_all_failure_modes_with_rpz(project_id)
-        result = []
-        for fm in failure_modes:
-            fm_id = fm["id"]
-            entry = {
-                **fm,
-                "causes": self.get_failure_causes(fm_id),
-                "effects": self.get_failure_effect(fm_id),
-                "controls": self.get_current_controls(fm_id),
-                "measures": self.get_measures(fm_id),
-                "risk": self.get_risk_assessment(fm_id),
-            }
-            result.append(entry)
-        return result
-
-    def get_project_statistics(self, project_id: int) -> dict:
-        """Returns summary statistics for a project."""
-        stats = {}
-        stats["components"] = self.conn.execute(
-            "SELECT COUNT(*) FROM components WHERE project_id = ?", (project_id,)
-        ).fetchone()[0]
-        stats["functions"] = self.conn.execute(
-            """SELECT COUNT(*) FROM functions f 
-               JOIN components c ON f.component_id = c.id 
-               WHERE c.project_id = ?""", (project_id,)
-        ).fetchone()[0]
-        stats["failure_modes"] = self.conn.execute(
-            """SELECT COUNT(*) FROM failure_modes fm
-               JOIN functions f ON fm.function_id = f.id
-               JOIN components c ON f.component_id = c.id
-               WHERE c.project_id = ?""", (project_id,)
-        ).fetchone()[0]
-
-        rpz_rows = self.conn.execute("""
-            SELECT ra.rpz_status, COUNT(*) as cnt FROM risk_assessments ra
-            JOIN failure_modes fm ON ra.failure_mode_id = fm.id
-            JOIN functions f ON fm.function_id = f.id
-            JOIN components c ON f.component_id = c.id
-            WHERE c.project_id = ?
-            GROUP BY ra.rpz_status
-        """, (project_id,)).fetchall()
-        stats["rpz_distribution"] = {row["rpz_status"]: row["cnt"] for row in rpz_rows}
-
-        measures_count = self.conn.execute("""
-            SELECT COUNT(*) FROM measures m
-            JOIN failure_modes fm ON m.failure_mode_id = fm.id
-            JOIN functions f ON fm.function_id = f.id
-            JOIN components c ON f.component_id = c.id
-            WHERE c.project_id = ?
-        """, (project_id,)).fetchone()[0]
-        stats["measures"] = measures_count
-
-        return stats
+    # ═══════════════════════════════════════════════════════════════════
+    # ── Utilities ──
+    # ═══════════════════════════════════════════════════════════════════
 
     def backup(self) -> str:
         """Create a timestamped backup of the database. Returns the backup path."""
@@ -808,6 +867,7 @@ class FMEAStorage:
         return str(backup_path)
 
     def close(self) -> None:
+        """Close the database connection."""
         self.conn.close()
 
     def __enter__(self):

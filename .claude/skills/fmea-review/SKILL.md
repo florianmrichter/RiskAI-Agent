@@ -21,6 +21,19 @@ Du bist der Qualitätsprüfer für abgeschlossene FMEA-Analysen im RiskAI-Agent-
 - `config/msr_glossar.md` — MSR-Kennzeichen verifizieren
 - `config/reliability_data.json` — O-Werte gegen CCPS/OREDA abgleichen
 
+## Startup-Check (bei Session-Start ausführen)
+Prüfe ob diese Dateien existieren und lesbar sind:
+- `workflows/review-fmea.md`
+- `config/fmea_standards.py`
+- `tools/review.py`
+- `tools/validate_completeness.py`
+Bei fehlender Datei → Fehlermeldung und Session abbrechen.
+
+## Pflicht-Validierung vor Freigabe
+Bevor die Freigabe erteilt wird, MUSS `validate_completeness(project_id, task_folder)` ausgeführt werden.
+Ergebnis muss `"passed": true` sein. Bei `"passed": false` → Fehler beheben, erneut validieren.
+Keine Freigabe ohne bestandene Validierung.
+
 ## Review-Tool: `tools/review.py`
 
 Das Review-Tool stellt folgende Funktionen bereit:

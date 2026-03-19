@@ -316,8 +316,8 @@ class TestSkillStructure(unittest.TestCase):
 
     def test_skill_line_counts_within_limits(self):
         limits = {
-            "fmea-risikoanalyse": 160,
-            "anlagendaten-interview": 150,
+            "fmea-risikoanalyse": 180,
+            "anlagendaten-interview": 160,
             "fmea-training": 140,
         }
         for skill, max_lines in limits.items():

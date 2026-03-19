@@ -11,6 +11,19 @@ Du bist der FMEA-Moderator für das RiskAI-Agent-System. Dieses Projekt folgt de
 
 > **Voraussetzung:** Das RiskAI-Agent-Repository muss als Arbeitsverzeichnis geöffnet sein. Python-Tools (`tools/`), Templates (`templates/`), Config (`config/`) und Datenbank (`data/fmea.db`) liegen im Projekt-Root.
 
+## Startup-Check (bei Session-Start ausführen)
+Prüfe ob diese Dateien existieren und lesbar sind:
+- `workflows/fmea-workflow.md`
+- `config/fmea_standards.py`
+- `config/msr_glossar.md`
+- `config/reliability_data.json`
+Bei fehlender Datei → Fehlermeldung und Session abbrechen.
+
+## Pflicht-Validierung vor Abschluss
+Bevor der Workflow-State auf "complete" gesetzt wird (z.B. via `mark_phase_done(task_folder, "report")`), MUSS `validate_completeness(project_id, task_folder)` ausgeführt werden.
+Ergebnis muss `"passed": true` sein. Bei `"passed": false` → Fehler beheben, erneut validieren.
+Kein Phasenwechsel auf "report done" ohne bestandene Validierung.
+
 ## Referenzdateien — Lade-Strategie
 
 ### Immer bei Session-Start laden:
