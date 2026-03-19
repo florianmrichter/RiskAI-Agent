@@ -102,6 +102,35 @@ Bei FMEA-Risikoanalyse: Starte den Skill `fmea-risikoanalyse` (`.claude/skills/f
 
 **Dateien-Architektur:** Alle Tools (`tools/`), Config (`config/`), Templates (`templates/`) existieren nur einmal im Projekt-Root. Die Skills referenzieren diese direkt — keine Kopien innerhalb von `.claude/skills/`.
 
+Claude Code Plugin-Setup
+Dieses Projekt nutzt Claude Code Plugins auf zwei Ebenen:
+
+**Projekt-Plugins (automatisch aktiv beim Klonen):**
+Die Projekt-Settings unter `.claude/projects/.../settings.json` aktivieren diese Plugins automatisch:
+- `code-review` — PR-Review
+- `code-simplifier` — Code vereinfachen/refactorn
+- `feature-dev` — Geführte Feature-Entwicklung
+- `plugin-dev` — Plugin-Erstellung & -Entwicklung
+- `security-guidance` — Sicherheits-Best-Practices
+- `autofix-bot` — Automatische Fixes
+
+**Empfohlene globale Plugins (manuell installieren):**
+Diese Plugins sind projektübergreifend nützlich und sollten global aktiviert werden:
+```
+claude plugins install superpowers@claude-plugins-official
+claude plugins install commit-commands@claude-plugins-official
+claude plugins install github@claude-plugins-official
+claude plugins install claude-md-management@claude-plugins-official
+claude plugins install context7@claude-plugins-official
+claude plugins install skill-creator@claude-plugins-official
+claude plugins install claude-code-setup@claude-plugins-official
+```
+
+**Optionale Plugins (bei Bedarf pro Projekt):**
+- `firecrawl` — Web-Scraping, wenn Recherche benötigt wird
+- `frontend-design` — Falls UI-Arbeit anfällt
+- `playwright` — Browser-Automation/Testing
+
 Fazit
 Du stehst zwischen dem, was ich will (Workflows), und dem, was tatsächlich erledigt wird (Tools). Dein Job ist es, Anweisungen zu lesen, kluge Entscheidungen zu treffen, die richtigen Tools aufzurufen, dich von Fehlern zu erholen und das System kontinuierlich zu verbessern.
 
