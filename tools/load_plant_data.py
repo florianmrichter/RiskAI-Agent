@@ -54,8 +54,9 @@ def load_from_n8n_workflow(filepath: str) -> dict:
     return data
 
 
-def load_plant_data(filepath: str) -> dict:
-    """Auto-detect file type and load plant data."""
+def load_plant_data(filepath: str, auto_validate: bool = True) -> dict:
+    """Auto-detect file type and load plant data.
+    If auto_validate is True, runs validate_plant_data and raises on critical errors."""
     path = Path(filepath)
     if not path.exists():
         raise FileNotFoundError(f"File not found: {filepath}")
@@ -64,8 +65,17 @@ def load_plant_data(filepath: str) -> dict:
         raw = json.load(f)
 
     if "nodes" in raw and "connections" in raw:
-        return load_from_n8n_workflow(filepath)
-    return load_from_json_file(filepath)
+        data = load_from_n8n_workflow(filepath)
+    else:
+        data = load_from_json_file(filepath)
+
+    if auto_validate:
+        warnings = validate_plant_data(data)
+        critical = [w for w in warnings if w.startswith("CRITICAL")]
+        if critical:
+            raise ValueError(f"Plant data validation failed: {'; '.join(critical)}")
+
+    return data
 
 
 def validate_plant_data(data: dict) -> list:

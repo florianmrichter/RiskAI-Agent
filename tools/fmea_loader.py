@@ -39,7 +39,9 @@ def load_measures_module(task_folder: str):
 def _load_module(task_folder: str, module_name: str):
     """Lädt ein Python-Modul aus tasks/{task_folder}/{module_name}.py.
     task_folder kann Pfad sein, z.B. Risikoanalyse/Ethylacetatproduktion_20TA42."""
-    path = TASKS_ROOT / task_folder / f"{module_name}.py"
+    path = (TASKS_ROOT / task_folder / f"{module_name}.py").resolve()
+    if not str(path).startswith(str(TASKS_ROOT.resolve())):
+        raise ValueError(f"Path traversal blocked: {task_folder!r} escapes TASKS_ROOT")
     if not path.exists():
         return None
     mod_name = f"tasks.{task_folder.replace('/', '.')}.{module_name}"

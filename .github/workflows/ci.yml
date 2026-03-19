@@ -29,5 +29,5 @@ jobs:
       - name: Lint with ruff
         run: ruff check tools/ config/
 
-      - name: Run tests
-        run: pytest tests/ -v --tb=short
+      - name: Run tests with coverage
+        run: pytest tests/ -v --tb=short --cov=tools --cov=config --cov-report=term-missing

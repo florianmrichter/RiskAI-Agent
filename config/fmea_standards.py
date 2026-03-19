@@ -24,6 +24,30 @@ RPZ_COLORS = {
     "niedrig":  "#00A389",  # Teal Green
 }
 
+# ═══════════════════════════════════════════════════════════════
+# Design Colors — Canonical palette for all Python exports
+# ═══════════════════════════════════════════════════════════════
+
+DESIGN_COLORS = {
+    "brand_navy":      "#1E3A5F",
+    "brand_accent":    "#E8C547",
+    "risk_kritisch":   "#DC2626",
+    "risk_hoch":       "#EA580C",
+    "risk_mittel":     "#CA8A04",
+    "risk_niedrig":    "#16A34A",
+    "risk_akzeptabel": "#0EA5E9",
+}
+
+# Excel-friendly RPZ colors (no '#' prefix, AARRBB format for openpyxl)
+RPZ_HEX = {
+    "kritisch": RPZ_COLORS["kritisch"].lstrip("#"),
+    "hoch":     RPZ_COLORS["hoch"].lstrip("#"),
+    "mittel":   RPZ_COLORS["mittel"].lstrip("#"),
+    "niedrig":  RPZ_COLORS["niedrig"].lstrip("#"),
+}
+
+HEADER_COLOR = DESIGN_COLORS["brand_navy"].lstrip("#")
+
 RPZ_LABELS = {
     "kritisch": "Sofortige Maßnahme",
     "hoch":     "Maßnahme zeitnah umsetzen",
@@ -340,6 +364,9 @@ PREVENTION_PHASES = [
 FMEA_CONFIG = {
     "rpz_thresholds": RPZ_THRESHOLDS,
     "rpz_colors": RPZ_COLORS,
+    "rpz_hex": RPZ_HEX,
+    "design_colors": DESIGN_COLORS,
+    "header_color": HEADER_COLOR,
     "rpz_labels": RPZ_LABELS,
     "special_rules": SPECIAL_RULES,
     "safety_overrides": SAFETY_OVERRIDES,

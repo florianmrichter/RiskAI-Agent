@@ -13,6 +13,7 @@ from pathlib import Path
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent))
 from tools.storage import FMEAStorage
+from config.fmea_standards import RPZ_HEX as RPZ_COLORS, HEADER_COLOR
 
 try:
     from openpyxl import Workbook
@@ -21,14 +22,6 @@ try:
     HAS_OPENPYXL = True
 except ImportError:
     HAS_OPENPYXL = False
-
-
-RPZ_COLORS = {
-    "kritisch": "FF0000",
-    "hoch": "FF8C00",
-    "mittel": "FFD700",
-    "niedrig": "00B050",
-}
 
 
 def export_json(project_id: int, output_path: str, db_path: str = None) -> str:
@@ -82,7 +75,7 @@ def export_excel(project_id: int, output_path: str, db_path: str = None) -> str:
 
 def _style_header(ws, row: int, max_col: int):
     header_font = Font(bold=True, color="FFFFFF", size=11)
-    header_fill = PatternFill(start_color="2F5496", end_color="2F5496", fill_type="solid")
+    header_fill = PatternFill(start_color=HEADER_COLOR, end_color=HEADER_COLOR, fill_type="solid")
     thin_border = Border(
         left=Side(style='thin'), right=Side(style='thin'),
         top=Side(style='thin'), bottom=Side(style='thin')
