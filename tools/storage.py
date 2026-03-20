@@ -9,6 +9,7 @@ Usage:
 
 from __future__ import annotations
 
+import re
 import sqlite3
 import json
 import sys
@@ -185,6 +186,16 @@ class FMEAStorage:
         from config.fmea_standards import classify_rpz
         return classify_rpz(rpz)
 
+    @staticmethod
+    def _normalize_text(text: str | None) -> str | None:
+        """Normalize text before storage: strip, collapse whitespace, fix encoding."""
+        if text is None:
+            return None
+        text = text.replace('\u00a0', ' ').replace('\u200b', '').replace('\u00ad', '')
+        text = text.strip()
+        text = re.sub(r'[ \t]+', ' ', text)
+        return text if text else None
+
     # ═══════════════════════════════════════════════════════════════════
     # ── Project CRUD ──
     # ═══════════════════════════════════════════════════════════════════
@@ -245,6 +256,8 @@ class FMEAStorage:
                          kategorie: str, system_name: str | None = None, beschreibung: str | None = None,
                          parameters: dict | None = None, kontext: dict | None = None) -> int:
         """Insert a component into the project. Returns the component ID."""
+        name = self._normalize_text(name) or name
+        beschreibung = self._normalize_text(beschreibung)
         cur = self.conn.execute(
             """INSERT INTO components
                (project_id, komp_id, name, typ, kategorie, system_name, beschreibung,
@@ -325,6 +338,9 @@ class FMEAStorage:
                             kontext_beschreibung: str | None = None,
                             controls_einschraenkung: str | None = None) -> int:
         """Insert a failure mode. Uses INSERT OR IGNORE for idempotency. Returns the failure mode ID."""
+        fehlermodus = self._normalize_text(fehlermodus) or fehlermodus
+        kontext_beschreibung = self._normalize_text(kontext_beschreibung)
+        controls_einschraenkung = self._normalize_text(controls_einschraenkung)
         cur = self.conn.execute(
             """INSERT OR IGNORE INTO failure_modes
                (function_id, fehler_id, fehlermodus, fehlerart, kontext_beschreibung, controls_einschraenkung)
@@ -363,6 +379,8 @@ class FMEAStorage:
             raise ValueError(f"herkunft must be one of {valid_herkunft}, got '{herkunft}'")
         if praeventionsphase not in valid_phase:
             raise ValueError(f"praeventionsphase must be one of {valid_phase}, got '{praeventionsphase}'")
+        beschreibung = self._normalize_text(beschreibung) or beschreibung
+        praeventionshinweis = self._normalize_text(praeventionshinweis)
         cur = self.conn.execute(
             """INSERT INTO failure_causes
                (failure_mode_id, ursache_id, beschreibung, herkunft, praeventionsphase, praeventionshinweis)
@@ -390,6 +408,10 @@ class FMEAStorage:
                               anlage_stufe: str | None = None, anlage_beschreibung: str | None = None,
                               kosten_stufe: str | None = None, kosten_beschreibung: str | None = None) -> int:
         """Insert failure effects (human, environment, plant, cost) for a failure mode. Returns the effect ID."""
+        mensch_beschreibung = self._normalize_text(mensch_beschreibung)
+        umwelt_beschreibung = self._normalize_text(umwelt_beschreibung)
+        anlage_beschreibung = self._normalize_text(anlage_beschreibung)
+        kosten_beschreibung = self._normalize_text(kosten_beschreibung)
         cur = self.conn.execute(
             """INSERT INTO failure_effects
                (failure_mode_id, mensch_stufe, mensch_beschreibung,
@@ -422,6 +444,9 @@ class FMEAStorage:
                                agent_konfidenz_begruendung: str | None = None,
                                daten_quelle: str | None = None) -> int:
         """Insert a risk assessment (S, O, D) for a failure mode. Auto-calculates RPZ if not provided."""
+        begruendung_S = self._normalize_text(begruendung_S)
+        begruendung_O = self._normalize_text(begruendung_O)
+        begruendung_D = self._normalize_text(begruendung_D)
         if rpz is None:
             rpz = S * O * D
         if rpz_status is None:
@@ -471,6 +496,8 @@ class FMEAStorage:
                                beschreibung: str | None = None, beeinflusst: str | None = None,
                                einschraenkung: str | None = None) -> int:
         """Insert a current control for a failure mode. Returns the control ID."""
+        name = self._normalize_text(name) or name
+        beschreibung = self._normalize_text(beschreibung)
         cur = self.conn.execute(
             """INSERT INTO current_controls
                (failure_mode_id, name, typ, wirkung, sil_level, beschreibung, beeinflusst, einschraenkung)
@@ -502,6 +529,10 @@ class FMEAStorage:
                        target_date: str | None = None,
                        implementation_status: str = "geplant") -> int:
         """Insert a measure for a failure mode. Auto-calculates rpz_neu if S/O/D_neu are all provided."""
+        name = self._normalize_text(name) or name
+        beschreibung = self._normalize_text(beschreibung) or beschreibung
+        begruendung = self._normalize_text(begruendung)
+        hinweis = self._normalize_text(hinweis)
         if rpz_neu is None and all(v is not None for v in [S_neu, O_neu, D_neu]):
             rpz_neu = S_neu * O_neu * D_neu
         if rpz_status_neu is None and rpz_neu is not None:

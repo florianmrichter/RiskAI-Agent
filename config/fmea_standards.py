@@ -31,10 +31,10 @@ RPZ_COLORS = {
 DESIGN_COLORS = {
     "brand_navy":      "#1E3A5F",
     "brand_accent":    "#E8C547",
-    "risk_kritisch":   "#DC2626",
-    "risk_hoch":       "#EA580C",
-    "risk_mittel":     "#CA8A04",
-    "risk_niedrig":    "#16A34A",
+    "risk_kritisch":   RPZ_COLORS["kritisch"],
+    "risk_hoch":       RPZ_COLORS["hoch"],
+    "risk_mittel":     RPZ_COLORS["mittel"],
+    "risk_niedrig":    RPZ_COLORS["niedrig"],
     "risk_akzeptabel": "#0EA5E9",
 }
 

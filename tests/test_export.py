@@ -230,7 +230,7 @@ class TestExportExcel(_ExportTestCase):
         export_excel(self.project_id, out, db_path=self.db_path)
         from openpyxl import load_workbook
         wb = load_workbook(out)
-        self.assertEqual(wb.sheetnames, ["Übersicht", "FMEA-Analyse", "Fehlerursachen", "Maßnahmen"])
+        self.assertEqual(wb.sheetnames, ["Übersicht", "FMEA-Analyse", "Fehlerursachen", "Maßnahmen", "Legende"])
         wb.close()
 
     def test_overview_sheet_project_info(self):
@@ -331,7 +331,7 @@ class TestExportExcelEmpty(_EmptyProjectTestCase):
         self.assertTrue(os.path.exists(out))
         from openpyxl import load_workbook
         wb = load_workbook(out)
-        self.assertEqual(len(wb.sheetnames), 4)
+        self.assertEqual(len(wb.sheetnames), 5)  # incl. Legende
         # FMEA-Analyse should have header row only
         ws = wb["FMEA-Analyse"]
         self.assertIsNotNone(ws.cell(row=1, column=1).value)  # header exists

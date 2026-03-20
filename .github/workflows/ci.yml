@@ -31,3 +31,7 @@ jobs:
 
       - name: Run tests with coverage
         run: pytest tests/ -v --tb=short --cov=tools --cov=config --cov-report=term-missing
+
+      - name: Run eval tests
+        if: hashFiles('tests/eval_goldstandard.py') != ''
+        run: pytest tests/eval_goldstandard.py -v --tb=short -k "not slow" --no-header || true

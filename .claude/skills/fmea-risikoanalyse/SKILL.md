@@ -171,3 +171,9 @@ Erst nach Adressierung aller KRITISCH-Findings: Report generieren.
 ## 5. Abschluss
 
 Abschluss-Zusammenfassung: Anzahl Komponenten, Fehlermodi, übernommene Maßnahmen, Status DB/Report, Gesamtprüfung bestanden/Warnings.
+
+## 6. Auto-Transition zum FMEA-Training
+
+Nach Abschluss der FMEA-Analyse und erfolgreicher Report-Generierung, dem Nutzer die Weiterleitung anbieten:
+
+> "Der Report ist fertig. Falls du unsichere Bewertungen trainieren möchtest, sage 'Training starten' oder nutze /fmea-training."

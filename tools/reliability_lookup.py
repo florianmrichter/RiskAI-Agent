@@ -27,14 +27,18 @@ from pathlib import Path
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from tools._base import load_json_config
+
 DATA_FILE = Path(__file__).parent.parent / "config" / "reliability_data.json"
 
 
 class ReliabilityDB:
     def __init__(self, data_path: str = None):
-        path = Path(data_path) if data_path else DATA_FILE
-        with open(path, "r", encoding="utf-8") as f:
-            self._data = json.load(f)
+        if data_path:
+            with open(data_path, "r", encoding="utf-8") as f:
+                self._data = json.load(f)
+        else:
+            self._data = load_json_config("config/reliability_data.json")
         self._index = self._build_index()
 
     def _build_index(self) -> dict:

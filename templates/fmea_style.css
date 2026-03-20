@@ -15,20 +15,35 @@
   --border:         #E5E7EB;
   --text-primary:   #111827;
   --text-secondary: #6B7280;
-  --text-muted:     #9CA3AF;
+  --text-muted:     #6B7280;  /* WCAG AA 4.6:1 on white (was #9CA3AF ~3.5:1) */
   --brand:          #1E3A5F;
   --brand-light:    #EFF4FB;
 
-  --risk-kritisch:    #DC2626;
-  --risk-hoch:        #EA580C;
-  --risk-mittel:      #CA8A04;
-  --risk-niedrig:     #16A34A;
-  --risk-kritisch-bg: rgba(220,38,38,0.06);
-  --risk-hoch-bg:     rgba(234,88,12,0.06);
-  --risk-mittel-bg:   rgba(202,138,4,0.06);
-  --risk-niedrig-bg:  rgba(22,163,74,0.06);
+  /* Risk colors — Single Source of Truth: config/fmea_standards.py RPZ_COLORS */
+  --risk-kritisch:    #F5004F;
+  --risk-hoch:        #FD7E14;
+  --risk-mittel:      #E8C547;
+  --risk-niedrig:     #00A389;
+  --risk-kritisch-bg: rgba(245,0,79,0.06);
+  --risk-hoch-bg:     rgba(253,126,20,0.06);
+  --risk-mittel-bg:   rgba(232,197,71,0.06);
+  --risk-niedrig-bg:  rgba(0,163,137,0.06);
 
-  /* Legacy palette (used in SOD, STOP badges etc.) */
+  /* Aliases for backward compatibility (same values as --risk-*) */
+  --rpz-kritisch:        var(--risk-kritisch);
+  --rpz-kritisch-bg:     #FFF0F5;
+  --rpz-kritisch-border: #FECDD3;
+  --rpz-hoch:            var(--risk-hoch);
+  --rpz-hoch-bg:         #FFF7ED;
+  --rpz-hoch-border:     #FDBA74;
+  --rpz-mittel:          var(--risk-mittel);
+  --rpz-mittel-bg:       #FEFCE8;
+  --rpz-mittel-border:   #FDE68A;
+  --rpz-niedrig:         var(--risk-niedrig);
+  --rpz-niedrig-bg:      #F0FDF4;
+  --rpz-niedrig-border:  #BBF7D0;
+
+  /* Semantic color tokens */
   --color-primary:        #F5004F;
   --color-primary-dark:   #C0003A;
   --color-indigo:         #2C2C54;
@@ -43,20 +58,7 @@
   --color-border-light:   #F1F5F9;
   --color-text-primary:   #111827;
   --color-text-secondary: #4B5563;
-  --color-text-muted:     #9CA3AF;
-
-  --rpz-kritisch:        #F5004F;
-  --rpz-kritisch-bg:     #FFF0F5;
-  --rpz-kritisch-border: #FECDD3;
-  --rpz-hoch:            #FD7E14;
-  --rpz-hoch-bg:         #FFF7ED;
-  --rpz-hoch-border:     #FDBA74;
-  --rpz-mittel:          #E8C547;
-  --rpz-mittel-bg:       #FEFCE8;
-  --rpz-mittel-border:   #FDE68A;
-  --rpz-niedrig:         #00A389;
-  --rpz-niedrig-bg:      #F0FDF4;
-  --rpz-niedrig-border:  #BBF7D0;
+  --color-text-muted:     #6B7280;
 
   --stop-s-bg: #F3E8FF; --stop-s-text: #7E22CE; --stop-s-border: #D8B4FE;
   --stop-t-bg: #E0F2FE; --stop-t-text: #0369A1; --stop-t-border: #BAE6FD;
@@ -536,7 +538,7 @@ p.text-kurz { display: block; }
 .hover-tooltip.visible { opacity: 1; }
 .hover-tooltip .tip-id { font-weight: 700; color: white; font-size: 13px; }
 .hover-tooltip .tip-name { color: #D1D5DB; display: block; margin: 2px 0 6px; }
-.hover-tooltip .tip-sod { display: flex; gap: 8px; font-size: 11px; font-weight: 600; color: #9CA3AF; }
+.hover-tooltip .tip-sod { display: flex; gap: 8px; font-size: 11px; font-weight: 600; color: #D1D5DB; }
 .hover-tooltip .tip-sod span { background: rgba(255,255,255,0.1); padding: 1px 6px; border-radius: 4px; }
 .hover-tooltip .tip-rpz { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-weight: 700; font-size: 13px; }
 .hover-tooltip .tip-rpz-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
@@ -826,10 +828,10 @@ p.text-kurz { display: block; }
 
 .risk-badge .bdot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 
-.risk-badge.kritisch { background: var(--risk-kritisch-bg); color: var(--risk-kritisch); border: 1px solid rgba(220,38,38,0.2); }
-.risk-badge.hoch     { background: var(--risk-hoch-bg);     color: var(--risk-hoch);     border: 1px solid rgba(234,88,12,0.2); }
-.risk-badge.mittel   { background: var(--risk-mittel-bg);   color: var(--risk-mittel);   border: 1px solid rgba(202,138,4,0.2); }
-.risk-badge.niedrig  { background: var(--risk-niedrig-bg);  color: var(--risk-niedrig);  border: 1px solid rgba(22,163,74,0.2); }
+.risk-badge.kritisch { background: var(--risk-kritisch-bg); color: var(--risk-kritisch); border: 1px solid rgba(245,0,79,0.2); }
+.risk-badge.hoch     { background: var(--risk-hoch-bg);     color: var(--risk-hoch);     border: 1px solid rgba(253,126,20,0.2); }
+.risk-badge.mittel   { background: var(--risk-mittel-bg);   color: var(--risk-mittel);   border: 1px solid rgba(232,197,71,0.2); }
+.risk-badge.niedrig  { background: var(--risk-niedrig-bg);  color: var(--risk-niedrig);  border: 1px solid rgba(0,163,137,0.2); }
 
 .risk-badge.kritisch .bdot { background: var(--risk-kritisch); }
 .risk-badge.hoch     .bdot { background: var(--risk-hoch); }
@@ -1108,10 +1110,10 @@ p.text-kurz { display: block; }
   border: 2px solid;
 }
 
-.rpz-value.kritisch { color: var(--risk-kritisch); border-color: rgba(220,38,38,0.3); background: var(--risk-kritisch-bg); }
-.rpz-value.hoch     { color: var(--risk-hoch);     border-color: rgba(234,88,12,0.3); background: var(--risk-hoch-bg); }
-.rpz-value.mittel   { color: var(--risk-mittel);   border-color: rgba(202,138,4,0.3); background: var(--risk-mittel-bg); }
-.rpz-value.niedrig  { color: var(--risk-niedrig);  border-color: rgba(22,163,74,0.3); background: var(--risk-niedrig-bg); }
+.rpz-value.kritisch { color: var(--risk-kritisch); border-color: rgba(245,0,79,0.3); background: var(--risk-kritisch-bg); }
+.rpz-value.hoch     { color: var(--risk-hoch);     border-color: rgba(253,126,20,0.3); background: var(--risk-hoch-bg); }
+.rpz-value.mittel   { color: var(--risk-mittel);   border-color: rgba(232,197,71,0.3); background: var(--risk-mittel-bg); }
+.rpz-value.niedrig  { color: var(--risk-niedrig);  border-color: rgba(0,163,137,0.3); background: var(--risk-niedrig-bg); }
 
 .rpz-formula { font-size: 10.5px; color: var(--text-muted); }
 
@@ -1490,7 +1492,7 @@ tbody tr:last-child td { border-bottom: none; }
 .chart-toggle-bar { display: flex; gap: 6px; margin-bottom: 16px; }
 .chart-toggle-btn {
   padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border);
-  background: white; font-size: 12px; font-weight: 600; color: var(--text-muted);
+  background: white; font-size: 12px; font-weight: 600; color: var(--text-secondary);
   cursor: pointer; transition: all 0.15s;
 }
 .chart-toggle-btn:hover { border-color: var(--brand); color: var(--text-primary); }
@@ -1534,7 +1536,7 @@ tbody tr:last-child td { border-bottom: none; }
 .pc-wrap { height: 100%; }
 .pc-svg { height: 100%; width: auto; max-width: 100%; }
 .pc-axis-label { font-size: 9px; font-weight: 700; fill: #1F2937; font-family: var(--font-body); }
-.pc-tick { font-size: 7px; fill: #9CA3AF; font-family: var(--font-body); }
+.pc-tick { font-size: 7px; fill: #6B7280; font-family: var(--font-body); }
 .pc-line { cursor: pointer; }
 .pc-line a { text-decoration: none; }
 .pc-line.dimmed polyline { opacity: 0.06 !important; }
@@ -1560,7 +1562,7 @@ tbody tr:last-child td { border-bottom: none; }
 }
 .pc-detail strong { color: var(--text-primary); }
 .pc-detail-placeholder { color: var(--text-muted); font-style: italic; font-size: 11px; }
-.pc-zone-label { font-size: 8px; font-weight: 700; fill: #9CA3AF; font-family: var(--font-body); text-transform: uppercase; letter-spacing: 0.06em; }
+.pc-zone-label { font-size: 8px; font-weight: 700; fill: #6B7280; font-family: var(--font-body); text-transform: uppercase; letter-spacing: 0.06em; }
 .pc-toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
 .pc-toggle-label { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-secondary); cursor: pointer; margin-left: auto; }
 .pc-toggle-label input { accent-color: var(--brand); }

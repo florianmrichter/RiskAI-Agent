@@ -136,3 +136,19 @@ Möchtest du jetzt direkt mit der FMEA-Risikoanalyse starten?
 ```
 
 **Schema-Regel:** Alle erlaubten Top-Level-Felder sind im Schema definiert (`processDetails`, `processSteps`, `psa`, `sops`, `physischeSicherheit`, `cyberSecurity`, `notfallinfrastruktur`, `personalQualifikation`, `raumkontext`, `awsv`, `erstickungsgefahr`, `betriebserfahrungen`, `interview_status`). Keine weiteren neuen Felder auf oberster Ebene. Unbekannte Werte → `null`.
+
+## 7. Resume — Unterbrochenes Interview fortsetzen
+
+Wenn der Nutzer "Interview fortsetzen", "weiter machen" oder "wo waren wir" sagt:
+
+1. **Bestehende Daten laden:** `tasks/{task_folder}/anlagendaten.json` einlesen
+2. **Fortschritt ermitteln:** Anhand der befüllten Felder und `interview_status` (insb. `current_phase`, `current_system`) bestimmen, welche Phasen vollständig sind
+3. **Nächste offene Phase identifizieren:** Die erste Phase finden, in der noch Pflichtfelder oder FMEA-kritische Felder leer (`null`) sind
+4. **Nahtlos fortsetzen:** Kurze Zusammenfassung geben ("Du bist bei Phase [X], System [Y]. Folgende Daten sind bereits erfasst: ...") und direkt mit den offenen Fragen weitermachen
+5. **Modus beibehalten:** Den zuletzt verwendeten Modus (G/E/I) aus dem Kontext ableiten oder nachfragen
+
+## 8. Auto-Transition zur FMEA-Risikoanalyse
+
+Nach Abschluss des Interviews und erfolgreicher Validierung (`passed=True`), dem Nutzer die Weiterleitung anbieten:
+
+> "Die Anlagendaten sind vollständig. Möchtest du direkt mit der FMEA-Risikoanalyse starten? Sage 'FMEA starten' oder nutze den Skill /fmea-risikoanalyse."

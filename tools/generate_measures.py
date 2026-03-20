@@ -17,6 +17,7 @@ if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from tools.storage import FMEAStorage
+from tools._base import tool_entry
 from tools.insert_measures import insert_measures_for_fehlermodus
 from tools.fmea_loader import load_measures_module
 
@@ -33,6 +34,7 @@ def _get_measures_module(task_folder: str):
         return None
 
 
+@tool_entry
 def run_generate_measures(project_id: int, task_folder: str = "Risikoanalyse", db_path: str = None) -> dict:
     """
     Generiert und speichert Maßnahmen für alle Fehlermodi mit RPZ >= 100 (oder Status hoch/kritisch).

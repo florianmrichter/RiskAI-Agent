@@ -37,6 +37,7 @@ from playwright.sync_api import sync_playwright
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent))
 from tools.storage import FMEAStorage
+from tools._base import tool_entry
 from config.fmea_standards import (
     S_SCALE as S_INFO,
     O_SCALE as O_INFO,
@@ -380,7 +381,7 @@ def _render_risk_matrix(fmea_data: list[dict], tmp_dir: str) -> str:
               title="Risikozonen / Detection (D)", title_fontsize=8)
 
     p = _chart_path(tmp_dir, "risk_matrix")
-    fig.savefig(p, dpi=200, bbox_inches="tight", facecolor="white")
+    fig.savefig(p, dpi=300, bbox_inches="tight", facecolor="white")
     plt.close(fig)
     return p
 
@@ -484,7 +485,7 @@ def _render_treemap_pair(fmea_data: list[dict], tmp_dir: str) -> str:
                handlelength=1.2, handleheight=0.8)
 
     p = _chart_path(tmp_dir, "treemap_pair")
-    fig.savefig(p, dpi=220, bbox_inches="tight", facecolor="white", pad_inches=0.3)
+    fig.savefig(p, dpi=300, bbox_inches="tight", facecolor="white", pad_inches=0.3)
     plt.close(fig)
     return p
 
@@ -567,6 +568,7 @@ def _load_plant_data(path: str | None = None, task_folder: str | None = None) ->
 # Main Entry Point
 # ═══════════════════════════════════════════════════════════════
 
+@tool_entry
 def generate_report(project_id: int, output_path: str | None = None, task_folder: str | None = None, db_path: str | None = None, css_name: str = "fmea_style.css") -> str:
     """Generate the FMEA PDF report for a given project."""
 

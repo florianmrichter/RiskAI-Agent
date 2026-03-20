@@ -25,6 +25,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config.fmea_standards import GEFAHRENFELDER, FEHLERMODI_VORLAGEN, SAFETY_OVERRIDES
 from tools.storage import FMEAStorage
+from tools._base import tool_entry
 from tools.rpz_calculator import check_safety_overrides
 from tools.reliability_lookup import suggest_for_component
 
@@ -338,6 +339,7 @@ def _check_cross_fm_alignment(fms: list[dict], ad: dict | None) -> tuple[list[st
 # Main validation function
 # ---------------------------------------------------------------------------
 
+@tool_entry
 def validate_completeness(project_id: int, task_folder: str = None, db_path: str = None) -> dict:
     """
     Validate FMEA completeness for a project before report generation.

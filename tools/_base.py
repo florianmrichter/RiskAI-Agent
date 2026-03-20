@@ -3,7 +3,9 @@ Zentrale Infrastruktur für alle FMEA-Tools.
 - Logging (Console + Datei)
 - Tool-Entry-Decorator mit Timing und Error-Handling
 """
+from __future__ import annotations
 
+import json
 import logging
 import logging.handlers
 import time
@@ -86,3 +88,41 @@ STOP_LABELS = {
 def _sort_measures_by_stop(measures: list) -> list:
     """Sort measures by STOP hierarchy (S before T before O before P)."""
     return sorted(measures, key=lambda m: STOP_ORDER.get(m.get("stop_kategorie", ""), 99))
+
+
+# ═══════════════════════════════════════════════════════════════
+# Central JSON Config Loader
+# ═══════════════════════════════════════════════════════════════
+
+PROJECT_ROOT = Path(__file__).parent.parent
+
+_config_cache = {}
+
+
+def load_json_config(relative_path: str, *, cache: bool = True) -> dict | list:
+    """Load a JSON config file relative to project root.
+
+    Args:
+        relative_path: Path relative to project root (e.g. 'config/reliability_data.json')
+        cache: If True, cache the parsed result for repeated calls.
+
+    Returns:
+        Parsed JSON data (dict or list).
+
+    Raises:
+        FileNotFoundError: If the config file does not exist.
+        json.JSONDecodeError: If the file contains invalid JSON.
+    """
+    if cache and relative_path in _config_cache:
+        return _config_cache[relative_path]
+
+    path = PROJECT_ROOT / relative_path
+    if not path.exists():
+        raise FileNotFoundError(f"Config file not found: {path}")
+
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+
+    if cache:
+        _config_cache[relative_path] = data
+    return data

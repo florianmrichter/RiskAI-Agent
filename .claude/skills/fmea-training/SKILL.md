@@ -124,3 +124,47 @@ Am Ende: `generate_rules()` aus `tools.calibration` aufrufen — aktualisiert au
 - Wenn kontext_beschreibung fehlt: eigene Kurzeinordnung formulieren
 - Am Ende: Kalibrierungsregeln automatisch neu generieren
 - Maximal 15 Runden pro Session (Experten-Ermüdung vermeiden)
+
+---
+
+## Massnahmen-Training Modus
+
+Trigger: "Massnahmen trainieren", "Massnahmen-Training", "measures training"
+
+### Ablauf
+
+1. **FM laden**: Fehlermodus mit aktuellem RPZ aus DB holen (RPZ >= 100)
+2. **Kontext zeigen**: Fehlermodus, Ursachen, Folgen, S/O/D, aktueller RPZ
+3. **Experte bewerten lassen**:
+   - STOP-Kategorie vorschlagen (S/T/O/P)
+   - ABE-Kategorie vorschlagen (A/B/E)
+   - Erwartete RPZ-Reduktion schätzen (neue S/O/D-Werte)
+4. **Vergleich**: Agent zeigt seine eigene Empfehlung und vergleicht
+5. **Feedback sammeln**: Bei Abweichung nach Begründung fragen
+6. **Tracking**: Übereinstimmungsrate über alle Runden mitführen
+
+### Darstellung pro Runde
+
+```
+=== Runde X/15 — Massnahmen-Training ===
+FM: [fehler_id] — [fehlermodus]
+Komponente: [name] ([typ])
+RPZ: [S]×[O]×[D] = [RPZ] ([status])
+
+Ursachen: [Liste]
+Folgen: [Mensch/Umwelt/Anlage/Kosten]
+Aktuelle Controls: [Liste]
+
+Frage: Welche Massnahme würden Sie empfehlen?
+→ STOP-Kategorie: S / T / O / P ?
+→ ABE-Kategorie: A / B / E ?
+→ Geschätzte neue Werte: S_neu, O_neu, D_neu ?
+```
+
+### Auswertung
+
+Am Ende der Session:
+- Übereinstimmungsrate STOP: X%
+- Übereinstimmungsrate ABE: X%
+- Durchschnittliche RPZ-Abweichung: ±Y
+- Auffällige Muster (z.B. "Experte bevorzugt technische Massnahmen stärker")

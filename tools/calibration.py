@@ -24,6 +24,8 @@ from datetime import datetime
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from tools._base import load_json_config
+
 RULES_PATH = Path(__file__).parent.parent / "config" / "calibration_rules.json"
 
 
@@ -31,8 +33,7 @@ def load_calibration_rules() -> dict:
     """Load calibration rules from config file."""
     if not RULES_PATH.exists():
         return {"rules": [], "plausibility_checks": []}
-    with open(RULES_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+    return load_json_config("config/calibration_rules.json")
 
 
 def check_plausibility(fm_data: dict, S: int, O: int, D: int) -> list[dict]:

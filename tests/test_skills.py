@@ -318,7 +318,7 @@ class TestSkillStructure(unittest.TestCase):
         limits = {
             "fmea-risikoanalyse": 180,
             "anlagendaten-interview": 160,
-            "fmea-training": 140,
+            "fmea-training": 180,
         }
         for skill, max_lines in limits.items():
             content = (SKILLS_DIR / skill / "SKILL.md").read_text()
