@@ -1,0 +1,62 @@
+{# ═══════════════════════  COVER — Navy full-bleed  ═══════════════════════ #}
+<div class="cover">
+  <div class="cover-logo">
+    <img class="cover-logo-icon-img" src="{{ scholar_navy_path }}" alt="RiskAI Agent">
+    <span class="cover-logo-name">RiskAI Agent</span>
+  </div>
+  <div class="cover-body">
+    <div class="cover-label">FMEA — Failure Mode and Effects Analysis</div>
+    <div class="cover-title">{{ project.anlage_name }}</div>
+    <div class="cover-subtitle">{{ project.name }}</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Status</span>
+        <span class="cover-meta-value">{{ project.status }}</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Datum</span>
+        <span class="cover-meta-value">{{ project.datum[:10] }}</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Norm</span>
+        <span class="cover-meta-value">AIAG-VDA FMEA 2019</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Version</span>
+        <span class="cover-meta-value">Rev. {{ report_context.version }}</span>
+      </div>
+    </div>
+
+    {# MoC-Hinweis #}
+    {% if moc_delta %}
+    <div class="cover-version-box" style="margin-top:20px;">
+      <span style="font-size:11px;color:#E8C547;font-weight:700;">Version {{ report_context.version }}</span>
+      <span style="font-size:11px;color:rgba(255,255,255,0.7);margin-left:8px;">
+        ersetzt {{ moc_delta.parent_project.version if moc_delta.parent_project else '' }} vom {{ moc_delta.parent_project.datum[:10] if moc_delta.parent_project else '' }}
+        {% if moc_delta.change_description %} · {{ moc_delta.change_description }}{% endif %}
+      </span>
+    </div>
+    {% endif %}
+
+    {# Freigabe-Stempel #}
+    <div class="cover-approval-row">
+      <div class="cover-approval-cell">
+        <div class="cover-approval-label">Erstellt von</div>
+        <div class="cover-approval-value">{{ report_context.erstellt_von or 'ausstehend' }}</div>
+      </div>
+      <div class="cover-approval-cell">
+        <div class="cover-approval-label">Geprüft von</div>
+        <div class="cover-approval-value">{{ report_context.geprueft_von or 'ausstehend' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cover-stats">
+    <div class="cover-chip"><span class="dot" style="background:#DC2626"></span> {{ stats.rpz_distribution.get('kritisch', 0) }} Kritisch</div>
+    <div class="cover-chip"><span class="dot" style="background:#EA580C"></span> {{ stats.rpz_distribution.get('hoch', 0) }} Hoch</div>
+    <div class="cover-chip"><span class="dot" style="background:#CA8A04"></span> {{ stats.rpz_distribution.get('mittel', 0) }} Mittel</div>
+    <div class="cover-chip"><span class="dot" style="background:#16A34A"></span> {{ stats.rpz_distribution.get('niedrig', 0) }} Niedrig</div>
+    <div class="cover-chip">{{ stats.failure_modes }} Fehlermodi</div>
+    <div class="cover-chip">{{ stats.measures }} Maßnahmen</div>
+  </div>
+</div>

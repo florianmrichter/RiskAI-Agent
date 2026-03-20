@@ -662,6 +662,15 @@ def generate_report(project_id: int, output_path: str | None = None, task_folder
                 best_reduction = max(reductions)
                 avg_reduction = round(sum(reductions) / len(reductions))
 
+        # ── RPZ percentage distribution (moved from Jinja2 template) ──
+        total_fm = stats.get("failure_modes") or 1
+        rpz_percentages = {
+            "kritisch": int((dist.get("kritisch", 0) / total_fm) * 100),
+            "hoch": int((dist.get("hoch", 0) / total_fm) * 100),
+            "mittel": int((dist.get("mittel", 0) / total_fm) * 100),
+        }
+        rpz_percentages["niedrig"] = 100 - rpz_percentages["kritisch"] - rpz_percentages["hoch"] - rpz_percentages["mittel"]
+
         task_folder = task_folder or project.get("task_folder")
         if not task_folder:
             raise ValueError("task_folder erforderlich – weder übergeben noch in Projekt gespeichert")
@@ -694,6 +703,14 @@ def generate_report(project_id: int, output_path: str | None = None, task_folder
             if any(kw in fm.get("fehler_id", "").upper() for kw in moc_keywords)
             or any(kw in fm.get("fehlermodus", "").upper() for kw in moc_keywords)
         ]
+
+        # ── MoC risk summary (moved from Jinja2 template) ──
+        moc_risk_summary = {
+            "niedrig": sum(1 for fm in moc_fms if fm.get("rpz_status") == "niedrig"),
+            "mittel": sum(1 for fm in moc_fms if fm.get("rpz_status") == "mittel"),
+            "hoch": sum(1 for fm in moc_fms if fm.get("rpz_status") == "hoch"),
+            "kritisch": sum(1 for fm in moc_fms if fm.get("rpz_status") == "kritisch"),
+        }
 
         # ── Konfidenz-Aggregation ──
         low_konfidenz_fms = [fm for fm in fmea_data if fm.get("agent_konfidenz") == "niedrig"]
@@ -764,6 +781,101 @@ def generate_report(project_id: int, output_path: str | None = None, task_folder
                 "change_description": project.get("version_beschreibung", ""),
             }
 
+        # ── Matrix SVG layout constants (moved from Jinja2 template) ──
+        _cell = 16
+        _pad_l = 18
+        _gw = 10 * _cell
+        _gh = 10 * _cell
+        _leg_x = _pad_l + _gw + 10
+        matrix_layout = {
+            "cell": _cell,
+            "pad_l": _pad_l,
+            "gw": _gw,
+            "gh": _gh,
+            "leg_x": _leg_x,
+            "svgw": _leg_x + 50,
+            "svgh": _gh + 22,
+            "zone_colors": {
+                "kritisch": "rgba(245,0,79,0.13)",
+                "hoch": "rgba(253,126,20,0.13)",
+                "mittel": "rgba(232,197,71,0.10)",
+                "niedrig": "rgba(0,163,137,0.08)",
+            },
+        }
+
+        # ── Parallel coordinates pre-computation (moved from Jinja2 template) ──
+        pc_ax = [44, 128, 212, 316, 484, 568, 652, 756]
+        pc_atop = 42
+        pc_abot = 380
+        pc_ah = pc_abot - pc_atop
+        pc_div_x = 400
+        pc_layout = {
+            "ax": pc_ax,
+            "atop": pc_atop,
+            "abot": pc_abot,
+            "ah": pc_ah,
+            "div_x": pc_div_x,
+            "albl": ["S", "O", "D", "RPZ", "S'", "O'", "D'", "RPZ'"],
+        }
+
+        # Pre-compute per-FM parallel coordinates data
+        pc_fm_data = []
+        for fm in fmea_sorted:
+            s = fm.get("S") or 1
+            o = fm.get("O") or 1
+            d = fm.get("D") or 1
+            rpz = fm.get("rpz") or (s * o * d)
+            measures = fm.get("measures") or []
+            best = min(measures, key=lambda m: m.get("rpz_neu") or 9999) if measures else None
+            s2 = best.get("S_neu") if best else s
+            o2 = best.get("O_neu") if best else o
+            d2 = best.get("D_neu") if best else d
+            rpz2 = best.get("rpz_neu") if best else rpz
+            has_m = best is not None
+
+            # Y positions (before)
+            ys = round(pc_abot - ((s - 1) / 9 * pc_ah), 1)
+            yo = round(pc_abot - ((o - 1) / 9 * pc_ah), 1)
+            yd = round(pc_abot - ((d - 1) / 9 * pc_ah), 1)
+            yr = round(pc_abot - (rpz / 999 * pc_ah), 1)
+
+            # Y positions (after)
+            ys2 = round(pc_abot - (((s2 or s) - 1) / 9 * pc_ah), 1)
+            yo2 = round(pc_abot - (((o2 or o) - 1) / 9 * pc_ah), 1)
+            yd2 = round(pc_abot - (((d2 or d) - 1) / 9 * pc_ah), 1)
+            yr2 = round(pc_abot - ((rpz2 or rpz) / 999 * pc_ah), 1)
+
+            pc_class = "hoch" if rpz > 200 else ("mittel" if rpz > 100 else "niedrig")
+            lc = "var(--risk-hoch)" if rpz > 200 else ("var(--risk-mittel)" if rpz > 100 else "var(--risk-niedrig)")
+            lc2 = "var(--risk-hoch)" if (rpz2 or rpz) > 200 else ("var(--risk-mittel)" if (rpz2 or rpz) > 100 else "var(--risk-niedrig)")
+
+            pc_fm_data.append({
+                "fehler_id": fm.get("fehler_id", ""),
+                "fehlermodus": (fm.get("fehlermodus") or "")[:55],
+                "rpz_status": fm.get("rpz_status", ""),
+                "s": s, "o": o, "d": d, "rpz": rpz,
+                "s2": s2 or s, "o2": o2 or o, "d2": d2 or d, "rpz2": rpz2 or rpz,
+                "has_m": has_m,
+                "ys": ys, "yo": yo, "yd": yd, "yr": yr,
+                "ys2": ys2, "yo2": yo2, "yd2": yd2, "yr2": yr2,
+                "pc_class": pc_class,
+                "lc": lc, "lc2": lc2,
+                "before_points": f"{pc_ax[0]},{ys} {pc_ax[1]},{yo} {pc_ax[2]},{yd} {pc_ax[3]},{yr}",
+                "after_points": f"{pc_ax[3]},{yr} {pc_ax[4]},{ys2} {pc_ax[5]},{yo2} {pc_ax[6]},{yd2} {pc_ax[7]},{yr2}",
+                "before_circles": [
+                    {"cx": pc_ax[0], "cy": ys},
+                    {"cx": pc_ax[1], "cy": yo},
+                    {"cx": pc_ax[2], "cy": yd},
+                    {"cx": pc_ax[3], "cy": yr},
+                ],
+                "after_circles": [
+                    {"cx": pc_ax[4], "cy": ys2},
+                    {"cx": pc_ax[5], "cy": yo2},
+                    {"cx": pc_ax[6], "cy": yd2},
+                    {"cx": pc_ax[7], "cy": yr2},
+                ],
+            })
+
         # Jinja2 rendering
         env = Environment(loader=FileSystemLoader(str(template_dir)), autoescape=False)
         env.filters['strip_sod_prefix'] = _strip_sod_prefix
@@ -806,6 +918,11 @@ def generate_report(project_id: int, output_path: str | None = None, task_folder
             moc_delta=moc_delta,
             moc_changes=moc_changes,
             moc_fms=moc_fms,
+            rpz_percentages=rpz_percentages,
+            moc_risk_summary=moc_risk_summary,
+            matrix_layout=matrix_layout,
+            pc_layout=pc_layout,
+            pc_fm_data=pc_fm_data,
             report_context={
                 "special_rule_count": special_rule_count,
                 "stop_coverage": stop_coverage,

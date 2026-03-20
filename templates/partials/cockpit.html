@@ -1,0 +1,61 @@
+    {# ══════════════════  1.2 MAßNAHMEN-COCKPIT  ══════════════════ #}
+    <section class="page-section" id="cockpit">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 1.2</div>
+        <div class="section-title">Maßnahmen-Cockpit</div>
+        <div class="section-desc">Alle {{ total_measures }} Maßnahmen, sortiert nach Wirkung (höchste RPZ-Reduktion oben).
+          <strong style="color:#991B1B;">Rot = Pflicht</strong> · <span style="color:#EA580C;">Orange = Empfohlen</span> · <span style="color:#6B7280;">Grau = Optional</span></div>
+      </div>
+      {% if cockpit_rows %}
+      <table class="appendix-measures-table" style="font-size:12px;">
+        <thead>
+          <tr>
+            <th>Fehler-ID</th>
+            <th>Fehlermodus</th>
+            <th>Maßnahme</th>
+            <th style="text-align:center;">STOP</th>
+            <th style="text-align:center;">ABE</th>
+            <th style="text-align:center;">Priorität</th>
+            <th style="text-align:center;">Aufwand</th>
+            <th style="text-align:center;">RPZ vorher</th>
+            <th style="text-align:center;">RPZ nachher</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in cockpit_rows %}
+          {% set prio_color = {'pflicht':'#DC2626','empfohlen':'#EA580C','optional':'#6B7280'}.get(row.prioritaet, '#6B7280') %}
+          <tr>
+            <td style="font-weight:600;white-space:nowrap;font-size:11px;"><a href="#risk-{{ row.fehler_id }}" class="risk-toc-link">{{ row.fehler_id }}</a></td>
+            <td style="font-size:12px;"><a href="#risk-{{ row.fehler_id }}" class="risk-toc-link">{{ row.fehlermodus[:50] }}{% if row.fehlermodus|length > 50 %}…{% endif %}</a></td>
+            <td style="font-size:12px;">{{ row.massnahme_name }}</td>
+            <td style="text-align:center;white-space:nowrap;">
+              <span class="badge" style="background:#1F293710;color:#1F2937;font-size:10px;">{{ row.stop_kategorie or '–' }}</span>
+            </td>
+            <td style="text-align:center;white-space:nowrap;">
+              <span class="badge" style="background:#1F293710;color:#1F2937;font-size:10px;">{{ row.abe_kategorie or '–' }}</span>
+            </td>
+            <td style="text-align:center;">
+              <span style="color:{{ prio_color }};font-weight:700;font-size:11px;">{{ row.prioritaet|upper }}</span>
+            </td>
+            <td style="text-align:center;font-size:11px;">{{ row.aufwand or '–' }}</td>
+            <td style="text-align:center;font-weight:600;">
+              <span class="risk-badge {{ row.rpz_status_vorher }}" style="font-size:10px;">{{ row.rpz_vorher }}</span>
+            </td>
+            <td style="text-align:center;font-weight:600;">
+              {% if row.rpz_nachher != row.rpz_vorher %}
+              <span class="risk-badge {{ row.rpz_status_nachher }}" style="font-size:10px;">{{ row.rpz_nachher }}</span>
+              <span style="font-size:10px;color:#16A34A;"> ↓{{ row.rpz_delta }}</span>
+              {% else %}
+              <span style="color:var(--text-muted);">–</span>
+              {% endif %}
+            </td>
+            <td style="font-size:11px;white-space:nowrap;">{{ row.implementation_status or 'geplant' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p style="color:var(--text-muted);font-style:italic;">Noch keine Maßnahmen erfasst.</p>
+      {% endif %}
+    </section>

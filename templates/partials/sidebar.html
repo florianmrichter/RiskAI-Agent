@@ -1,0 +1,127 @@
+  {# ── SIDEBAR ── #}
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <img class="sidebar-logo-icon-img" src="{{ scholar_white_path }}" alt="RiskAI Agent">
+        <span class="sidebar-logo-name">RiskAI Agent</span>
+      </div>
+      <div class="sidebar-project">{{ project.anlage_name }}</div>
+      <div class="sidebar-project-sub">{{ project.name }} · Rev. {{ report_context.version }}</div>
+    </div>
+
+    {# View-Toggle Buttons #}
+    <div class="view-toggle-btns">
+      <button class="view-toggle-btn active" id="btn-thematic" onclick="switchView('thematic')">Thematisch</button>
+      <button class="view-toggle-btn" id="btn-component" onclick="switchView('component')">Komponenten</button>
+    </div>
+    <div class="detail-toggle-btns">
+      <button class="detail-toggle-btn active" id="btn-kurzansicht" onclick="toggleDetail('kurz')">Kurzansicht</button>
+      <button class="detail-toggle-btn" id="btn-detailansicht" onclick="toggleDetail('detail')">Detailansicht</button>
+    </div>
+
+    {# Sidebar Nav — Thematisch #}
+    <nav class="sidebar-nav" id="nav-thematic">
+      <div class="nav-section">
+        <div class="nav-section-label">Bericht</div>
+        <a class="nav-link active" href="#summary"><span class="nav-num">1</span> Executive Summary</a>
+        <a class="nav-link" href="#sec-methodik"><span class="nav-num">2</span> Methodik</a>
+        <a class="nav-link nav-sub" href="#sec-methodik-grundlagen">2.1 Grundlagen &amp; Normen</a>
+        <a class="nav-link nav-sub" href="#sec-methodik-bewertung">2.2 Risikobewertung</a>
+        <a class="nav-link nav-sub" href="#sec-methodik-fehleridentifikation">2.3 Fehleridentifikation</a>
+        <a class="nav-link nav-sub" href="#sec-methodik-konfidenz">2.4 Datenquellen &amp; Konfidenz</a>
+        <a class="nav-link nav-sub" href="#sec-methodik-massnahmen">2.5 Maßnahmen &amp; Akzeptanz</a>
+        <a class="nav-link nav-sub" href="#sec-methodik-recht">2.6 Rechtliche Einordnung</a>
+        <a class="nav-link" href="#sec-anlage"><span class="nav-num">3</span> Anlagenbeschreibung</a>
+        {% if plant.get('outOfScope') %}<a class="nav-link" href="#sec-abgrenzung"><span class="nav-num">3+</span> Abgrenzung (Out of Scope)</a>{% endif %}
+        {% if moc_changes %}<a class="nav-link" href="#sec-moc"><span class="nav-num">3+</span> Management of Change</a>{% endif %}
+        <a class="nav-link" href="#sec-risikouebersicht"><span class="nav-num">4</span> Risiko-Übersicht</a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label"><span class="nav-num">5</span> Risikoanalyse — Thematisch</div>
+        {# Dynamisch: alle fehlerart-Gruppen #}
+        {% set ns = namespace(seen=[], idx=1) %}
+        {% for fm in fmea_sorted %}
+          {% if fm.fehlerart and fm.fehlerart not in ns.seen %}
+            {% set ns.seen = ns.seen + [fm.fehlerart] %}
+            {% set dot_color = {'kritisch':'var(--risk-kritisch)','hoch':'var(--risk-hoch)','mittel':'var(--risk-mittel)','niedrig':'var(--risk-niedrig)'}.get(fm.rpz_status, 'var(--text-muted)') %}
+            <a class="nav-link" href="#cat-{{ fm.fehlerart|lower|replace(' ','_')|replace('/','_')|replace('ä','ae')|replace('ö','oe')|replace('ü','ue') }}">
+              <span class="nav-dot" style="background:{{ dot_color }}"></span>
+              5.{{ ns.idx }} {{ fm.fehlerart }}
+            </a>
+            {% set ns.idx = ns.idx + 1 %}
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label"><span class="nav-num">6</span> Bewertung</div>
+        {% if compliance_findings is defined and compliance_findings %}<a class="nav-link" href="#sec-compliance">6.1 Compliance-Status</a>{% endif %}
+        {% if akzeptierte_risiken is defined and akzeptierte_risiken %}<a class="nav-link" href="#sec-akzeptanz">6.2 Akzeptierte Risiken</a>{% endif %}
+        {% if wartungsmatrix is defined and wartungsmatrix %}<a class="nav-link" href="#sec-wartung">6.3 Wartungsmatrix</a>{% endif %}
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label"><span class="nav-num">7</span> Anhang</div>
+        <a class="nav-link" href="#sec-anhang">Anhang &amp; Tabellen</a>
+      </div>
+    </nav>
+
+    {# Sidebar Nav — Komponentenweise (hidden by default) #}
+    <nav class="sidebar-nav" id="nav-component" style="display:none;">
+      <div class="nav-section">
+        <div class="nav-section-label">Bericht</div>
+        <a class="nav-link active" href="#summary"><span class="nav-num">1</span> Executive Summary</a>
+        <a class="nav-link" href="#sec-methodik"><span class="nav-num">2</span> Methodik</a>
+        <a class="nav-link nav-sub" href="#sec-methodik-grundlagen">2.1 Grundlagen &amp; Normen</a>
+        <a class="nav-link nav-sub" href="#sec-methodik-bewertung">2.2 Risikobewertung</a>
+        <a class="nav-link nav-sub" href="#sec-methodik-fehleridentifikation">2.3 Fehleridentifikation</a>
+        <a class="nav-link nav-sub" href="#sec-methodik-konfidenz">2.4 Datenquellen &amp; Konfidenz</a>
+        <a class="nav-link nav-sub" href="#sec-methodik-massnahmen">2.5 Maßnahmen &amp; Akzeptanz</a>
+        <a class="nav-link nav-sub" href="#sec-methodik-recht">2.6 Rechtliche Einordnung</a>
+        <a class="nav-link" href="#sec-anlage"><span class="nav-num">3</span> Anlagenbeschreibung</a>
+        {% if plant.get('outOfScope') %}<a class="nav-link" href="#sec-abgrenzung"><span class="nav-num">3+</span> Abgrenzung (Out of Scope)</a>{% endif %}
+        {% if moc_changes %}<a class="nav-link" href="#sec-moc"><span class="nav-num">3+</span> Management of Change</a>{% endif %}
+        <a class="nav-link" href="#sec-risikouebersicht"><span class="nav-num">4</span> Risiko-Übersicht</a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label"><span class="nav-num">5</span> Risikoanalyse — Komponenten</div>
+        {% set ns2 = namespace(seen_comp=[], idx=1) %}
+        {% for fm in fmea_sorted %}
+          {% set comp = fm.get('component_name') or fm.get('komponente','?') %}
+          {% if comp not in ns2.seen_comp %}
+            {% set ns2.seen_comp = ns2.seen_comp + [comp] %}
+            <a class="nav-link" href="#comp-{{ comp|lower|replace(' ','_')|replace('-','_') }}">
+              <span class="nav-dot" style="background:var(--text-muted)"></span>
+              5.{{ ns2.idx }} {{ comp }}
+            </a>
+            {% set ns2.idx = ns2.idx + 1 %}
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label"><span class="nav-num">7</span> Anhang</div>
+        <a class="nav-link" href="#sec-anhang">Anhang &amp; Tabellen</a>
+      </div>
+    </nav>
+
+    {# Risikoverteilung Footer #}
+    <div class="sidebar-risks">
+      <div class="sidebar-risks-label">Risikoverteilung</div>
+      <div class="risk-counter">
+        <div class="risk-counter-row">
+          <span class="risk-counter-left"><span class="risk-counter-dot" style="background:var(--risk-kritisch)"></span>Kritisch</span>
+          <span class="risk-counter-n">{{ stats.rpz_distribution.get('kritisch', 0) }}</span>
+        </div>
+        <div class="risk-counter-row">
+          <span class="risk-counter-left"><span class="risk-counter-dot" style="background:var(--risk-hoch)"></span>Hoch</span>
+          <span class="risk-counter-n">{{ stats.rpz_distribution.get('hoch', 0) }}</span>
+        </div>
+        <div class="risk-counter-row">
+          <span class="risk-counter-left"><span class="risk-counter-dot" style="background:var(--risk-mittel)"></span>Mittel</span>
+          <span class="risk-counter-n">{{ stats.rpz_distribution.get('mittel', 0) }}</span>
+        </div>
+        <div class="risk-counter-row">
+          <span class="risk-counter-left"><span class="risk-counter-dot" style="background:var(--risk-niedrig)"></span>Niedrig</span>
+          <span class="risk-counter-n">{{ stats.rpz_distribution.get('niedrig', 0) }}</span>
+        </div>
+      </div>
+    </div>
+  </aside>

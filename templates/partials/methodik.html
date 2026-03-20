@@ -1,0 +1,365 @@
+    {# ══════════════════  2. METHODIK  ══════════════════ #}
+    <section class="page-section" id="sec-methodik">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 2</div>
+        <div class="section-title">Methodik</div>
+        <div class="section-desc">Vollständige Dokumentation des Analysevorgehens — von normativen Grundlagen über Bewertungsskalen bis zur rechtlichen Einordnung.</div>
+      </div>
+
+      {# ── 2.1 Grundlagen & Normen ── #}
+      <div class="methodik-sub" id="sec-methodik-grundlagen">
+        <h3><span class="methodik-num">2.1</span> Grundlagen &amp; Normen</h3>
+
+        <p>
+          Die vorliegende FMEA basiert auf der Methodik nach AIAG-VDA (1.&nbsp;Auflage, 2019).
+          Die Risikobewertung erfolgt über drei Dimensionen:
+          <strong>Bedeutung (Severity, S)</strong> bewertet die Schwere der Fehlerauswirkung (1–10).
+          <strong>Auftreten (Occurrence, O)</strong> schätzt die Eintrittswahrscheinlichkeit ein.
+          <strong>Entdeckung (Detection, D)</strong> bewertet die Fähigkeit bestehender Maßnahmen, den Fehler zu erkennen.
+          Das Produkt S&nbsp;&times;&nbsp;O&nbsp;&times;&nbsp;D ergibt die Risikoprioritätszahl (RPZ, Wertebereich 1–1000).
+        </p>
+
+        <h4>FMEA-Prozess (5 Schritte)</h4>
+        <ol class="steps-list">
+          <li><span class="step-name">Strukturanalyse</span><span class="step-desc">Zerlegung der Anlage in Einzelkomponenten mit Systemkontext.</span></li>
+          <li><span class="step-name">Domänenrecherche</span><span class="step-desc">Sichtung verfahrenstechnischer Grundlagen, Gefährdungen und geltender Vorschriften (12.&nbsp;BImSchV, ATEX).</span></li>
+          <li><span class="step-name">Systematische Fehleridentifikation</span><span class="step-desc">Für jede Komponente werden alle 9 Fehlermodi-Kategorien geprüft (siehe 2.3).</span></li>
+          <li><span class="step-name">Funktions- &amp; Fehleranalyse</span><span class="step-desc">Identifikation von Haupt-/Nebenfunktionen, Fehlermodi, Ursachen, Folgen und Controls.</span></li>
+          <li><span class="step-name">Risikobewertung &amp; Maßnahmenoptimierung</span><span class="step-desc">S/O/D-Bewertung nach AIAG-VDA mit publizierten Ausfallratendaten (CCPS, OREDA, IEC). Maßnahmen nach STOP-Prinzip und ABE-Hierarchie (siehe 2.5).</span></li>
+        </ol>
+
+        <div class="info-box">
+          <strong>Normative Grundlagen:</strong> AIAG-VDA FMEA (1.&nbsp;Aufl. 2019) · IEC 61511 / IEC 61508 · CCPS Guidelines · IEEE Std 493 · OREDA · VDI 4006
+        </div>
+      </div>
+
+      {# ── 2.2 Risikobewertung ── #}
+      <div class="methodik-sub" id="sec-methodik-bewertung">
+        <h3><span class="methodik-num">2.2</span> Risikobewertung (S/O/D &amp; RPZ)</h3>
+
+        <h4>RPZ-Klassifizierung</h4>
+        <table>
+          <thead><tr><th>Bereich</th><th>Klassifizierung</th><th>Maßnahme erforderlich</th></tr></thead>
+          <tbody>
+            <tr><td>≥ 300</td><td><span class="badge badge-kritisch">Kritisch</span></td><td>Sofortige Maßnahme erforderlich</td></tr>
+            <tr><td>≥ 200</td><td><span class="badge badge-hoch">Hoch</span></td><td>Maßnahme zeitnah umsetzen</td></tr>
+            <tr><td>≥ 100</td><td><span class="badge badge-mittel">Mittel</span></td><td>Maßnahme planen</td></tr>
+            <tr><td>&lt; 100</td><td><span class="badge badge-niedrig">Niedrig</span></td><td>Monitoring ausreichend</td></tr>
+          </tbody>
+        </table>
+
+        <h4>Sonderregeln (AIAG-VDA Overrides)</h4>
+        <p>Die folgenden Regeln übersteuern die berechnete RPZ-Klassifizierung, um Sicherheitsanforderungen unabhängig vom numerischen Wert durchzusetzen:</p>
+        <table>
+          <thead><tr><th>Bedingung</th><th>Wirkung</th><th>Begründung</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>S ≥ 9</strong></td>
+              <td>Status mindestens <span class="badge badge-hoch">HOCH</span></td>
+              <td>Bei möglichen Schwerverletzungen oder Todesfällen sind Maßnahmen zwingend erforderlich.</td>
+            </tr>
+            <tr>
+              <td><strong>D ≥ 9 und S ≥ 7</strong></td>
+              <td>Status wird <span class="badge badge-kritisch">KRITISCH</span></td>
+              <td>Hohe Bedeutung bei gleichzeitig fehlender Entdeckungsmöglichkeit erfordert sofortige Maßnahmen.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Safety-Overrides (kontextbasierte S-Anhebung)</h4>
+        <p>
+          Zusätzlich zu den AIAG-VDA Sonderregeln werden S-Werte automatisch angehoben,
+          wenn sicherheitskritische Kontexte in der Fehlermodus-Beschreibung erkannt werden.
+          Das System unterscheidet über <strong>Qualifiers</strong> zwischen verschiedenen Gefährdungsgraden desselben Kontexts:
+        </p>
+        <table>
+          <thead><tr><th>Kontext</th><th>Erkennungsmerkmale</th><th>Mindest-S</th><th>Begründung</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Explosionsschutz — permanent</strong></td><td>Ex-Schutz, ATEX, Zone&nbsp;0/1 (ohne lokale Einschränkung)</td><td>S ≥ 10</td><td>Permanente explosionsfähige Atmosphäre (z.&nbsp;B. Reaktorinnenraum bei Lösemittelbetrieb) erfordert höchste Einstufung</td></tr>
+            <tr style="background:#f8f9fa;"><td><strong>Explosionsschutz — lokal/temporär</strong></td><td>Zone&nbsp;0 + Qualifier: offen, Handloch, undicht, Leckage, lokal, temporär</td><td>S ≥ 9</td><td>Explosionsfähige Atmosphäre entsteht lokal und/oder temporär (z.&nbsp;B. am offenen Handloch, bei undichter Dichtung). Nicht gleichzusetzen mit permanenter Zone&nbsp;0 im geschlossenen Reaktor.</td></tr>
+            <tr><td><strong>Gefahrstoff-Handling</strong></td><td>Säure, Lauge, toxisch, Chlor</td><td>S ≥ 9</td><td>Kontakt mit Gefahrstoffen kann schwere Verletzungen verursachen</td></tr>
+            <tr><td><strong>Sicherheitsgerichtete Bauteile</strong></td><td>Berstscheibe, PSV, Not-Aus</td><td>S ≥ 10</td><td>Versagen von Sicherheitseinrichtungen hat katastrophales Potenzial</td></tr>
+          </tbody>
+        </table>
+        <div class="info-box">
+          <strong>Qualifier-Logik:</strong> Wenn ein Safety-Override-Kontext erkannt wird und gleichzeitig ein Qualifier greift (z.&nbsp;B. „Zone&nbsp;0" + „offen"), wird der spezifischere, niedrigere Mindest-S verwendet. Ohne Qualifier-Match gilt der Standard-Mindest-S. Dies verhindert systematische Überbewertung lokaler/temporärer Gefährdungen.
+        </div>
+
+        <h4>Bewertungsskalen</h4>
+        {% for scale_key, scale_title, info_dict in scales %}
+        <h4>{{ scale_title }}</h4>
+        <table class="scale-table">
+          <thead><tr><th>Stufe</th><th>Kriterium</th><th>Beschreibung / Beispiel</th></tr></thead>
+          <tbody>
+            {% for val, (criterion, example) in info_dict.items() %}
+            <tr><td class="scale-num">{{ val }}</td><td>{{ criterion }}</td><td>{{ example }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endfor %}
+      </div>
+
+      {# ── Multi-Szenario D-Bewertung (Teil von 2.2) ── #}
+      <div class="methodik-sub" style="margin-top:-0.5rem;">
+        <h4>Multi-Szenario-Fehlermodi (D-Bewertung)</h4>
+        <p>
+          Wenn ein Fehlermodus mehrere Szenarien mit unterschiedlicher Entdeckbarkeit umfasst
+          (z.&nbsp;B. „offen <em>oder</em> undicht"), wird der D-Wert <strong>gewichtet gemittelt</strong>,
+          nicht am Worst-Case orientiert. Dies verhindert systematische Überbewertung bei Fehlermodi,
+          die sowohl leicht erkennbare als auch schwer erkennbare Teilszenarien umfassen.
+        </p>
+        <table>
+          <thead><tr><th>Schritt</th><th>Beschreibung</th></tr></thead>
+          <tbody>
+            <tr><td>1. Szenarien identifizieren</td><td>Fehlermodus in Teilszenarien aufteilen (Erkennungsregel: FM-Titel enthält „oder", „und" oder Schrägstrich)</td></tr>
+            <tr><td>2. D pro Szenario bewerten</td><td>Jeden D-Wert separat bestimmen, basierend auf vorhandenen Detection-Mechanismen</td></tr>
+            <tr><td>3. Gewichtung nach Eintritt</td><td>Gewichte anhand der relativen Eintrittswahrscheinlichkeit der Szenarien vergeben</td></tr>
+            <tr><td>4. Gewichtetes Mittel</td><td>D = Σ(D<sub>i</sub> × w<sub>i</sub>), gerundet auf ganze Zahl</td></tr>
+          </tbody>
+        </table>
+        <div class="info-box">
+          <strong>Beispiel:</strong> Fehlermodus „Betrieb mit offenem/undichtem Handloch" →
+          Szenario A: Offenes Handloch, visuell erkennbar (D=4, Gewicht 40%) ·
+          Szenario B: Undichte Dichtung, nicht erkennbar (D=8, Gewicht 60%) →
+          D<sub>gewichtet</sub> = 0,4 × 4 + 0,6 × 8 = 6,4 → <strong>D = 6</strong>.
+          Begründung und Gewichtung werden in begruendung_D dokumentiert.
+        </div>
+      </div>
+
+      {# ── 2.3 Systematische Fehleridentifikation ── #}
+      <div class="methodik-sub" id="sec-methodik-fehleridentifikation">
+        <h3><span class="methodik-num">2.3</span> Systematische Fehleridentifikation</h3>
+
+        <h4>9 Fehlermodi-Kategorien</h4>
+        <p>
+          Für jede Komponente werden systematisch alle neun Fehlermodi-Kategorien geprüft.
+          Nicht relevante Kategorien werden mit Begründung dokumentiert, um Vollständigkeit nachzuweisen.
+        </p>
+        <table>
+          <thead><tr><th>Nr.</th><th>Kategorie</th><th>Typische Fehlermodi (Auswahl)</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Prozess</td><td>Mehr-/Weniger-/Kein-Durchfluss, Druckabweichung, Rückströmung, Kontamination</td></tr>
+            <tr><td>2</td><td>Thermisch</td><td>Über-/Untertemperatur, Thermoschock, Verlust der Wärmeabfuhr</td></tr>
+            <tr><td>3</td><td>Mechanisch</td><td>Erosion, Kavitation, Vibration, Leckage (intern/extern), Materialermüdung</td></tr>
+            <tr><td>4</td><td>Equipment</td><td>Fouling, Verstopfung, Gleitringdichtungsversagen, Vakuumverlust</td></tr>
+            <tr><td>5</td><td>Elektrisch</td><td>Komplettausfall (Blackout), Spannungseinbruch, Phasenausfall, Erdschluss</td></tr>
+            <tr><td>6</td><td>MSR (Leittechnik)</td><td>Eingefrorener Messwert, Messdrift, Stellgliedblockade, Kommunikationsverlust</td></tr>
+            <tr><td>7</td><td>Sicherheit</td><td>Sicherheitsventil öffnet nicht, Fehlauslösung, Inertisierungsverlust</td></tr>
+            <tr><td>8</td><td>Dosierung</td><td>Über-/Unterdosierung, falsche Reihenfolge, Gasblasen im Zulauf</td></tr>
+            <tr><td>9</td><td>Sonstiges</td><td>Bedienfehler, Kennzeichnungsfehler, externe Beschädigung</td></tr>
+          </tbody>
+        </table>
+
+        <h4>Gefahrenfelder-Checkliste (35 Prüfpunkte)</h4>
+        <p>
+          Zusätzlich zu den 9 Fehlermodi-Kategorien wird jede Komponente gegen eine erweiterte Gefahrenfelder-Checkliste geprüft:
+        </p>
+        <table>
+          <thead><tr><th>Gruppe</th><th>Anzahl</th><th>Prüfumfang</th><th>Beispiele</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1 — Prozessbedingungen</strong></td><td>26 (Pflicht)</td><td>Alle prozessrelevanten Gefährdungen</td><td>Spezifikationen, Dosierung, pH, Druck, Temperatur, Ex-Atmosphäre, Rückströmung, Füllstand, Statische Elektrizität</td></tr>
+            <tr><td><strong>2 — Energie/Medien</strong></td><td>6 (Pflicht)</td><td>Versorgungssicherheit und Infrastruktur</td><td>Energieversorgung, Heiz-/Kühlmedien, Leittechnik, CE-Konformität, Cybersecurity</td></tr>
+            <tr><td><strong>3 — Externe Einflüsse</strong></td><td>3 (Optional)</td><td>Umgebungsbedingte Risiken</td><td>Hagel, Blitz, Hochwasser, Sabotage, Erdbeben (nur bei Freiluftanlagen)</td></tr>
+          </tbody>
+        </table>
+
+        <h4>ATEX-Validierung</h4>
+        <p>
+          Bei Komponenten in explosionsgefährdeten Bereichen wird die ATEX-Konformität systematisch geprüft:
+          Für jede Ex-Zone (0/1/2 bzw. 20/21/22) wird verifiziert, ob die verbaute Gerätekategorie (1G/2G/3G bzw. 1D/2D/3D)
+          den Mindestanforderungen entspricht. Fehlt die passende Kategorie, wird eine Inertisierungspflicht oder ein Geräte-Upgrade
+          als Pflichtmaßnahme eskaliert. Bei Hybrid-Atmosphären (Gas + Staub) gilt die jeweils strengere Zone.
+        </p>
+
+        <h4>Common-Cause-Failure-Prüfung (CCF)</h4>
+        <p>
+          Nach Abschluss aller Einzelbewertungen wird eine systematische Prüfung auf gemeinsame Ausfallursachen durchgeführt:
+        </p>
+        <ol class="steps-list">
+          <li><span class="step-name">Gemeinsame Ursachen</span><span class="step-desc">Einzelereignisse, die mehrere Fehlermodi gleichzeitig auslösen (z.&nbsp;B. Stromausfall → Verlust von Rührung + Temperaturregelung + Alarmierung).</span></li>
+          <li><span class="step-name">Schutzabhängigkeiten</span><span class="step-desc">Sicherheitsebenen, die voneinander abhängen (z.&nbsp;B. PSV und Berstscheibe am selben Stutzen → beide durch Fouling blockierbar).</span></li>
+          <li><span class="step-name">Kaskadenszenarien</span><span class="step-desc">Kettenreaktionen, bei denen ein Fehlermodus den nächsten auslöst (z.&nbsp;B. Kühlungsverlust → Übertemperatur → Druckanstieg → Glasbruch).</span></li>
+        </ol>
+      </div>
+
+      {# ── 2.4 Datenquellen & Konfidenz ── #}
+      <div class="methodik-sub" id="sec-methodik-konfidenz">
+        <h3><span class="methodik-num">2.4</span> Datenquellen &amp; Konfidenz</h3>
+
+        <h4>Datenquellen für die O-Bewertung</h4>
+        <p>
+          Die Bewertung der Auftretenswahrscheinlichkeit (O) stützt sich auf externe Zuverlässigkeitsdaten.
+          Die folgende Prioritätsreihenfolge stellt sicher, dass stets die belastbarste verfügbare Quelle herangezogen wird:
+        </p>
+        <table>
+          <thead><tr><th>Priorität</th><th>Quelle</th><th>Beschreibung</th><th>Daten-Konfidenz</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td><strong>CCPS</strong></td><td>Center for Chemical Process Safety — Guidelines for CPQRA</td><td><span class="badge badge-niedrig" style="background:#00A389">hoch</span></td></tr>
+            <tr><td>2</td><td><strong>OREDA</strong></td><td>Offshore &amp; Onshore Reliability Data Handbook</td><td><span class="badge badge-niedrig" style="background:#00A389">hoch</span></td></tr>
+            <tr><td>3</td><td><strong>Betriebserfahrung</strong></td><td>Betreibereigene Störungs- und Wartungsdaten</td><td><span class="badge badge-mittel">mittel</span></td></tr>
+            <tr><td>4</td><td><strong>Expertenschätzung</strong></td><td>Ingenieurschätzung ohne Datenbankreferenz</td><td><span class="badge badge-mittel">mittel</span></td></tr>
+            <tr><td>5</td><td><strong>KI-Vorschlag</strong></td><td>Nur wenn keine externen Referenzen verfügbar</td><td><span class="badge badge-hoch" style="background:#FD7E14">niedrig</span></td></tr>
+          </tbody>
+        </table>
+
+        <h4>Konfidenz-Dokumentation</h4>
+        <p>
+          Jede S/O/D-Bewertung wird mit einem dreistufigen Konfidenz-System dokumentiert,
+          um die Verlässlichkeit der Einschätzung transparent zu machen:
+        </p>
+        <table>
+          <thead><tr><th>Feld</th><th>Bedeutung</th><th>Stufen</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Daten-Konfidenz</strong></td>
+              <td>Qualität der zugrunde liegenden Eingabedaten</td>
+              <td><strong>hoch</strong> (CCPS/OREDA, IEC 61508) · <strong>mittel</strong> (Betriebserfahrung, Herstellerangaben) · <strong>niedrig</strong> (KI-Schätzung, grobe Analogie)</td>
+            </tr>
+            <tr>
+              <td><strong>Agent-Konfidenz</strong></td>
+              <td>Selbsteinschätzung der KI-Sicherheit in der Bewertung</td>
+              <td><strong>hoch</strong> (klare Datenlage, Standardfall) · <strong>mittel</strong> (leichte Unsicherheit) · <strong>niedrig</strong> (unklare Daten → menschliche Überprüfung empfohlen)</td>
+            </tr>
+            <tr>
+              <td><strong>Daten-Quelle</strong></td>
+              <td>Explizite Angabe der Herkunft des O-Wertes</td>
+              <td>CCPS · OREDA · Betriebserfahrung · Expertenschätzung · KI-Vorschlag</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="info-box">
+          <strong>Hinweis:</strong> Bei Agent-Konfidenz = „niedrig" wird eine Pflichtbegründung dokumentiert und der Fehlermodus zur menschlichen Überprüfung markiert.
+        </div>
+      </div>
+
+      {# ── 2.5 Maßnahmen & Akzeptanzkriterien ── #}
+      <div class="methodik-sub" id="sec-methodik-massnahmen">
+        <h3><span class="methodik-num">2.5</span> Maßnahmen &amp; Akzeptanzkriterien</h3>
+
+        <h4>STOP-Prinzip (Maßnahmenkategorie)</h4>
+        <p>Die Auswahl von Maßnahmen folgt dem STOP-Prinzip — Maßnahmen höherer Stufe sind stets zu bevorzugen:</p>
+        <table>
+          <thead><tr><th>Stufe</th><th>Kategorie</th><th>Beschreibung</th></tr></thead>
+          <tbody>
+            <tr><td><span class="stop-badge stop-S">S</span></td><td>Substitution</td><td>Gefährdung vollständig beseitigen oder ersetzen</td></tr>
+            <tr><td><span class="stop-badge stop-T">T</span></td><td>Technisch</td><td>Technische Schutzmaßnahmen installieren</td></tr>
+            <tr><td><span class="stop-badge stop-O">O</span></td><td>Organisatorisch</td><td>Prozesse, Regelungen und Schulungen anpassen</td></tr>
+            <tr><td><span class="stop-badge stop-P">P</span></td><td>Persönlich</td><td>Persönliche Schutzausrüstung (PSA)</td></tr>
+          </tbody>
+        </table>
+
+        <h4>ABE-Hierarchie (Maßnahmenwirkung)</h4>
+        <p>
+          Ergänzend zum STOP-Prinzip (Kategorie) beschreibt die ABE-Hierarchie die <strong>Art der Wirkung</strong> einer Maßnahme.
+          Die Kombination beider Dimensionen stellt sicher, dass Maßnahmen sowohl in der richtigen Kategorie als auch mit der wirksamsten Wirkungsart gewählt werden.
+        </p>
+        <table>
+          <thead><tr><th>Stufe</th><th>Typ</th><th>Beschreibung</th><th>Beispiel</th></tr></thead>
+          <tbody>
+            <tr><td><strong>A</strong></td><td>Abschaffend</td><td>Beseitigt den Fehlermodus vollständig</td><td>Werkstoffwechsel, der Korrosion ausschließt</td></tr>
+            <tr><td><strong>B</strong></td><td>Begrenzend</td><td>Reduziert Eintrittswahrscheinlichkeit oder Auswirkung</td><td>Redundante Pumpe, Druckbegrenzungsventil</td></tr>
+            <tr><td><strong>E</strong></td><td>Entdeckend</td><td>Erkennt den Fehler vor Schadenseintritt</td><td>Online-Analytik, Vibrationssensor, SPC-Überwachung</td></tr>
+          </tbody>
+        </table>
+
+        <h4>Akzeptanzkriterien &amp; Restrisiko</h4>
+        <p>
+          <strong>Zielwert:</strong> RPZ &lt; 100 nach Umsetzung der Maßnahmen (akzeptables Restrisiko).
+        </p>
+        <p>
+          Wird ein Risiko mit Status <span class="badge badge-hoch">HOCH</span> oder <span class="badge badge-kritisch">KRITISCH</span>
+          ohne weitere Maßnahmen akzeptiert, ist eine formale Risikoakzeptanz erforderlich:
+        </p>
+        <table>
+          <thead><tr><th>Anforderung</th><th>Beschreibung</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Genehmiger</strong></td><td>Name und Rolle der freigebenden Person (bei S = 10: Anlagenleitung oder Sicherheitsbeauftragter)</td></tr>
+            <tr><td><strong>Bedingungen</strong></td><td>Unter welchen Voraussetzungen die Akzeptanz gilt</td></tr>
+            <tr><td><strong>Revalidierung</strong></td><td>Frist für die nächste Überprüfung (maximal 1 Jahr)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      {# ── 2.6 Rechtliche Einordnung ── #}
+      <div class="methodik-sub" id="sec-methodik-recht">
+        <h3><span class="methodik-num">2.6</span> Rechtliche Einordnung: KI-gestützte Risikoanalyse</h3>
+
+        <p>
+          Die vorliegende Risikoanalyse wurde unter Einsatz von Künstlicher Intelligenz (KI) als unterstützendes Analysewerkzeug durchgeführt.
+          Die KI übernimmt dabei die systematische Identifikation von Fehlermodi, die strukturierte Bewertung und die Dokumentation —
+          sämtliche Ergebnisse werden durch einen qualifizierten Fachingenieur validiert, korrigiert und freigegeben (Human-in-the-Loop).
+        </p>
+
+        <h4>Einstufung nach EU AI Act (Verordnung (EU) 2024/1689)</h4>
+        <p>
+          Das eingesetzte KI-System fällt unter die Kategorie <strong>minimales Risiko</strong> gemäß Art.&nbsp;6 Abs.&nbsp;3 des EU AI Act.
+          Die folgenden Ausnahmetatbestände greifen:
+        </p>
+        <table>
+          <thead><tr><th>Rechtsgrundlage</th><th>Tatbestand</th><th>Anwendung auf diese FMEA</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Art. 6(3)(b)</strong></td>
+              <td>KI verbessert das Ergebnis einer zuvor abgeschlossenen menschlichen Tätigkeit</td>
+              <td>Die KI ergänzt und strukturiert die Expertise des Ingenieurs, ersetzt sie nicht</td>
+            </tr>
+            <tr>
+              <td><strong>Art. 6(3)(c)</strong></td>
+              <td>KI erkennt Muster, ohne die menschliche Bewertung ohne Überprüfung zu ersetzen</td>
+              <td>Jede KI-Bewertung wird durch den Fachingenieur überprüft und freigegeben</td>
+            </tr>
+            <tr>
+              <td><strong>Art. 6(3)(d)</strong></td>
+              <td>KI führt eine vorbereitende Aufgabe zu einer Bewertung durch</td>
+              <td>Die KI bereitet die Analyse vor; die finale Entscheidung liegt beim Menschen</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          Erwägungsgrund 53 der Verordnung bestätigt, dass vorbereitende KI-Aufgaben ein „sehr geringes" Risiko für die Beeinflussung nachfolgender Entscheidungen tragen.
+          Das System ist <strong>nicht hochriskant</strong>, da es weder als Sicherheitsbauteil im Sinne von Art.&nbsp;3 Nr.&nbsp;14 fungiert
+          noch in Anhang&nbsp;III (Hochrisiko-Anwendungsfälle) gelistet ist.
+        </p>
+
+        <h4>Menschliche Aufsicht (Art.&nbsp;14 EU AI Act)</h4>
+        <p>
+          Art.&nbsp;14 definiert drei Aufsichtsmodelle: <strong>Human-in-the-Loop</strong> (HITL),
+          Human-on-the-Loop (HOTL) und Human-in-Command (HIC).
+          Diese FMEA implementiert das <strong>stärkste Modell (HITL)</strong>:
+        </p>
+        <ul>
+          <li>Der Fachingenieur kann jede KI-Ausgabe verstehen und nachvollziehen (Art.&nbsp;14(4)(a))</li>
+          <li>Automatisierungsbias wird durch das Konfidenz-System und explizite Review-Markierungen adressiert (Art.&nbsp;14(4)(b))</li>
+          <li>KI-Ergebnisse können jederzeit korrigiert oder verworfen werden (Art.&nbsp;14(4)(c)-(d))</li>
+        </ul>
+        <p>
+          Selbst Hochrisiko-KI-Systeme sind mit HITL-Aufsicht zulässig.
+          Ein System mit minimalem Risiko und voller Fachaufsicht ist daher <em>a fortiori</em> konform.
+        </p>
+
+        <h4>Transparenz (Art.&nbsp;50 EU AI Act)</h4>
+        <p>
+          Die Offenlegung des KI-Einsatzes in diesem Report erfüllt die Transparenzpflicht nach Art.&nbsp;50.
+          Jeder Fehlermodus dokumentiert zudem die Daten-Konfidenz und Agent-Konfidenz,
+          sodass der Anteil der KI-Unterstützung für jeden Bewertungsschritt nachvollziehbar ist.
+        </p>
+
+        <h4>Weitere relevante Regelwerke</h4>
+        <table>
+          <thead><tr><th>Regelwerk</th><th>Relevanz</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Maschinenverordnung (EU) 2023/1230</strong></td><td>Adressiert KI in Maschinen (ab Jan 2027). Betrifft Sicherheitsbauteile in Produkten, nicht Analyse-Tools.</td></tr>
+            <tr><td><strong>Seveso-III-Richtlinie (2012/18/EU)</strong></td><td>Fordert Risikoanalysen für Störfallbetriebe. Technologieneutral — schreibt keine bestimmten Analysetools vor.</td></tr>
+            <tr><td><strong>IEC 60812:2018</strong></td><td>Definiert die FMEA-Methodik. Konformität hängt von der methodischen Struktur ab, nicht vom verwendeten Werkzeug.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="info-box info-box-success">
+          <strong>Fazit:</strong> Die vorliegende KI-gestützte Risikoanalyse erfüllt alle Anforderungen des EU AI Act.
+          Der Einsatz von KI als unterstützendes Werkzeug unter durchgängiger Fachaufsicht (Human-in-the-Loop)
+          entspricht der Einstufung als System mit minimalem Risiko gemäß Art.&nbsp;6 Abs.&nbsp;3 der Verordnung (EU) 2024/1689.
+          Die Analysemethodik selbst folgt dem harmonisierten AIAG-VDA Standard und entspricht den Anforderungen der IEC 60812:2018.
+        </div>
+      </div>
+
+    </section>

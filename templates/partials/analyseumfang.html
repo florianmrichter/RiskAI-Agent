@@ -1,0 +1,40 @@
+    {# ══════════════════  ANALYSEUMFANG & ABGRENZUNG  ══════════════════ #}
+    {% set oos = plant.get('outOfScope', {}) %}
+    {% if oos %}
+    <section class="page-section" id="sec-abgrenzung">
+      <div class="section-header">
+        <div class="section-num">Analyseumfang</div>
+        <div class="section-title">Abgrenzung (Out of Scope)</div>
+        <div class="section-desc">Systeme und Bereiche, die explizit nicht Bestandteil dieser Risikoanalyse sind, sowie die Begründung für deren Ausschluss.</div>
+      </div>
+
+      {% if oos.get('description') %}
+      <div class="info-box">{{ oos.description }}</div>
+      {% endif %}
+
+      {% if oos.get('excludedSystems') %}
+      <table class="risk-toc-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Ausgeschlossenes System / Bereich</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ex in oos.get('excludedSystems', []) %}
+          <tr>
+            <td style="white-space:nowrap;font-weight:700;color:var(--text-muted);">{{ loop.index }}</td>
+            <td>
+              <span style="display:inline-flex;align-items:center;gap:8px;">
+                <span style="color:#DC2626;font-weight:700;font-size:14px;">✕</span>
+                {{ ex }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+
+    </section>
+    {% endif %}

@@ -1,0 +1,30 @@
+    {# ══════════════════  5d. WARTUNGSMATRIX  ══════════════════ #}
+    {% if wartungsmatrix is defined and wartungsmatrix %}
+    <section class="page-section" id="sec-wartung">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 5d</div>
+        <div class="section-title">Wartungs- und Prüfmatrix</div>
+        <div class="section-desc">Aggregierte Prüfintervalle aus Controls und Maßnahmen.</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+        <thead>
+          <tr style="background:var(--bg);">
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">Control / Maßnahme</th>
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">Typ</th>
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">Intervall</th>
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">Bezug (FM-ID)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for w in wartungsmatrix %}
+          <tr>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);font-weight:600;">{{ w.name }}</td>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);">{{ w.typ }}</td>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);">{{ w.intervall }}</td>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);">{{ w.fm_ids | join(', ') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+    {% endif %}

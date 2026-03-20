@@ -1,0 +1,326 @@
+{# ══════════════════  JAVASCRIPT: View Toggle  ══════════════════ #}
+<div id="hover-tooltip" class="hover-tooltip"></div>
+
+<script>
+/* ═══ Ebene 1: Globaler Toggle (Kurzansicht / Detailansicht) ═══ */
+function toggleDetail(mode) {
+  var btnKurz   = document.getElementById('btn-kurzansicht');
+  var btnDetail = document.getElementById('btn-detailansicht');
+
+  /* 1. Scroll-Anker: aktuelle Karte im Viewport merken */
+  var cards = document.querySelectorAll('.risk-card');
+  var anchorCard = null;
+  var anchorOffset = 0;
+  for (var i = 0; i < cards.length; i++) {
+    var rect = cards[i].getBoundingClientRect();
+    if (rect.top >= -50 && rect.top < window.innerHeight * 0.5) {
+      anchorCard = cards[i];
+      anchorOffset = rect.top;
+      break;
+    }
+  }
+
+  /* 2. Transitions SOFORT deaktivieren (VOR DOM-Änderungen) */
+  var sheet = document.createElement('style');
+  sheet.id = 'no-transition';
+  sheet.textContent = '*, *::before, *::after { transition: none !important; }';
+  document.head.appendChild(sheet);
+  void document.body.offsetHeight;
+
+  /* 3. Toggle ausführen */
+  if (mode === 'kurz') {
+    document.body.classList.add('kurz-mode');
+    document.querySelectorAll('.risk-card').forEach(function(c) {
+      c.classList.add('collapsed');
+      c.classList.remove('expanded');
+    });
+    document.querySelectorAll('.sub-collapsible').forEach(function(s) {
+      s.classList.remove('section-open');
+      s.classList.remove('section-kurz');
+      s.classList.remove('section-detail');
+    });
+    document.querySelectorAll('.sod-row-wrapper').forEach(function(w) {
+      w.classList.remove('sod-open');
+    });
+    btnKurz.classList.add('active');
+    btnDetail.classList.remove('active');
+  } else {
+    document.body.classList.remove('kurz-mode');
+    document.querySelectorAll('.risk-card').forEach(function(c) {
+      c.classList.remove('collapsed');
+      c.classList.remove('expanded');
+    });
+    document.querySelectorAll('.sub-collapsible').forEach(function(s) {
+      s.classList.add('section-open');
+      s.classList.remove('section-kurz');
+      s.classList.add('section-detail');
+    });
+    document.querySelectorAll('.sod-row-wrapper').forEach(function(w) {
+      w.classList.add('sod-open');
+    });
+    btnKurz.classList.remove('active');
+    btnDetail.classList.add('active');
+  }
+  /* Detail-Button Labels aktualisieren */
+  document.querySelectorAll('.section-detail-btn').forEach(function(btn) {
+    var sec = btn.closest('.sub-collapsible');
+    btn.textContent = (sec && sec.classList.contains('section-detail')) ? 'Kurz' : 'Detail';
+  });
+
+  /* 4. Layout erzwingen + Scroll korrigieren */
+  void document.body.offsetHeight;
+  if (anchorCard) {
+    var newRect = anchorCard.getBoundingClientRect();
+    window.scrollBy(0, newRect.top - anchorOffset);
+  }
+
+  /* 5. Transitions wieder aktivieren */
+  requestAnimationFrame(function() {
+    var s = document.getElementById('no-transition');
+    if (s) s.remove();
+  });
+}
+
+/* ═══ Ebene 2: Per-Card Toggle ═══ */
+function toggleCard(headerEl) {
+  var card = headerEl.closest('.risk-card');
+  if (card.classList.contains('collapsed')) {
+    card.classList.remove('collapsed');
+    card.classList.add('expanded');
+  } else {
+    card.classList.add('collapsed');
+    card.classList.remove('expanded');
+    card.querySelectorAll('.sub-collapsible').forEach(function(s) {
+      s.classList.remove('section-open');
+    });
+    card.querySelectorAll('.sod-row-wrapper').forEach(function(w) {
+      w.classList.remove('sod-open');
+    });
+  }
+}
+
+/* ═══ S/O/D-Begründung Toggle ═══ */
+function toggleSodRationale(rowEl) {
+  event.stopPropagation();
+  var wrapper = rowEl.closest('.sod-row-wrapper');
+  wrapper.classList.toggle('sod-open');
+}
+
+/* ═══ Ebene 3: Per-Sektion Toggle ═══ */
+function toggleSection(labelEl) {
+  event.stopPropagation();
+  var section = labelEl.closest('.sub-collapsible');
+  section.classList.toggle('section-open');
+  /* Default: Kurzform wenn gerade geöffnet */
+  if (section.classList.contains('section-open') && !section.classList.contains('section-detail')) {
+    section.classList.add('section-kurz');
+  }
+}
+
+/* ═══ Per-Sektion Kurz/Detail Switch ═══ */
+function toggleSectionDetail(btn) {
+  event.stopPropagation();
+  var section = btn.closest('.sub-collapsible');
+  section.classList.toggle('section-detail');
+  btn.textContent = section.classList.contains('section-detail') ? 'Kurz' : 'Detail';
+}
+
+/* ═══ Hover-Preview Tooltip ═══ */
+var hoverTimer = null;
+var tooltip = null;
+
+var statusColors = {kritisch:'var(--risk-kritisch)',hoch:'var(--risk-hoch)',mittel:'var(--risk-mittel)',niedrig:'var(--risk-niedrig)'};
+
+function showTooltip(el, html) {
+  tooltip = document.getElementById('hover-tooltip');
+  var rect = el.getBoundingClientRect();
+  tooltip.innerHTML = html;
+  tooltip.style.left = (rect.right + 8) + 'px';
+  tooltip.style.top = (rect.top + window.scrollY - 10) + 'px';
+  tooltip.classList.add('visible');
+  /* Keep tooltip within viewport */
+  var tr = tooltip.getBoundingClientRect();
+  if (tr.right > window.innerWidth - 10) {
+    tooltip.style.left = (rect.left - tr.width - 8) + 'px';
+  }
+  if (tr.bottom > window.innerHeight - 10) {
+    tooltip.style.top = (rect.top + window.scrollY - tr.height + rect.height) + 'px';
+  }
+}
+
+function showSimpleTooltip(el, text) {
+  tooltip = document.getElementById('hover-tooltip');
+  var rect = el.getBoundingClientRect();
+  tooltip.textContent = text;
+  tooltip.style.left = rect.left + 'px';
+  tooltip.style.top = (rect.bottom + 6 + window.scrollY) + 'px';
+  tooltip.classList.add('visible');
+}
+
+function hideTooltip() {
+  var t = document.getElementById('hover-tooltip');
+  if (t) { t.classList.remove('visible'); t.innerHTML = ''; }
+}
+
+/* ═══ Chart Tooltips (Matrix-Bubbles + Treemap-Blöcke + Konfidenz-Badges) ═══ */
+document.addEventListener('mouseover', function(e) {
+  /* Konfidenz-Badge tooltips */
+  var badge = e.target.closest('[data-badge-tip]');
+  if (badge) {
+    var tip = badge.dataset.badgeTip;
+    if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
+    hoverTimer = setTimeout(function() { showTooltip(badge, tip); }, 200);
+    return;
+  }
+
+  /* Matrix bubbles or treemap blocks with data-tip-id */
+  var el = e.target.closest('[data-tip-id]');
+  if (el) {
+    var id = el.dataset.tipId;
+    var name = el.dataset.tipName || '';
+    var rpz = el.dataset.tipRpz || '';
+    var status = el.dataset.tipStatus || '';
+    var s = el.dataset.tipS, o = el.dataset.tipO, d = el.dataset.tipD;
+    var dotColor = statusColors[status] || '#999';
+    var html = '<span class="tip-id">' + id + '</span>';
+    if (name) html += '<span class="tip-name">' + name + '</span>';
+    if (s) html += '<div class="tip-sod"><span>S=' + s + '</span><span>O=' + o + '</span><span>D=' + d + '</span></div>';
+    html += '<div class="tip-rpz"><span class="tip-rpz-dot" style="background:' + dotColor + '"></span>RPZ = ' + rpz + ' (' + status + ')</div>';
+    if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
+    hoverTimer = setTimeout(function() { showTooltip(el, html); }, 120);
+    return;
+  }
+
+  /* Collapsible section previews (existing behavior) */
+  var toggle = e.target.closest('.sub-toggle');
+  if (!toggle) return;
+  var section = toggle.closest('.sub-collapsible');
+  if (section.classList.contains('section-open')) return;
+  var preview = section.dataset.preview;
+  if (!preview) return;
+  hoverTimer = setTimeout(function() { showSimpleTooltip(toggle, preview); }, 300);
+});
+
+document.addEventListener('mouseout', function(e) {
+  var el = e.target.closest('[data-tip-id]') || e.target.closest('.sub-toggle') || e.target.closest('[data-badge-tip]');
+  if (!el) return;
+  if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
+  hideTooltip();
+});
+
+/* ═══ PC After-Toggle (Nachher ein/aus) ═══ */
+function togglePcAfter(show) {
+  var svg = document.getElementById('pc-svg');
+  if (!svg) return;
+  if (show) svg.classList.remove('pc-hide-after');
+  else svg.classList.add('pc-hide-after');
+}
+
+/* ═══ Chart-Panel Toggle ═══ */
+function switchChart(name, btn) {
+  document.querySelectorAll('.chart-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.chart-toggle-btn').forEach(function(b) { b.classList.remove('active'); });
+  var panel = document.getElementById('chart-panel-' + name);
+  if (panel) panel.classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+/* ═══ Parallel Coordinates: Hover + Filter ═══ */
+(function() {
+  var pcLines = document.querySelectorAll('.pc-line');
+  var pcDetail = document.getElementById('pc-detail');
+  if (!pcLines.length) return;
+
+  /* Hover: highlight one line, dim all others */
+  pcLines.forEach(function(g) {
+    g.addEventListener('mouseenter', function() {
+      pcLines.forEach(function(other) {
+        if (other === g) { other.classList.add('highlighted'); other.classList.remove('dimmed'); }
+        else { other.classList.add('dimmed'); other.classList.remove('highlighted'); }
+      });
+      /* Show detail bar */
+      if (pcDetail) {
+        var d = g.dataset;
+        var st = d.tipStatus || '';
+        var dotColor = statusColors[st] || '#999';
+        var after = (d.tipRpz2 && d.tipRpz2 !== d.tipRpz) ?
+          ' → O\u2019=' + d.tipO2 + ' D\u2019=' + d.tipD2 +
+          ' <span style="color:var(--risk-niedrig);font-weight:700;">RPZ\u2019 ' + d.tipRpz2 + '</span>' : '';
+        pcDetail.innerHTML = '<strong>' + (d.tipId || '') + '</strong> · ' + (d.tipName || '') +
+          ' · S=' + d.tipS + ' O=' + d.tipO + ' D=' + d.tipD +
+          ' · <span style="color:' + dotColor + ';font-weight:700;">RPZ ' + d.tipRpz + '</span>' + after;
+      }
+    });
+    g.addEventListener('mouseleave', function() {
+      pcLines.forEach(function(other) { other.classList.remove('highlighted', 'dimmed'); });
+      if (pcDetail) pcDetail.innerHTML = '<span class="pc-detail-placeholder">Bewegen Sie den Mauszeiger über eine Linie, um Details anzuzeigen.</span>';
+    });
+  });
+})();
+
+/* Filter-Chips: toggle RPZ classes */
+function togglePcClass(btn) {
+  btn.classList.toggle('active');
+  var cls = btn.dataset['class'];
+  var show = btn.classList.contains('active');
+  document.querySelectorAll('.pc-line[data-pc-class="' + cls + '"]').forEach(function(g) {
+    if (show) g.classList.remove('pc-hidden');
+    else g.classList.add('pc-hidden');
+  });
+}
+
+/* ═══ Sidebar-Link: Zielkarte aufklappen ═══ */
+function expandTarget() {
+  if (!location.hash) return;
+  var target = document.querySelector(location.hash);
+  if (target && target.classList.contains('risk-card')) {
+    target.classList.remove('collapsed');
+    target.classList.add('expanded');
+    setTimeout(function() {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+}
+window.addEventListener('hashchange', expandTarget);
+
+/* ═══ Init: Kurzansicht als Default + Detail-Buttons injizieren ═══ */
+document.addEventListener('DOMContentLoaded', function() {
+  /* Detail-Button in alle sub-toggle Elemente injizieren */
+  document.querySelectorAll('.sub-toggle').forEach(function(toggle) {
+    if (toggle.querySelector('.section-detail-btn')) return; /* schon vorhanden */
+    var btn = document.createElement('span');
+    btn.className = 'section-detail-btn';
+    btn.textContent = 'Detail';
+    btn.title = 'Kurz/Detail umschalten';
+    btn.onclick = function(e) { toggleSectionDetail(this); };
+    toggle.appendChild(btn);
+  });
+  toggleDetail('kurz');
+});
+
+/* ═══ Bestehende View-Umschaltung ═══ */
+function switchView(mode) {
+  var thematic  = document.getElementById('view-thematic');
+  var component = document.getElementById('view-component');
+  var navThematic  = document.getElementById('nav-thematic');
+  var navComponent = document.getElementById('nav-component');
+  var btnThematic  = document.getElementById('btn-thematic');
+  var btnComponent = document.getElementById('btn-component');
+
+  if (mode === 'thematic') {
+    thematic.style.display  = 'block';
+    component.style.display = 'none';
+    navThematic.style.display  = 'block';
+    navComponent.style.display = 'none';
+    btnThematic.classList.add('active');
+    btnComponent.classList.remove('active');
+  } else {
+    thematic.style.display  = 'none';
+    component.style.display = 'block';
+    navThematic.style.display  = 'none';
+    navComponent.style.display = 'block';
+    btnThematic.classList.remove('active');
+    btnComponent.classList.add('active');
+  }
+}
+</script>
