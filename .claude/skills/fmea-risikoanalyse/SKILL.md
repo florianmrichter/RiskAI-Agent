@@ -168,12 +168,39 @@ Alle Detail-Regeln (Konfidenz-Pflicht, Maßnahmen-Felder, Anlagendaten-Write-bac
 
 Erst nach Adressierung aller KRITISCH-Findings: Report generieren.
 
-## 5. Abschluss
+## 5. Abschluss & Export
 
-Abschluss-Zusammenfassung: Anzahl Komponenten, Fehlermodi, übernommene Maßnahmen, Status DB/Report, Gesamtprüfung bestanden/Warnings.
+### 5a. Export-Auswahl (Pflicht)
+
+Nach bestandener Validierung den Nutzer fragen:
+
+> "Die Analyse ist fertig und validiert. Wie soll ich den Report exportieren?"
+>
+> **Format:**
+> - **PDF** — druckfertiger Bericht mit Charts (300 DPI)
+> - **HTML** — interaktiver Report mit klickbarer Navigation
+> - **Excel** — Tabellenformat mit allen Sheets (Übersicht, FMEA-Analyse, Fehlerursachen, Maßnahmen, Legende)
+> - **Alle** — PDF + HTML + Excel in einem Schritt
+>
+> **Detailgrad (nur PDF):**
+> - **Detail** — alle Fehlermodi aufgeklappt mit S/O/D-Begründungen, Ursachen, Auswirkungen, Maßnahmen (Standard)
+> - **Kurz** — kompakte Übersicht, nur Fehlermodus-Header mit RPZ-Badge
+
+Umsetzung je nach Wahl:
+
+- **PDF:** `generate_report(project_id, task_folder, output_path, report_mode="detail"|"kurz")`
+- **HTML:** `generate_report(project_id, task_folder, output_path)` (HTML ist immer interaktiv)
+- **Excel:** `from tools.export import export_excel` → `export_excel(project_id, output_path)`
+- **Alle:** Alle drei Formate generieren, Pfade auflisten
+
+Output-Pfad-Konvention: `tasks/Risikoanalyse/{projekt}/FMEA_Bericht_{anlage_name}.{pdf|html|xlsx}`
+
+### 5b. Abschluss-Zusammenfassung
+
+Anzahl Komponenten, Fehlermodi, übernommene Maßnahmen, exportierte Formate, Gesamtprüfung bestanden/Warnings.
 
 ## 6. Auto-Transition zum FMEA-Training
 
 Nach Abschluss der FMEA-Analyse und erfolgreicher Report-Generierung, dem Nutzer die Weiterleitung anbieten:
 
-> "Der Report ist fertig. Falls du unsichere Bewertungen trainieren möchtest, sage 'Training starten' oder nutze /fmea-training."
+> "Falls du unsichere Bewertungen trainieren möchtest, sage 'Training starten' oder nutze /fmea-training."

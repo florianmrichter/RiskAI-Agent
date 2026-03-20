@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" media="not print">
   <link rel="stylesheet" href="{{ css_path }}">
 </head>
-<body>
+<body class="print-{{ report_mode|default('detail') }}">
 
 {% include 'partials/cover.html' %}
 

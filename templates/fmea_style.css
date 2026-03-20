@@ -1755,20 +1755,63 @@ tbody tr:last-child td { border-bottom: none; }
   .chart-panel { display: block !important; page-break-inside: avoid; }
   .chart-panel-inner { height: auto !important; }
   .card-chevron, .section-chevron, .hover-tooltip, .sod-expand-hint, .section-detail-btn { display: none !important; }
-  .risk-card .card-body,
-  .risk-card .sod-rationale,
-  .risk-card .sod-rationale.sod-collapsible,
-  .sub-collapsible .sub-content,
-  /* Print: immer Langtext zeigen */
-  .text-kurz { display: none !important; }
-  .text-detail { display: inline !important; }
-  p.text-detail { display: block !important; }
-  .risk-card.collapsed .card-body {
+
+  /* ── Print DETAIL-Modus: alles aufklappen ── */
+  .print-detail .risk-card .card-body,
+  .print-detail .risk-card.collapsed .card-body {
     max-height: none !important;
     overflow: visible !important;
     opacity: 1 !important;
+    padding: 12px 16px !important;
+    border: none;
+  }
+  .print-detail .risk-card .sod-rationale,
+  .print-detail .risk-card .sod-rationale.sod-collapsible,
+  .print-detail .risk-card.collapsed .sod-rationale {
+    max-height: none !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+    margin: 4px 0 !important;
+  }
+  .print-detail .sub-collapsible .sub-content {
+    max-height: none !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+  }
+  .print-detail .text-kurz { display: none !important; }
+  .print-detail .text-detail { display: inline !important; }
+  .print-detail p.text-detail { display: block !important; }
+
+  /* ── Print KURZ-Modus: Cards offen, Sub-Sections offen, aber Kurztext ── */
+  /* Card body sichtbar (S/O/D-Balken, RPZ) */
+  .print-kurz .risk-card .card-body,
+  .print-kurz .risk-card.collapsed .card-body {
+    max-height: none !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+    padding: 12px 16px !important;
+    border: none;
+  }
+  /* Sub-Sections (Fehlerursachen, Auswirkungen, etc.) offen mit Tabellen */
+  .print-kurz .sub-collapsible .sub-content {
+    max-height: none !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+  }
+  /* S/O/D-Begründungen NICHT aufklappen (nur Balken + Kurztext) */
+  .print-kurz .sod-rationale.sod-collapsible {
+    max-height: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    margin: 0 !important;
     padding: 0 !important;
   }
+  /* Kurztext zeigen, Detailtext verbergen */
+  .print-kurz .text-detail { display: none !important; }
+  .print-kurz .text-kurz { display: inline !important; }
+  .print-kurz p.text-kurz { display: block !important; }
   .view-component { display: none !important; }
   .view-thematic { display: block !important; }
   body { background: white; font-size: 10pt; }

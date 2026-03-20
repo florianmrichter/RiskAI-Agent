@@ -569,8 +569,12 @@ def _load_plant_data(path: str | None = None, task_folder: str | None = None) ->
 # ═══════════════════════════════════════════════════════════════
 
 @tool_entry
-def generate_report(project_id: int, output_path: str | None = None, task_folder: str | None = None, db_path: str | None = None, css_name: str = "fmea_style.css") -> str:
-    """Generate the FMEA PDF report for a given project."""
+def generate_report(project_id: int, output_path: str | None = None, task_folder: str | None = None, db_path: str | None = None, css_name: str = "fmea_style.css", report_mode: str = "detail") -> str:
+    """Generate the FMEA PDF report for a given project.
+
+    Args:
+        report_mode: "detail" (all sections expanded) or "kurz" (compact summary view).
+    """
 
     with FMEAStorage(db_path) as db:
         project = db.get_project(project_id)
@@ -925,6 +929,7 @@ def generate_report(project_id: int, output_path: str | None = None, task_folder
             matrix_layout=matrix_layout,
             pc_layout=pc_layout,
             pc_fm_data=pc_fm_data,
+            report_mode=report_mode,
             report_context={
                 "special_rule_count": special_rule_count,
                 "stop_coverage": stop_coverage,
