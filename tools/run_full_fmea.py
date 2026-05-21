@@ -18,7 +18,8 @@ import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from tools.load_plant_data import load_plant_data
 from tools.structure_analysis import analyze_structure, save_components_to_db
@@ -84,118 +85,115 @@ def _get_typ_fuer_fehlermodi(kat: str) -> str:
 def step1_load_and_structure(json_path: str, project_id: int, db_path: str = None) -> dict:
     """Schritt 1+2: Daten laden, Struktur analysieren, Projekt anlegen."""
     plant_data = load_plant_data(json_path)
-    db = FMEAStorage(db_path)
-    proj = db.get_project(project_id)
-    if not proj:
-        project_id = db.create_project(
-            plant_data.get("bezeichnung", "FMEA-Projekt"),
-            plant_data.get("teilanlage_nr", ""),
-        )
-    components = analyze_structure(plant_data)
-    # Nur Komponenten einfügen, die noch nicht existieren
-    existing = {c["komp_id"] for c in db.get_components(project_id)}
-    to_save = [c for c in components if c["komp_id"] not in existing]
-    if to_save:
-        for c in to_save:
-            db.insert_component(
-                project_id=project_id,
-                komp_id=c["komp_id"],
-                name=c["name"],
-                typ=c["typ"],
-                kategorie=c["kategorie"],
-                system_name=c["system_name"],
-                beschreibung=c["beschreibung"],
-                parameters=c["parameters"],
-                kontext=c["lean_context"],
+    with FMEAStorage(db_path) as db:
+        proj = db.get_project(project_id)
+        if not proj:
+            project_id = db.create_project(
+                plant_data.get("bezeichnung", "FMEA-Projekt"),
+                plant_data.get("teilanlage_nr", ""),
             )
-    db.close()
+        components = analyze_structure(plant_data)
+        # Nur Komponenten einfügen, die noch nicht existieren
+        existing = {c["komp_id"] for c in db.get_components(project_id)}
+        to_save = [c for c in components if c["komp_id"] not in existing]
+        if to_save:
+            for c in to_save:
+                db.insert_component(
+                    project_id=project_id,
+                    komp_id=c["komp_id"],
+                    name=c["name"],
+                    typ=c["typ"],
+                    kategorie=c["kategorie"],
+                    system_name=c["system_name"],
+                    beschreibung=c["beschreibung"],
+                    parameters=c["parameters"],
+                    kontext=c["lean_context"],
+                )
     return {"plant_data": plant_data, "components": components, "project_id": project_id}
 
 
 def step3_funktionsanalyse(project_id: int, db_path: str = None):
     """Schritt 3: Funktionen für alle Komponenten ohne Funktionen."""
-    db = FMEAStorage(db_path)
-    components = db.get_components(project_id)
-    rdb = ReliabilityDB()
-    func_count = 0
-    for comp in components:
-        funcs = db.get_functions(comp["id"])
-        if funcs:
-            continue
-        typ = comp.get("typ", "sonstige")
-        patterns = FUNKTIONEN_PRO_TYP.get(typ, FUNKTIONEN_PRO_TYP["sonstige"])
-        for i, (ftyp, beschr) in enumerate(patterns[:3], 1):  # max 3 pro Komponente
-            fid = f"{comp['komp_id']}-F{i}"
-            db.insert_function(
-                comp["id"],
-                fid,
-                ftyp,
-                f"{beschr} ({comp['name']})",
-                [{"id": f"{fid}-A1", "parameter": "Betriebsgrenzen", "sollwert": "Gemäß Design-Limits"}],
-            )
-            func_count += 1
-    db.close()
+    with FMEAStorage(db_path) as db:
+        components = db.get_components(project_id)
+        rdb = ReliabilityDB()
+        func_count = 0
+        for comp in components:
+            funcs = db.get_functions(comp["id"])
+            if funcs:
+                continue
+            typ = comp.get("typ", "sonstige")
+            patterns = FUNKTIONEN_PRO_TYP.get(typ, FUNKTIONEN_PRO_TYP["sonstige"])
+            for i, (ftyp, beschr) in enumerate(patterns[:3], 1):  # max 3 pro Komponente
+                fid = f"{comp['komp_id']}-F{i}"
+                db.insert_function(
+                    comp["id"],
+                    fid,
+                    ftyp,
+                    f"{beschr} ({comp['name']})",
+                    [{"id": f"{fid}-A1", "parameter": "Betriebsgrenzen", "sollwert": "Gemäß Design-Limits"}],
+                )
+                func_count += 1
     return func_count
 
 
 def step4_fehleranalyse(project_id: int, db_path: str = None):
     """Schritt 4: Fehlermodi, Ursachen, Folgen, Controls, S/O/D für alle Funktionen."""
-    db = FMEAStorage(db_path)
-    rdb = ReliabilityDB()
-    fm_count = 0
-    components = db.get_components(project_id)
-    for comp in components:
-        funcs = db.get_functions(comp["id"])
-        typ_key = _get_typ_fuer_fehlermodi(comp.get("kategorie", "sonstige"))
-        fehlermodi_liste = FEHLERMODI_PRO_FUNKTION.get(typ_key, FEHLERMODI_PRO_FUNKTION["sonstige"])
-        for func in funcs:
-            fms = db.get_failure_modes(func["id"])
-            if fms:
-                continue
-            for j, fm_desc in enumerate(fehlermodi_liste[:2], 1):  # max 2 pro Funktion
-                fehler_id = f"{func['funktion_id']}-FM{j}"
-                fm_id = db.insert_failure_mode(func["id"], fehler_id, fm_desc, "Prozess")
-                db.insert_failure_cause(
-                    fm_id, f"{fehler_id}-UC1",
-                    "Betriebsbedingte Abweichung oder Verschleiß",
-                    "Betrieb", "Betrieb", "Regelmäßige Inspektion",
-                )
-                db.insert_failure_cause(
-                    fm_id, f"{fehler_id}-UC2",
-                    "Design- oder Fertigungsmangel",
-                    "Design", "Detaildesign", "Qualitätssicherung",
-                )
-                db.insert_failure_effect(
-                    fm_id,
-                    mensch_stufe="Leichte bis schwere Verletzung",
-                    mensch_beschreibung="Medienfreisetzung, Verätzungs- oder Verbrennungsgefahr",
-                    umwelt_stufe="Betriebsbereich",
-                    umwelt_beschreibung="Auffangwanne, keine externe Kontamination",
-                    anlage_stufe="Teilausfall",
-                    anlage_beschreibung="Stillstand für Reparatur/Reinigung",
-                    kosten_stufe="Bis 100.000 €",
-                    kosten_beschreibung="Reparatur, Chargenverlust, Reinigung",
-                )
-                # O-Richtwert aus Reliability-DB wenn möglich
-                o_val = 4
-                eq_map = {"prozess": "druckbehaelter", "thermisch": "rohrbuendel", "mechanisch": "kreiselpumpe",
-                          "elektrisch": "drucktransmitter", "sicherheit": "sicherheitsventil_psv", "dosierung": "dosierpumpe_membran"}
-                eq_type = eq_map.get(typ_key, "druckbehaelter")
-                try:
-                    info = rdb.get_equipment_info(eq_type)
-                    if info and info.get("typische_fehlermodi"):
-                        o_val = info["typische_fehlermodi"][0].get("o_richtwert", 4)
-                except Exception:
-                    pass
-                db.insert_current_control(fm_id, "DCS-Überwachung", "Sensor", "B", None, "Prozessleitsystem", "D")
-                db.insert_risk_assessment(
-                    fm_id, S=7, O=o_val, D=4,
-                    begruendung_S="Medienfreisetzung in Ex-Zone, Personengefährdung",
-                    begruendung_O=f"O={o_val} aus Zuverlässigkeitsdaten/Erfahrung",
-                    begruendung_D="Regelung erkennt Abweichung, manuelle Intervention",
-                )
-                fm_count += 1
-    db.close()
+    with FMEAStorage(db_path) as db:
+        rdb = ReliabilityDB()
+        fm_count = 0
+        components = db.get_components(project_id)
+        for comp in components:
+            funcs = db.get_functions(comp["id"])
+            typ_key = _get_typ_fuer_fehlermodi(comp.get("kategorie", "sonstige"))
+            fehlermodi_liste = FEHLERMODI_PRO_FUNKTION.get(typ_key, FEHLERMODI_PRO_FUNKTION["sonstige"])
+            for func in funcs:
+                fms = db.get_failure_modes(func["id"])
+                if fms:
+                    continue
+                for j, fm_desc in enumerate(fehlermodi_liste[:2], 1):  # max 2 pro Funktion
+                    fehler_id = f"{func['funktion_id']}-FM{j}"
+                    fm_id = db.insert_failure_mode(func["id"], fehler_id, fm_desc, "Prozess")
+                    db.insert_failure_cause(
+                        fm_id, f"{fehler_id}-UC1",
+                        "Betriebsbedingte Abweichung oder Verschleiß",
+                        "Betrieb", "Betrieb", "Regelmäßige Inspektion",
+                    )
+                    db.insert_failure_cause(
+                        fm_id, f"{fehler_id}-UC2",
+                        "Design- oder Fertigungsmangel",
+                        "Design", "Detaildesign", "Qualitätssicherung",
+                    )
+                    db.insert_failure_effect(
+                        fm_id,
+                        mensch_stufe="Leichte bis schwere Verletzung",
+                        mensch_beschreibung="Medienfreisetzung, Verätzungs- oder Verbrennungsgefahr",
+                        umwelt_stufe="Betriebsbereich",
+                        umwelt_beschreibung="Auffangwanne, keine externe Kontamination",
+                        anlage_stufe="Teilausfall",
+                        anlage_beschreibung="Stillstand für Reparatur/Reinigung",
+                        kosten_stufe="Bis 100.000 €",
+                        kosten_beschreibung="Reparatur, Chargenverlust, Reinigung",
+                    )
+                    # O-Richtwert aus Reliability-DB wenn möglich
+                    o_val = 4
+                    eq_map = {"prozess": "druckbehaelter", "thermisch": "rohrbuendel", "mechanisch": "kreiselpumpe",
+                              "elektrisch": "drucktransmitter", "sicherheit": "sicherheitsventil_psv", "dosierung": "dosierpumpe_membran"}
+                    eq_type = eq_map.get(typ_key, "druckbehaelter")
+                    try:
+                        info = rdb.get_equipment_info(eq_type)
+                        if info and info.get("typische_fehlermodi"):
+                            o_val = info["typische_fehlermodi"][0].get("o_richtwert", 4)
+                    except Exception:
+                        pass
+                    db.insert_current_control(fm_id, "DCS-Überwachung", "Sensor", "B", None, "Prozessleitsystem", "D")
+                    db.insert_risk_assessment(
+                        fm_id, S=7, O=o_val, D=4,
+                        begruendung_S="Medienfreisetzung in Ex-Zone, Personengefährdung",
+                        begruendung_O=f"O={o_val} aus Zuverlässigkeitsdaten/Erfahrung",
+                        begruendung_D="Regelung erkennt Abweichung, manuelle Intervention",
+                    )
+                    fm_count += 1
     return fm_count
 
 
@@ -203,10 +201,9 @@ def step6_massnahmen(project_id: int, db_path: str = None):
     """Schritt 6: Maßnahmen – KEINE generische Logik.
     Maßnahmen werden ausschließlich explizit pro Fehlermodus definiert (Agent-Einzelfallanalyse
     oder config/measures_explicit). Kein automatisches Einfügen von Platzhaltern."""
-    db = FMEAStorage(db_path)
-    high = db.get_all_failure_modes_with_rpz(project_id, min_rpz=100)
-    ohne = sum(1 for fm in high if not db.get_measures(fm["id"]))
-    db.close()
+    with FMEAStorage(db_path) as db:
+        high = db.get_all_failure_modes_with_rpz(project_id, min_rpz=100)
+        ohne = sum(1 for fm in high if not db.get_measures(fm["id"]))
     return 0  # Keine generischen Maßnahmen mehr
 
 

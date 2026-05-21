@@ -127,6 +127,18 @@
             {"modus": "Korrosion innen", "anteil_prozent": 15, "o_richtwert": 3}
           ]
         },
+        "glasreaktor": {
+          "failure_rate": 20,
+          "mtbf_hours": 50000,
+          "typische_fehlermodi": [
+            {"modus": "Glasbruch (thermischer Schock)", "anteil_prozent": 25, "o_richtwert": 3, "kritisch": true},
+            {"modus": "Glasbruch (mechanische Belastung)", "anteil_prozent": 15, "o_richtwert": 2, "kritisch": true},
+            {"modus": "Flanschleckage / Dichtungsversagen", "anteil_prozent": 25, "o_richtwert": 4},
+            {"modus": "Handloch-/Mannlochdichtung undicht", "anteil_prozent": 15, "o_richtwert": 3},
+            {"modus": "Emaille-/Beschichtungsschaden", "anteil_prozent": 10, "o_richtwert": 3},
+            {"modus": "Vakuumverlust (Falschluft)", "anteil_prozent": 10, "o_richtwert": 4}
+          ]
+        },
         "lagertank_atmosphaerisch": {
           "failure_rate": 3,
           "mtbf_hours": 350000,
@@ -290,6 +302,60 @@
             {"modus": "Luefterausfall / Ueberhitzung", "anteil_prozent": 20, "o_richtwert": 4},
             {"modus": "EMV-Stoerung", "anteil_prozent": 15, "o_richtwert": 3},
             {"modus": "Parameterverlust", "anteil_prozent": 10, "o_richtwert": 2}
+          ]
+        }
+      }
+    },
+    "dichtungen": {
+      "beschreibung": "Wellendichtungen und Gleitringdichtungen",
+      "typen": {
+        "gleitringdichtung_einfach": {
+          "failure_rate": 40,
+          "mtbf_hours": 25000,
+          "typische_fehlermodi": [
+            {"modus": "Leckage (Verschleiss Gleitflaechen)", "anteil_prozent": 40, "o_richtwert": 5},
+            {"modus": "Sperrmedium-Verlust", "anteil_prozent": 20, "o_richtwert": 4},
+            {"modus": "Thermische Ueberlastung", "anteil_prozent": 15, "o_richtwert": 3},
+            {"modus": "Federn-/Elastomerversagen", "anteil_prozent": 15, "o_richtwert": 3},
+            {"modus": "Trockenlauf", "anteil_prozent": 10, "o_richtwert": 3}
+          ]
+        },
+        "gleitringdichtung_doppelt": {
+          "failure_rate": 20,
+          "mtbf_hours": 50000,
+          "typische_fehlermodi": [
+            {"modus": "Leckage innere Dichtung", "anteil_prozent": 30, "o_richtwert": 4},
+            {"modus": "Sperrdruckverlust", "anteil_prozent": 25, "o_richtwert": 3},
+            {"modus": "Leckage aeussere Dichtung", "anteil_prozent": 20, "o_richtwert": 3},
+            {"modus": "Verschleiss Gleitflaechen", "anteil_prozent": 25, "o_richtwert": 4}
+          ]
+        }
+      }
+    },
+    "temperiergeraete": {
+      "beschreibung": "Externe Thermostate und Temperiergeraete",
+      "typen": {
+        "thermostat_extern": {
+          "failure_rate": 25,
+          "mtbf_hours": 40000,
+          "typische_fehlermodi": [
+            {"modus": "Heizung unkontrolliert (Regler defekt)", "anteil_prozent": 20, "o_richtwert": 3, "kritisch": true},
+            {"modus": "Kuehlung ausgefallen", "anteil_prozent": 25, "o_richtwert": 4},
+            {"modus": "Pumpe defekt (kein Umlauf)", "anteil_prozent": 20, "o_richtwert": 3},
+            {"modus": "Temperatursensor defekt/Drift", "anteil_prozent": 15, "o_richtwert": 4},
+            {"modus": "Waermetraeger-Leckage", "anteil_prozent": 10, "o_richtwert": 3},
+            {"modus": "Kommunikationsausfall (Schnittstelle)", "anteil_prozent": 10, "o_richtwert": 3}
+          ]
+        },
+        "rueckflusskuehler": {
+          "failure_rate": 10,
+          "mtbf_hours": 100000,
+          "typische_fehlermodi": [
+            {"modus": "Kuehlwasserausfall / -mangel", "anteil_prozent": 30, "o_richtwert": 4},
+            {"modus": "Verschmutzung / Fouling", "anteil_prozent": 25, "o_richtwert": 5},
+            {"modus": "Rohrbruch / Leckage", "anteil_prozent": 15, "o_richtwert": 2},
+            {"modus": "Verstopfung (Feststoffaustrag)", "anteil_prozent": 15, "o_richtwert": 3},
+            {"modus": "Kondensatverlust (Durchbruch)", "anteil_prozent": 15, "o_richtwert": 3}
           ]
         }
       }

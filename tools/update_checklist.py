@@ -17,7 +17,8 @@ Usage:
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from tools.storage import FMEAStorage
 from tools.workflow_state import load_state
@@ -36,41 +37,38 @@ def update_checklist(task_folder: str, db_path: str = None) -> str:
     if not project_id:
         return _write_empty_checklist(task_folder)
 
-    db = FMEAStorage(db_path)
-    proj = db.get_project(project_id)
-    if not proj:
-        db.close()
-        return _write_empty_checklist(task_folder)
+    with FMEAStorage(db_path) as db:
+        proj = db.get_project(project_id)
+        if not proj:
+            return _write_empty_checklist(task_folder)
 
-    components = db.get_components(project_id)
-    rows = []
+        components = db.get_components(project_id)
+        rows = []
 
-    for comp in components:
-        komp_id = comp["komp_id"]
-        name = comp.get("name", "")
+        for comp in components:
+            komp_id = comp["komp_id"]
+            name = comp.get("name", "")
 
-        # FMEA in DB?
-        funcs = db.get_functions(comp["id"])
-        has_functions = len(funcs) > 0
-        fm_count = 0
-        for f in funcs:
-            fm_count += len(db.get_failure_modes(f["id"]))
-        has_fmea = has_functions and fm_count > 0
-
-        # Maßnahmen in DB?
-        measures_count = 0
-        if has_fmea:
+            # FMEA in DB?
+            funcs = db.get_functions(comp["id"])
+            has_functions = len(funcs) > 0
+            fm_count = 0
             for f in funcs:
-                for fm in db.get_failure_modes(f["id"]):
-                    measures_count += len(db.get_measures(fm["id"]))
-        has_measures = measures_count > 0
+                fm_count += len(db.get_failure_modes(f["id"]))
+            has_fmea = has_functions and fm_count > 0
 
-        fmea_status = "✓" if has_fmea else "offen"
-        measures_status = "✓" if has_measures else "offen"
+            # Maßnahmen in DB?
+            measures_count = 0
+            if has_fmea:
+                for f in funcs:
+                    for fm in db.get_failure_modes(f["id"]):
+                        measures_count += len(db.get_measures(fm["id"]))
+            has_measures = measures_count > 0
 
-        rows.append((komp_id, name, fmea_status, measures_status))
+            fmea_status = "✓" if has_fmea else "offen"
+            measures_status = "✓" if has_measures else "offen"
 
-    db.close()
+            rows.append((komp_id, name, fmea_status, measures_status))
 
     # Projektname für Überschrift
     proj_name = proj.get("anlage_name") or proj.get("name", "FMEA-Projekt")

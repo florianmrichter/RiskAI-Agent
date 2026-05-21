@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FMEA Preview · Confidence-Anlage 20TA24 · Warm Forest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream: #FDFBF8;
+  --warm-border: #E8E2DA;
+  --text-primary: #1C1208;
+  --text-secondary: #5C4E3E;
+  --text-muted: #9B8B7E;
+  --font-heading: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background: #D4CFC8;
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  padding: 40px 20px 80px;
+}
+
+/* ── Page Container ── */
+.report-page {
+  width: 860px;
+  margin: 0 auto;
+  background: #FFFFFF;
+  box-shadow: 0 20px 80px rgba(0,0,0,0.15);
+}
+
+/* ── Report Header ── */
+.report-header {
+  background: #1C1208;
+  padding: 48px 60px 40px;
+}
+
+.header-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.eyebrow-line { width: 24px; height: 1px; background: #D97706; }
+
+.eyebrow-text {
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #D97706;
+}
+
+.report-title {
+  font-family: var(--font-heading);
+  font-size: 42px;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.report-subtitle {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 300;
+  color: #A09890;
+  margin-bottom: 32px;
+}
+
+.header-divider { height: 1px; background: #2C2420; margin-bottom: 24px; }
+
+.header-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+
+.header-meta-item label {
+  display: block;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #D97706;
+  margin-bottom: 4px;
+}
+
+.header-meta-item span {
+  font-size: 11px;
+  color: #F7F4EF;
+  font-weight: 400;
+}
+
+/* ── Content Area ── */
+.content {
+  padding: 48px 60px 60px;
+}
+
+/* ── Section Headers ── */
+.section-header {
+  margin: 40px 0 24px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--warm-border);
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.section-header h2 {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.015em;
+}
+
+.section-header:first-child { margin-top: 0; }
+
+.section-count {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ── FM Cards ── */
+.fm-card {
+  margin-bottom: 48px;
+  border: 1px solid var(--warm-border);
+  overflow: hidden;
+}
+
+.card-status-bar { height: 4px; }
+.compact-bar { height: 3px; }
+
+.card-inner { padding: 28px 32px 28px; }
+.compact-inner { padding: 20px 28px 20px; }
+
+/* ── Card Header ── */
+.card-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.fehler-id {
+  font-family: 'DM Mono', monospace, Courier;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+}
+
+.status-badge {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 2px;
+}
+
+.komp-tag {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-left: auto;
+}
+
+.card-title {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.compact-title { font-size: 20px; margin-bottom: 3px; }
+
+.card-funktion {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+/* ── Narrative ── */
+.narrative {
+  border-left: 3px solid #E8E2DA;
+  padding: 10px 16px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+/* ── SOD Row ── */
+.sod-row {
+  display: grid;
+  grid-template-columns: 1fr 20px 1fr 20px 1fr 120px;
+  gap: 0;
+  align-items: start;
+  margin-bottom: 20px;
+  padding: 20px 0;
+  border-top: 1px solid #F0EAE2;
+  border-bottom: 1px solid #F0EAE2;
+}
+
+.sod-col { padding: 0 12px; }
+.sod-col:first-child { padding-left: 0; }
+
+.sod-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.sod-letter {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.sod-full {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sod-num {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin-left: auto;
+}
+
+.dots-row {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+}
+
+.dot.empty {
+  background: transparent;
+  border: 0.5px solid;
+  opacity: 0.3;
+}
+
+.sod-criterion {
+  font-size: 10.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.soll-chip {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border: 1px solid;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.sod-times {
+  display: flex;
+  align-items: flex-start;
+  padding-top: 10px;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 300;
+  color: var(--text-muted);
+}
+
+/* ── RPZ Display (in SOD row) ── */
+.rpz-col {
+  padding: 0 0 0 16px;
+  border-left: 1px solid #F0EAE2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rpz-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.rpz-micro-label {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.rpz-big {
+  font-family: var(--font-heading);
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+/* ── Section Dividers ── */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 12px;
+}
+
+.section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #F0EAE2;
+}
+
+.section-label-text {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* ── Ursachen Table ── */
+.ursachen-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.ursachen-table thead th {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 5px 10px;
+  text-align: left;
+  background: #FAFAFA;
+  border-bottom: 1px solid #F0EAE2;
+}
+
+.ursachen-table tbody td {
+  padding: 7px 10px;
+  border-bottom: 1px solid #F7F4EF;
+  vertical-align: top;
+  color: var(--text-secondary);
+}
+
+.ursachen-table tbody tr:last-child td { border-bottom: none; }
+
+.mono { font-family: monospace; font-size: 10px; color: var(--text-muted); white-space: nowrap; }
+.tag-cell { white-space: nowrap; }
+.tag {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  background: #F5F5F5;
+  color: var(--text-muted);
+  border-radius: 2px;
+}
+
+/* ── Folgen ── */
+.folgen-block { margin-bottom: 4px; }
+.folge-row {
+  display: flex;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid #F7F4EF;
+  font-size: 12px;
+}
+.folge-row:last-child { border-bottom: none; }
+.folge-label {
+  min-width: 80px;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.folge-desc { color: var(--text-secondary); }
+
+/* ── Maßnahmen ── */
+.massnahmen-block { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+.massnahme-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #FAFAFA;
+  border: 1px solid #F0EAE2;
+}
+.stop-badge {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+.massnahme-content { flex: 1; min-width: 0; }
+.massnahme-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+.massnahme-ziel { font-size: 11px; color: var(--text-muted); }
+.massnahme-rpz-new { text-align: center; min-width: 60px; }
+.mini-label {
+  display: block;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+.rpz-new-val {
+  font-size: 20px;
+  font-weight: 700;
+  color: #16A34A;
+}
+
+/* ═══ COMPACT CARD (NIEDRIG) ═══ */
+.compact-card { margin-bottom: 24px; }
+
+.compact-head-row { margin-bottom: 16px; }
+
+/* Compact SOD inline */
+.compact-sod-rpz {
+  display: grid;
+  grid-template-columns: 1fr 16px 1fr 16px 1fr 90px;
+  gap: 0;
+  align-items: start;
+  background: #FAFAF8;
+  border: 1px solid #F0EAE2;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+
+.compact-sod-item { padding: 0 8px; }
+.compact-sod-item:first-child { padding-left: 0; }
+
+.compact-sod-letter {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+
+.compact-dots { margin-bottom: 6px; }
+.compact-dots .dot { width: 5px; height: 5px; }
+
+.compact-sod-text {
+  font-size: 10px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.compact-times {
+  padding-top: 4px;
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.compact-rpz-display {
+  border-left: 1px solid #E8E2DA;
+  padding-left: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.compact-rpz-num {
+  font-family: var(--font-heading);
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+/* Compact Ursachen */
+.compact-ursachen { margin-bottom: 10px; }
+
+.compact-section-label {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.compact-u-row {
+  display: flex;
+  gap: 10px;
+  padding: 5px 0;
+  border-bottom: 1px solid #F7F4EF;
+  font-size: 11.5px;
+  align-items: baseline;
+}
+.compact-u-row:last-child { border-bottom: none; }
+.compact-u-id {
+  font-family: monospace;
+  font-size: 9px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  min-width: 100px;
+}
+.compact-u-desc { flex: 1; color: var(--text-secondary); }
+.compact-u-phase {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 1px 5px;
+  background: #F5F5F5;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.compact-folgen-note {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+/* Verdict box */
+.verdict-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid;
+  border-radius: 2px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.verdict-check {
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Tier separator ── */
+.tier-separator {
+  margin: 8px 0 32px;
+  padding: 12px 20px;
+  background: #F7F4EF;
+  border: 1px solid #E8E2DA;
+  border-left: 3px solid #D97706;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.tier-separator strong { color: var(--text-primary); }
+
+</style>
+</head>
+<body>
+
+<div class="report-page">
+
+  <!-- ── REPORT HEADER ── -->
+  <div class="report-header">
+    <div class="header-eyebrow">
+      <div class="eyebrow-line"></div>
+      <div class="eyebrow-text">FMEA · Risikoanalyse · Confidence-Anlage 20TA24</div>
+    </div>
+    <h1 class="report-title">FMEA-Bericht<br>Confidence-Anlage 20TA24</h1>
+    <div class="report-subtitle">Fehlermodi- und Einflussanalyse — Vollständige Bewertung aller Komponenten und Funktionen</div>
+    <div class="header-divider"></div>
+    <div class="header-meta-grid">
+      <div class="header-meta-item">
+        <label>Anlage</label>
+        <span>Confidence-Anlage 20TA24</span>
+      </div>
+      <div class="header-meta-item">
+        <label>Fehlermodi gesamt</label>
+        <span>138 FM · 6 Komponenten</span>
+      </div>
+      <div class="header-meta-item">
+        <label>Handlungsbedarf</label>
+        <span>17 mittel · 21 hoch · 0 kritisch</span>
+      </div>
+      <div class="header-meta-item">
+        <label>Datum</label>
+        <span>März 2026</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CONTENT ── -->
+  <div class="content">
+
+    <div class="section-header">
+      <h2>Fehlermodi mit Handlungsbedarf</h2>
+      <span class="section-count">Mittel — 3 von 17 gezeigt</span>
+    </div>
+
+
+  <div class="fm-card" data-status="mittel">
+    <div class="card-status-bar" style="background:#D97706"></div>
+    <div class="card-inner">
+
+      <div class="card-head">
+        <div class="card-meta-row">
+          <span class="fehler-id">20TA24-K004-FM1</span>
+          <span class="status-badge" style="background:#FFFBEB;color:#92400E;border:1.5px solid #FBBF24">MITTEL</span>
+          <span class="komp-tag">Eluentenbehälter (KTC-Container)</span>
+        </div>
+        <h3 class="card-title">Überfüllung KTC-Container — Ethanol-Überlauf durch fehlende Überfüllsicherung</h3>
+        <div class="card-funktion">Eluentvorrat (Ethanol, 1000 L) für UF-Kreislauf bereitstellen. Kreislaufpumpe fördert kontinuierlich; UF-Anlagen zweigen…</div>
+      </div>
+
+      <div class="narrative">1000-L-KTC-Container wird manuell oder halbautomatisch befüllt (Lösemittelzuführung). Liquiphant schützt nur gegen Trockenlauf der Kreislaufpumpe (unten), nicht gegen Überfüllung (oben). Kein LSH-Alarm für Überfüllschutz vorhanden. Zone 2, AwSV: 1 m³ Ethanol ≙ gesamtes Technikum-Auffangvolumen.</div>
+
+      <div class="sod-row">
+        <div class="sod-col">
+          <div class="sod-header">
+            <span class="sod-letter" style="color:#D97706">S</span>
+            <span class="sod-full">Schwere</span>
+            <span class="sod-num" style="color:#D97706">6</span>
+          </div>
+          <div class="dots-row"><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span></div>
+          <div class="sod-criterion">Hoch: Ethanol-Überlauf 1 m³ belegt Auffangwanne vollständig; AwSV-Meldepflicht; Kosten 10–50k€. Kein Personenschaden erwartet durch Zone-2-Auslegung.</div>
+          <div class="soll-chip" style="color:#D97706;background:#FFFBEB;border-color:#FBBF24">SOLL ≤ 7</div>
+        </div>
+        <div class="sod-times">×</div>
+        <div class="sod-col">
+          <div class="sod-header">
+            <span class="sod-letter" style="color:#D97706">O</span>
+            <span class="sod-full">Auftreten</span>
+            <span class="sod-num" style="color:#D97706">4</span>
+          </div>
+          <div class="dots-row"><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span></div>
+          <div class="sod-criterion">Relativ gering (~1/2 Jahre): Manuelle Befüllung mehrmals/Jahr; kein LSH-Alarm erhöht Fehlerwahrscheinlichkeit gegenüber automatisierten Systemen.</div>
+          <div class="soll-chip" style="color:#D97706;background:#FFFBEB;border-color:#FBBF24">SOLL ≤ 5</div>
+        </div>
+        <div class="sod-times">×</div>
+        <div class="sod-col">
+          <div class="sod-header">
+            <span class="sod-letter" style="color:#D97706">D</span>
+            <span class="sod-full">Entdeckung</span>
+            <span class="sod-num" style="color:#D97706">6</span>
+          </div>
+          <div class="dots-row"><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span></div>
+          <div class="sod-criterion">Unwahrscheinlich: Kein automatischer Füllstandsalarm. Nur visuelle Überwachung + Auffangwanne als Entdeckungssystem.</div>
+          <div class="soll-chip" style="color:#D97706;background:#FFFBEB;border-color:#FBBF24">SOLL ≤ 5</div>
+        </div>
+        <div class="rpz-col">
+          <div class="rpz-display">
+            <span class="rpz-micro-label">RPZ</span>
+            <span class="rpz-big" style="color:#D97706">144</span>
+            <span class="status-badge" style="background:#FFFBEB;color:#92400E;border:1.5px solid #FBBF24;margin-top:6px">MITTEL</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-divider">
+        <span class="section-label-text" style="color:#D97706">Fehlerursachen</span>
+      </div>
+      <table class="ursachen-table">
+        <thead><tr><th>ID</th><th>Beschreibung</th><th>Herkunft</th><th>Präventionsphase</th></tr></thead>
+        <tbody>
+            <tr>
+              <td class="mono">20TA24-K004-FM1-U1</td>
+              <td>Befüllung ohne korrekte Füllstandsüberwachung (kein LSH-Alarm)</td>
+              <td class="tag-cell"><span class="tag">Design</span></td>
+              <td class="tag-cell"><span class="tag">Betrieb</span></td>
+            </tr>
+            <tr>
+              <td class="mono">20TA24-K004-FM1-U2</td>
+              <td>Bedienfehler: Befüllventil zu lange offen / falsche Mengenvorgabe</td>
+              <td class="tag-cell"><span class="tag">Betrieb</span></td>
+              <td class="tag-cell"><span class="tag">Betrieb</span></td>
+            </tr>
+            <tr>
+              <td class="mono">20TA24-K004-FM1-U3</td>
+              <td>Liquiphant-Fehlfunktion (Trockenlaufschalter ≠ Überfüllschalter)</td>
+              <td class="tag-cell"><span class="tag">Wartung</span></td>
+              <td class="tag-cell"><span class="tag">Betrieb</span></td>
+            </tr></tbody>
+      </table>
+
+      <div class="section-divider"><span class="section-label-text" style="color:#D97706">Fehlerfolgen</span></div><div class="folgen-block"><div class="folge-row"><span class="folge-label">Mensch <strong>SMäßig</strong></span><span class="folge-desc">Ethanol-Austritt auf Technikumsboden; Rutschgefahr, Dämpfe (Flammpunkt 13 °C); Zone-2-Auslegung mitigiert</span></div><div class="folge-row"><span class="folge-label">Umwelt <strong>SHoch</strong></span><span class="folge-desc">AwSV: Ethanol WGK 1; 1 m³ Vollüberlauf belastet Auffangwanne vollständig</span></div><div class="folge-row"><span class="folge-label">Anlage <strong>SHoch</strong></span><span class="folge-desc">Produktionsstopp; AwSV-Meldepflicht; Reinigung Technikum</span></div><div class="folge-row"><span class="folge-label">Kosten <strong>SHoch</strong></span><span class="folge-desc">10.000–50.000 € (Reinigung, Produktionsverlust, Behördenmeldung)</span></div></div>
+
+      <div class="section-divider"><span class="section-label-text" style="color:#D97706">Maßnahmen</span></div><div class="massnahmen-block">
+          <div class="massnahme-row">
+            <span class="stop-badge" style="background:#FFFBEB;color:#92400E;border:1px solid #FBBF24">T</span>
+            <div class="massnahme-content">
+              <div class="massnahme-name">LSH-Alarm (Füllstandstransmitter mit Hochalarm)</div>
+              <div class="massnahme-ziel">D</div>
+            </div>
+            <div class="massnahme-rpz-new">
+              <span class="mini-label">RPZ NEU</span>
+              <span class="rpz-new-val">72</span>
+            </div>
+          </div>
+          <div class="massnahme-row">
+            <span class="stop-badge" style="background:#FFFBEB;color:#92400E;border:1px solid #FBBF24">O</span>
+            <div class="massnahme-content">
+              <div class="massnahme-name">Befüllprotokoll mit Füllstandspflichtablesepunkt in Herstellvorschrift</div>
+              <div class="massnahme-ziel">D</div>
+            </div>
+            <div class="massnahme-rpz-new">
+              <span class="mini-label">RPZ NEU</span>
+              <span class="rpz-new-val">120</span>
+            </div>
+          </div></div>
+
+    </div>
+  </div>
+
+  <div class="fm-card" data-status="mittel">
+    <div class="card-status-bar" style="background:#D97706"></div>
+    <div class="card-inner">
+
+      <div class="card-head">
+        <div class="card-meta-row">
+          <span class="fehler-id">20TA24-K005-FM1</span>
+          <span class="status-badge" style="background:#FFFBEB;color:#92400E;border:1.5px solid #FBBF24">MITTEL</span>
+          <span class="komp-tag">Poolingbehälter</span>
+        </div>
+        <h3 class="card-title">Überdruck — N₂-Druckregler-Defekt bei fehlendem Sicherheitsventil</h3>
+        <div class="card-funktion">Überdruckschutz — ausschließlich über N₂-Druckreduzierung (begrenzte N₂-Zuführdrücke). KEIN Sicherheitsventil, KEINE Ber…</div>
+      </div>
+
+      <div class="narrative">Poolingbehälter hat KEIN SV und KEINE BSV. Einziger Überdruckschutz = N₂-Druckreduzierung. N₂-Werksnetz: 6–8 bar; Druckminderer auf 40 mbar / 300 mbar / 2,5 bar. Bei Druckregler-Defekt (Vollöffnung) → Werksnetz-Druck → Behälterauslegung 6 bar am Limit. Kein MSR mit Druckalarm am Poolingbehälter vorhanden. Single-Point-Failure: Druckreduzierer.</div>
+
+      <div class="sod-row">
+        <div class="sod-col">
+          <div class="sod-header">
+            <span class="sod-letter" style="color:#D97706">S</span>
+            <span class="sod-full">Schwere</span>
+            <span class="sod-num" style="color:#D97706">9</span>
+          </div>
+          <div class="dots-row"><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span></div>
+          <div class="sod-criterion">Kritisch (S=9): Bei Vollöffnung Druckregler → Werksnetz-Druck → Behälter 6-bar-Grenze → Bersten möglich. Kein SV/BSV als Rückfall. Schwerverletzte nicht auszuschließen.</div>
+          <div class="soll-chip" style="color:#D97706;background:#FFFBEB;border-color:#FBBF24">SOLL ≤ 7</div>
+        </div>
+        <div class="sod-times">×</div>
+        <div class="sod-col">
+          <div class="sod-header">
+            <span class="sod-letter" style="color:#D97706">O</span>
+            <span class="sod-full">Auftreten</span>
+            <span class="sod-num" style="color:#D97706">2</span>
+          </div>
+          <div class="dots-row"><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span></div>
+          <div class="sod-criterion">Sehr gering (~1/100 Jahre): N₂-Druckregler robust; Vollversagen selten. Aber kein Redundanzsystem.</div>
+          <div class="soll-chip" style="color:#D97706;background:#FFFBEB;border-color:#FBBF24">SOLL ≤ 5</div>
+        </div>
+        <div class="sod-times">×</div>
+        <div class="sod-col">
+          <div class="sod-header">
+            <span class="sod-letter" style="color:#D97706">D</span>
+            <span class="sod-full">Entdeckung</span>
+            <span class="sod-num" style="color:#D97706">7</span>
+          </div>
+          <div class="dots-row"><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span></div>
+          <div class="sod-criterion">Sehr unwahrscheinlich: Kein automatischer Druckalarm; kein PI/PSI am Behälter dokumentiert. Versagen erst erkennbar wenn Schaden eintritt.</div>
+          <div class="soll-chip" style="color:#D97706;background:#FFFBEB;border-color:#FBBF24">SOLL ≤ 5</div>
+        </div>
+        <div class="rpz-col">
+          <div class="rpz-display">
+            <span class="rpz-micro-label">RPZ</span>
+            <span class="rpz-big" style="color:#D97706">126</span>
+            <span class="status-badge" style="background:#FFFBEB;color:#92400E;border:1.5px solid #FBBF24;margin-top:6px">MITTEL</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-divider">
+        <span class="section-label-text" style="color:#D97706">Fehlerursachen</span>
+      </div>
+      <table class="ursachen-table">
+        <thead><tr><th>ID</th><th>Beschreibung</th><th>Herkunft</th><th>Präventionsphase</th></tr></thead>
+        <tbody>
+            <tr>
+              <td class="mono">20TA24-K005-FM1-U1</td>
+              <td>N₂-Druckregler-Defekt (mechanisch, federbelastet) → Vollöffnung → Werksnetz-Druck</td>
+              <td class="tag-cell"><span class="tag">Wartung</span></td>
+              <td class="tag-cell"><span class="tag">Betrieb</span></td>
+            </tr>
+            <tr>
+              <td class="mono">20TA24-K005-FM1-U2</td>
+              <td>Verschmutzter/blockierter Druckregler → plötzliches Versagen</td>
+              <td class="tag-cell"><span class="tag">Wartung</span></td>
+              <td class="tag-cell"><span class="tag">Betrieb</span></td>
+            </tr>
+            <tr>
+              <td class="mono">20TA24-K005-FM1-U3</td>
+              <td>Falscher Druckregler verbaut (falsche Einstellung)</td>
+              <td class="tag-cell"><span class="tag">Design</span></td>
+              <td class="tag-cell"><span class="tag">Wartung</span></td>
+            </tr></tbody>
+      </table>
+
+      <div class="section-divider"><span class="section-label-text" style="color:#D97706">Fehlerfolgen</span></div><div class="folgen-block"><div class="folge-row"><span class="folge-label">Mensch <strong>SKatastrophal</strong></span><span class="folge-desc">Behälterbersten möglich bei Überschreitung 6 bar; Splitter, Druckwelle, Ethanol-Dampf-Explosion (Zone 2); Schwerverletzte</span></div><div class="folge-row"><span class="folge-label">Umwelt <strong>SSehr hoch</strong></span><span class="folge-desc">unkontrollierter Ethanol-Austritt; explosionsfähige Atmosphäre im Technikum</span></div><div class="folge-row"><span class="folge-label">Anlage <strong>SKatastrophal</strong></span><span class="folge-desc">Zerstörung Poolingbehälter + umliegende Ausrüstung; weitreichende Technikumsschäden</span></div><div class="folge-row"><span class="folge-label">Kosten <strong>SSehr hoch</strong></span><span class="folge-desc">> 500.000 € (Behälterzerstörung, Technikumsschäden, Personenschäden)</span></div></div>
+
+      <div class="section-divider"><span class="section-label-text" style="color:#D97706">Maßnahmen</span></div><div class="massnahmen-block">
+          <div class="massnahme-row">
+            <span class="stop-badge" style="background:#FFFBEB;color:#92400E;border:1px solid #FBBF24">T</span>
+            <div class="massnahme-content">
+              <div class="massnahme-name">PSV (Sicherheitsventil) an Poolingbehälter installieren</div>
+              <div class="massnahme-ziel">D</div>
+            </div>
+            <div class="massnahme-rpz-new">
+              <span class="mini-label">RPZ NEU</span>
+              <span class="rpz-new-val">72</span>
+            </div>
+          </div>
+          <div class="massnahme-row">
+            <span class="stop-badge" style="background:#FFFBEB;color:#92400E;border:1px solid #FBBF24">O</span>
+            <div class="massnahme-content">
+              <div class="massnahme-name">N₂-Druckregler-Prüfung vor jeder Produktion in Herstellvorschrift</div>
+              <div class="massnahme-ziel">O</div>
+            </div>
+            <div class="massnahme-rpz-new">
+              <span class="mini-label">RPZ NEU</span>
+              <span class="rpz-new-val">126</span>
+            </div>
+          </div></div>
+
+    </div>
+  </div>
+
+  <div class="fm-card" data-status="mittel">
+    <div class="card-status-bar" style="background:#D97706"></div>
+    <div class="card-inner">
+
+      <div class="card-head">
+        <div class="card-meta-row">
+          <span class="fehler-id">20TA24-K006-FM1</span>
+          <span class="status-badge" style="background:#FFFBEB;color:#92400E;border:1.5px solid #FBBF24">MITTEL</span>
+          <span class="komp-tag">Transfersystem (Rohrleitungen)</span>
+        </div>
+        <h3 class="card-title">Leckage an Schlauchanschlüssen — Ethanol-Austritt an Transferleitungen</h3>
+        <div class="card-funktion">Produkttransfer zwischen allen Anlagenteilen (Synthesereaktor → UF 1/2 → Poolingbehälter → Kreislauf). Rohrleitungen fes…</div>
+      </div>
+
+      <div class="narrative">Mehrere flexible Schlauchanschlüsse zwischen Anlagenteilen; regelmäßiges Trennen/Wiederverbinden bei Chargenwechsel und Reinigung erhöht Leckagerisiko gegenüber fixen Rohrleitungen. Dichtigkeitstest vor Produktion als bestehende Kontrolle; Zone 2, Auffangwanne.</div>
+
+      <div class="sod-row">
+        <div class="sod-col">
+          <div class="sod-header">
+            <span class="sod-letter" style="color:#D97706">S</span>
+            <span class="sod-full">Schwere</span>
+            <span class="sod-num" style="color:#D97706">6</span>
+          </div>
+          <div class="dots-row"><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span></div>
+          <div class="sod-criterion">Hoch: Ethanol-Leckage (Zone 2, AwSV); Kosten 10–50k€. Auffangwanne mitigiert Umweltschaden.</div>
+          <div class="soll-chip" style="color:#D97706;background:#FFFBEB;border-color:#FBBF24">SOLL ≤ 7</div>
+        </div>
+        <div class="sod-times">×</div>
+        <div class="sod-col">
+          <div class="sod-header">
+            <span class="sod-letter" style="color:#D97706">O</span>
+            <span class="sod-full">Auftreten</span>
+            <span class="sod-num" style="color:#D97706">4</span>
+          </div>
+          <div class="dots-row"><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span></div>
+          <div class="sod-criterion">Relativ gering (~1/2 Jahre): Flexible Schläuche mit regelmäßigem Trennen/Verbinden; höheres Leckagerisiko als fixe Rohrleitungen.</div>
+          <div class="soll-chip" style="color:#D97706;background:#FFFBEB;border-color:#FBBF24">SOLL ≤ 5</div>
+        </div>
+        <div class="sod-times">×</div>
+        <div class="sod-col">
+          <div class="sod-header">
+            <span class="sod-letter" style="color:#D97706">D</span>
+            <span class="sod-full">Entdeckung</span>
+            <span class="sod-num" style="color:#D97706">5</span>
+          </div>
+          <div class="dots-row"><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot" style="background:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span><span class="dot empty" style="border-color:#D97706"></span></div>
+          <div class="sod-criterion">Mäßig wahrscheinlich: Dichtigkeitstest vor Produktion + Personenüberwachung; aber keine automatische Leckageerkennung.</div>
+          <div class="soll-chip" style="color:#D97706;background:#FFFBEB;border-color:#FBBF24">SOLL ≤ 5</div>
+        </div>
+        <div class="rpz-col">
+          <div class="rpz-display">
+            <span class="rpz-micro-label">RPZ</span>
+            <span class="rpz-big" style="color:#D97706">120</span>
+            <span class="status-badge" style="background:#FFFBEB;color:#92400E;border:1.5px solid #FBBF24;margin-top:6px">MITTEL</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-divider">
+        <span class="section-label-text" style="color:#D97706">Fehlerursachen</span>
+      </div>
+      <table class="ursachen-table">
+        <thead><tr><th>ID</th><th>Beschreibung</th><th>Herkunft</th><th>Präventionsphase</th></tr></thead>
+        <tbody>
+            <tr>
+              <td class="mono">20TA24-K006-FM1-U1</td>
+              <td>Schlauchwandung porös oder gerissen (Alterung, Ethanol-Angriff)</td>
+              <td class="tag-cell"><span class="tag">Betrieb</span></td>
+              <td class="tag-cell"><span class="tag">Betrieb</span></td>
+            </tr>
+            <tr>
+              <td class="mono">20TA24-K006-FM1-U2</td>
+              <td>Schlauchkupplung unvollständig eingerastet nach Chargenwechsel</td>
+              <td class="tag-cell"><span class="tag">Fertigung</span></td>
+              <td class="tag-cell"><span class="tag">Wartung</span></td>
+            </tr>
+            <tr>
+              <td class="mono">20TA24-K006-FM1-U3</td>
+              <td>Schlauchschelle oder Klemmverbindung zu lose (Vibration, Setzen)</td>
+              <td class="tag-cell"><span class="tag">Wartung</span></td>
+              <td class="tag-cell"><span class="tag">Betrieb</span></td>
+            </tr></tbody>
+      </table>
+
+      <div class="section-divider"><span class="section-label-text" style="color:#D97706">Fehlerfolgen</span></div><div class="folgen-block"><div class="folge-row"><span class="folge-label">Mensch <strong>SMäßig</strong></span><span class="folge-desc">Ethanol auf Technikumsboden; Rutschgefahr, Dämpfe (Flammpunkt 13 °C); Zone-2-Auslegung</span></div><div class="folge-row"><span class="folge-label">Umwelt <strong>SMäßig</strong></span><span class="folge-desc">AwSV-relevant; Auffangwanne vorhanden; WGK 1</span></div><div class="folge-row"><span class="folge-label">Anlage <strong>SHoch</strong></span><span class="folge-desc">Produktionsstopp; Schlauchtausch; Chargenverlust möglich</span></div><div class="folge-row"><span class="folge-label">Kosten <strong>SHoch</strong></span><span class="folge-desc">10.000–50.000 € (Instandsetzung, Chargenverlust, AwSV-Kosten)</span></div></div>
+
+      <div class="section-divider"><span class="section-label-text" style="color:#D97706">Maßnahmen</span></div><div class="massnahmen-block">
+          <div class="massnahme-row">
+            <span class="stop-badge" style="background:#FFFBEB;color:#92400E;border:1px solid #FBBF24">O</span>
+            <div class="massnahme-content">
+              <div class="massnahme-name">Schlauchqualifikation und periodischer Schlauchersatz in Herstellvorschrift</div>
+              <div class="massnahme-ziel">O</div>
+            </div>
+            <div class="massnahme-rpz-new">
+              <span class="mini-label">RPZ NEU</span>
+              <span class="rpz-new-val">90</span>
+            </div>
+          </div></div>
+
+    </div>
+  </div>
+
+    <div class="tier-separator">
+      <strong>Unkritische Fehlermodi (Niedrig)</strong> — Alle folgenden Fehlermodi wurden vollständig bewertet und als unkritisch eingestuft (RPZ &lt; 100).
+      Die Bewertungskette (S·O·D-Begründung, Ursachen) ist vollständig dokumentiert. Es sind keine Maßnahmen erforderlich.
+    </div>
+
+    <div class="section-header">
+      <h2>Unkritische Fehlermodi</h2>
+      <span class="section-count">Niedrig — 3 von 102 gezeigt</span>
+    </div>
+
+
+  <div class="fm-card compact-card" data-status="niedrig">
+    <div class="card-status-bar compact-bar" style="background:#16A34A"></div>
+    <div class="card-inner compact-inner">
+
+      <div class="compact-head-row">
+        <div>
+          <div class="card-meta-row">
+            <span class="fehler-id">20TA24-K001-FM1</span>
+            <span class="status-badge" style="background:#F0FDF4;color:#14532D;border:1.5px solid #22C55E">NIEDRIG — Unkritisch bewertet</span>
+            <span class="komp-tag">Synthesereaktor (Schnittstellen)</span>
+          </div>
+          <h4 class="card-title compact-title">Druckabsicherungsversagen — PSV (Sicherheitsventil) oder BSV (Berstscheibe) öffnen nicht bei Überdruck</h4>
+          <div class="card-funktion">Druckabsicherung über PSV (Pressure Safety Valve) und BSV (Berstscheibe) bei Überdruck; Abblaseleitu…</div>
+        </div>
+      </div>
+
+      <div class="compact-sod-rpz">
+        <div class="compact-sod-item">
+          <span class="compact-sod-letter" style="color:#16A34A">S · 10</span>
+          <div class="dots-row compact-dots"><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span></div>
+          <div class="compact-sod-text">Safety Override: PSV und BSV sind sicherheitsgerichtete Bauteile → Mindest-S = 10. Versagen → Behälterbersten bei Borosilikatglas → katastrophale Folgen.</div>
+        </div>
+        <div class="sod-times compact-times">×</div>
+        <div class="compact-sod-item">
+          <span class="compact-sod-letter" style="color:#16A34A">O · 2</span>
+          <div class="dots-row compact-dots"><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span></div>
+          <div class="compact-sod-text">Sehr gering (~1/100 Jahre): PSV und BSV werden jährlich geprüft. Ausfallwahrscheinlichkeit durch regelmäßige Wartung sehr gering.</div>
+        </div>
+        <div class="sod-times compact-times">×</div>
+        <div class="compact-sod-item">
+          <span class="compact-sod-letter" style="color:#16A34A">D · 4</span>
+          <div class="dots-row compact-dots"><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span></div>
+          <div class="compact-sod-text">Relativ wahrscheinlich: Jährliche 100%-Prüfung (Dichtigkeits- und Ansprechtest). Funktionsversagen zwischen Prüfterminen nicht sofort erkennbar.</div>
+        </div>
+        <div class="compact-rpz-display">
+          <span class="rpz-micro-label">RPZ</span>
+          <span class="compact-rpz-num" style="color:#16A34A">80</span>
+          <span class="soll-chip" style="color:#14532D;background:#F0FDF4;border-color:#22C55E">≤ 100</span>
+        </div>
+      </div>
+
+      <div class="compact-ursachen">
+        <div class="compact-section-label" style="color:#16A34A">
+          Fehlerursachen <span style="font-weight:400;color:#6B7280">(3 identifiziert)</span>
+        </div>
+        
+          <div class="compact-u-row">
+            <span class="compact-u-id">20TA24-K001-FM1-U1</span>
+            <span class="compact-u-desc">PSV klemmt (Korrosion, Ablagerung, zu hoher Anpressdruck)</span>
+            <span class="compact-u-phase">Betrieb</span>
+          </div>
+          <div class="compact-u-row">
+            <span class="compact-u-id">20TA24-K001-FM1-U2</span>
+            <span class="compact-u-desc">BSV falsch eingebaut oder bereits vorbelastet (Ermüdung durch Druckwechsel)</span>
+            <span class="compact-u-phase">Wartung</span>
+          </div>
+          <div class="compact-u-row">
+            <span class="compact-u-id">20TA24-K001-FM1-U3</span>
+            <span class="compact-u-desc">Blowdown-Leitung verstopft → Gegendruck verhindert Öffnen</span>
+            <span class="compact-u-phase">Betrieb</span>
+          </div>
+      </div>
+
+      <div class="compact-folgen-note"><strong>Folgenabschätzung:</strong> M Kritisch: Versagen der letzten Druckabsicherung → Behälterbersten mögl · U Hoch: Austritt von Lösemittel/Reaktionsgemisch in Technikum</div>
+
+      <div class="verdict-box" style="background:#F0FDF4;border-color:#22C55E">
+        <span class="verdict-check" style="color:#16A34A">✓</span>
+        <span>Vollständig bewertet — RPZ 80 liegt unterhalb der Handlungsschwelle (100). Keine Maßnahmen erforderlich.</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="fm-card compact-card" data-status="niedrig">
+    <div class="card-status-bar compact-bar" style="background:#16A34A"></div>
+    <div class="card-inner compact-inner">
+
+      <div class="compact-head-row">
+        <div>
+          <div class="card-meta-row">
+            <span class="fehler-id">20TA24-K001-FM2</span>
+            <span class="status-badge" style="background:#F0FDF4;color:#14532D;border:1.5px solid #22C55E">NIEDRIG — Unkritisch bewertet</span>
+            <span class="komp-tag">Synthesereaktor (Schnittstellen)</span>
+          </div>
+          <h4 class="card-title compact-title">Vakuumkollaps — Lufteintrag durch defekte Vakuumschläuche oder Leitungen</h4>
+          <div class="card-funktion">Vakuumbetrieb (bis -0,9 bar) über externe Vakuumversorgung; Rückschlagventile in Vakuumleitungen ver…</div>
+        </div>
+      </div>
+
+      <div class="compact-sod-rpz">
+        <div class="compact-sod-item">
+          <span class="compact-sod-letter" style="color:#16A34A">S · 7</span>
+          <div class="dots-row compact-dots"><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span></div>
+          <div class="compact-sod-text">Zone-1-Auslegung innen mitigiert Sofortgefahr. Hauptrisiko: Lösemittelaustritt und Prozessunterbrechung. Vollausfall 1-3 Monate, 50-250k € möglich bei schwerem Schlauchversagen.</div>
+        </div>
+        <div class="sod-times compact-times">×</div>
+        <div class="compact-sod-item">
+          <span class="compact-sod-letter" style="color:#16A34A">O · 2</span>
+          <div class="dots-row compact-dots"><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span></div>
+          <div class="compact-sod-text">Sehr gering: Jährliche Schlauchwartung + Rückschlagventile. Schwere Vakuumschläden sind bei gut gewarteten Systemen selten (~1/100 Jahre).</div>
+        </div>
+        <div class="sod-times compact-times">×</div>
+        <div class="compact-sod-item">
+          <span class="compact-sod-letter" style="color:#16A34A">D · 5</span>
+          <div class="dots-row compact-dots"><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span></div>
+          <div class="compact-sod-text">Mäßig wahrscheinlich: Sichtbare Schäden erkennbar, aber kein automatischer Vakuumdruck-Alarm. Operator muss aktiv beobachten.</div>
+        </div>
+        <div class="compact-rpz-display">
+          <span class="rpz-micro-label">RPZ</span>
+          <span class="compact-rpz-num" style="color:#16A34A">70</span>
+          <span class="soll-chip" style="color:#14532D;background:#F0FDF4;border-color:#22C55E">≤ 100</span>
+        </div>
+      </div>
+
+      <div class="compact-ursachen">
+        <div class="compact-section-label" style="color:#16A34A">
+          Fehlerursachen <span style="font-weight:400;color:#6B7280">(3 identifiziert)</span>
+        </div>
+        
+          <div class="compact-u-row">
+            <span class="compact-u-id">20TA24-K001-FM2-U1</span>
+            <span class="compact-u-desc">Alterung/Rissbildung in Vakuumschläuchen durch Lösemittelkontakt und Druckwechselermüdung</span>
+            <span class="compact-u-phase">Betrieb</span>
+          </div>
+          <div class="compact-u-row">
+            <span class="compact-u-id">20TA24-K001-FM2-U2</span>
+            <span class="compact-u-desc">Mechanische Beschädigung durch äußere Einwirkung (Knicken, Quetschen)</span>
+            <span class="compact-u-phase">Betrieb</span>
+          </div>
+          <div class="compact-u-row">
+            <span class="compact-u-id">20TA24-K001-FM2-U3</span>
+            <span class="compact-u-desc">Lockere Schlauchklemme oder fehlerhafter Anschluss nach Wartungsarbeiten</span>
+            <span class="compact-u-phase">Wartung</span>
+          </div>
+      </div>
+
+      <div class="compact-folgen-note"><strong>Folgenabschätzung:</strong> M Mäßig: Lösemitteldämpfe (Ethanol) könnten austreten; Zone-2-Auslegu · U Gering: Ethanol-Emission möglich, unterhalb Emissionsgrenzwert bei k</div>
+
+      <div class="verdict-box" style="background:#F0FDF4;border-color:#22C55E">
+        <span class="verdict-check" style="color:#16A34A">✓</span>
+        <span>Vollständig bewertet — RPZ 70 liegt unterhalb der Handlungsschwelle (100). Keine Maßnahmen erforderlich.</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="fm-card compact-card" data-status="niedrig">
+    <div class="card-status-bar compact-bar" style="background:#16A34A"></div>
+    <div class="card-inner compact-inner">
+
+      <div class="compact-head-row">
+        <div>
+          <div class="card-meta-row">
+            <span class="fehler-id">20TA24-K001-FM3a</span>
+            <span class="status-badge" style="background:#F0FDF4;color:#14532D;border:1.5px solid #22C55E">NIEDRIG — Unkritisch bewertet</span>
+            <span class="komp-tag">Synthesereaktor (Schnittstellen)</span>
+          </div>
+          <h4 class="card-title compact-title">Eiswasserausfall — Kondensation fällt aus, Lösemitteldämpfe unkondensiert</h4>
+          <div class="card-funktion">Kondensation von Lösemitteldämpfen (Ethanol) am Kopfkondensator mit Eiswasser (max. 1 bar, druckredu…</div>
+        </div>
+      </div>
+
+      <div class="compact-sod-rpz">
+        <div class="compact-sod-item">
+          <span class="compact-sod-letter" style="color:#16A34A">S · 6</span>
+          <div class="dots-row compact-dots"><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span></div>
+          <div class="compact-sod-text">Hoch: Prozessunterbrechung, Produktverlust, erhöhte Abluftemission. Kein direktes Sicherheitsrisiko bei intaktem Abluftsystem.</div>
+        </div>
+        <div class="sod-times compact-times">×</div>
+        <div class="compact-sod-item">
+          <span class="compact-sod-letter" style="color:#16A34A">O · 3</span>
+          <div class="dots-row compact-dots"><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span></div>
+          <div class="compact-sod-text">Gering (~1/10 Jahre): Werksversorgung selten ausgefallen; Handventile selten versehentlich betätigt.</div>
+        </div>
+        <div class="sod-times compact-times">×</div>
+        <div class="compact-sod-item">
+          <span class="compact-sod-letter" style="color:#16A34A">D · 4</span>
+          <div class="dots-row compact-dots"><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot" style="background:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span><span class="dot empty" style="border-color:#16A34A"></span></div>
+          <div class="compact-sod-text">Relativ wahrscheinlich: Temperaturerhöhung am Kondensatoraustritt sichtbar; Personenüberwachung erkennt Ausfall mit hoher Wahrscheinlichkeit.</div>
+        </div>
+        <div class="compact-rpz-display">
+          <span class="rpz-micro-label">RPZ</span>
+          <span class="compact-rpz-num" style="color:#16A34A">72</span>
+          <span class="soll-chip" style="color:#14532D;background:#F0FDF4;border-color:#22C55E">≤ 100</span>
+        </div>
+      </div>
+
+      <div class="compact-ursachen">
+        <div class="compact-section-label" style="color:#16A34A">
+          Fehlerursachen <span style="font-weight:400;color:#6B7280">(3 identifiziert)</span>
+        </div>
+        
+          <div class="compact-u-row">
+            <span class="compact-u-id">20TA24-K001-FM3a-U1</span>
+            <span class="compact-u-desc">Ausfall der Werks-Eiswasserversorgung (Pumpe, Rohrbruch im Werksnetz)</span>
+            <span class="compact-u-phase">Betrieb</span>
+          </div>
+          <div class="compact-u-row">
+            <span class="compact-u-id">20TA24-K001-FM3a-U2</span>
+            <span class="compact-u-desc">Versehentliches Absperren der Eiswasserzuleitung zum Kondensator</span>
+            <span class="compact-u-phase">Betrieb</span>
+          </div>
+          <div class="compact-u-row">
+            <span class="compact-u-id">20TA24-K001-FM3a-U3</span>
+            <span class="compact-u-desc">Fouling/Verstopfung im Kondensator-Eiswasserpfad (Kalkbelag)</span>
+            <span class="compact-u-phase">Betrieb</span>
+          </div>
+      </div>
+
+      <div class="compact-folgen-note"><strong>Folgenabschätzung:</strong> M Keine: Kein direktes Personenrisiko; Ethanol-Dämpfe gehen ins Abluf · U Gering: Erhöhter Lösemitteleintrag ins Abluftsystem, Abluftreinigung</div>
+
+      <div class="verdict-box" style="background:#F0FDF4;border-color:#22C55E">
+        <span class="verdict-check" style="color:#16A34A">✓</span>
+        <span>Vollständig bewertet — RPZ 72 liegt unterhalb der Handlungsschwelle (100). Keine Maßnahmen erforderlich.</span>
+      </div>
+
+    </div>
+  </div>
+
+  </div>
+</div>
+
+</body>
+</html>

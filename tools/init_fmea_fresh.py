@@ -17,7 +17,8 @@ import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from tools.load_plant_data import load_plant_data
 from tools.structure_analysis import analyze_structure, save_components_to_db
@@ -116,9 +117,8 @@ def main():
     print(f"    {len(components)} Komponenten erkannt")
 
     print("\n[3] Projekt anlegen...")
-    db = FMEAStorage(db_path)
-    project_id = db.create_project(bezeichnung, teilanlage, task_folder=args.task_folder)
-    db.close()
+    with FMEAStorage(db_path) as db:
+        project_id = db.create_project(bezeichnung, teilanlage, task_folder=args.task_folder)
     print(f"    Projekt-ID: {project_id}")
 
     print("\n[4] Komponenten speichern...")

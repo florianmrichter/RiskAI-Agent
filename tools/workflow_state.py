@@ -6,9 +6,11 @@ Persistiert den Fortschritt pro task_folder. Ermöglicht dem Agent,
 beim Session-Start den nächsten offenen Schritt zu ermitteln.
 
 Usage:
-    from tools.workflow_state import load_state, get_next_action, mark_component_done
+    from tools.workflow_state import load_state, get_next_action, mark_component_done, get_autonomy_mode, set_autonomy_mode, get_report_quality, set_report_quality
     state = load_state("Risikoanalyse/Ethylacetatproduktion_20TA42")
     action = get_next_action("Risikoanalyse/Ethylacetatproduktion_20TA42")
+    mode = get_autonomy_mode("Risikoanalyse/Ethylacetatproduktion_20TA42")
+    set_autonomy_mode("Risikoanalyse/Ethylacetatproduktion_20TA42", "experte")
 """
 
 import json
@@ -17,7 +19,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
 TASKS_ROOT = Path(__file__).parent.parent / "tasks"
 PHASES_ORDER = ["struktur", "fmea", "rpz_validierung", "massnahmen", "report"]
@@ -146,6 +149,46 @@ def mark_component_in_progress(task_folder: str, komp_id: str, step: str) -> Non
     save_state(task_folder, state)
 
 
+def get_autonomy_mode(task_folder: str) -> str:
+    """Returns the current autonomy mode: 'geführt' | 'experte' | 'autonom'. Default: 'geführt'."""
+    state = load_state(task_folder)
+    if state is None:
+        return "geführt"
+    return state.get("autonomy_mode", "geführt")
+
+
+def set_autonomy_mode(task_folder: str, mode: str) -> None:
+    """Persist autonomy mode in workflow_state.json. mode: 'geführt' | 'experte' | 'autonom'."""
+    valid = {"geführt", "experte", "autonom"}
+    if mode not in valid:
+        raise ValueError(f"Ungültiger Modus '{mode}'. Erlaubt: {valid}")
+    state = load_state(task_folder)
+    if state is None:
+        state = _default_state(task_folder)
+    state["autonomy_mode"] = mode
+    save_state(task_folder, state)
+
+
+def get_report_quality(task_folder: str) -> str:
+    """Returns the current report quality: 'ausfuehrlich' | 'reduziert'. Default: 'ausfuehrlich'."""
+    state = load_state(task_folder)
+    if state is None:
+        return "ausfuehrlich"
+    return state.get("report_quality", "ausfuehrlich")
+
+
+def set_report_quality(task_folder: str, quality: str) -> None:
+    """Persist report quality in workflow_state.json. quality: 'ausfuehrlich' | 'reduziert'."""
+    valid = {"ausfuehrlich", "reduziert"}
+    if quality not in valid:
+        raise ValueError(f"Ungültige Report-Qualität '{quality}'. Erlaubt: {valid}")
+    state = load_state(task_folder)
+    if state is None:
+        state = _default_state(task_folder)
+    state["report_quality"] = quality
+    save_state(task_folder, state)
+
+
 def mark_phase_done(task_folder: str, phase: str) -> None:
     """Markiert eine Phase als abgeschlossen und setzt die nächste auf in_progress."""
     state = load_state(task_folder)
@@ -172,6 +215,8 @@ def init_state_from_structure(task_folder: str, project_id: int, komp_ids: list[
         "task_folder": task_folder,
         "phase": "fmea",
         "current_komp_id": komp_ids[0] if komp_ids else None,
+        "autonomy_mode": "geführt",
+        "session_started": datetime.now().isoformat(),
         "last_updated": datetime.now().isoformat(),
         "phases": {
             "struktur": "done",
@@ -186,15 +231,112 @@ def init_state_from_structure(task_folder: str, project_id: int, komp_ids: list[
     return state
 
 
+def get_progress_summary(task_folder: str) -> str:
+    """Gibt eine kompakte Fortschrittsanzeige zurück."""
+    state = load_state(task_folder)
+    if state is None:
+        return "Kein State vorhanden."
+
+    components = state.get("components", {})
+    total = len(components)
+    done_fmea = sum(1 for c in components.values() if c.get("fmea") == "done")
+    done_measures = sum(1 for c in components.values() if c.get("measures") == "done")
+    current = state.get("current_komp_id", "?")
+    phase = state.get("phase", "?")
+    elapsed = _calc_elapsed(state)
+
+    return f"Phase: {phase} | Komponente: {current} ({done_fmea}/{total} FMEA) | Maßnahmen: {done_measures}/{total} | {elapsed}"
+
+
+def _calc_elapsed(state: dict) -> str:
+    """Berechnet die verstrichene Session-Zeit."""
+    started = state.get("session_started")
+    if not started:
+        return "Keine Zeiterfassung"
+    try:
+        start_dt = datetime.fromisoformat(started)
+        delta = datetime.now() - start_dt
+        hours, remainder = divmod(int(delta.total_seconds()), 3600)
+        minutes = remainder // 60
+        if hours > 0:
+            return f"{hours}h {minutes}min"
+        return f"{minutes}min"
+    except (ValueError, TypeError):
+        return "?"
+
+
+def start_session_timer(task_folder: str) -> None:
+    """Setzt den Session-Timer, falls noch nicht gesetzt."""
+    state = load_state(task_folder)
+    if state is None:
+        state = _default_state(task_folder)
+    if not state.get("session_started"):
+        state["session_started"] = datetime.now().isoformat()
+        save_state(task_folder, state)
+
+
 def _default_state(task_folder: str) -> dict:
     return {
         "project_id": None,
         "task_folder": task_folder,
         "phase": "struktur",
         "current_komp_id": None,
+        "autonomy_mode": "geführt",
+        "session_started": None,
         "last_updated": datetime.now().isoformat(),
         "phases": {p: "pending" for p in PHASES_ORDER},
         "components": {},
+    }
+
+
+# --- Token-Usage-Tracking ---
+
+def _token_log_path(task_folder: str) -> Path:
+    return TASKS_ROOT / task_folder / "token_usage.json"
+
+
+def log_token_usage(task_folder: str, session_id: str, input_tokens: int, output_tokens: int, model: str = "opus") -> dict:
+    """Log token usage for a session. Appends to per-project token_usage.json."""
+    path = _token_log_path(task_folder)
+    if path.exists():
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    else:
+        data = {"sessions": [], "total_input": 0, "total_output": 0}
+
+    entry = {
+        "session_id": session_id,
+        "timestamp": datetime.now().isoformat(),
+        "model": model,
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+        "total_tokens": input_tokens + output_tokens,
+    }
+    data["sessions"].append(entry)
+    data["total_input"] = sum(s["input_tokens"] for s in data["sessions"])
+    data["total_output"] = sum(s["output_tokens"] for s in data["sessions"])
+    data["total_tokens"] = data["total_input"] + data["total_output"]
+    data["session_count"] = len(data["sessions"])
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+    return entry
+
+
+def get_token_summary(task_folder: str) -> dict:
+    """Get token usage summary for a project."""
+    path = _token_log_path(task_folder)
+    if not path.exists():
+        return {"total_tokens": 0, "session_count": 0, "message": "Keine Token-Daten vorhanden."}
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+    return {
+        "total_input": data.get("total_input", 0),
+        "total_output": data.get("total_output", 0),
+        "total_tokens": data.get("total_tokens", 0),
+        "session_count": data.get("session_count", 0),
     }
 
 

@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FMEA Report – Design Previews</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #111827;
+    font-family: 'DM Sans', sans-serif;
+    color: #E2E8F0;
+    min-height: 100vh;
+    padding: 48px 40px 80px;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .page-header-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #F5004F;
+    margin-bottom: 12px;
+  }
+
+  .page-header-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #F8FAFC;
+    margin-bottom: 8px;
+  }
+
+  .page-header-sub {
+    font-size: 14px;
+    color: #64748B;
+    margin-bottom: 40px;
+  }
+
+  /* SECTION LABELS */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #475569;
+    padding: 28px 0 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+  }
+
+  .section-new {
+    padding: 3px 7px;
+    background: rgba(245,0,79,0.12);
+    border: 1px solid rgba(245,0,79,0.3);
+    color: #F5004F;
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    border-radius: 2px;
+  }
+
+  /* GRID */
+  .designs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 24px;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  .design-card {
+    background: #1E293B;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+
+  .design-card:hover {
+    border-color: rgba(245,0,79,0.35);
+    transform: translateY(-2px);
+  }
+
+  .design-preview {
+    width: 100%;
+    height: 220px;
+    background: #0F172A;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .design-preview iframe {
+    width: 794px;
+    height: 1123px;
+    border: none;
+    transform-origin: top left;
+    transform: scale(0.277);
+    position: absolute;
+    top: 0; left: 0;
+    pointer-events: none;
+  }
+
+  .design-info {
+    padding: 18px 22px 20px;
+  }
+
+  .design-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #F5004F;
+    margin-bottom: 3px;
+  }
+
+  .design-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+    color: #F8FAFC;
+    margin-bottom: 6px;
+  }
+
+  .design-desc {
+    font-size: 11.5px;
+    color: #64748B;
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+
+  .design-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 14px;
+  }
+
+  .tag {
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-family: 'DM Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.06em;
+    background: rgba(255,255,255,0.04);
+    color: #94A3B8;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .design-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: rgba(245,0,79,0.08);
+    border: 1px solid rgba(245,0,79,0.25);
+    border-radius: 3px;
+    color: #F5004F;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    transition: background 0.15s;
+  }
+
+  .design-link:hover { background: rgba(245,0,79,0.18); }
+
+  .design-card.is-new .design-num { color: #34D399; }
+  .design-card.is-new { border-color: rgba(52,211,153,0.1); }
+  .design-card.is-new .design-link {
+    background: rgba(52,211,153,0.07);
+    border-color: rgba(52,211,153,0.25);
+    color: #34D399;
+  }
+  .design-card.is-new .design-link:hover { background: rgba(52,211,153,0.14); }
+  .design-card.is-variant .design-num { color: #A78BFA; }
+  .design-card.is-variant { border-color: rgba(167,139,250,0.1); }
+  .design-card.is-variant .design-link {
+    background: rgba(167,139,250,0.07);
+    border-color: rgba(167,139,250,0.25);
+    color: #A78BFA;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-header-eyebrow">Design-Exploration · FMEA Report</div>
+  <div class="page-header-title">20 Design-Konzepte</div>
+  <div class="page-header-sub">Fehlergruppe "Temperaturregelung" — vollständiger Inhalt (SOD, Ursachen, Folgen, Controls, Maßnahmen)</div>
+</div>
+
+<!-- ORIGINAL 5 -->
+<div style="max-width:1300px; margin:0 auto;">
+  <div class="section-label">Runde 1 — Erste Entwürfe (vereinfachter Inhalt)</div>
+</div>
+
+<div class="designs-grid">
+
+  <div class="design-card">
+    <div class="design-preview"><iframe src="preview_01_color_blocking.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">Design 01</div>
+      <div class="design-name">Bold Color Blocking</div>
+      <div class="design-desc">Navy-Header mit Schlüsselkennzahlen, weiße Panels mit farbigem Risiko-Rand. Corporate, klar.</div>
+      <div class="design-tags"><span class="tag">Corporate</span><span class="tag">Syne + DM Sans</span><span class="tag">Navy + Rot</span></div>
+      <a href="preview_01_color_blocking.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card">
+    <div class="design-preview"><iframe src="preview_02_dark_premium.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">Design 02</div>
+      <div class="design-name">Dark Premium</div>
+      <div class="design-desc">Tiefschwarzer Hintergrund, leuchtende Karten mit RPZ-Gauge-Ring. High-Tech, Premium.</div>
+      <div class="design-tags"><span class="tag">Dark Mode</span><span class="tag">Space Mono + Outfit</span><span class="tag">Schwarz + Glow</span></div>
+      <a href="preview_02_dark_premium.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card">
+    <div class="design-preview"><iframe src="preview_03_infographic.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">Design 03</div>
+      <div class="design-name">Infographic Editorial</div>
+      <div class="design-desc">Story-Bänder zeigen Kausalkette: Ursache → Fehler → Auswirkung → Maßnahme.</div>
+      <div class="design-tags"><span class="tag">Kausalität</span><span class="tag">Playfair + DM Sans</span><span class="tag">Coral</span></div>
+      <a href="preview_03_infographic.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card">
+    <div class="design-preview"><iframe src="preview_04_swiss_grid.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">Design 04</div>
+      <div class="design-name">Swiss Grid</div>
+      <div class="design-desc">Bauhaus / Swiss International Style. Striktes Raster, Schwarz-Weiß-Rot, präzise Typografie.</div>
+      <div class="design-tags"><span class="tag">Bauhaus</span><span class="tag">Barlow Condensed</span><span class="tag">S/W/R</span></div>
+      <a href="preview_04_swiss_grid.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card">
+    <div class="design-preview"><iframe src="preview_05_warm_authority.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">Design 05</div>
+      <div class="design-name">Warm Authority</div>
+      <div class="design-desc">Creme + Dunkelgrün + Gold, Cormorant Garamond. Elegant, zeitlos — wie ein Premium-Nachhaltigkeitsbericht.</div>
+      <div class="design-tags"><span class="tag">Warm</span><span class="tag">Cormorant + Jakarta</span><span class="tag">Grün + Gold</span></div>
+      <a href="preview_05_warm_authority.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- NEW 6 -->
+<div style="max-width:1300px; margin:0 auto;">
+  <div class="section-label">Runde 2 — Vollständiger Inhalt (alle Sektionen) <span class="section-new">NEU</span></div>
+</div>
+
+<div class="designs-grid">
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_06_consulting_sidebar.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">Design 06 · NEU</div>
+      <div class="design-name">Consulting Sidebar</div>
+      <div class="design-desc">2-Spalten-Layout: linke Sidebar für SOD/RPZ/Metadaten, rechts Narrative + alle Tabellen. Roland Berger / Accenture-Stil.</div>
+      <div class="design-tags"><span class="tag">2-Spaltig</span><span class="tag">IBM Plex Sans</span><span class="tag">Electric Blue</span></div>
+      <a href="preview_06_consulting_sidebar.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_07_nordic_minimal.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">Design 07 · NEU</div>
+      <div class="design-name">Nordic Minimal</div>
+      <div class="design-desc">Extremes Weißraum-Design. Skandinavischer Regierungsbericht-Stil. Einziger Akzent: tiefer Kobaltblau.</div>
+      <div class="design-tags"><span class="tag">Whitespace</span><span class="tag">Libre Franklin</span><span class="tag">Kobalt</span></div>
+      <a href="preview_07_nordic_minimal.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_08_deep_institutional.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">Design 08 · NEU</div>
+      <div class="design-name">Deep Institutional</div>
+      <div class="design-desc">Tiefes Navy + Gold. Libre Baskerville Serif für Überschriften. EU-Kommission / UN-Publikations-Stil. Höchste Autorität.</div>
+      <div class="design-tags"><span class="tag">Institutional</span><span class="tag">Libre Baskerville</span><span class="tag">Navy + Gold</span></div>
+      <a href="preview_08_deep_institutional.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_09_editorial_broadsheet.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">Design 09 · NEU</div>
+      <div class="design-name">Editorial Broadsheet</div>
+      <div class="design-desc">Qualitätszeitungs-Ästhetik (FT, FAZ). Playfair Display + Lora, Drop Cap, Infospalten. Schwarz mit einem Akzentrot.</div>
+      <div class="design-tags"><span class="tag">Zeitung</span><span class="tag">Playfair + Lora</span><span class="tag">S/W + Rot</span></div>
+      <a href="preview_09_editorial_broadsheet.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_10_clinical_precision.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">Design 10 · NEU</div>
+      <div class="design-name">Clinical Precision</div>
+      <div class="design-desc">Pharmazeutische Zulassungsdokumentation, neu interpretiert. Nummerierte §-Sektionen, Teal-Akzent, systematisch präzise.</div>
+      <div class="design-tags"><span class="tag">Systematisch</span><span class="tag">Figtree</span><span class="tag">Teal</span></div>
+      <a href="preview_10_clinical_precision.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-variant">
+    <div class="design-preview"><iframe src="preview_05v_indigo_copper.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">Design 05v · VARIANTE</div>
+      <div class="design-name">Indigo Copper</div>
+      <div class="design-desc">Gleiche elegante Struktur wie Design 05, aber: Tiefes Indigo statt Dunkelgrün, warmes Kupfer statt Gold. Urban-sophisticated.</div>
+      <div class="design-tags"><span class="tag">Variante von 05</span><span class="tag">Cormorant + Jakarta</span><span class="tag">Indigo + Kupfer</span></div>
+      <a href="preview_05v_indigo_copper.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ROUND 3: 9 refined variants -->
+<div style="max-width:1300px; margin:0 auto;">
+  <div class="section-label">Runde 3 — Verfeinerte Varianten mit visuellen Skalen (weißer Hintergrund) <span class="section-new">NEU</span></div>
+</div>
+
+<div style="max-width:1300px; margin:0 auto; padding-bottom:12px;">
+  <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:#475569; margin-bottom:20px;">Design 05 — Warm Authority Varianten (Cormorant + Jakarta Sans)</div>
+</div>
+
+<div class="designs-grid">
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_05a_sage.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">05a · Sage</div>
+      <div class="design-name">Warm Authority · Sage</div>
+      <div class="design-desc">Weißer Hintergrund, Salbeigrün-Akzent, SOD als Fortschrittsbalken mit Tick-Marks und SOLL-Marker.</div>
+      <div class="design-tags"><span class="tag">Fortschrittsbalken</span><span class="tag">Salbeigrün #4A7C59</span><span class="tag">Cormorant + Jakarta</span></div>
+      <a href="preview_05a_sage.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_05b_slate.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">05b · Slate</div>
+      <div class="design-name">Warm Authority · Slate</div>
+      <div class="design-desc">Weißer Hintergrund, Slate-Blau-Akzent, SOD als 10-Punkt-Skala (ausgefüllte vs. leere Kreise).</div>
+      <div class="design-tags"><span class="tag">Dot-Skala</span><span class="tag">Slate #4A5D7C</span><span class="tag">Cormorant + Jakarta</span></div>
+      <a href="preview_05b_slate.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_05c_terracotta.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">05c · Terracotta</div>
+      <div class="design-name">Warm Authority · Terracotta</div>
+      <div class="design-desc">Weißer Hintergrund, Terrakotta-Akzent, SOD als SVG-Halbkreis-Gauge. Narrative mit farbigem Linksrand.</div>
+      <div class="design-tags"><span class="tag">Arc-Gauge (SVG)</span><span class="tag">Terrakotta #A0522D</span><span class="tag">Cormorant + Jakarta</span></div>
+      <a href="preview_05c_terracotta.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+</div>
+
+<div style="max-width:1300px; margin:24px auto 0; padding-bottom:12px;">
+  <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:#475569; margin-bottom:20px;">Design 07 — Nordic Minimal Varianten (Libre Franklin)</div>
+</div>
+
+<div class="designs-grid">
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_07a_steel.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">07a · Steel</div>
+      <div class="design-name">Nordic Minimal · Steel</div>
+      <div class="design-desc">Extremes Weißraum-Design, Stahl-Blau-Akzent, SOD als dünner Fortschrittsbalken mit „/ 10"-Label.</div>
+      <div class="design-tags"><span class="tag">Fortschrittsbalken</span><span class="tag">Steel #3D6B8C</span><span class="tag">Libre Franklin</span></div>
+      <a href="preview_07a_steel.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_07b_forest.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">07b · Forest</div>
+      <div class="design-name">Nordic Minimal · Forest</div>
+      <div class="design-desc">Waldgrün-Akzent, SOD als 10 kleine Quadrate (gefüllt vs. offen). Amber als Sekundärfarbe für Statusbadges.</div>
+      <div class="design-tags"><span class="tag">Quadrat-Skala</span><span class="tag">Forest #2D5A3D</span><span class="tag">Libre Franklin</span></div>
+      <a href="preview_07b_forest.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_07c_graphite.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">07c · Graphite</div>
+      <div class="design-name">Nordic Minimal · Graphite</div>
+      <div class="design-desc">Fast monochrom. SOD als Lineal-Skala mit Tick-Marks und positioniertem Kreis. Amber nur für kritische Werte.</div>
+      <div class="design-tags"><span class="tag">Lineal-Skala</span><span class="tag">Graphite #3A3A3A</span><span class="tag">Libre Franklin</span></div>
+      <a href="preview_07c_graphite.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+</div>
+
+<div style="max-width:1300px; margin:24px auto 0; padding-bottom:12px;">
+  <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:#475569; margin-bottom:20px;">Design 08 — Institutional Serif Varianten (Libre Baskerville + Source Sans 3)</div>
+</div>
+
+<div class="designs-grid">
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_08a_navy.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">08a · Navy</div>
+      <div class="design-name">Institutional · Navy</div>
+      <div class="design-desc">Formale Serif-Typografie, Navy-Akzent, SOD als 150px-Balken mit Tick-Marks und Amber-SOLL-Marker auf dem Balken.</div>
+      <div class="design-tags"><span class="tag">Balken + SOLL-Marker</span><span class="tag">Navy #1A3A5C</span><span class="tag">Libre Baskerville</span></div>
+      <a href="preview_08a_navy.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_08b_burgundy.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">08b · Burgundy</div>
+      <div class="design-name">Institutional · Burgundy</div>
+      <div class="design-desc">Bordeaux-Akzent, SOD als SVG-Halbkreis-Gauge mit Amber-Tick für SOLL-Schwelle. Eleganteste der Gruppe.</div>
+      <div class="design-tags"><span class="tag">Arc-Gauge (SVG)</span><span class="tag">Bordeaux #6B2D3E</span><span class="tag">Libre Baskerville</span></div>
+      <a href="preview_08b_burgundy.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_08c_teal.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">08c · Teal</div>
+      <div class="design-name">Institutional · Teal</div>
+      <div class="design-desc">4px Teal-Kopfleiste statt dunklem Header. SOD als 10-Punkt-Dot-Skala. Klare Sektions-Trennlinien in Teal.</div>
+      <div class="design-tags"><span class="tag">Dot-Skala</span><span class="tag">Teal #1A5C55</span><span class="tag">Libre Baskerville</span></div>
+      <a href="preview_08c_teal.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ROUND 4: Tiered layout + color system -->
+<div style="max-width:1300px; margin:0 auto;">
+  <div class="section-label">Runde 4 — Zweistufiges Layout & Farbsystem <span class="section-new">NEU</span></div>
+</div>
+
+<div class="designs-grid">
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_tiered_layout.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">Konzept · Zweistufig</div>
+      <div class="design-name">Tiered Layout Preview</div>
+      <div class="design-desc">HOCH/MITTEL als vollständige Karte, NIEDRIG als kompakte Karte mit sichtbarer Bewertungskette (SOD-Kriterien + Begründung). Terracotta-Stil.</div>
+      <div class="design-tags"><span class="tag">Zweistufig</span><span class="tag">Kompaktkarte Niedrig</span><span class="tag">Terracotta</span></div>
+      <a href="preview_tiered_layout.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_terracotta_colors.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">Konzept · Farbpalette</div>
+      <div class="design-name">Terracotta Status Colors</div>
+      <div class="design-desc">Harmonisierte Statusfarben für Terracotta-Stil: Ziegel-Rot (Kritisch), Sienna (Hoch), Amber (Mittel), Salbeigrün (Niedrig). Mit Muster-Karten.</div>
+      <div class="design-tags"><span class="tag">Farbsystem</span><span class="tag">4 Statusstufen</span><span class="tag">Gedeckte Töne</span></div>
+      <a href="preview_terracotta_colors.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- SKILL MOCKUP -->
+<div style="max-width:1300px; margin:0 auto;">
+  <div class="section-label">Skill-Struktur · FMEA-Bericht Mockup</div>
+</div>
+
+<div class="designs-grid">
+
+  <div class="design-card is-variant">
+    <div class="design-preview"><iframe src="preview_fmea_mockup.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">Skill · fmea-risikoanalyse</div>
+      <div class="design-name">FMEA-Bericht – Vollständiges Mockup</div>
+      <div class="design-desc">Struktur des generierten Berichts aus dem Skill: Cover, TOC, Management Summary, Methodik, Anlagenbeschreibung, Risiko-Übersicht, Detaillierte Dokumentation, Anhang. Platzhalterdaten.</div>
+      <div class="design-tags"><span class="tag">Mockup</span><span class="tag">Skill-Struktur</span><span class="tag">Outfit + Inter</span></div>
+      <a href="preview_fmea_mockup.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ROUND 6: 9 neue Konzepte (Fehlerart-Struktur) -->
+<div style="max-width:1300px; margin:0 auto;">
+  <div class="section-label">Runde 6 — 9 neue Konzepte (Fehlerart-Struktur) <span class="section-new">NEU</span></div>
+</div>
+
+<div style="max-width:1300px; margin:0 auto; padding-bottom:12px;">
+  <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:#475569; margin-bottom:20px;">Gliederung nach Thermisch / Mechanisch / MSR · echte DB-Daten · 9 eigenständige Ästhetiken</div>
+</div>
+
+<div class="designs-grid">
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_v2_01_obsidian.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">V2·01 · NEU</div>
+      <div class="design-name">Obsidian</div>
+      <div class="design-desc">Bloomberg Terminal meets McKinsey — Dunkel, Präzise, Autoritativ</div>
+      <div class="design-tags"><span class="tag">Dark Mode</span><span class="tag">thin_arc</span><span class="tag">Fehlerart-Struktur</span></div>
+      <a href="preview_v2_01_obsidian.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_v2_02_chalk.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">V2·02 · NEU</div>
+      <div class="design-name">Chalk</div>
+      <div class="design-desc">Schweizer Editorial — Maximales Whitespace, Haarlinien-Raster</div>
+      <div class="design-tags"><span class="tag">Editorial</span><span class="tag">dot_grid</span><span class="tag">Fehlerart-Struktur</span></div>
+      <a href="preview_v2_02_chalk.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_v2_03_dusk.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">V2·03 · NEU</div>
+      <div class="design-name">Dusk</div>
+      <div class="design-desc">Morgan Stanley Naval Authority — Strukturierte Seriosität</div>
+      <div class="design-tags"><span class="tag">Institutional</span><span class="tag">segmented_bar</span><span class="tag">Fehlerart-Struktur</span></div>
+      <a href="preview_v2_03_dusk.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_v2_04_muji.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">V2·04 · NEU</div>
+      <div class="design-name">Muji</div>
+      <div class="design-desc">Japanische Designphilosophie — Extreme Stille, Tusche-Linien</div>
+      <div class="design-tags"><span class="tag">Minimal</span><span class="tag">text_only</span><span class="tag">Fehlerart-Struktur</span></div>
+      <a href="preview_v2_04_muji.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_v2_05_copper.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">V2·05 · NEU</div>
+      <div class="design-name">Copper</div>
+      <div class="design-desc">Industriell-Premium — Siemens/Bosch Jahresbericht, Kupfer-Akzent</div>
+      <div class="design-tags"><span class="tag">Industrial</span><span class="tag">half_ring</span><span class="tag">Fehlerart-Struktur</span></div>
+      <a href="preview_v2_05_copper.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_v2_06_emerald.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">V2·06 · NEU</div>
+      <div class="design-name">Emerald</div>
+      <div class="design-desc">Rolex / LVMH Annual Report — Smaragd, Elfenbein, Feine Goldlinie</div>
+      <div class="design-tags"><span class="tag">Luxury</span><span class="tag">filled_dot</span><span class="tag">Fehlerart-Struktur</span></div>
+      <a href="preview_v2_06_emerald.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_v2_07_mercury.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">V2·07 · NEU</div>
+      <div class="design-name">Mercury</div>
+      <div class="design-desc">Scientific Journal (Nature) — Indigo als einzige Farbe, Zahlen regieren</div>
+      <div class="design-tags"><span class="tag">Scientific</span><span class="tag">numerical</span><span class="tag">Fehlerart-Struktur</span></div>
+      <a href="preview_v2_07_mercury.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_v2_08_chamois.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">V2·08 · NEU</div>
+      <div class="design-name">Chamois</div>
+      <div class="design-desc">Uhrmacher-Luxus — Verdigris, Chamois, Handwerk-Präzision</div>
+      <div class="design-tags"><span class="tag">Luxury</span><span class="tag">half_ring</span><span class="tag">Fehlerart-Struktur</span></div>
+      <a href="preview_v2_08_chamois.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+  <div class="design-card is-new">
+    <div class="design-preview"><iframe src="preview_v2_09_polar.html"></iframe></div>
+    <div class="design-info">
+      <div class="design-num">V2·09 · NEU</div>
+      <div class="design-name">Polar</div>
+      <div class="design-desc">Skandinavisch (Nokia/Ericsson) — Eisblau, Plus Jakarta Sans, Kristallklarheit</div>
+      <div class="design-tags"><span class="tag">Nordic</span><span class="tag">square_dot</span><span class="tag">Fehlerart-Struktur</span></div>
+      <a href="preview_v2_09_polar.html" target="_blank" class="design-link">→ Vollansicht</a>
+    </div>
+  </div>
+
+</div>
+
+  <div class="section-label">Runde 7 — Consulting Sidebar v3 (finale Design-Richtung) <span class="section-new">NEU</span></div>
+
+  <div class="designs-grid" style="grid-template-columns: repeat(2, 1fr);">
+
+    <div class="design-card is-new">
+      <div class="design-preview"><iframe src="preview_v3a_thematic.html"></iframe></div>
+      <div class="design-info">
+        <div class="design-num">V3·A · NEU</div>
+        <div class="design-name">Consulting Sidebar — Thematisch</div>
+        <div class="design-desc">Sidebar-Navigation · Inter · Navy/Chalk · Gliederung nach Fehlermodus-Kategorie (Verschleiß, MSR, Bedienfehler…)</div>
+        <div class="design-tags"><span class="tag">Consulting</span><span class="tag">Sidebar</span><span class="tag">Thematisch</span><span class="tag">Inter</span></div>
+        <a href="preview_v3a_thematic.html" target="_blank" class="design-link">→ Vollansicht</a>
+      </div>
+    </div>
+
+    <div class="design-card is-new">
+      <div class="design-preview"><iframe src="preview_v3b_component.html"></iframe></div>
+      <div class="design-info">
+        <div class="design-num">V3·B · NEU</div>
+        <div class="design-name">Consulting Sidebar — Komponentenweise</div>
+        <div class="design-desc">Sidebar-Navigation · Inter · Navy/Chalk · Gliederung nach Anlagekomponenten (Reaktor, Pumpe, Wärmetauscher…)</div>
+        <div class="design-tags"><span class="tag">Consulting</span><span class="tag">Sidebar</span><span class="tag">Komponenten</span><span class="tag">Ampel</span></div>
+        <a href="preview_v3b_component.html" target="_blank" class="design-link">→ Vollansicht</a>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

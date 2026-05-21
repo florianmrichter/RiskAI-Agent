@@ -1,0 +1,106 @@
+    {# ══════════════════  1. EXECUTIVE SUMMARY  ══════════════════ #}
+    <section class="page-section" id="summary">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 1</div>
+        <div class="section-title">Executive Summary</div>
+        <div class="section-desc">Überblick über die wesentlichen Risikobefunde und Handlungsbedarfe der Anlage <strong>{{ project.anlage_name }}</strong>.</div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card {% if stats.rpz_distribution.get('kritisch', 0) > 0 %}danger{% endif %}">
+          <div class="kpi-value">{{ stats.rpz_distribution.get('kritisch', 0) }}</div>
+          <div class="kpi-label">Kritische Risiken (RPZ ≥ 300)</div>
+        </div>
+        <div class="kpi-card {% if stats.rpz_distribution.get('hoch', 0) > 0 %}warning{% endif %}">
+          <div class="kpi-value">{{ stats.rpz_distribution.get('hoch', 0) }}</div>
+          <div class="kpi-label">Hohe Risiken (RPZ ≥ 200)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">{{ stats.failure_modes }}</div>
+          <div class="kpi-label">Fehlermodi gesamt</div>
+        </div>
+        <div class="kpi-card ok">
+          <div class="kpi-value">{{ stats.measures }}</div>
+          <div class="kpi-label">Maßnahmen definiert</div>
+        </div>
+      </div>
+
+      {# RPZ-Verteilungsbalken (Prozente in Python vorberechnet → rpz_percentages) #}
+      <div class="rpz-dist">
+        <div class="rpz-dist-title">RPZ-Verteilung aller {{ stats.failure_modes }} Fehlermodi</div>
+        <div class="rpz-dist-bar">
+          {% if rpz_percentages.kritisch > 0 %}<div class="rpz-dist-seg" style="background:var(--risk-kritisch); width:{{ rpz_percentages.kritisch }}%"></div>{% endif %}
+          {% if rpz_percentages.hoch > 0 %}<div class="rpz-dist-seg" style="background:var(--risk-hoch); width:{{ rpz_percentages.hoch }}%"></div>{% endif %}
+          {% if rpz_percentages.mittel > 0 %}<div class="rpz-dist-seg" style="background:var(--risk-mittel); width:{{ rpz_percentages.mittel }}%"></div>{% endif %}
+          {% if rpz_percentages.niedrig > 0 %}<div class="rpz-dist-seg" style="background:var(--risk-niedrig); width:{{ rpz_percentages.niedrig }}%"></div>{% endif %}
+        </div>
+        <div class="rpz-dist-legend">
+          <div class="legend-item"><span class="legend-dot" style="background:var(--risk-kritisch)"></span>Kritisch: {{ stats.rpz_distribution.get('kritisch', 0) }}</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--risk-hoch)"></span>Hoch: {{ stats.rpz_distribution.get('hoch', 0) }}</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--risk-mittel)"></span>Mittel: {{ stats.rpz_distribution.get('mittel', 0) }}</div>
+          <div class="legend-item"><span class="legend-dot" style="background:var(--risk-niedrig)"></span>Niedrig: {{ stats.rpz_distribution.get('niedrig', 0) }}</div>
+        </div>
+      </div>
+
+      {# Summary Text #}
+      <p>
+        Die Anlage <strong>„{{ project.anlage_name }}"</strong> wurde nach dem AIAG-VDA-Standard analysiert.
+        Insgesamt wurden <strong>{{ stats.components }}</strong> Komponenten mit
+        <strong>{{ stats.functions }}</strong> Funktionen untersucht und
+        <strong>{{ stats.failure_modes }}</strong> potenzielle Fehlermodi identifiziert.
+        <strong>{{ high_risk_count }}</strong> davon sind als kritisch oder hoch eingestuft.
+        Der höchste RPZ liegt bei <strong>{{ report_context.max_rpz }}</strong>, der Durchschnitt bei <strong>{{ report_context.avg_rpz }}</strong>.
+        {% if report_context.special_rule_count > 0 %}
+        Bei <strong>{{ report_context.special_rule_count }}</strong> Fehlermodi greifen AIAG-VDA-Sonderregeln.
+        {% endif %}
+        {% if report_context.best_reduction %}
+        Die wirksamste Maßnahme reduziert den RPZ um <strong>{{ report_context.best_reduction }}</strong> Punkte.
+        {% endif %}
+      </p>
+
+      {# Warnhinweise #}
+      {% if report_context.konfidenz_warning %}
+      <div class="alert-box alert-warning">
+        <span class="alert-icon">⚠</span>
+        <div>
+          <strong>KI-Bewertung unsicher</strong>
+          <span> — {{ report_context.low_konfidenz_count }} Fehlermodi mit niedrigem Agent-Konfidenz-Level. Expertenprüfung empfohlen.</span>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if report_context.pflicht_massnahmen_count > 0 %}
+      <div class="alert-box alert-danger">
+        <span class="alert-icon">🔴</span>
+        <div>
+          <strong>{{ report_context.pflicht_massnahmen_count }} Pflicht-Maßnahmen sofort erforderlich</strong>
+          <span> — S ≥ 9 oder RPZ ≥ 300. Details im Maßnahmen-Cockpit unten.</span>
+        </div>
+      </div>
+      {% endif %}
+
+      {# Top 5 #}
+      <h3>Top-5 Risiken</h3>
+      <div class="top5-table-shell">
+        <div class="top5-header">
+          <span class="top5-header-cell">ID</span>
+          <span class="top5-header-cell">Fehlermodus</span>
+          <span class="top5-header-cell" style="text-align:center;">RPZ</span>
+          <span class="top5-header-cell" style="text-align:center;">Risiko</span>
+          <span class="top5-header-cell" style="text-align:center;">Kategorie</span>
+        </div>
+        {% for fm in top5 %}
+        <a href="#risk-{{ fm.fehler_id }}" class="top5-row" style="text-decoration:none;color:inherit;">
+          <span class="top5-cell id">{{ fm.fehler_id }}</span>
+          <span class="top5-cell">{{ fm.fehlermodus }}</span>
+          <span class="top5-cell rpz" style="color:var(--risk-{{ fm.rpz_status }});">{{ fm.rpz }}</span>
+          <span class="top5-cell center">
+            <span class="risk-badge {{ fm.rpz_status }}">
+              <span class="bdot"></span>{{ fm.rpz_status|capitalize }}
+            </span>
+          </span>
+          <span class="top5-cell center"><span class="tag">{{ fm.fehlerart }}</span></span>
+        </a>
+        {% endfor %}
+      </div>
+    </section>

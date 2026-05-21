@@ -24,16 +24,36 @@ RPZ_COLORS = {
     "niedrig":  "#00A389",  # Teal Green
 }
 
+# ═══════════════════════════════════════════════════════════════
+# Design Colors — Canonical palette for all Python exports
+# ═══════════════════════════════════════════════════════════════
+
+DESIGN_COLORS = {
+    "brand_navy":      "#1E3A5F",
+    "brand_accent":    "#E8C547",
+    "risk_kritisch":   RPZ_COLORS["kritisch"],
+    "risk_hoch":       RPZ_COLORS["hoch"],
+    "risk_mittel":     RPZ_COLORS["mittel"],
+    "risk_niedrig":    RPZ_COLORS["niedrig"],
+    "risk_akzeptabel": "#0EA5E9",
+}
+
+# Excel-friendly RPZ colors (no '#' prefix, AARRBB format for openpyxl)
+RPZ_HEX = {
+    "kritisch": RPZ_COLORS["kritisch"].lstrip("#"),
+    "hoch":     RPZ_COLORS["hoch"].lstrip("#"),
+    "mittel":   RPZ_COLORS["mittel"].lstrip("#"),
+    "niedrig":  RPZ_COLORS["niedrig"].lstrip("#"),
+}
+
+HEADER_COLOR = DESIGN_COLORS["brand_navy"].lstrip("#")
+
 RPZ_LABELS = {
     "kritisch": "Sofortige Maßnahme",
     "hoch":     "Maßnahme zeitnah umsetzen",
     "mittel":   "Maßnahme planen",
     "niedrig":  "Monitoring",
 }
-
-# Zielschwelle: RPZ unter diesem Wert gilt als "niedrig" (akzeptables Restrisiko).
-# Wird für SOLL-Erklärung und "Unter Grenzwert"-Badge im Report genutzt.
-RPZ_TARGET_THRESHOLD = 100
 
 
 def classify_rpz(rpz: int) -> str:
@@ -87,6 +107,17 @@ SAFETY_OVERRIDES = [
         "keywords": ["ex-schutz", "explosionsschutz", "zone 0", "zone 1", "atex"],
         "min_S": 10,
         "label": "Explosionsschutz-Spezifikation",
+        "qualifiers": [
+            {
+                "context_keywords": ["offen", "handloch", "undicht", "leckage", "lokal", "temporär"],
+                "min_S": 9,
+                "label": "Explosionsschutz — lokale/temporäre Ex-Gefahr",
+                "guidance": (
+                    "Zone 0 entsteht lokal/temporär (z.B. offenes Handloch, undichte Dichtung). "
+                    "Nicht gleichzusetzen mit permanenter Zone 0 im geschlossenen Reaktor. S=9 angemessen."
+                ),
+            },
+        ],
     },
     {
         "keywords": ["säure", "lauge", "toxisch", "giftig", "chlor", "schwefelsäure", "essigsäure"],
@@ -170,6 +201,61 @@ FAILURE_TYPES = [
     "Dosierung",
 ]
 
+
+# ═══════════════════════════════════════════════════════════════
+# Gefahrenfelder (erweiterte Prüfpunkte für FM-Kategorien)
+# ═══════════════════════════════════════════════════════════════
+# Zuordnung der 35 Gefahrenfelder zu FM-Kategorien.
+# Kategorie 1+2: Standard-Prüfpunkte (immer prüfen)
+# Kategorie 3: Optional (nur bei Außenanlagen oder auf Anfrage)
+
+GEFAHRENFELDER = {
+    # Kategorie 1 — Prozessbedingungen
+    "1.1":  {"name": "Spezifikation / Verunreinigungen", "fm_kategorien": ["Prozess"], "pflicht": True},
+    "1.2":  {"name": "Präsenz der Ausgangsstoffe", "fm_kategorien": ["Prozess", "Dosierung"], "pflicht": True},
+    "1.3":  {"name": "Dosierung / Menge / Reihenfolge", "fm_kategorien": ["Dosierung"], "pflicht": True},
+    "1.4":  {"name": "Reaktionsbedingungen (pH etc.)", "fm_kategorien": ["Prozess"], "pflicht": True},
+    "1.5":  {"name": "Druck", "fm_kategorien": ["Prozess"], "pflicht": True},
+    "1.6":  {"name": "Temperatur", "fm_kategorien": ["Thermisch"], "pflicht": True},
+    "1.7":  {"name": "Vermischung / Verwechslung", "fm_kategorien": ["Prozess", "Sonstiges"], "pflicht": True},
+    "1.8":  {"name": "Explosionsfähige Atmosphäre", "fm_kategorien": ["Sicherheit"], "pflicht": True},
+    "1.9":  {"name": "Stoffströme / Rückströmung", "fm_kategorien": ["Prozess"], "pflicht": True},
+    "1.10": {"name": "Füllstand / Überfüllung", "fm_kategorien": ["Prozess"], "pflicht": True},
+    "1.11": {"name": "Rührung / Rührgeschwindigkeit", "fm_kategorien": ["Mechanisch", "Equipment"], "pflicht": True},
+    "1.12": {"name": "Elektrostatische Aufladung", "fm_kategorien": ["Sicherheit", "Elektrisch"], "pflicht": True},
+    "1.13": {"name": "Reaktion mit Wärmeträger", "fm_kategorien": ["Thermisch"], "pflicht": True},
+    "1.14": {"name": "Katalysator / Inhibitor", "fm_kategorien": ["Prozess", "Dosierung"], "pflicht": True},
+    "1.15": {"name": "Filtrieren / Abtrennen / Dekantieren", "fm_kategorien": ["Equipment"], "pflicht": True},
+    "1.16": {"name": "Pumpen / Leeren / Transfer", "fm_kategorien": ["Mechanisch", "Prozess"], "pflicht": True},
+    "1.17": {"name": "Heizen / Kühlen", "fm_kategorien": ["Thermisch"], "pflicht": True},
+    "1.18": {"name": "Reinigung", "fm_kategorien": ["Prozess", "Sicherheit", "Equipment"], "pflicht": True},
+    "1.19": {"name": "Kontrolle / Überwachung / Detektion", "fm_kategorien": ["MSR"], "pflicht": True},
+    "1.20": {"name": "Evakuieren / Entlasten", "fm_kategorien": ["Prozess", "Sicherheit"], "pflicht": True},
+    "1.21": {"name": "Abluft / Ableitung", "fm_kategorien": ["Sicherheit", "Prozess"], "pflicht": True},
+    "1.22": {"name": "Prozessunterbruch", "fm_kategorien": ["Prozess", "Elektrisch"], "pflicht": True},
+    "1.23": {"name": "Stoff-/Chemikalienaustritt", "fm_kategorien": ["Mechanisch", "Sicherheit"], "pflicht": True},
+    "1.24": {"name": "Manuelle Tätigkeiten", "fm_kategorien": ["Sonstiges", "Sicherheit"], "pflicht": True},
+    "1.25": {"name": "Wartungs-/Reparaturarbeiten", "fm_kategorien": ["Sonstiges"], "pflicht": True},
+    "1.26": {"name": "Offenes Stoffhandling (K1-Gefahrstoffe)", "fm_kategorien": ["Sicherheit", "Sonstiges"], "pflicht": True},
+    # Kategorie 2 — Energie / Medien
+    "2.1":  {"name": "Hilfsenergien (Strom, Druckluft, N₂, Vakuum)", "fm_kategorien": ["Elektrisch", "Prozess"], "pflicht": True},
+    "2.2":  {"name": "Heiz-/Kühlmedien (Dampf, Kühlwasser, Sole)", "fm_kategorien": ["Thermisch"], "pflicht": True},
+    "2.3":  {"name": "PLT-Einrichtungen", "fm_kategorien": ["MSR"], "pflicht": True},
+    "2.4":  {"name": "Integrität der Bauteile", "fm_kategorien": ["Mechanisch", "Equipment"], "pflicht": True},
+    "2.5":  {"name": "CE-Konformität (Produktsicherheitsgesetz)", "fm_kategorien": ["Sicherheit"], "pflicht": True},
+    "2.6":  {"name": "Cyber Security", "fm_kategorien": ["MSR", "Elektrisch"], "pflicht": True},
+    # Kategorie 3 — Sonstige Einflüsse (optional, nur bei Außenanlagen)
+    "3.1":  {"name": "Hagel", "fm_kategorien": ["Mechanisch"], "pflicht": False},
+    "3.2":  {"name": "Blitzschlag", "fm_kategorien": ["Elektrisch", "Sicherheit"], "pflicht": False},
+    "3.3":  {"name": "Erdabsenkung", "fm_kategorien": ["Mechanisch"], "pflicht": False},
+    "3.4":  {"name": "Starkregenereignis", "fm_kategorien": ["Prozess"], "pflicht": False},
+    "3.5":  {"name": "Umgebungstemperaturen", "fm_kategorien": ["Thermisch"], "pflicht": False},
+    "3.6":  {"name": "Sabotage", "fm_kategorien": ["Sicherheit", "Sonstiges"], "pflicht": False},
+    "3.7":  {"name": "Sturm / Tornado", "fm_kategorien": ["Mechanisch"], "pflicht": False},
+    "3.8":  {"name": "Erdbeben", "fm_kategorien": ["Mechanisch"], "pflicht": False},
+    "3.9":  {"name": "Brand", "fm_kategorien": ["Sicherheit"], "pflicht": False},
+}
+
 # ═══════════════════════════════════════════════════════════════
 # Fehlermodi-Vorlagen (Basis für Agent-Bewertung)
 # ═══════════════════════════════════════════════════════════════
@@ -246,37 +332,12 @@ FEHLERMODI_VORLAGEN = {
         {"typ": "Kennzeichnungsfehler", "beschreibung": "Falsche Beschriftung von Leitungen oder Handventilen führt zu Verwechslungen bei Wartung/Betrieb."},
         {"typ": "Externe Einwirkung", "beschreibung": "Beschädigung von Rohrleitungen durch Staplerverkehr oder herabfallende Lasten."},
     ],
-}
-
-
-# ═══════════════════════════════════════════════════════════════
-# Measure Recommendation & Cost/Speed Classes
-# ═══════════════════════════════════════════════════════════════
-
-# Empfehlungsmethode: "lexicographic" (Grenzwert → Reduktion → Kosten → Zeit)
-# oder "weighted_score" (gewichteter Score aus Reduktion, Kosten, Umsetzbarkeit).
-MEASURE_RECOMMENDATION_METHOD = "lexicographic"
-
-MEASURE_WEIGHTS = {
-    "reduction": 0.5,
-    "cost": 0.25,
-    "speed": 0.25,
-}
-
-# Klassen für Umsetzungszeit (1 = schnell = beste, 3 = langfristig).
-UMSETZBARKEIT_KLASSEN = ("schnell", "mittelfristig", "langfristig")
-UMSETZBARKEIT_LABELS = {
-    "schnell": "Schnell umsetzbar",
-    "mittelfristig": "Mittelfristig umsetzbar",
-    "langfristig": "Langfristig umsetzbar",
-}
-
-# Klassen für Kosten (1 = gering = beste, 3 = hoch).
-KOSTEN_KLASSEN = ("gering", "mittel", "hoch")
-KOSTEN_LABELS = {
-    "gering": "Geringe Kosten",
-    "mittel": "Mittlere Kosten",
-    "hoch": "Hohe Kosten",
+    "cyber_sabotage": [
+        {"typ": "Unbefugter Fernzugriff", "beschreibung": "Zugriff auf Prozesssteuerung über Netzwerk/VPN, Manipulation von Sollwerten oder Verriegelungen."},
+        {"typ": "Malware / Ransomware auf OT-System", "beschreibung": "Schadsoftware befällt SPS/SCADA, führt zu Ausfall oder unkontrolliertem Betrieb."},
+        {"typ": "Manipulation vor Ort (Sabotage)", "beschreibung": "Absichtliche Fehlbedienung oder Manipulation durch Personen mit physischem Zugang."},
+        {"typ": "Datenmanipulation / Logikänderung", "beschreibung": "Unerkannte Änderung von SPS-Programm oder Alarmschwellen."},
+    ],
 }
 
 
@@ -302,15 +363,11 @@ PREVENTION_PHASES = [
 
 FMEA_CONFIG = {
     "rpz_thresholds": RPZ_THRESHOLDS,
-    "rpz_target_threshold": RPZ_TARGET_THRESHOLD,
     "rpz_colors": RPZ_COLORS,
+    "rpz_hex": RPZ_HEX,
+    "design_colors": DESIGN_COLORS,
+    "header_color": HEADER_COLOR,
     "rpz_labels": RPZ_LABELS,
-    "measure_recommendation_method": MEASURE_RECOMMENDATION_METHOD,
-    "measure_weights": MEASURE_WEIGHTS,
-    "umsetzbarkeit_klassen": UMSETZBARKEIT_KLASSEN,
-    "umsetzbarkeit_labels": UMSETZBARKEIT_LABELS,
-    "kosten_klassen": KOSTEN_KLASSEN,
-    "kosten_labels": KOSTEN_LABELS,
     "special_rules": SPECIAL_RULES,
     "safety_overrides": SAFETY_OVERRIDES,
     "scales": {
@@ -322,4 +379,5 @@ FMEA_CONFIG = {
     "fehlermodi_vorlagen": FEHLERMODI_VORLAGEN,
     "cause_origins": CAUSE_ORIGINS,
     "prevention_phases": PREVENTION_PHASES,
+    "gefahrenfelder": GEFAHRENFELDER,
 }

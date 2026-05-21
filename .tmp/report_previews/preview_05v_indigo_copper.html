@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FMEA Report – Indigo Copper (Design 05v)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --page-bg: #FAF8F5;
+  --card-bg: #FFFFFF;
+  --header-bg: #1E1B4B;
+  --header-sec: #2D2A6E;
+  --copper: #B5622E;
+  --copper-light: #F7EDE5;
+  --copper-border: rgba(181,98,46,0.20);
+  --rust: #9B2335;
+  --rust-light: #FEF0F2;
+  --amber: #C97B22;
+  --amber-light: #FEF8EE;
+  --border: #E2D9D0;
+  --dark: #1E1A17;
+  --mid: #5C5148;
+  --muted: #9C8E84;
+  --legend-bg: rgba(250,248,245,0.6);
+  --indigo-tint: #EEEDF8;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+  background: #DDD9D3;
+  color: var(--dark);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==================== PAGE ==================== */
+.page {
+  width: 794px;
+  min-height: 1123px;
+  margin: 32px auto;
+  background: var(--page-bg);
+  box-shadow: 0 8px 40px rgba(30,27,75,0.18), 0 2px 8px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==================== FULL-WIDTH HEADER ==================== */
+.page-header {
+  background: var(--header-bg);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+/* Decorative geometric shape */
+.page-header::before {
+  content: '';
+  position: absolute;
+  right: -60px;
+  top: -60px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: var(--header-sec);
+  opacity: 0.35;
+}
+.page-header::after {
+  content: '';
+  position: absolute;
+  right: 80px;
+  bottom: -40px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: var(--copper);
+  opacity: 0.08;
+}
+
+.header-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: stretch;
+  padding: 0;
+}
+
+.header-main {
+  flex: 1;
+  padding: 28px 32px 28px 36px;
+}
+
+.header-eyebrow {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--copper);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.header-eyebrow::after {
+  content: '';
+  flex: 1;
+  max-width: 60px;
+  height: 1px;
+  background: var(--copper);
+  opacity: 0.5;
+}
+
+.header-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: #FFFFFF;
+  line-height: 1.15;
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+}
+
+.header-subtitle {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 18px;
+}
+
+.header-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.header-chip {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.75);
+  font-size: 10px;
+  font-weight: 400;
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+.header-chip.copper {
+  background: rgba(181,98,46,0.18);
+  border-color: rgba(181,98,46,0.35);
+  color: #E8A87C;
+}
+
+.header-sidebar {
+  width: 160px;
+  border-left: 1px solid rgba(255,255,255,0.08);
+  background: var(--header-sec);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+.sidebar-item-label {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 2px;
+}
+.sidebar-item-value {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.85);
+}
+.sidebar-item-value.copper-val {
+  color: #E8A87C;
+  font-weight: 600;
+}
+
+/* === LEGEND ROW === */
+.legend-row {
+  background: var(--copper-light);
+  border-bottom: 1px solid var(--copper-border);
+  padding: 8px 36px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--mid);
+}
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.legend-dot.copper { background: var(--copper); }
+.legend-dot.amber { background: var(--amber); }
+.legend-dot.indigo { background: var(--header-bg); }
+.legend-dot.rust { background: var(--rust); }
+
+/* ==================== CONTENT AREA ==================== */
+.content-area {
+  flex: 1;
+  padding: 28px 36px 32px;
+}
+
+/* === GROUP CARD === */
+.group-card {
+  background: var(--card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(30,27,75,0.06);
+}
+
+.group-card-header {
+  background: var(--header-bg);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.group-card-header::after {
+  content: '03';
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 64px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.07);
+  line-height: 1;
+  pointer-events: none;
+  letter-spacing: -2px;
+}
+.group-num-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  background: var(--copper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #FFFFFF;
+  flex-shrink: 0;
+}
+.group-info {}
+.group-label-sm {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--copper);
+  margin-bottom: 3px;
+}
+.group-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #FFFFFF;
+  line-height: 1.1;
+}
+.group-subtitle { font-size: 11px; color: rgba(255,255,255,0.55); }
+
+.group-card-meta {
+  padding: 10px 24px;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+  background: #FDFCFB;
+  border-top: 1px solid var(--border);
+}
+.group-meta-pill {
+  font-size: 10px;
+  color: var(--muted);
+}
+.group-meta-pill strong { color: var(--dark); font-weight: 600; }
+.sonderregel-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--rust-light);
+  border: 1px solid rgba(155,35,53,0.25);
+  color: var(--rust);
+  border-radius: 99px;
+  padding: 2px 10px;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+/* === FM CARD === */
+.fm-card {
+  background: var(--card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  margin-bottom: 18px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(30,27,75,0.07);
+}
+
+/* FM Header band */
+.fm-header-band {
+  background: var(--header-bg);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.fm-header-band::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--copper);
+}
+.fm-id {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--copper);
+  background: rgba(181,98,46,0.15);
+  border: 1px solid rgba(181,98,46,0.3);
+  padding: 3px 10px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+.fm-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #FFFFFF;
+  flex: 1;
+  line-height: 1.2;
+}
+.status-badge {
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.status-mittel-head { background: rgba(201,123,34,0.2); color: #FBBF77; border: 1px solid rgba(201,123,34,0.35); }
+.status-hoch-head { background: rgba(155,35,53,0.2); color: #F4A0AD; border: 1px solid rgba(155,35,53,0.35); }
+.status-mittel-body { background: var(--amber-light); color: var(--amber); border: 1px solid rgba(201,123,34,0.3); }
+.status-hoch-body { background: var(--rust-light); color: var(--rust); border: 1px solid rgba(155,35,53,0.2); }
+.status-niedrig-body { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+
+/* Function context bar */
+.fn-bar {
+  background: var(--indigo-tint);
+  border-bottom: 1px solid var(--border);
+  padding: 7px 24px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 9.5px;
+  font-weight: 400;
+  color: var(--mid);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.fn-bar .fn-tag {
+  font-weight: 700;
+  font-size: 8.5px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--header-bg);
+  background: rgba(30,27,75,0.08);
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+.fn-sep { color: var(--border); }
+
+/* Section wrapper */
+.fm-section {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.fm-section:last-child { border-bottom: none; }
+
+/* Section title */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.section-title-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--header-bg);
+  letter-spacing: 0.3px;
+}
+.section-title-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--copper-border), transparent);
+}
+.section-num-tag {
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--copper);
+  letter-spacing: 0.5px;
+}
+
+/* Narrative */
+.narrative-callout {
+  background: var(--copper-light);
+  border: 1px solid var(--copper-border);
+  border-left: 3px solid var(--copper);
+  border-radius: 0 6px 6px 0;
+  padding: 14px 18px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--mid);
+  font-weight: 300;
+}
+
+/* === SOD ELEGANT METERS === */
+.sod-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sod-meter-row {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  background: #FDFCFB;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.sod-meter-label {
+  width: 80px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 8px;
+  text-align: center;
+}
+.sod-letter {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.sod-s .sod-letter { color: var(--rust); }
+.sod-o .sod-letter { color: var(--copper); }
+.sod-d .sod-letter { color: var(--header-bg); }
+.sod-num {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--dark);
+  line-height: 1;
+  margin-bottom: 1px;
+}
+.sod-s .sod-num { color: var(--rust); }
+.sod-o .sod-num { color: var(--copper); }
+.sod-d .sod-num { color: var(--header-bg); }
+.sod-criterion-name {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.sod-meter-divider {
+  width: 1px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.sod-meter-content {
+  flex: 1;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  justify-content: center;
+}
+.sod-content-level {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dark);
+}
+.sod-content-desc {
+  font-size: 10px;
+  color: var(--mid);
+}
+.sod-bar-track {
+  height: 4px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+.sod-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+}
+.sod-s .sod-bar-fill { background: linear-gradient(to right, var(--rust), #C84A60); width: 80%; }
+.sod-o .sod-bar-fill { background: linear-gradient(to right, var(--copper), #C97B22); width: 30%; }
+.sod-d .sod-bar-fill { background: linear-gradient(to right, var(--header-bg), #2D2A6E); width: 40%; }
+
+.sod-subtext {
+  font-size: 10px;
+  color: var(--muted);
+  font-style: italic;
+}
+.sod-begr {
+  font-size: 9.5px;
+  color: var(--muted);
+  padding-top: 4px;
+  border-top: 1px dashed var(--border);
+}
+.sod-soll-tag {
+  margin-top: 2px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--copper);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.sod-meter-rpz {
+  width: 100px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 10px;
+  border-left: 1px solid var(--border);
+  text-align: center;
+  gap: 5px;
+}
+.rpz-display {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--amber);
+  line-height: 1;
+}
+.rpz-display.hoch { color: var(--rust); }
+.rpz-label-sm {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.rpz-soll {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--copper);
+}
+
+/* We only show RPZ on the last row by spanning */
+.sod-merged-rpz {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  margin-top: 8px;
+}
+.rpz-standalone {
+  flex-shrink: 0;
+  width: 100px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  text-align: center;
+  padding: 14px 10px;
+  box-shadow: 0 1px 4px rgba(30,27,75,0.06);
+}
+
+/* === TABLES === */
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.styled-table thead tr {
+  background: var(--header-bg);
+}
+.styled-table thead th {
+  color: rgba(255,255,255,0.8);
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  padding: 8px 11px;
+  text-align: left;
+}
+.styled-table tbody tr:nth-child(even) {
+  background: var(--copper-light);
+}
+.styled-table tbody tr:nth-child(odd) {
+  background: var(--card-bg);
+}
+.styled-table tbody td {
+  padding: 8px 11px;
+  color: var(--mid);
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.styled-table tbody td.id-col {
+  font-weight: 600;
+  color: var(--dark);
+  font-size: 10px;
+  white-space: nowrap;
+}
+.styled-table tbody td.dash { color: var(--muted); }
+
+/* Wirkung badges */
+.wbadge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  border: 1px solid var(--copper);
+  color: var(--copper);
+  white-space: nowrap;
+  background: var(--copper-light);
+}
+.wbadge.entdeckung { border-color: var(--header-bg); color: var(--header-bg); background: var(--indigo-tint); }
+
+/* === FEHLERFOLGEN GRID === */
+.folgen-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 10px;
+}
+.folgen-cell {
+  background: #FDFCFB;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 11px 12px;
+  position: relative;
+}
+.folgen-cell::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 6px 6px 0 0;
+  background: var(--copper);
+  opacity: 0.5;
+}
+.folgen-cell-label {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--copper);
+  margin-bottom: 6px;
+}
+.folgen-cell-text {
+  font-size: 10.5px;
+  color: var(--mid);
+  line-height: 1.45;
+  font-weight: 300;
+}
+
+/* === MASSNAHME === */
+.massnahme-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(30,27,75,0.06);
+}
+.massnahme-head {
+  background: var(--header-bg);
+  padding: 12px 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+  position: relative;
+}
+.massnahme-head::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--copper);
+}
+.massnahme-title-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #FFFFFF;
+  flex: 1;
+  line-height: 1.3;
+}
+.m-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: rgba(181,98,46,0.18);
+  border: 1px solid rgba(181,98,46,0.35);
+  color: #E8A87C;
+  white-space: nowrap;
+}
+.massnahme-head-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.change-arrow {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.75);
+}
+.rpz-prime-badge {
+  background: rgba(201,123,34,0.18);
+  border: 1px solid rgba(201,123,34,0.35);
+  color: #FBBF77;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 4px;
+}
+.massnahme-body {
+  background: #FDFCFB;
+  padding: 14px 18px;
+}
+.massnahme-desc {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--mid);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+.massnahme-rationale {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-bottom: 10px;
+}
+.massnahme-tags {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.massnahme-tag {
+  background: var(--copper-light);
+  border: 1px solid var(--copper-border);
+  color: var(--copper);
+  border-radius: 99px;
+  padding: 2px 10px;
+  font-size: 9px;
+  font-weight: 500;
+}
+
+/* === FM-T02 COMPRESSED === */
+.fm-card-compressed {
+  background: var(--card-bg);
+  border-radius: 8px;
+  border: 1px solid rgba(155,35,53,0.25);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(155,35,53,0.08);
+  margin-bottom: 18px;
+}
+.fm-compressed-band {
+  background: linear-gradient(to right, #7A1A28, #9B2335);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+  flex-wrap: wrap;
+}
+.fm-compressed-band::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--copper);
+}
+.sonderregel-badge {
+  background: rgba(181,98,46,0.2);
+  border: 1px solid rgba(181,98,46,0.35);
+  color: #E8A87C;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.3px;
+}
+.fm-compressed-sod {
+  display: flex;
+  gap: 20px;
+  padding: 11px 24px;
+  background: var(--rust-light);
+  border-top: 1px solid rgba(155,35,53,0.15);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.sod-mini {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.sod-mini-label {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+}
+.sod-mini-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+.sod-mini-val.s { color: var(--rust); }
+.sod-mini-val.o { color: var(--copper); }
+.sod-mini-val.d { color: var(--header-bg); }
+.rpz-mini-group {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.rpz-mini-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--rust);
+  line-height: 1;
+}
+.more-hint {
+  font-size: 10px;
+  font-style: italic;
+  color: var(--muted);
+}
+
+/* ==================== FOOTER ==================== */
+.page-footer {
+  background: var(--header-bg);
+  padding: 12px 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+.footer-text {
+  font-size: 9px;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.8;
+}
+.footer-text strong {
+  color: rgba(255,255,255,0.65);
+  font-weight: 500;
+}
+.footer-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.footer-norm {
+  font-size: 8.5px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.5px;
+}
+.page-num-copper {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--copper);
+}
+
+/* Divider dot for fn-bar */
+.fn-dot { color: var(--copper); }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ==================== FULL-WIDTH HEADER ==================== -->
+  <div class="page-header">
+    <div class="header-inner">
+      <div class="header-main">
+        <div class="header-eyebrow">FMEA — Risikobewertungsbericht</div>
+        <div class="header-title">Temperaturregelung<br>Reaktor R-101</div>
+        <div class="header-subtitle">Failure Mode and Effects Analysis · Prozessanlage 20TA24 · Bericht-Nr. FMEA-2024-003</div>
+        <div class="header-chips">
+          <span class="header-chip">Revision 1.0</span>
+          <span class="header-chip">2024-03-08</span>
+          <span class="header-chip copper">Entwurf</span>
+          <span class="header-chip">AIAG-VDA 2019</span>
+        </div>
+      </div>
+      <div class="header-sidebar">
+        <div>
+          <div class="sidebar-item-label">Ersteller</div>
+          <div class="sidebar-item-value">RiskAI-Agent</div>
+        </div>
+        <div>
+          <div class="sidebar-item-label">Anlage</div>
+          <div class="sidebar-item-value">20TA24</div>
+        </div>
+        <div>
+          <div class="sidebar-item-label">Fehlermodi</div>
+          <div class="sidebar-item-value copper-val">2 analysiert</div>
+        </div>
+        <div>
+          <div class="sidebar-item-label">Max RPZ</div>
+          <div class="sidebar-item-value copper-val">96</div>
+        </div>
+        <div>
+          <div class="sidebar-item-label">Sonderregeln</div>
+          <div class="sidebar-item-value">1 aktiv (S≥9)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEGEND ROW -->
+  <div class="legend-row">
+    <div class="legend-item"><div class="legend-dot copper"></div>Fehlerursache</div>
+    <div class="legend-item"><div class="legend-dot amber"></div>Fehlerauswirkung</div>
+    <div class="legend-item"><div class="legend-dot indigo"></div>Verbesserungsmaßnahme</div>
+    <div class="legend-item"><div class="legend-dot rust"></div>Sonderregel / kritisch</div>
+  </div>
+
+  <!-- ==================== CONTENT AREA ==================== -->
+  <div class="content-area">
+
+    <!-- GROUP CARD -->
+    <div class="group-card">
+      <div class="group-card-header">
+        <div class="group-num-badge">03</div>
+        <div class="group-info">
+          <div class="group-label-sm">Funktionsgruppe</div>
+          <div class="group-title">Temperaturregelung</div>
+          <div class="group-subtitle">Reaktor R-101</div>
+        </div>
+      </div>
+      <div class="group-card-meta">
+        <div class="group-meta-pill"><strong>2</strong> Fehlermodi</div>
+        <div class="group-meta-pill">Max RPZ: <strong>96</strong></div>
+        <div class="group-meta-pill"><span class="sonderregel-pill">⚑ 1 Sonderregel (S≥9)</span></div>
+      </div>
+    </div>
+
+    <!-- ============================== FM-T01 ============================== -->
+    <div class="fm-card">
+
+      <!-- Header Band -->
+      <div class="fm-header-band">
+        <span class="fm-id">FM-T01</span>
+        <span class="fm-name">Temperatursensor fällt aus</span>
+        <span class="status-badge status-mittel-head">MITTEL</span>
+      </div>
+
+      <!-- Function context bar -->
+      <div class="fn-bar">
+        <span style="font-family:monospace; font-size:9px;">20TA24-KOMP-003-F1</span>
+        <span class="fn-sep">·</span>
+        <span class="fn-tag">HAUPTFUNKTION</span>
+        <span class="fn-sep">·</span>
+        <span>Temperatur im Reaktor R-101 messen und regeln</span>
+        <span class="fn-sep">·</span>
+        <span style="font-weight:500;">Reaktor R-101</span>
+      </div>
+
+      <!-- § 1 Narrativ -->
+      <div class="fm-section">
+        <div class="section-title">
+          <span class="section-num-tag">§ 1</span>
+          <span class="section-title-text">Worum geht es?</span>
+          <div class="section-title-line"></div>
+        </div>
+        <div class="narrative-callout">
+          Thermoelement TI-201 erfasst die Reaktortemperatur kontinuierlich. Bei Leitungsbruch oder Sensorausfall fehlt das Messsignal; der DCS erkennt den Ausfall und gibt Alarm. Ohne redundante Messung kann die Temperaturregelung nicht aufrechterhalten werden — das Risiko einer unkontrollierten Exotherme steigt.
+        </div>
+      </div>
+
+      <!-- § 2 Risikobewertung -->
+      <div class="fm-section">
+        <div class="section-title">
+          <span class="section-num-tag">§ 2</span>
+          <span class="section-title-text">Risikobewertung (S · O · D = RPZ)</span>
+          <div class="section-title-line"></div>
+        </div>
+
+        <div style="display:flex; gap:14px; align-items:flex-start;">
+
+          <!-- SOD meters -->
+          <div class="sod-container" style="flex:1;">
+
+            <!-- S -->
+            <div class="sod-meter-row sod-s">
+              <div class="sod-meter-label">
+                <div class="sod-letter">S</div>
+                <div class="sod-num">8</div>
+                <div class="sod-criterion-name">Bedeutung</div>
+              </div>
+              <div class="sod-meter-divider"></div>
+              <div class="sod-meter-content">
+                <div class="sod-content-level">Hoch</div>
+                <div class="sod-bar-track"><div class="sod-bar-fill"></div></div>
+                <div class="sod-content-desc">Schwere Schäden an Anlage oder Produktqualität</div>
+                <div class="sod-subtext">Teilausfall, Produktionsstopp 2–4 Tage, 15–40 T€</div>
+                <div class="sod-begr">Begr.: Exotherme ohne Regelung möglich, Druckanstieg</div>
+              </div>
+            </div>
+
+            <!-- O -->
+            <div class="sod-meter-row sod-o">
+              <div class="sod-meter-label">
+                <div class="sod-letter">O</div>
+                <div class="sod-num">3</div>
+                <div class="sod-criterion-name">Auftreten</div>
+              </div>
+              <div class="sod-meter-divider"></div>
+              <div class="sod-meter-content">
+                <div class="sod-content-level">Gering</div>
+                <div class="sod-bar-track"><div class="sod-bar-fill"></div></div>
+                <div class="sod-content-desc">~1× in 3 Jahren</div>
+                <div class="sod-subtext">Thermoelement-Ausfälle selten aber dokumentiert</div>
+                <div class="sod-begr">Begr.: Leitungsbruch durch Vibration am Flansch</div>
+                <div class="sod-soll-tag">↓ SOLL → 2</div>
+              </div>
+            </div>
+
+            <!-- D -->
+            <div class="sod-meter-row sod-d">
+              <div class="sod-meter-label">
+                <div class="sod-letter">D</div>
+                <div class="sod-num">4</div>
+                <div class="sod-criterion-name">Entdeckung</div>
+              </div>
+              <div class="sod-meter-divider"></div>
+              <div class="sod-meter-content">
+                <div class="sod-content-level">Mäßig</div>
+                <div class="sod-bar-track"><div class="sod-bar-fill"></div></div>
+                <div class="sod-content-desc">~70% Erkennungsrate</div>
+                <div class="sod-subtext">DCS-Alarm bei Signalverlust, kein Automatikeingriff</div>
+                <div class="sod-begr">Begr.: Bediener muss manuell reagieren</div>
+                <div class="sod-soll-tag">↓ SOLL → 2</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RPZ standalone -->
+          <div class="rpz-standalone" style="align-self:center; margin-top:16px;">
+            <div class="rpz-label-sm">RPZ</div>
+            <div class="rpz-display" style="margin: 6px 0;">96</div>
+            <span class="status-badge status-mittel-body">MITTEL</span>
+            <div class="rpz-soll" style="margin-top:6px;">SOLL: 32</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- § 3 Fehlerursachen -->
+      <div class="fm-section">
+        <div class="section-title">
+          <span class="section-num-tag">§ 3</span>
+          <span class="section-title-text">Fehlerursachen</span>
+          <div class="section-title-line"></div>
+        </div>
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Beschreibung</th>
+              <th>Herkunft</th>
+              <th>Präv.-Phase</th>
+              <th>Präv.-Hinweis</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="id-col">FM-T01-U1</td>
+              <td>Leitungsbruch durch Vibration am Flansch</td>
+              <td>Betrieb</td>
+              <td>Fertigung</td>
+              <td class="dash">–</td>
+            </tr>
+            <tr>
+              <td class="id-col">FM-T01-U2</td>
+              <td>Korrosion am Schutzrohr des Thermoelements</td>
+              <td>Wartung</td>
+              <td>Wartung</td>
+              <td class="dash">–</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- § 4 Fehlerfolgen -->
+      <div class="fm-section">
+        <div class="section-title">
+          <span class="section-num-tag">§ 4</span>
+          <span class="section-title-text">Fehlerfolgen</span>
+          <div class="section-title-line"></div>
+        </div>
+        <div class="folgen-grid">
+          <div class="folgen-cell">
+            <div class="folgen-cell-label">Mensch</div>
+            <div class="folgen-cell-text">Verbrennungsgefahr bei Exotherme; Notabschaltung</div>
+          </div>
+          <div class="folgen-cell">
+            <div class="folgen-cell-label">Umwelt</div>
+            <div class="folgen-cell-text">Geringe Auswirkung, geschlossenes System</div>
+          </div>
+          <div class="folgen-cell">
+            <div class="folgen-cell-label">Anlage</div>
+            <div class="folgen-cell-text">Produktionsstopp R-101, 2–4 Tage; Schaden möglich</div>
+          </div>
+          <div class="folgen-cell">
+            <div class="folgen-cell-label">Kosten</div>
+            <div class="folgen-cell-text">15.000–40.000 € (Reparatur, Verlust)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- § 5 Risikokontrollen -->
+      <div class="fm-section">
+        <div class="section-title">
+          <span class="section-num-tag">§ 5</span>
+          <span class="section-title-text">Risikokontrollen</span>
+          <div class="section-title-line"></div>
+        </div>
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th>Wirkung</th>
+              <th>Name</th>
+              <th>Typ</th>
+              <th>Beschreibung</th>
+              <th>Beeinflusst</th>
+              <th>Einschränkung</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="wbadge">P</span></td>
+              <td>Temperaturbegrenzer TI-202</td>
+              <td>Technisch</td>
+              <td>Unabhängiger Begrenzer am Reaktormantel</td>
+              <td>O</td>
+              <td>Kein automatischer Abschalter</td>
+            </tr>
+            <tr>
+              <td><span class="wbadge entdeckung">ENTDECKUNG</span></td>
+              <td>DCS-Signalüberwachung</td>
+              <td>Organisatorisch</td>
+              <td>DCS meldet Ausfall, Bediener alarmiert</td>
+              <td>D</td>
+              <td>Kein Automatikeingriff; nur bei Besetzung</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- § 6 Maßnahmen -->
+      <div class="fm-section">
+        <div class="section-title">
+          <span class="section-num-tag">§ 6</span>
+          <span class="section-title-text">Verbesserungsmaßnahmen</span>
+          <div class="section-title-line"></div>
+        </div>
+        <div class="massnahme-card">
+          <div class="massnahme-head">
+            <span class="m-badge">ENTDECKUNG</span>
+            <span class="m-badge">TECHNISCH</span>
+            <span class="massnahme-title-text">Redundanter Temperatursensor PT-102 installieren (SIL 1)</span>
+            <div class="massnahme-head-right">
+              <span class="change-arrow">O: 3→2</span>
+              <span class="change-arrow" style="color: rgba(255,255,255,0.6);">D: 4→2</span>
+              <span class="rpz-prime-badge">RPZ' 32 — NIEDRIG</span>
+            </div>
+          </div>
+          <div class="massnahme-body">
+            <div class="massnahme-desc">
+              Zweiter unabhängiger Pt100-Sensor mit direkter SPS-Auswertung und automatischer Abschaltung bei Signalkonflikt oder Grenzwertüberschreitung.
+            </div>
+            <div class="massnahme-rationale">
+              O sinkt 3→2: Redundanz macht Ausfall beider Sensoren unwahrscheinlich. D sinkt 4→2: Automatische Abschaltung ersetzt manuelle Reaktion.
+            </div>
+            <div class="massnahme-tags">
+              <span class="massnahme-tag">schnell umsetzbar</span>
+              <span class="massnahme-tag">mittlere Investition</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /FM-T01 -->
+
+    <!-- ============================== FM-T02 COMPRESSED ============================== -->
+    <div class="fm-card-compressed">
+      <div class="fm-compressed-band">
+        <span class="fm-id" style="background:rgba(181,98,46,0.15); border-color:rgba(181,98,46,0.3); color:#E8A87C;">FM-T02</span>
+        <span class="fm-name" style="font-size:16px; color:#FFFFFF;">Übertemperatur durch Heizkreisausfall</span>
+        <span class="status-badge status-hoch-head">HOCH</span>
+        <span class="sonderregel-badge">⚑ Sonderregel S≥9</span>
+      </div>
+      <div class="fm-compressed-sod">
+        <div class="sod-mini">
+          <span class="sod-mini-label">S</span>
+          <span class="sod-mini-val s">9</span>
+        </div>
+        <div class="sod-mini">
+          <span class="sod-mini-label">O</span>
+          <span class="sod-mini-val o">2</span>
+        </div>
+        <div class="sod-mini">
+          <span class="sod-mini-label">D</span>
+          <span class="sod-mini-val d">3</span>
+        </div>
+        <div class="rpz-mini-group">
+          <span class="rpz-mini-val">54</span>
+          <span class="status-badge status-hoch-body">HOCH</span>
+          <span class="more-hint">→ Details auf nächster Seite</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content-area -->
+
+  <!-- ==================== FOOTER ==================== -->
+  <div class="page-footer">
+    <div class="footer-text">
+      <div><strong>FMEA-Bericht</strong> · Anlage 20TA24 · Reaktor R-101</div>
+      <div>Erstellt: 2024-03-08 · Gültig bis: 2025-03-08 · <strong>VERTRAULICH — INTERN</strong></div>
+    </div>
+    <div class="footer-right">
+      <span class="footer-norm">AIAG-VDA FMEA 2019</span>
+      <span class="page-num-copper">1 / 4</span>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+</body>
+</html>

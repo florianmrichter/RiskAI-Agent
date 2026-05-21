@@ -1,0 +1,81 @@
+{
+  "project_id": 3,
+  "task_folder": "Risikoanalyse/Buechi_Glasreaktor_50L_20TA42",
+  "phase": "fmea",
+  "current_komp_id": "KOMP-001",
+  "autonomy_mode": "geführt",
+  "last_updated": "2026-03-14T18:24:00.901745",
+  "phases": {
+    "struktur": "done",
+    "fmea": "in_progress",
+    "rpz_validierung": "pending",
+    "massnahmen": "pending",
+    "report": "pending"
+  },
+  "components": {
+    "KOMP-001": {
+      "fmea": "done",
+      "measures": "pending"
+    },
+    "KOMP-002": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-003": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-004": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-005": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-006": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-007": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-008": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-009": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-010": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-011": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-012": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-013": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-014": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-015": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-016": {
+      "fmea": "pending",
+      "measures": "pending"
+    }
+  }
+}

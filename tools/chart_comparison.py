@@ -16,7 +16,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 from config.fmea_standards import RPZ_COLORS
 
 ORDER = ["kritisch", "hoch", "mittel", "niedrig"]

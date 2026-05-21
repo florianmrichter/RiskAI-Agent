@@ -1,0 +1,147 @@
+    {# ══════════════════  6. ANHANG  ══════════════════ #}
+    <section class="page-section" id="sec-anhang">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 6</div>
+        <div class="section-title">Anhang</div>
+        <div class="section-desc">Freigabe, Versionshistorie, RPZ-Vergleich, Maßnahmentabelle und Glossar.</div>
+      </div>
+
+      {# Freigabe #}
+      <h3>6.0 Freigabe</h3>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+        <thead>
+          <tr style="background:var(--bg);">
+            <th style="padding:8px 10px;text-align:left;font-size:12px;border:1px solid var(--border);">Rolle</th>
+            <th style="padding:8px 10px;text-align:left;font-size:12px;border:1px solid var(--border);">Name</th>
+            <th style="padding:8px 10px;text-align:left;font-size:12px;border:1px solid var(--border);">Datum</th>
+            <th style="padding:8px 10px;text-align:left;font-size:12px;border:1px solid var(--border);">Unterschrift</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:8px 10px;font-size:12px;border:1px solid var(--border);">Erstellt von</td>
+            <td style="padding:8px 10px;font-size:12px;border:1px solid var(--border);">{{ report_context.erstellt_von or '_______________' }}</td>
+            <td style="padding:8px 10px;font-size:12px;border:1px solid var(--border);">{{ project.datum[:10] }}</td>
+            <td style="padding:8px 10px;font-size:12px;border:1px solid var(--border);">_______________</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 10px;font-size:12px;border:1px solid var(--border);">Geprüft von</td>
+            <td style="padding:8px 10px;font-size:12px;border:1px solid var(--border);">{{ report_context.geprueft_von or '_______________' }}</td>
+            <td style="padding:8px 10px;font-size:12px;border:1px solid var(--border);">_______________</td>
+            <td style="padding:8px 10px;font-size:12px;border:1px solid var(--border);">_______________</td>
+          </tr>
+        </tbody>
+      </table>
+
+      {# Versionshistorie #}
+      {% if moc_delta %}
+      <h3>6.0a Versionshistorie</h3>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+        <thead>
+          <tr style="background:var(--bg);">
+            <th style="padding:6px 8px;text-align:left;font-size:12px;border:1px solid var(--border);">Version</th>
+            <th style="padding:6px 8px;text-align:left;font-size:12px;border:1px solid var(--border);">Datum</th>
+            <th style="padding:6px 8px;text-align:left;font-size:12px;border:1px solid var(--border);">Änderungsbeschreibung</th>
+            <th style="padding:6px 8px;text-align:center;font-size:12px;border:1px solid var(--border);">Geändert</th>
+            <th style="padding:6px 8px;text-align:center;font-size:12px;border:1px solid var(--border);">Hinzugefügt</th>
+            <th style="padding:6px 8px;text-align:center;font-size:12px;border:1px solid var(--border);">Entfernt</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:6px 8px;font-size:12px;border:1px solid var(--border);">v{{ moc_delta.parent_project.version if moc_delta.parent_project else '1.0' }}</td>
+            <td style="padding:6px 8px;font-size:12px;border:1px solid var(--border);">{{ moc_delta.parent_project.datum[:10] if moc_delta.parent_project else '–' }}</td>
+            <td style="padding:6px 8px;font-size:12px;border:1px solid var(--border);">Initiale Version</td>
+            <td style="text-align:center;border:1px solid var(--border);">–</td>
+            <td style="text-align:center;border:1px solid var(--border);">–</td>
+            <td style="text-align:center;border:1px solid var(--border);">–</td>
+          </tr>
+          <tr style="background:#F5F3FF;">
+            <td style="padding:6px 8px;font-size:12px;font-weight:700;border:1px solid var(--border);">v{{ report_context.version }}</td>
+            <td style="padding:6px 8px;font-size:12px;border:1px solid var(--border);">{{ project.datum[:10] }}</td>
+            <td style="padding:6px 8px;font-size:12px;border:1px solid var(--border);">{{ moc_delta.change_description or '–' }}</td>
+            <td style="text-align:center;font-weight:700;border:1px solid var(--border);">{{ moc_delta.changed|length }}</td>
+            <td style="text-align:center;font-weight:700;border:1px solid var(--border);">{{ moc_delta.added|length }}</td>
+            <td style="text-align:center;font-weight:700;border:1px solid var(--border);">{{ moc_delta.removed|length }}</td>
+          </tr>
+        </tbody>
+      </table>
+      {% else %}
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Version 1.0 — keine Vorversion vorhanden.</p>
+      {% endif %}
+
+      {# Maßnahmentabelle #}
+      <h3>A. Maßnahmentabelle</h3>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">
+        Alle {{ total_measures }} Maßnahmen — zum Übertragen in Tracking-Systeme oder Projektmanagement-Tools.
+      </p>
+      <table class="appendix-measures-table appendix-measures-extended">
+        <thead>
+          <tr>
+            <th>Fehler-ID</th>
+            <th>Maßnahme</th>
+            <th>STOP/ABE</th>
+            <th>Beschreibung</th>
+            <th>Begründung</th>
+            <th style="text-align:center;">RPZ vorher</th>
+            <th style="text-align:center;">RPZ nachher</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fm in fmea_sorted %}
+            {% for m in fm.get('measures', [])|sort(attribute='stop_kategorie') %}
+            <tr>
+              <td style="font-weight:600;white-space:nowrap;">{{ fm.fehler_id }}</td>
+              <td>{{ m.name }}</td>
+              <td style="white-space:nowrap;">{{ m.stop_kategorie or '–' }} / {{ m.abe_kategorie or '–' }}</td>
+              <td style="font-size:11px;">{{ m.beschreibung or '–' }}</td>
+              <td style="font-size:11px;color:var(--text-muted);">{{ m.begruendung or '–' }}</td>
+              <td style="text-align:center;">{{ fm.rpz }}</td>
+              <td style="text-align:center;">{{ m.rpz_neu or '–' }}</td>
+            </tr>
+            {% endfor %}
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {# Abkürzungsverzeichnis #}
+      <h3>B. Abkürzungsverzeichnis</h3>
+      <table>
+        <thead><tr><th>Abkürzung</th><th>Bedeutung</th></tr></thead>
+        <tbody>
+          <tr><td><strong>ABE</strong></td><td>Abschaffend – Begrenzend – Entdeckend (Wirkungstyp-Klassifikation)</td></tr>
+          <tr><td><strong>AIAG-VDA</strong></td><td>Automotive Industry Action Group – Verband der Automobilindustrie</td></tr>
+          <tr><td><strong>ATEX</strong></td><td>Atmosphères Explosibles – EU-Richtlinie für explosionsgefährdete Bereiche</td></tr>
+          <tr><td><strong>BImSchV</strong></td><td>Bundes-Immissionsschutzverordnung (12. BImSchV = Störfall-Verordnung)</td></tr>
+          <tr><td><strong>CCPS</strong></td><td>Center for Chemical Process Safety (Division der AIChE)</td></tr>
+          <tr><td><strong>D</strong></td><td>Entdeckung / Detection – FMEA-Bewertungsdimension (1–10)</td></tr>
+          <tr><td><strong>FMEA</strong></td><td>Fehlermöglichkeits- und Einflussanalyse</td></tr>
+          <tr><td><strong>FPMH</strong></td><td>Failures Per Million Hours – Ausfälle pro Million Betriebsstunden</td></tr>
+          <tr><td><strong>MSR</strong></td><td>Mess-, Steuer- und Regelungstechnik</td></tr>
+          <tr><td><strong>O</strong></td><td>Auftreten / Occurrence – FMEA-Bewertungsdimension (1–10)</td></tr>
+          <tr><td><strong>OREDA</strong></td><td>Offshore and Onshore Reliability Data</td></tr>
+          <tr><td><strong>PSV</strong></td><td>Pressure Safety Valve – Sicherheitsventil</td></tr>
+          <tr><td><strong>RPZ</strong></td><td>Risikoprioritätszahl = S × O × D (Wertebereich 1–1000)</td></tr>
+          <tr><td><strong>S</strong></td><td>Bedeutung / Severity – FMEA-Bewertungsdimension (1–10)</td></tr>
+          <tr><td><strong>SIL</strong></td><td>Safety Integrity Level – nach IEC 61508/61511</td></tr>
+          <tr><td><strong>STOP</strong></td><td>Substitution – Technisch – Organisatorisch – Persönlich</td></tr>
+        </tbody>
+      </table>
+
+      {# Glossar #}
+      <h3>C. Glossar</h3>
+      <table class="glossary-table">
+        <thead><tr><th>Begriff</th><th>Beschreibung</th></tr></thead>
+        <tbody>
+          <tr><td>FMEA</td><td>Fehlermöglichkeits- und Einflussanalyse</td></tr>
+          <tr><td>RPZ</td><td>Risikoprioritätszahl = S × O × D</td></tr>
+          <tr><td>S</td><td>Bedeutung / Severity (1–10)</td></tr>
+          <tr><td>O</td><td>Auftretenswahrscheinlichkeit / Occurrence (1–10)</td></tr>
+          <tr><td>D</td><td>Entdeckungswahrscheinlichkeit / Detection (1–10)</td></tr>
+          <tr><td>ABE</td><td>A = Abschaffend, B = Begrenzend, E = Entdeckend</td></tr>
+          <tr><td>STOP</td><td>S = Substitution, T = Technisch, O = Organisatorisch, P = Persönlich</td></tr>
+          <tr><td>Sonderregel</td><td>AIAG-VDA Override: Anhebung des Risikostatus unabhängig vom RPZ (z.B. S ≥ 9 → mindestens HOCH)</td></tr>
+        </tbody>
+      </table>
+
+    </section>

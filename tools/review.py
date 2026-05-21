@@ -8,6 +8,7 @@ Usage:
     from tools.review import get_structure_review, get_ranking_review
     print(get_structure_review(project_id))
 """
+from __future__ import annotations
 
 import json
 import sys
@@ -15,7 +16,8 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 from tools.storage import FMEAStorage
 from config.fmea_standards import (
     S_SCALE, O_SCALE, D_SCALE,
@@ -32,7 +34,7 @@ def _db(db_path=None):
 # Schritt 1: Plant Data Review
 # ═══════════════════════════════════════════════════════════════
 
-def get_plant_data_review(plant_data: dict) -> str:
+def get_plant_data_review(plant_data: dict[str, object]) -> str:
     """Format a summary of loaded plant data for human review."""
     lines = ["## Anlagendaten – Zusammenfassung\n"]
 
@@ -87,11 +89,10 @@ def get_plant_data_review(plant_data: dict) -> str:
 # Schritt 2: Structure Review
 # ═══════════════════════════════════════════════════════════════
 
-def get_structure_review(project_id: int, db_path=None) -> str:
+def get_structure_review(project_id: int, db_path: str | None = None) -> str:
     """Format the component list for human review."""
-    db = _db(db_path)
-    components = db.get_components(project_id)
-    db.close()
+    with _db(db_path) as db:
+        components = db.get_components(project_id)
 
     by_system = defaultdict(list)
     for c in components:
@@ -119,37 +120,36 @@ def get_structure_review(project_id: int, db_path=None) -> str:
 # Schritt 3: Function Review
 # ═══════════════════════════════════════════════════════════════
 
-def get_function_review(project_id: int, component_id: int = None, db_path=None) -> str:
+def get_function_review(project_id: int, component_id: int | None = None, db_path: str | None = None) -> str:
     """Format functions for human review, optionally filtered to one component."""
-    db = _db(db_path)
-    components = db.get_components(project_id)
+    with _db(db_path) as db:
+        components = db.get_components(project_id)
 
-    lines = ["## Funktionsanalyse – Übersicht\n"]
+        lines = ["## Funktionsanalyse – Übersicht\n"]
 
-    for comp in components:
-        if component_id and comp["id"] != component_id:
-            continue
+        for comp in components:
+            if component_id and comp["id"] != component_id:
+                continue
 
-        functions = db.get_functions(comp["id"])
-        if not functions:
-            lines.append(f"### {comp['name']} (`{comp['komp_id']}`) – Keine Funktionen")
-            continue
+            functions = db.get_functions(comp["id"])
+            if not functions:
+                lines.append(f"### {comp['name']} (`{comp['komp_id']}`) – Keine Funktionen")
+                continue
 
-        lines.append(f"### {comp['name']} (`{comp['komp_id']}`) – {len(functions)} Funktionen")
+            lines.append(f"### {comp['name']} (`{comp['komp_id']}`) – {len(functions)} Funktionen")
 
-        for func in functions:
-            typ_label = "Haupt" if func["typ"] == "haupt" else "Neben"
-            lines.append(f"  - **{func['funktion_id']}** [{typ_label}]: {func['beschreibung']}")
+            for func in functions:
+                typ_label = "Haupt" if func["typ"] == "haupt" else "Neben"
+                lines.append(f"  - **{func['funktion_id']}** [{typ_label}]: {func['beschreibung']}")
 
-            if func.get("anforderungen"):
-                for anf in func["anforderungen"][:3]:
-                    param = anf.get("parameter", "?")
-                    soll = anf.get("soll", "?")
-                    lines.append(f"    - {param}: {soll}")
+                if func.get("anforderungen"):
+                    for anf in func["anforderungen"][:3]:
+                        param = anf.get("parameter", "?")
+                        soll = anf.get("soll", "?")
+                        lines.append(f"    - {param}: {soll}")
 
-        lines.append("")
+            lines.append("")
 
-    db.close()
     return "\n".join(lines)
 
 
@@ -210,83 +210,80 @@ def _identify_rpz_driver(S: int, O: int, D: int) -> str:
     return driver_explanations[driver_key]
 
 
-def get_risk_review(project_id: int, fehler_id: str = None, db_path=None) -> str:
+def get_risk_review(project_id: int, fehler_id: str | None = None, db_path: str | None = None) -> str:
     """Format a single failure mode for detailed S/O/D review.
     Includes neighboring scale values and driver explanation."""
-    db = _db(db_path)
+    with _db(db_path) as db:
+        if fehler_id:
+            fm_data = db.get_failure_mode_by_fehler_id(fehler_id)
+            if not fm_data:
+                return f"Fehlermodus '{fehler_id}' nicht gefunden."
+            fms = [fm_data]
+        else:
+            fms_raw = db.get_all_failure_modes_with_rpz(project_id)
+            fms = sorted(fms_raw, key=lambda x: x.get("rpz", 0), reverse=True)
 
-    if fehler_id:
-        fm_data = db.get_failure_mode_by_fehler_id(fehler_id)
-        if not fm_data:
-            db.close()
-            return f"Fehlermodus '{fehler_id}' nicht gefunden."
-        fms = [fm_data]
-    else:
-        fms_raw = db.get_all_failure_modes_with_rpz(project_id)
-        fms = sorted(fms_raw, key=lambda x: x.get("rpz", 0), reverse=True)
+        lines = []
+        for fm in fms:
+            fm_id = fm["id"]
+            ra = db.get_risk_assessment(fm_id)
+            causes = db.get_failure_causes(fm_id)
+            effects = db.get_failure_effect(fm_id)
+            controls = db.get_current_controls(fm_id)
 
-    lines = []
-    for fm in fms:
-        fm_id = fm["id"]
-        ra = db.get_risk_assessment(fm_id)
-        causes = db.get_failure_causes(fm_id)
-        effects = db.get_failure_effect(fm_id)
-        controls = db.get_current_controls(fm_id)
+            fid = fm.get("fehler_id", "?")
+            lines.append(f"### {fid}: {fm.get('fehlermodus', '?')}")
+            lines.append(f"**Fehlerart:** {fm.get('fehlerart', '?')}\n")
 
-        fid = fm.get("fehler_id", "?")
-        lines.append(f"### {fid}: {fm.get('fehlermodus', '?')}")
-        lines.append(f"**Fehlerart:** {fm.get('fehlerart', '?')}\n")
+            if causes:
+                lines.append("**Ursachen:**")
+                for c in causes:
+                    lines.append(f"  - [{c['herkunft']}] {c['beschreibung']}")
+                lines.append("")
 
-        if causes:
-            lines.append("**Ursachen:**")
-            for c in causes:
-                lines.append(f"  - [{c['herkunft']}] {c['beschreibung']}")
-            lines.append("")
+            if effects:
+                lines.append("**Folgen:**")
+                for dim in ["mensch", "umwelt", "anlage", "kosten"]:
+                    desc = effects.get(f"{dim}_beschreibung", "")
+                    if desc:
+                        lines.append(f"  - **{dim.capitalize()}:** {desc}")
+                lines.append("")
 
-        if effects:
-            lines.append("**Folgen:**")
-            for dim in ["mensch", "umwelt", "anlage", "kosten"]:
-                desc = effects.get(f"{dim}_beschreibung", "")
-                if desc:
-                    lines.append(f"  - **{dim.capitalize()}:** {desc}")
-            lines.append("")
+            if controls:
+                lines.append("**Bestehende Controls:**")
+                for ctrl in controls:
+                    lines.append(f"  - [{ctrl['wirkung']}] {ctrl['name']} ({ctrl['typ']})"
+                                 f"{' – ' + ctrl['beschreibung'] if ctrl.get('beschreibung') else ''}")
+                lines.append("")
 
-        if controls:
-            lines.append("**Bestehende Controls:**")
-            for ctrl in controls:
-                lines.append(f"  - [{ctrl['wirkung']}] {ctrl['name']} ({ctrl['typ']})"
-                             f"{' – ' + ctrl['beschreibung'] if ctrl.get('beschreibung') else ''}")
-            lines.append("")
+            if ra:
+                S, O, D = ra["S"], ra["O"], ra["D"]
+                rpz = ra["rpz"]
+                status = ra["rpz_status"]
 
-        if ra:
-            S, O, D = ra["S"], ra["O"], ra["D"]
-            rpz = ra["rpz"]
-            status = ra["rpz_status"]
+                lines.append("**Risikobewertung:**")
+                lines.append("")
+                lines.extend(_format_sod_with_neighbors(S, S_SCALE, "S"))
+                if ra.get("begruendung_S"):
+                    lines.append(f"    Begründung: {ra['begruendung_S']}")
+                lines.append("")
+                lines.extend(_format_sod_with_neighbors(O, O_SCALE, "O"))
+                if ra.get("begruendung_O"):
+                    lines.append(f"    Begründung: {ra['begruendung_O']}")
+                lines.append("")
+                lines.extend(_format_sod_with_neighbors(D, D_SCALE, "D"))
+                if ra.get("begruendung_D"):
+                    lines.append(f"    Begründung: {ra['begruendung_D']}")
 
-            lines.append("**Risikobewertung:**")
-            lines.append("")
-            lines.extend(_format_sod_with_neighbors(S, S_SCALE, "S"))
-            if ra.get("begruendung_S"):
-                lines.append(f"    Begründung: {ra['begruendung_S']}")
-            lines.append("")
-            lines.extend(_format_sod_with_neighbors(O, O_SCALE, "O"))
-            if ra.get("begruendung_O"):
-                lines.append(f"    Begründung: {ra['begruendung_O']}")
-            lines.append("")
-            lines.extend(_format_sod_with_neighbors(D, D_SCALE, "D"))
-            if ra.get("begruendung_D"):
-                lines.append(f"    Begründung: {ra['begruendung_D']}")
+                lines.append(f"\n  **RPZ = {rpz} ({status.upper()})**")
 
-            lines.append(f"\n  **RPZ = {rpz} ({status.upper()})**")
+                lines.append(f"\n  **Treiber-Analyse:** {_identify_rpz_driver(S, O, D)}")
 
-            lines.append(f"\n  **Treiber-Analyse:** {_identify_rpz_driver(S, O, D)}")
+                if ra.get("override_applied"):
+                    lines.append(f"  Override: {ra['override_applied']}")
 
-            if ra.get("override_applied"):
-                lines.append(f"  Override: {ra['override_applied']}")
+            lines.append("\n---\n")
 
-        lines.append("\n---\n")
-
-    db.close()
     return "\n".join(lines)
 
 
@@ -294,12 +291,11 @@ def get_risk_review(project_id: int, fehler_id: str = None, db_path=None) -> str
 # Schritt 5: Ranking Review
 # ═══════════════════════════════════════════════════════════════
 
-def get_ranking_review(project_id: int, db_path=None) -> str:
+def get_ranking_review(project_id: int, db_path: str | None = None) -> str:
     """Format the complete risk ranking for human review."""
-    db = _db(db_path)
-    fms = db.get_all_failure_modes_with_rpz(project_id)
-    stats = db.get_project_statistics(project_id)
-    db.close()
+    with _db(db_path) as db:
+        fms = db.get_all_failure_modes_with_rpz(project_id)
+        stats = db.get_project_statistics(project_id)
 
     fms_sorted = sorted(fms, key=lambda x: x.get("rpz", 0), reverse=True)
     dist = stats.get("rpz_distribution", {})
@@ -332,18 +328,7 @@ def get_ranking_review(project_id: int, db_path=None) -> str:
 # Schritt 6: Measure Review
 # ═══════════════════════════════════════════════════════════════
 
-STOP_LABELS = {
-    "S": "Substitution",
-    "T": "Technisch",
-    "O": "Organisatorisch",
-    "P": "Persönlich",
-}
-
-STOP_ORDER = {"S": 0, "T": 1, "O": 2, "P": 3}
-
-
-def _sort_measures_by_stop(measures: list) -> list:
-    return sorted(measures, key=lambda m: STOP_ORDER.get(m.get("stop_kategorie", ""), 99))
+from tools._base import STOP_LABELS, STOP_ORDER, _sort_measures_by_stop
 
 
 def _build_stop_coverage(measures: list) -> dict:
@@ -359,11 +344,10 @@ def _build_stop_coverage(measures: list) -> dict:
     return coverage
 
 
-def get_measure_review(project_id: int, db_path=None) -> str:
+def get_measure_review(project_id: int, db_path: str | None = None) -> str:
     """Format measures with before/after comparison and STOP coverage for human review."""
-    db = _db(db_path)
-    fmea_data = db.get_full_fmea_data(project_id)
-    db.close()
+    with _db(db_path) as db:
+        fmea_data = db.get_full_fmea_data(project_id)
 
     fms_with_measures = [fm for fm in fmea_data if fm.get("measures")]
 
@@ -439,25 +423,25 @@ def get_measure_review(project_id: int, db_path=None) -> str:
 # Validation Report
 # ═══════════════════════════════════════════════════════════════
 
-def get_validation_report(project_id: int, db_path=None) -> str:
+def get_validation_report(project_id: int, db_path: str | None = None) -> str:
     """Run consistency checks and return a validation report."""
-    db = _db(db_path)
-    components = db.get_components(project_id)
-    fmea_data = db.get_full_fmea_data(project_id)
+    with _db(db_path) as db:
+        components = db.get_components(project_id)
+        fmea_data = db.get_full_fmea_data(project_id)
 
-    warnings = []
-    infos = []
+        warnings = []
+        infos = []
 
-    # 1. Completeness: every function should have failure modes
-    for comp in components:
-        functions = db.get_functions(comp["id"])
-        for func in functions:
-            fms = db.get_failure_modes(func["id"])
-            if not fms:
-                warnings.append(
-                    f"Funktion '{func['funktion_id']}' ({func['beschreibung'][:50]}) "
-                    f"hat keine Fehlermodi"
-                )
+        # 1. Completeness: every function should have failure modes
+        for comp in components:
+            functions = db.get_functions(comp["id"])
+            for func in functions:
+                fms = db.get_failure_modes(func["id"])
+                if not fms:
+                    warnings.append(
+                        f"Funktion '{func['funktion_id']}' ({func['beschreibung'][:50]}) "
+                        f"hat keine Fehlermodi"
+                    )
 
     # 2. Plausibility: high severity without measures + STOP coverage
     for fm in fmea_data:
@@ -531,8 +515,6 @@ def get_validation_report(project_id: int, db_path=None) -> str:
                 f"(aktuell: {current_status} → sollte: {new_status})"
             )
 
-    db.close()
-
     lines = ["## Validierungsbericht\n"]
     lines.append(f"**Fehlermodi geprüft:** {len(fmea_data)}")
     lines.append(f"**Warnungen:** {len(warnings)}")
@@ -561,68 +543,65 @@ def get_validation_report(project_id: int, db_path=None) -> str:
 # ═══════════════════════════════════════════════════════════════
 
 def update_risk_assessment(project_id: int, fehler_id: str,
-                           S: int = None, O: int = None, D: int = None,
-                           begruendung_S: str = None,
-                           begruendung_O: str = None,
-                           begruendung_D: str = None,
+                           S: int | None = None, O: int | None = None, D: int | None = None,
+                           begruendung_S: str | None = None,
+                           begruendung_O: str | None = None,
+                           begruendung_D: str | None = None,
                            angepasst_von: str = "nutzer",
-                           db_path=None) -> dict:
+                           db_path: str | None = None) -> dict[str, object]:
     """
     Update S/O/D values for a failure mode based on user feedback.
     Recalculates RPZ and applies special rules.
     Returns the updated assessment.
     """
-    db = _db(db_path)
-    fm = db.get_failure_mode_by_fehler_id(fehler_id)
-    if not fm:
-        db.close()
-        raise ValueError(f"Fehlermodus '{fehler_id}' nicht gefunden")
+    with _db(db_path) as db:
+        fm = db.get_failure_mode_by_fehler_id(fehler_id)
+        if not fm:
+            raise ValueError(f"Fehlermodus '{fehler_id}' nicht gefunden")
 
-    ra = db.get_risk_assessment(fm["id"])
-    if not ra:
-        db.close()
-        raise ValueError(f"Keine Risikobewertung für '{fehler_id}'")
+        ra = db.get_risk_assessment(fm["id"])
+        if not ra:
+            raise ValueError(f"Keine Risikobewertung für '{fehler_id}'")
 
-    new_S = S if S is not None else ra["S"]
-    new_O = O if O is not None else ra["O"]
-    new_D = D if D is not None else ra["D"]
-    new_rpz = new_S * new_O * new_D
-    new_status = classify_rpz(new_rpz)
+        new_S = S if S is not None else ra["S"]
+        new_O = O if O is not None else ra["O"]
+        new_D = D if D is not None else ra["D"]
+        new_rpz = new_S * new_O * new_D
+        new_status = classify_rpz(new_rpz)
 
-    final_status, rule_desc = apply_special_rules(new_S, new_O, new_D, new_status)
+        final_status, rule_desc = apply_special_rules(new_S, new_O, new_D, new_status)
 
-    override_parts = []
-    if ra.get("override_applied"):
-        override_parts.append(ra["override_applied"])
-    if rule_desc:
-        override_parts.append(f"Sonderregel: {rule_desc}")
+        override_parts = []
+        if ra.get("override_applied"):
+            override_parts.append(ra["override_applied"])
+        if rule_desc:
+            override_parts.append(f"Sonderregel: {rule_desc}")
 
-    changes = []
-    if S is not None and S != ra["S"]:
-        changes.append(f"S: {ra['S']}→{S}")
-    if O is not None and O != ra["O"]:
-        changes.append(f"O: {ra['O']}→{O}")
-    if D is not None and D != ra["D"]:
-        changes.append(f"D: {ra['D']}→{D}")
+        changes = []
+        if S is not None and S != ra["S"]:
+            changes.append(f"S: {ra['S']}→{S}")
+        if O is not None and O != ra["O"]:
+            changes.append(f"O: {ra['O']}→{O}")
+        if D is not None and D != ra["D"]:
+            changes.append(f"D: {ra['D']}→{D}")
 
-    if changes:
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-        override_parts.append(f"[{angepasst_von} {timestamp}] {', '.join(changes)}")
+        if changes:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+            override_parts.append(f"[{angepasst_von} {timestamp}] {', '.join(changes)}")
 
-    update_kwargs = {
-        "S": new_S, "O": new_O, "D": new_D,
-        "rpz": new_rpz, "rpz_status": final_status,
-        "override_applied": " | ".join(override_parts) if override_parts else None,
-    }
-    if begruendung_S is not None:
-        update_kwargs["begruendung_S"] = begruendung_S
-    if begruendung_O is not None:
-        update_kwargs["begruendung_O"] = begruendung_O
-    if begruendung_D is not None:
-        update_kwargs["begruendung_D"] = begruendung_D
+        update_kwargs = {
+            "S": new_S, "O": new_O, "D": new_D,
+            "rpz": new_rpz, "rpz_status": final_status,
+            "override_applied": " | ".join(override_parts) if override_parts else None,
+        }
+        if begruendung_S is not None:
+            update_kwargs["begruendung_S"] = begruendung_S
+        if begruendung_O is not None:
+            update_kwargs["begruendung_O"] = begruendung_O
+        if begruendung_D is not None:
+            update_kwargs["begruendung_D"] = begruendung_D
 
-    db.update_risk_assessment(fm["id"], **update_kwargs)
-    db.close()
+        db.update_risk_assessment(fm["id"], **update_kwargs)
 
     return {
         "fehler_id": fehler_id,
@@ -633,22 +612,21 @@ def update_risk_assessment(project_id: int, fehler_id: str,
     }
 
 
-def update_component(project_id: int, komp_id: str, db_path=None, **kwargs) -> dict:
+def update_component(project_id: int, komp_id: str, db_path: str | None = None, **kwargs: object) -> dict[str, object]:
     """Update component attributes (e.g., system_name, typ) based on user feedback."""
-    db = _db(db_path)
-    comp = db.get_component_by_komp_id(komp_id)
-    if not comp:
-        db.close()
-        raise ValueError(f"Komponente '{komp_id}' nicht gefunden")
+    with _db(db_path) as db:
+        comp = db.get_component_by_komp_id(komp_id)
+        if not comp:
+            raise ValueError(f"Komponente '{komp_id}' nicht gefunden")
 
-    allowed = {"name", "typ", "kategorie", "system_name", "beschreibung"}
-    updates = {k: v for k, v in kwargs.items() if k in allowed}
-    if updates:
-        set_clause = ", ".join(f"{k} = ?" for k in updates)
-        values = list(updates.values()) + [komp_id]
-        db.conn.execute(f"UPDATE components SET {set_clause} WHERE komp_id = ?", values)
-        db.conn.commit()
+        ALLOWED_COLUMNS = {"name", "typ", "kategorie", "system_name", "beschreibung"}
+        updates = {k: v for k, v in kwargs.items() if k in ALLOWED_COLUMNS}
+        if updates:
+            # Column names are validated against ALLOWED_COLUMNS whitelist above
+            set_clause = ", ".join(f"{col} = ?" for col in updates if col in ALLOWED_COLUMNS)
+            values = [v for k, v in updates.items() if k in ALLOWED_COLUMNS] + [komp_id]
+            db.conn.execute(f"UPDATE components SET {set_clause} WHERE komp_id = ?", values)
+            db.conn.commit()
 
-    result = db.get_component_by_komp_id(komp_id)
-    db.close()
+        result = db.get_component_by_komp_id(komp_id)
     return result

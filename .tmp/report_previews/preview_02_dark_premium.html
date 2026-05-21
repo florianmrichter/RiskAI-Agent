@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design 2 – Dark Premium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0A0E1A;
+    --surface: #111827;
+    --surface2: #1A2236;
+    --border: rgba(255,255,255,0.06);
+    --border-bright: rgba(255,255,255,0.12);
+    --text: #E2E8F0;
+    --muted: #64748B;
+    --red: #F5004F;
+    --amber: #F59E0B;
+    --blue: #3B82F6;
+    --teal: #14B8A6;
+    --white: #FFFFFF;
+
+    --hoch-color: #F59E0B;
+    --hoch-glow: rgba(245,158,11,0.15);
+    --mittel-color: #3B82F6;
+    --mittel-glow: rgba(59,130,246,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #060A14;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .page {
+    width: 794px;
+    background: var(--bg);
+    box-shadow: 0 40px 120px rgba(0,0,0,0.6);
+    border: 1px solid var(--border);
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 40px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .topbar-brand {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--red);
+    letter-spacing: 0.08em;
+  }
+
+  .topbar-meta {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+  }
+
+  /* ── GROUP HEADER ── */
+  .group-header {
+    padding: 48px 40px 36px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .group-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--red) 0%, transparent 60%);
+  }
+
+  .group-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 12px;
+  }
+
+  .group-title {
+    font-size: 42px;
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 6px;
+  }
+
+  .group-subtitle {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    margin-bottom: 32px;
+  }
+
+  .group-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .metric {
+    background: var(--surface);
+    padding: 18px 20px;
+  }
+
+  .metric-val {
+    font-size: 32px;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--white);
+  }
+
+  .metric-val.accent-red { color: var(--red); }
+  .metric-val.accent-amber { color: var(--amber); }
+
+  .metric-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ── FM CARDS ── */
+  .cards-section {
+    padding: 32px 40px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .fm-card {
+    background: var(--surface);
+    border: 1px solid var(--border-bright);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .fm-card.mittel {
+    box-shadow: 0 0 0 1px rgba(59,130,246,0.2), 0 0 40px rgba(59,130,246,0.04);
+    border-color: rgba(59,130,246,0.25);
+  }
+
+  .fm-card.hoch {
+    box-shadow: 0 0 0 1px rgba(245,158,11,0.25), 0 0 40px rgba(245,158,11,0.06);
+    border-color: rgba(245,158,11,0.3);
+  }
+
+  .fm-card-glow {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .fm-card.mittel .fm-card-glow { background: var(--mittel-color); }
+  .fm-card.hoch .fm-card-glow { background: var(--hoch-color); }
+
+  .fm-card-body {
+    padding: 28px 28px 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 28px;
+    align-items: start;
+  }
+
+  .fm-card-id {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .fm-card-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.25;
+    margin-bottom: 16px;
+  }
+
+  .fm-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-radius: 1px;
+  }
+
+  .fm-status.mittel {
+    background: rgba(59,130,246,0.12);
+    color: #60A5FA;
+    border: 1px solid rgba(59,130,246,0.2);
+  }
+
+  .fm-status.hoch {
+    background: rgba(245,158,11,0.12);
+    color: #FCD34D;
+    border: 1px solid rgba(245,158,11,0.2);
+  }
+
+  /* RPZ GAUGE */
+  .rpz-gauge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .gauge-ring {
+    position: relative;
+    width: 90px;
+    height: 90px;
+  }
+
+  .gauge-ring svg {
+    transform: rotate(-90deg);
+  }
+
+  .gauge-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  .gauge-num {
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1;
+    display: block;
+  }
+
+  .gauge-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .gauge-mittel .gauge-num { color: var(--mittel-color); }
+  .gauge-hoch .gauge-num { color: var(--hoch-color); }
+
+  /* SOD ROW */
+  .sod-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    margin: 20px 28px 0;
+  }
+
+  .sod-cell {
+    background: var(--surface2);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .sod-letter-big {
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .sod-letter-big.s { color: #F87171; }
+  .sod-letter-big.o { color: #FB923C; }
+  .sod-letter-big.d { color: #34D399; }
+
+  .sod-info {
+    flex: 1;
+  }
+
+  .sod-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+
+  .sod-bar-track {
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .sod-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+  }
+
+  .sod-bar-fill.s { background: #F87171; }
+  .sod-bar-fill.o { background: #FB923C; }
+  .sod-bar-fill.d { background: #34D399; }
+
+  /* DETAIL GRID */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    margin: 1px 0 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .detail-cell {
+    background: var(--bg);
+    padding: 16px 20px;
+  }
+
+  .detail-cell-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .detail-cell-text {
+    font-size: 11.5px;
+    color: var(--text);
+    line-height: 1.5;
+    font-weight: 300;
+  }
+
+  .sonderregel-bar {
+    margin: 0;
+    padding: 9px 28px;
+    background: rgba(245,158,11,0.05);
+    border-top: 1px solid rgba(245,158,11,0.15);
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: #D97706;
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* FOOTER */
+  .page-footer {
+    border-top: 1px solid var(--border);
+    padding: 14px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-left {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .footer-right {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-brand">RISK·AI</div>
+    <div class="topbar-meta">FMEA-BERICHT · ETHYLACETATPRODUKTION 20TA41</div>
+  </div>
+
+  <!-- GROUP HEADER -->
+  <div class="group-header">
+    <div class="group-header::before"></div>
+    <div class="group-eyebrow">Fehlergruppe 03 / 12</div>
+    <div class="group-title">Temperatur<br>regelung</div>
+    <div class="group-subtitle">REAKTOR R-101 · BAUGRUPPE: THERMISCHES MANAGEMENT</div>
+
+    <div class="group-metrics">
+      <div class="metric">
+        <div class="metric-val">2</div>
+        <div class="metric-label">Fehlermodi</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val accent-red">96</div>
+        <div class="metric-label">Max. RPZ</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val accent-amber">1</div>
+        <div class="metric-label">Sonderregel</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">2</div>
+        <div class="metric-label">Maßnahmen</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARDS -->
+  <div class="cards-section">
+
+    <!-- FM-T01 -->
+    <div class="fm-card mittel">
+      <div class="fm-card-glow"></div>
+      <div class="fm-card-body">
+        <div>
+          <div class="fm-card-id">FM-T01</div>
+          <div class="fm-card-title">Temperatursensor fällt aus</div>
+          <div class="fm-status mittel">● Mittel</div>
+        </div>
+        <div class="rpz-gauge">
+          <div class="gauge-ring gauge-mittel">
+            <svg width="90" height="90" viewBox="0 0 90 90">
+              <circle cx="45" cy="45" r="38" fill="none" stroke="rgba(59,130,246,0.1)" stroke-width="5"/>
+              <circle cx="45" cy="45" r="38" fill="none" stroke="#3B82F6" stroke-width="5"
+                      stroke-dasharray="239" stroke-dashoffset="144" stroke-linecap="round"/>
+            </svg>
+            <div class="gauge-center">
+              <span class="gauge-num">96</span>
+              <span class="gauge-sub">RPZ</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sod-row">
+        <div class="sod-cell">
+          <div class="sod-letter-big s">8</div>
+          <div class="sod-info">
+            <div class="sod-name">Schwere</div>
+            <div class="sod-bar-track"><div class="sod-bar-fill s" style="width:80%"></div></div>
+          </div>
+        </div>
+        <div class="sod-cell">
+          <div class="sod-letter-big o">3</div>
+          <div class="sod-info">
+            <div class="sod-name">Auftreten</div>
+            <div class="sod-bar-track"><div class="sod-bar-fill o" style="width:30%"></div></div>
+          </div>
+        </div>
+        <div class="sod-cell">
+          <div class="sod-letter-big d">4</div>
+          <div class="sod-info">
+            <div class="sod-name">Entdeckung</div>
+            <div class="sod-bar-track"><div class="sod-bar-fill d" style="width:40%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-cell">
+          <div class="detail-cell-label">Ursache</div>
+          <div class="detail-cell-text">Leitungsbruch an Thermoelement TI-201</div>
+        </div>
+        <div class="detail-cell">
+          <div class="detail-cell-label">Auswirkung</div>
+          <div class="detail-cell-text">Unkontrollierte Exotherme möglich, Produktqualität gefährdet</div>
+        </div>
+        <div class="detail-cell">
+          <div class="detail-cell-label">Maßnahme</div>
+          <div class="detail-cell-text">Redundanter Sensor PT-102 installieren (SIL 1)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FM-T02 -->
+    <div class="fm-card hoch">
+      <div class="fm-card-glow"></div>
+      <div class="fm-card-body">
+        <div>
+          <div class="fm-card-id">FM-T02</div>
+          <div class="fm-card-title">Übertemperatur durch Heizkreisausfall</div>
+          <div class="fm-status hoch">▲ Hoch</div>
+        </div>
+        <div class="rpz-gauge">
+          <div class="gauge-ring gauge-hoch">
+            <svg width="90" height="90" viewBox="0 0 90 90">
+              <circle cx="45" cy="45" r="38" fill="none" stroke="rgba(245,158,11,0.1)" stroke-width="5"/>
+              <circle cx="45" cy="45" r="38" fill="none" stroke="#F59E0B" stroke-width="5"
+                      stroke-dasharray="239" stroke-dashoffset="175" stroke-linecap="round"/>
+            </svg>
+            <div class="gauge-center">
+              <span class="gauge-num">54</span>
+              <span class="gauge-sub">RPZ</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sonderregel-bar">
+        <span>⚡</span>
+        <span>AIAG-VDA Sonderregel: S=9 → Status auf HOCH hochgestuft (berechneter RPZ 54 = Mittel)</span>
+      </div>
+
+      <div class="sod-row">
+        <div class="sod-cell">
+          <div class="sod-letter-big s">9</div>
+          <div class="sod-info">
+            <div class="sod-name">Schwere</div>
+            <div class="sod-bar-track"><div class="sod-bar-fill s" style="width:90%"></div></div>
+          </div>
+        </div>
+        <div class="sod-cell">
+          <div class="sod-letter-big o">2</div>
+          <div class="sod-info">
+            <div class="sod-name">Auftreten</div>
+            <div class="sod-bar-track"><div class="sod-bar-fill o" style="width:20%"></div></div>
+          </div>
+        </div>
+        <div class="sod-cell">
+          <div class="sod-letter-big d">3</div>
+          <div class="sod-info">
+            <div class="sod-name">Entdeckung</div>
+            <div class="sod-bar-track"><div class="sod-bar-fill d" style="width:30%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-cell">
+          <div class="detail-cell-label">Ursache</div>
+          <div class="detail-cell-text">Stellventil klemmt in Stellung „auf"</div>
+        </div>
+        <div class="detail-cell">
+          <div class="detail-cell-label">Auswirkung</div>
+          <div class="detail-cell-text">Materialzersetzung, Druckanstieg über Auslegungsgrenze</div>
+        </div>
+        <div class="detail-cell">
+          <div class="detail-cell-label">Maßnahme</div>
+          <div class="detail-cell-text">Sicherheitsabsperrventil SV-301 (SIL 2)</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <div class="footer-left">VERTRAULICH</div>
+    <div class="footer-right">14 / 38</div>
+  </div>
+
+</div>
+</body>
+</html>

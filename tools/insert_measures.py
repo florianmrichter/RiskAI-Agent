@@ -19,7 +19,8 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Any
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from tools.storage import FMEAStorage
 
@@ -45,32 +46,28 @@ def insert_measures_for_fehlermodus(
     if not measures:
         return {"inserted": 0}
 
-    db = FMEAStorage(db_path)
-    fm = db.get_failure_mode_by_fehler_id(fehler_id)
-    if not fm:
-        db.close()
-        raise ValueError(f"Fehlermodus {fehler_id} nicht gefunden")
+    with FMEAStorage(db_path) as db:
+        fm = db.get_failure_mode_by_fehler_id(fehler_id)
+        if not fm:
+            raise ValueError(f"Fehlermodus {fehler_id} nicht gefunden")
 
-    # Verifizieren, dass der Fehlermodus zum Projekt gehört
-    rows = db.conn.execute("""
-        SELECT c.project_id FROM failure_modes fm
-        JOIN functions f ON fm.function_id = f.id
-        JOIN components c ON f.component_id = c.id
-        WHERE fm.fehler_id = ?
-    """, (fehler_id,)).fetchall()
-    if not rows or rows[0][0] != project_id:
-        db.close()
-        raise ValueError(f"Fehlermodus {fehler_id} gehört nicht zu Projekt {project_id}")
+        # Verifizieren, dass der Fehlermodus zum Projekt gehört
+        rows = db.conn.execute("""
+            SELECT c.project_id FROM failure_modes fm
+            JOIN functions f ON fm.function_id = f.id
+            JOIN components c ON f.component_id = c.id
+            WHERE fm.fehler_id = ?
+        """, (fehler_id,)).fetchall()
+        if not rows or rows[0][0] != project_id:
+            raise ValueError(f"Fehlermodus {fehler_id} gehört nicht zu Projekt {project_id}")
 
-    # Überspringen, wenn bereits Maßnahmen vorhanden (idempotent)
-    existing = db.get_measures(fm["id"])
-    if existing:
-        db.close()
-        return {"inserted": 0}
+        # Überspringen, wenn bereits Maßnahmen vorhanden (idempotent)
+        existing = db.get_measures(fm["id"])
+        if existing:
+            return {"inserted": 0}
 
-    ids = db.insert_measures_batch(fm["id"], measures)
-    db.close()
-    return {"inserted": len(ids)}
+        ids = db.insert_measures_batch(fm["id"], measures)
+        return {"inserted": len(ids)}
 
 
 if __name__ == "__main__":

@@ -1,0 +1,28 @@
+{
+  "project_id": 1,
+  "task_folder": "Risikoanalyse/MethanolDosierung_10TA01",
+  "phase": "report",
+  "current_komp_id": "KOMP-003",
+  "last_updated": "2026-03-05T06:35:38.337700",
+  "phases": {
+    "struktur": "done",
+    "fmea": "done",
+    "rpz_validierung": "done",
+    "massnahmen": "done",
+    "report": "done"
+  },
+  "components": {
+    "KOMP-001": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-002": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-003": {
+      "fmea": "done",
+      "measures": "done"
+    }
+  }
+}

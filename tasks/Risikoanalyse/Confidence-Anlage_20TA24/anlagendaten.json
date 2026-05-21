@@ -1,0 +1,1051 @@
+{
+  "teilanlage_nr": "20TA24",
+  "bezeichnung": "Confidence-Anlage",
+  "location": {
+    "site": "Roche, Penzberg",
+    "building": "Gebäude 353",
+    "room": "Raum 330",
+    "floor": null,
+    "area": "Technikum",
+    "isOutdoor": false
+  },
+  "processDescription": {
+    "description": "Semi-Batch-Synthese eines Polymers aus vertraulichen Monomeren und Startern in ethanolischer Lösung. Das Produkt wird anschließend über zwei Ultrafiltrationsanlagen (UF) aufgereinigt und im Poolingbehälter zwischengelagert. Die Reaktion ist nicht exotherm und birgt kein Runaway-Risiko.",
+    "operatingMode": "Semi-Batch (Synthese diskontinuierlich → UF-Betrieb kontinuierlich über längeren Zeitraum → Pooling diskontinuierlich)",
+    "purpose": "Herstellung und Aufreinigung eines Polymers im Technikumsmaßstab für weitere Verarbeitungsschritte",
+    "additionalNotes": "Anlage unterliegt der BImSchV (nicht der 12. BImSchV / Störfall-VO) sowie der AwSV (1 m³ Ethanol im Technikum). ATEX: Gesamtes Technikum Zone 2; Nahbereiche (Handloch, offene Zugabestellen) Zone 1. Leitlösungsmittel für ATEX-Einstufung: Ethanol. Reaktionschemie wird in separater Prozessstufen-Risikoanalyse betrachtet."
+  },
+  "systems": [
+    {
+      "name": "Synthesereaktor",
+      "type": "main",
+      "description": "Package Unit – Büchi Glas Uster, 50-L-Borosilikatglas-Reaktor (chemReactor BR, kundenspezifisch). FMEA-Scope: nur Schnittstellen/Übergabepunkte. Interne Technik wird in separater Prozessstufen-Risikoanalyse betrachtet.",
+      "location": {
+        "site": "Roche, Penzberg",
+        "building": "Gebäude 353",
+        "room": "Raum 330",
+        "floor": null,
+        "area": "Technikum",
+        "isOutdoor": false
+      },
+      "parameters": {
+        "Nennvolumen": "50 L",
+        "Material": "Borosilikatglas 3.3 (Gefäß), PTFE/PFA (Dichtungen)",
+        "ExZone": "Zone 1 (Handloch, offene Zugabestellen), Zone 2 (Umgebung)",
+        "ScopeHinweis": "Package Unit – nur Übergabepunkte im FMEA-Scope"
+      },
+      "designData": [
+        {
+          "key": "MinDruck",
+          "label": "Min. Druck (Auslegung)",
+          "value": "-1",
+          "unit": "bar"
+        },
+        {
+          "key": "MaxDruck",
+          "label": "Max. Druck (Auslegung)",
+          "value": "0.5",
+          "unit": "bar"
+        },
+        {
+          "key": "MinTemperatur_Beschichtung",
+          "label": "Min. Temperatur (Beschichtung)",
+          "value": "-40",
+          "unit": "°C"
+        },
+        {
+          "key": "MaxTemperatur_Beschichtung",
+          "label": "Max. Temperatur (Beschichtung)",
+          "value": "140",
+          "unit": "°C"
+        },
+        {
+          "key": "MinTemperatur_Reaktor",
+          "label": "Min. Temperatur (Reaktor gesamt)",
+          "value": "-50",
+          "unit": "°C"
+        },
+        {
+          "key": "MaxTemperatur_Reaktor",
+          "label": "Max. Temperatur (Reaktor gesamt)",
+          "value": "200",
+          "unit": "°C"
+        },
+        {
+          "key": "Nennvolumen",
+          "label": "Nennvolumen",
+          "value": "50",
+          "unit": "L"
+        },
+        {
+          "key": "Material",
+          "label": "Material",
+          "value": "Borosilikatglas 3.3",
+          "unit": ""
+        }
+      ],
+      "processConditions": {
+        "Betriebsdruck": "atmosphärisch bis ca. 0,3 bar",
+        "MinBetriebsdruck": "-0.9 bar",
+        "MaxBetriebsdruck": "0.3 bar",
+        "Betriebstemperatur": "prozessabhängig",
+        "MinBetriebstemperatur": null,
+        "MaxBetriebstemperatur": null
+      },
+      "hasCompleteDesignData": true,
+      "hasExtendedParameters": false,
+      "createdBy": "interview",
+      "equipment": [
+        {
+          "name": "Rührwerk",
+          "type": "Mechanisches Rührwerk",
+          "position": "Zentral",
+          "driveType": "elektrisch",
+          "parameters": {
+            "Dichtung": "N₂-gespült",
+            "DrehzahlEinstellung": "Manuell über Getriebe",
+            "Leistung": null,
+            "MaxDrehzahl": null
+          }
+        },
+        {
+          "name": "Heiz-/Kühlmantel",
+          "type": "Thermostatmantel",
+          "position": "Mantel",
+          "driveType": null,
+          "parameters": {
+            "Medium": "Thermostatflüssigkeit (Lauda-Thermostat)",
+            "Hersteller_Thermostat": "Lauda",
+            "Spezifikation_Thermostat": null
+          }
+        },
+        {
+          "name": "Kondensator",
+          "type": "Wärmetauscher",
+          "position": "Reaktorkopf",
+          "driveType": null,
+          "parameters": {
+            "Kühlmedium": "Eiswasser",
+            "Auslegung_Produktseite_MinDruck": "-1 bar",
+            "Auslegung_Produktseite_MaxDruck": "0.5 bar",
+            "Auslegung_Eiswasserseite_MaxDruck": "3 bar",
+            "Hinweis": "Unterschiedliche Auslegungsdrücke Produkt- vs. Eiswasserseite – bei FMEA besonders beachten"
+          }
+        },
+        {
+          "name": "Sicherheitsventil",
+          "type": "Sicherheitsventil",
+          "position": "Reaktorkopf",
+          "driveType": null,
+          "parameters": {
+            "Ansprechdruck": "0.5 bar",
+            "Nenndurchmesser": null,
+            "Prüfintervall": "12 Monate"
+          }
+        },
+        {
+          "name": "Berstscheibe",
+          "type": "Berstscheibe",
+          "position": "Reaktorkopf",
+          "driveType": null,
+          "parameters": {
+            "Ansprechdruck": "0.5 bar",
+            "Nenndurchmesser": null,
+            "Prüfintervall": "12 Monate"
+          }
+        },
+        {
+          "name": "Handloch",
+          "type": "Öffnung/Zugabe",
+          "position": "Reaktorkopf",
+          "driveType": null,
+          "parameters": {
+            "ExZone": "Zone 1",
+            "Funktion": "Manuelle Zugabe von Stoffen"
+          }
+        },
+        {
+          "name": "Bodenventil",
+          "type": "Bodenventil",
+          "position": "Reaktorboden",
+          "driveType": null,
+          "parameters": {}
+        },
+        {
+          "name": "Zuführstutzen",
+          "type": "Stutzen (mehrfach)",
+          "position": "Reaktorkopf",
+          "driveType": null,
+          "parameters": {
+            "Anzahl": "mehrere",
+            "Anbindung": "Schlauch"
+          }
+        },
+        {
+          "name": "Sartopore Air 0,2-µm-Inline-Filter",
+          "type": "Sterilfilter (Gasleitung)",
+          "position": "Downstream Druckreduzierung, in Vakuum-, N₂- und Abluftleitungen",
+          "driveType": null,
+          "parameters": {
+            "Hersteller": "Sartorius",
+            "Produktname": "Sartopore Air Midicap/Maxicap",
+            "Porengröße": "0,2 µm absolut",
+            "Membranmaterial": "Hydrophobes PTFE",
+            "Größe": "7 (Maxicap)",
+            "Einbauposition": "Downstream Druckreduzierung; in Vakuumleitungen (Synthesereaktor), N₂-Leitungen (alle Anlagenteile), Abluftleitungen (alle Anlagenteile)",
+            "Wartung": "Austausch nach jeder Kampagne (gemäß Herstellvorschrift)",
+            "MoC_Datum": "2026-03-13",
+            "MoC_Beschreibung": "Einbau 0,2-µm-Inline-Filter in Vakuum-, N₂- und Abluftleitungen aller Anlagenteile zur Steril-Gasfiltration. Downstream aller Druckreduzierungen."
+          }
+        }
+      ],
+      "msrEquipment": [
+        {
+          "name": "PI (Druckanzeige)",
+          "type": "Druckanzeige",
+          "position": "Reaktor",
+          "signalType": "Lokal",
+          "sil": null,
+          "atex": "Zone 1/2",
+          "ipRating": null,
+          "parameters": {
+            "Messbereich": null,
+            "SPS_Anbindung": "keine"
+          }
+        },
+        {
+          "name": "TI (Temperaturanzeige)",
+          "type": "Temperaturanzeige",
+          "position": "Reaktor",
+          "signalType": "Lokal",
+          "sil": null,
+          "atex": "Zone 1/2",
+          "ipRating": null,
+          "parameters": {
+            "Messbereich": null,
+            "SPS_Anbindung": "keine"
+          }
+        },
+        {
+          "name": "SI (Drehzahlanzeige)",
+          "type": "Drehzahlanzeige",
+          "position": "Rührwerk",
+          "signalType": "Lokal",
+          "sil": null,
+          "atex": "Zone 1/2",
+          "ipRating": null,
+          "parameters": {
+            "SPS_Anbindung": "keine"
+          }
+        }
+      ],
+      "securityFeatures": [
+        {
+          "name": "Sicherheitsventil",
+          "type": "Sicherheitsventil",
+          "position": "Reaktorkopf",
+          "parameters": {
+            "Ansprechdruck": "0.5 bar",
+            "Nenndurchmesser": null,
+            "Prüfintervall": "12 Monate"
+          }
+        },
+        {
+          "name": "Berstscheibe",
+          "type": "Berstscheibe",
+          "position": "Reaktorkopf",
+          "parameters": {
+            "Ansprechdruck": "0.5 bar",
+            "Nenndurchmesser": null
+          }
+        }
+      ],
+      "substances": {
+        "feedstocks": [
+          "Ethanol",
+          "Monomere (vertraulich)",
+          "Starter (vertraulich)"
+        ],
+        "intermediates": [],
+        "products": [
+          "Polymer in Lösung (vertraulich)"
+        ],
+        "unassigned": []
+      },
+      "substanceProcessConditions": {},
+      "manufacturerData": {
+        "manufacturer": "Büchi Glas Uster (Büchi AG)",
+        "modelType": "chemReactor BR, 50 L (kundenspezifisch)",
+        "serialNumber": null,
+        "yearOfManufacture": null
+      },
+      "masterData": {
+        "technicalLocation": null,
+        "equipmentNumber": null,
+        "assetId": null,
+        "maintenanceGroup": null
+      },
+      "additionalInfo": {
+        "processDescription": "Batch-Polymersynthese aus vertraulichen Monomeren und Startern in ethanolischer Lösung",
+        "operatingMode": "Batch",
+        "notes": "Package Unit – interne Technik nicht im FMEA-Scope. Reaktionschemie in separater Prozessstufen-Risikoanalyse. Borosilikatglas: bruchgefährdet bei mechanischem Stoß oder Thermoschock.",
+        "investmentCosts": null,
+        "customFields": {}
+      },
+      "connectedSystems": {
+        "upstream": [
+          "Lösemittelzuführung (außerhalb Scope)",
+          "N₂-System",
+          "Vakuumsystem",
+          "Abluftsystem"
+        ],
+        "downstream": [
+          "UF-Anlage 1 (Transferleitungssystem)",
+          "UF-Anlage 2 (Transferleitungssystem)",
+          "Poolingbehälter (Probenahmesystem)",
+          "Eiswasserversorgung (Kondensator)"
+        ]
+      }
+    },
+    {
+      "name": "UF-Anlage 1",
+      "type": "main",
+      "description": "Package Unit – kundenspezifische Ultrafiltrationsanlage (Hersteller vertraulich). Aufreinigung des Polymers über Ultrafiltrationsmembran. FMEA-Scope: nur Schnittstellen/Übergabepunkte. Identisch aufgebaut wie UF-Anlage 2.",
+      "location": {
+        "site": "Roche, Penzberg",
+        "building": "Gebäude 353",
+        "room": "Raum 330",
+        "floor": null,
+        "area": "Technikum",
+        "isOutdoor": false
+      },
+      "parameters": {
+        "ScopeHinweis": "Package Unit – nur Übergabepunkte im FMEA-Scope",
+        "Hersteller": "vertraulich"
+      },
+      "designData": [],
+      "processConditions": {
+        "MaxZuführdruckN2": "1 bar"
+      },
+      "hasCompleteDesignData": false,
+      "hasExtendedParameters": false,
+      "createdBy": "interview",
+      "equipment": [
+        {
+          "name": "Sartopore Air 0,2-µm-Inline-Filter",
+          "type": "Sterilfilter (Gasleitung)",
+          "position": "Downstream Druckreduzierung, in Vakuum-, N₂- und Abluftleitungen",
+          "driveType": null,
+          "parameters": {
+            "Hersteller": "Sartorius",
+            "Produktname": "Sartopore Air Midicap/Maxicap",
+            "Porengröße": "0,2 µm absolut",
+            "Membranmaterial": "Hydrophobes PTFE",
+            "Größe": "7 (Maxicap)",
+            "Einbauposition": "Downstream Druckreduzierung; in Vakuumleitungen (Synthesereaktor), N₂-Leitungen (alle Anlagenteile), Abluftleitungen (alle Anlagenteile)",
+            "Wartung": "Austausch nach jeder Kampagne (gemäß Herstellvorschrift)",
+            "MoC_Datum": "2026-03-13",
+            "MoC_Beschreibung": "Einbau 0,2-µm-Inline-Filter in Vakuum-, N₂- und Abluftleitungen aller Anlagenteile zur Steril-Gasfiltration. Downstream aller Druckreduzierungen."
+          }
+        }
+      ],
+      "msrEquipment": [],
+      "securityFeatures": [],
+      "substances": {
+        "feedstocks": [
+          "Polymer-Rohprodukt in Lösung"
+        ],
+        "intermediates": [],
+        "products": [
+          "Polymer aufgereinigt in Lösung"
+        ],
+        "unassigned": [
+          "Ethanol (Eluentkreislauf)"
+        ]
+      },
+      "substanceProcessConditions": {},
+      "manufacturerData": {
+        "manufacturer": "vertraulich",
+        "modelType": "kundenspezifisch",
+        "serialNumber": null,
+        "yearOfManufacture": null
+      },
+      "masterData": {
+        "technicalLocation": null,
+        "equipmentNumber": null,
+        "assetId": null,
+        "maintenanceGroup": null
+      },
+      "additionalInfo": {
+        "processDescription": "Ultrafiltration zur Aufreinigung des Polymers; kontinuierlicher Betrieb über längeren Zeitraum",
+        "operatingMode": "Kontinuierlich (innerhalb des Semi-Batch-Prozesses)",
+        "notes": "Identisch aufgebaut wie UF-Anlage 2. Package Unit – interne Technik nicht im FMEA-Scope.",
+        "investmentCosts": null,
+        "customFields": {}
+      },
+      "connectedSystems": {
+        "upstream": [
+          "Synthesereaktor (Transferleitungssystem)",
+          "Eluentenbehälter/KTC-Kreislauf",
+          "N₂-System (max. 1 bar)",
+          "Abluftsystem",
+          "Thermostat (Heiz-/Kühlsystem)"
+        ],
+        "downstream": [
+          "Poolingbehälter (Transferleitungssystem)",
+          "Eluentenbehälter/KTC-Kreislauf"
+        ]
+      }
+    },
+    {
+      "name": "UF-Anlage 2",
+      "type": "main",
+      "description": "Package Unit – identisch aufgebaut wie UF-Anlage 1. Kundenspezifische Ultrafiltrationsanlage (Hersteller vertraulich). FMEA-Scope: nur Schnittstellen/Übergabepunkte.",
+      "location": {
+        "site": "Roche, Penzberg",
+        "building": "Gebäude 353",
+        "room": "Raum 330",
+        "floor": null,
+        "area": "Technikum",
+        "isOutdoor": false
+      },
+      "parameters": {
+        "ScopeHinweis": "Package Unit – nur Übergabepunkte im FMEA-Scope",
+        "Hersteller": "vertraulich"
+      },
+      "designData": [],
+      "processConditions": {
+        "MaxZuführdruckN2": "1 bar"
+      },
+      "hasCompleteDesignData": false,
+      "hasExtendedParameters": false,
+      "createdBy": "interview",
+      "equipment": [
+        {
+          "name": "Sartopore Air 0,2-µm-Inline-Filter",
+          "type": "Sterilfilter (Gasleitung)",
+          "position": "Downstream Druckreduzierung, in Vakuum-, N₂- und Abluftleitungen",
+          "driveType": null,
+          "parameters": {
+            "Hersteller": "Sartorius",
+            "Produktname": "Sartopore Air Midicap/Maxicap",
+            "Porengröße": "0,2 µm absolut",
+            "Membranmaterial": "Hydrophobes PTFE",
+            "Größe": "7 (Maxicap)",
+            "Einbauposition": "Downstream Druckreduzierung; in Vakuumleitungen (Synthesereaktor), N₂-Leitungen (alle Anlagenteile), Abluftleitungen (alle Anlagenteile)",
+            "Wartung": "Austausch nach jeder Kampagne (gemäß Herstellvorschrift)",
+            "MoC_Datum": "2026-03-13",
+            "MoC_Beschreibung": "Einbau 0,2-µm-Inline-Filter in Vakuum-, N₂- und Abluftleitungen aller Anlagenteile zur Steril-Gasfiltration. Downstream aller Druckreduzierungen."
+          }
+        }
+      ],
+      "msrEquipment": [],
+      "securityFeatures": [],
+      "substances": {
+        "feedstocks": [
+          "Polymer-Rohprodukt in Lösung"
+        ],
+        "intermediates": [],
+        "products": [
+          "Polymer aufgereinigt in Lösung"
+        ],
+        "unassigned": [
+          "Ethanol (Eluentkreislauf)"
+        ]
+      },
+      "substanceProcessConditions": {},
+      "manufacturerData": {
+        "manufacturer": "vertraulich",
+        "modelType": "kundenspezifisch",
+        "serialNumber": null,
+        "yearOfManufacture": null
+      },
+      "masterData": {
+        "technicalLocation": null,
+        "equipmentNumber": null,
+        "assetId": null,
+        "maintenanceGroup": null
+      },
+      "additionalInfo": {
+        "processDescription": "Ultrafiltration zur Aufreinigung des Polymers; identisch wie UF-Anlage 1",
+        "operatingMode": "Kontinuierlich (innerhalb des Semi-Batch-Prozesses)",
+        "notes": "Identisch aufgebaut wie UF-Anlage 1. Package Unit – interne Technik nicht im FMEA-Scope.",
+        "investmentCosts": null,
+        "customFields": {}
+      },
+      "connectedSystems": {
+        "upstream": [
+          "Synthesereaktor (Transferleitungssystem)",
+          "Eluentenbehälter/KTC-Kreislauf",
+          "N₂-System (max. 1 bar)",
+          "Abluftsystem",
+          "Thermostat (Heiz-/Kühlsystem)"
+        ],
+        "downstream": [
+          "Poolingbehälter (Transferleitungssystem)",
+          "Eluentenbehälter/KTC-Kreislauf"
+        ]
+      }
+    },
+    {
+      "name": "Eluentenbehälter (KTC-Container)",
+      "type": "main",
+      "description": "KTC-Container, 1 m³ Edelstahl, atmosphärisch. Dient dem Volumenausgleich für die UF-Anlagen. Kreislaufpumpe fördert Eluent (Ethanol) kontinuierlich; UF-Anlagen zweigen Bedarf ab.",
+      "location": {
+        "site": "Roche, Penzberg",
+        "building": "Gebäude 353",
+        "room": "Raum 330",
+        "floor": null,
+        "area": "Technikum",
+        "isOutdoor": false
+      },
+      "parameters": {
+        "Nennvolumen": "1000 L",
+        "Material": "Edelstahl",
+        "ExZone": "Zone 2",
+        "AwSV": "Ja (1 m³ Ethanol)",
+        "Containment": "Technikum als Auffangwanne, Volumen ≥ 1 m³"
+      },
+      "designData": [
+        {
+          "key": "Nennvolumen",
+          "label": "Nennvolumen",
+          "value": "1000",
+          "unit": "L"
+        },
+        {
+          "key": "Betriebsdruck",
+          "label": "Betriebsdruck",
+          "value": "atmosphärisch",
+          "unit": ""
+        },
+        {
+          "key": "Material",
+          "label": "Material",
+          "value": "Edelstahl",
+          "unit": ""
+        }
+      ],
+      "processConditions": {
+        "Betriebsdruck": "atmosphärisch",
+        "MinBetriebsdruck": null,
+        "MaxBetriebsdruck": "atmosphärisch",
+        "Betriebstemperatur": null,
+        "MinBetriebstemperatur": null,
+        "MaxBetriebstemperatur": null
+      },
+      "hasCompleteDesignData": true,
+      "hasExtendedParameters": false,
+      "createdBy": "interview",
+      "equipment": [
+        {
+          "name": "Kreislaufpumpe",
+          "type": "Peripheralradpumpe",
+          "position": "Ausgang KTC",
+          "driveType": "elektrisch",
+          "parameters": {
+            "MaxFörderhöhe": "9 m WS",
+            "Betrieb": "Kreislauf KTC → UF-Abzweigung → KTC",
+            "Steuerung": "Frequenzumrichter (Drehzahlregelung)",
+            "Trockenlaufschutz": "Liquiphant (Füllstandsschalter)"
+          }
+        },
+        {
+          "name": "Sartopore Air 0,2-µm-Inline-Filter",
+          "type": "Sterilfilter (Gasleitung)",
+          "position": "Downstream Druckreduzierung, in Vakuum-, N₂- und Abluftleitungen",
+          "driveType": null,
+          "parameters": {
+            "Hersteller": "Sartorius",
+            "Produktname": "Sartopore Air Midicap/Maxicap",
+            "Porengröße": "0,2 µm absolut",
+            "Membranmaterial": "Hydrophobes PTFE",
+            "Größe": "7 (Maxicap)",
+            "Einbauposition": "Downstream Druckreduzierung; in Vakuumleitungen (Synthesereaktor), N₂-Leitungen (alle Anlagenteile), Abluftleitungen (alle Anlagenteile)",
+            "Wartung": "Austausch nach jeder Kampagne (gemäß Herstellvorschrift)",
+            "MoC_Datum": "2026-03-13",
+            "MoC_Beschreibung": "Einbau 0,2-µm-Inline-Filter in Vakuum-, N₂- und Abluftleitungen aller Anlagenteile zur Steril-Gasfiltration. Downstream aller Druckreduzierungen."
+          }
+        }
+      ],
+      "msrEquipment": [
+        {
+          "name": "Liquiphant (Füllstandsschalter)",
+          "type": "Füllstandsschalter",
+          "position": "KTC-Container",
+          "signalType": "Relais",
+          "sil": null,
+          "atex": "Zone 2",
+          "ipRating": null,
+          "parameters": {
+            "Funktion": "Trockenlaufschutz Kreislaufpumpe – Pumpenabschaltung bei Unterschreitung"
+          }
+        }
+      ],
+      "securityFeatures": [
+        {
+          "name": "Sicherheitsventil KTC",
+          "type": "Sicherheitsventil",
+          "position": "KTC-Container",
+          "parameters": {
+            "Ansprechdruck": "100 mbar",
+            "Nenndurchmesser": null,
+            "Funktion": "Überdruckschutz"
+          }
+        },
+        {
+          "name": "Leckagesensor Technikum",
+          "type": "Leckagesensor",
+          "position": "Technikumsboden",
+          "parameters": {
+            "Funktion": "Leckageerkennung im Technikum"
+          }
+        },
+        {
+          "name": "Auffangwanne (Technikum)",
+          "type": "Auffangwanne",
+          "position": "Technikum gesamt",
+          "parameters": {
+            "Aufnahmevolumen": "≥ 1 m³ (gesamtes KTC-Volumen)",
+            "Ausführung": "Technikum als Wanne ausgeführt"
+          }
+        }
+      ],
+      "substances": {
+        "feedstocks": [
+          "Ethanol"
+        ],
+        "intermediates": [],
+        "products": [],
+        "unassigned": []
+      },
+      "substanceProcessConditions": {
+        "Ethanol": {
+          "Betriebsdruck": "atmosphärisch",
+          "Betriebstemperatur": null
+        }
+      },
+      "manufacturerData": {
+        "manufacturer": null,
+        "modelType": "KTC-Container",
+        "serialNumber": null,
+        "yearOfManufacture": null
+      },
+      "masterData": {
+        "technicalLocation": null,
+        "equipmentNumber": null,
+        "assetId": null,
+        "maintenanceGroup": null
+      },
+      "additionalInfo": {
+        "processDescription": "Eluentvorlage für UF-Kreislauf; Ethanol wird über Peripheralradpumpe im Kreislauf gehalten; UF-Anlagen zweigen Bedarf ab",
+        "operatingMode": "Kontinuierlich",
+        "notes": "AwSV-relevant (1 m³ Ethanol). Technikum als Sekundärcontainment. Befüllung über Abluftsystem abgesichert; N₂-Überlagerung.",
+        "investmentCosts": null,
+        "customFields": {}
+      },
+      "connectedSystems": {
+        "upstream": [
+          "Lösemittelzuführung (außerhalb Scope)",
+          "N₂-System (Überlagerung)",
+          "Abluftsystem (Befüllung)"
+        ],
+        "downstream": [
+          "UF-Anlage 1 (Kreislauf-Abzweigung)",
+          "UF-Anlage 2 (Kreislauf-Abzweigung)"
+        ]
+      }
+    },
+    {
+      "name": "Poolingbehälter",
+      "type": "main",
+      "description": "Edelstahl-Behälter, ~200 L, Druckauslegung 6 bar. Zwischenlagerung des aufgereinigten Polymers. Rührwerk vorhanden. Kein Sicherheitsventil – Überdruckschutz ausschließlich über Druckreduzierung im N₂-System.",
+      "location": {
+        "site": "Roche, Penzberg",
+        "building": "Gebäude 353",
+        "room": "Raum 330",
+        "floor": null,
+        "area": "Technikum",
+        "isOutdoor": false
+      },
+      "parameters": {
+        "Nennvolumen": "ca. 200 L",
+        "Material": "Edelstahl",
+        "ExZone": "Zone 2",
+        "Hinweis_Sicherheit": "Kein SV / keine Berstscheibe – Überdruckschutz nur über N₂-Druckreduzierung"
+      },
+      "designData": [
+        {
+          "key": "MaxDruck",
+          "label": "Max. Druck (Auslegung)",
+          "value": "6",
+          "unit": "bar"
+        },
+        {
+          "key": "Nennvolumen",
+          "label": "Nennvolumen",
+          "value": "200",
+          "unit": "L"
+        },
+        {
+          "key": "Material",
+          "label": "Material",
+          "value": "Edelstahl",
+          "unit": ""
+        }
+      ],
+      "processConditions": {
+        "Betriebsdruck": null,
+        "MinBetriebsdruck": null,
+        "MaxBetriebsdruck": null,
+        "Betriebstemperatur": null,
+        "MinBetriebstemperatur": null,
+        "MaxBetriebstemperatur": null
+      },
+      "hasCompleteDesignData": false,
+      "hasExtendedParameters": false,
+      "createdBy": "interview",
+      "equipment": [
+        {
+          "name": "Rührwerk",
+          "type": "Rührwerk",
+          "position": "Zentral",
+          "driveType": null,
+          "parameters": {
+            "Leistung": null,
+            "MaxDrehzahl": null
+          }
+        },
+        {
+          "name": "Bodenventil",
+          "type": "Bodenventil",
+          "position": "Behälterboden",
+          "driveType": null,
+          "parameters": {}
+        },
+        {
+          "name": "Zugabestutzen",
+          "type": "Stutzen (mehrfach)",
+          "position": "Behälter",
+          "driveType": null,
+          "parameters": {
+            "Anzahl": "mehrere"
+          }
+        },
+        {
+          "name": "Sartopore Air 0,2-µm-Inline-Filter",
+          "type": "Sterilfilter (Gasleitung)",
+          "position": "Downstream Druckreduzierung, in Vakuum-, N₂- und Abluftleitungen",
+          "driveType": null,
+          "parameters": {
+            "Hersteller": "Sartorius",
+            "Produktname": "Sartopore Air Midicap/Maxicap",
+            "Porengröße": "0,2 µm absolut",
+            "Membranmaterial": "Hydrophobes PTFE",
+            "Größe": "7 (Maxicap)",
+            "Einbauposition": "Downstream Druckreduzierung; in Vakuumleitungen (Synthesereaktor), N₂-Leitungen (alle Anlagenteile), Abluftleitungen (alle Anlagenteile)",
+            "Wartung": "Austausch nach jeder Kampagne (gemäß Herstellvorschrift)",
+            "MoC_Datum": "2026-03-13",
+            "MoC_Beschreibung": "Einbau 0,2-µm-Inline-Filter in Vakuum-, N₂- und Abluftleitungen aller Anlagenteile zur Steril-Gasfiltration. Downstream aller Druckreduzierungen."
+          }
+        }
+      ],
+      "msrEquipment": [],
+      "securityFeatures": [
+        {
+          "name": "Überdruckschutz über N₂-Druckreduzierung",
+          "type": "Druckreduzierung (passiv)",
+          "position": "N₂-Versorgung",
+          "parameters": {
+            "Hinweis": "Kein aktives Sicherheitsventil oder Berstscheibe vorhanden. Überdruckschutz ausschließlich über begrenzte N₂-Zuführdrücke."
+          }
+        }
+      ],
+      "substances": {
+        "feedstocks": [],
+        "intermediates": [],
+        "products": [
+          "Polymer aufgereinigt in Lösung (vertraulich)"
+        ],
+        "unassigned": [
+          "Ethanol (Lösungsmittel)"
+        ]
+      },
+      "substanceProcessConditions": {},
+      "manufacturerData": {
+        "manufacturer": null,
+        "modelType": null,
+        "serialNumber": null,
+        "yearOfManufacture": null
+      },
+      "masterData": {
+        "technicalLocation": null,
+        "equipmentNumber": null,
+        "assetId": null,
+        "maintenanceGroup": null
+      },
+      "additionalInfo": {
+        "processDescription": "Zwischenlagerung des aufgereinigten Polymers. Weiterverarbeitung über Transfersystem (Schlauchleitungen) zu anderen Anlagen. Probenahme und Abfüllung über Kreislaufsystem Richtung Synthesereaktor möglich.",
+        "operatingMode": "Diskontinuierlich",
+        "notes": "Kein SV – sicherheitsrelevanter Befund: Überdruckschutz ausschließlich über Druckreduzierung. Anbindung downstream über Schlauchleitungen (flexibel). Probenahme-/Abfüllsystem über Kreislaufleitung zum Synthesereaktor.",
+        "investmentCosts": null,
+        "customFields": {}
+      },
+      "connectedSystems": {
+        "upstream": [
+          "UF-Anlage 1 (Transferleitungssystem)",
+          "UF-Anlage 2 (Transferleitungssystem)",
+          "N₂-System (mehrere Druckstufen)",
+          "Abluftsystem (mehrere Druckstufen)"
+        ],
+        "downstream": [
+          "Transfer-System zu anderen Anlagen (Schlauchleitungen)",
+          "Synthesereaktor (Probenahmesystem/Kreislauf)"
+        ]
+      }
+    }
+  ],
+  "feedstocks": [
+    {
+      "name": "Ethanol",
+      "category": "feedstock",
+      "categories": [
+        "flammable",
+        "solvent"
+      ],
+      "properties": "Brennbar (Flammpunkt 13 °C), wasserlöslich, Siedepunkt 78 °C. Leitlösungsmittel für ATEX-Einstufung.",
+      "isGeneric": false,
+      "needsSpecification": false,
+      "MinBetriebstemperatur": null,
+      "MaxBetriebstemperatur": null,
+      "MinBetriebsdruck": null,
+      "MaxBetriebsdruck": null,
+      "parameters": {
+        "casNumber": "64-17-5",
+        "molWeight": "46.07 g/mol",
+        "density": "0.789 g/cm³",
+        "boilingPoint": "78.3 °C",
+        "meltingPoint": "-114.1 °C",
+        "flashPoint": "13 °C",
+        "autoIgnitionTemp": "363 °C",
+        "lowerExplosionLimit": "3.5 Vol.-%",
+        "upperExplosionLimit": "15 Vol.-%",
+        "vaporPressure20C": "59 hPa",
+        "hPhrases": "H225, H319",
+        "pPhrases": "P210, P233, P240, P241, P242, P243, P264, P280, P303+P361+P353, P305+P351+P338, P337+P313, P370+P378, P403+P235, P501",
+        "ghs": "GHS02, GHS07",
+        "signalWord": "Gefahr",
+        "wgk": "1",
+        "agwMak": "200 ppm / 380 mg/m³"
+      },
+      "dataSource": "pubchem",
+      "dataSourceId": "CID702"
+    },
+    {
+      "name": "Monomere",
+      "category": "feedstock",
+      "categories": [
+        "vertraulich"
+      ],
+      "properties": "Vertraulich – keine Angaben. Gehen in die Polymerisation ein.",
+      "isGeneric": true,
+      "needsSpecification": false,
+      "MinBetriebstemperatur": null,
+      "MaxBetriebstemperatur": null,
+      "MinBetriebsdruck": null,
+      "MaxBetriebsdruck": null,
+      "parameters": {
+        "casNumber": null,
+        "Hinweis": "Geheimhaltung – Stoffdaten nicht verfügbar. Reaktion nicht exotherm, kein Runaway-Risiko."
+      },
+      "dataSource": "vertraulich",
+      "dataSourceId": null
+    },
+    {
+      "name": "Starter (Initiator)",
+      "category": "feedstock",
+      "categories": [
+        "vertraulich"
+      ],
+      "properties": "Vertraulich – keine Angaben. Startet die Polymerisationsreaktion.",
+      "isGeneric": true,
+      "needsSpecification": false,
+      "MinBetriebstemperatur": null,
+      "MaxBetriebstemperatur": null,
+      "MinBetriebsdruck": null,
+      "MaxBetriebsdruck": null,
+      "parameters": {
+        "casNumber": null,
+        "Hinweis": "Geheimhaltung – Stoffdaten nicht verfügbar."
+      },
+      "dataSource": "vertraulich",
+      "dataSourceId": null
+    }
+  ],
+  "products": [
+    {
+      "name": "Polymer (vertraulich)",
+      "category": "product",
+      "categories": [
+        "vertraulich"
+      ],
+      "properties": "Vertraulich – Polymer in ethanolischer Lösung. Reinheit nach UF-Aufreinigung.",
+      "isGeneric": true,
+      "needsSpecification": false,
+      "MinBetriebstemperatur": null,
+      "MaxBetriebstemperatur": null,
+      "MinBetriebsdruck": null,
+      "MaxBetriebsdruck": null,
+      "parameters": {
+        "casNumber": null,
+        "Hinweis": "Geheimhaltung – Produktbezeichnung und Stoffdaten vertraulich."
+      },
+      "dataSource": "vertraulich",
+      "dataSourceId": null
+    }
+  ],
+  "byproducts": [],
+  "media": [
+    {
+      "name": "Stickstoff (N₂)",
+      "category": "gas",
+      "MinBetriebstemperatur": null,
+      "MaxBetriebstemperatur": null,
+      "MinBetriebsdruck": "40 mbar",
+      "MaxBetriebsdruck": "2.5 bar",
+      "parameters": {
+        "Druckstufen_Anlage": "40 mbar, 300 mbar, 2,5 bar",
+        "Versorgungsschiene": "6–8 bar",
+        "Absicherung_Versorgung": "9 bar",
+        "Druckminderer": "6–8 bar → 2,5 bar → 300 mbar / 40 mbar",
+        "Reinheit": null,
+        "Verwendung": "Inertisierung, Überlagerung KTC, Dichtungsspülung Rührwerk, Druckhaltung"
+      }
+    },
+    {
+      "name": "Vakuum",
+      "category": "vacuum",
+      "MinBetriebstemperatur": null,
+      "MaxBetriebstemperatur": null,
+      "MinBetriebsdruck": "~50 mbar abs",
+      "MaxBetriebsdruck": "~90 mbar abs",
+      "parameters": {
+        "MaxUnterdruck": "950 mbar (≙ ~50 mbar abs)",
+        "TypUnterdruck": "910 mbar (≙ ~90 mbar abs)",
+        "Verwendung": "Synthesereaktor"
+      }
+    },
+    {
+      "name": "Eiswasser",
+      "category": "heating-cooling",
+      "MinBetriebstemperatur": "4 °C",
+      "MaxBetriebstemperatur": "4 °C",
+      "MinBetriebsdruck": null,
+      "MaxBetriebsdruck": "1 bar",
+      "parameters": {
+        "Temperatur": "ca. 4 °C",
+        "Versorgungsdruck_Werksnetz": "4 bar",
+        "Betriebsdruck_Kondensator": "druckreduziert, max. 1 bar",
+        "Absicherung_Kondensator": "Sicherheitsventil 1 bar (Eiswasserseite)",
+        "Auslegung_Kondensator_Eiswasserseite": "max. 3 bar",
+        "Verwendung": "Kondensator am Synthesereaktor",
+        "Versorgung": "Werksversorgung (nicht als System im Scope; Ausfallszenarien werden betrachtet)"
+      }
+    },
+    {
+      "name": "Abluft",
+      "category": "abluft",
+      "MinBetriebstemperatur": null,
+      "MaxBetriebstemperatur": null,
+      "MinBetriebsdruck": "0 mbar",
+      "MaxBetriebsdruck": "0 mbar",
+      "parameters": {
+        "Druck": "drucklos",
+        "Downstream": "Abluftreinigungsanlage (außerhalb Scope)",
+        "Verwendung": "Synthesereaktor, UF-Anlagen, Poolingbehälter (mehrere Druckstufen), KTC-Befüllung",
+        "Hinweis": "Ausfallszenarien der Abluftversorgung sind im FMEA-Scope"
+      }
+    },
+    {
+      "name": "Elektrische Versorgung",
+      "category": "electricity",
+      "MinBetriebstemperatur": null,
+      "MaxBetriebstemperatur": null,
+      "MinBetriebsdruck": null,
+      "MaxBetriebsdruck": null,
+      "parameters": {
+        "Spannung": "230/400 V (vorläufig)",
+        "Anschlussleistung": null,
+        "USV": "keine"
+      }
+    }
+  ],
+  "utilities": [
+    {
+      "name": "Frequenzumrichter (Kreislaufpumpe)",
+      "type": "Automation",
+      "parameters": {
+        "Funktion": "Drehzahlregelung Peripheralradpumpe (KTC-Kreislauf)",
+        "Hersteller": null
+      }
+    },
+    {
+      "name": "Technische Lüftung",
+      "type": "Safety",
+      "parameters": {
+        "Funktion": "Lüftung Technikum mit Überwachung",
+        "Gaswarnsystem": "keines vorhanden",
+        "Hinweis": "Keine stationäre Gaswarnung für Ethanol/LEL im Technikum"
+      }
+    },
+    {
+      "name": "Lauda-Thermostat (Synthesereaktor)",
+      "type": "Heiz-/Kühlsystem",
+      "parameters": {
+        "Hersteller": "Lauda",
+        "Funktion": "Temperierung Synthesereaktor über Heiz-/Kühlmantel",
+        "Spezifikation": null
+      }
+    },
+    {
+      "name": "Thermostat (UF-Anlagen)",
+      "type": "Heiz-/Kühlsystem",
+      "parameters": {
+        "Hersteller": null,
+        "Ausführung": "kompakt",
+        "Funktion": "Temperierung UF-Anlage 1 & 2",
+        "Spezifikation": null
+      }
+    }
+  ],
+  "transferSystem": {
+    "description": "Rohrleitungssystem verbindet Synthesereaktor, UF-Anlage 1, UF-Anlage 2 und Poolingbehälter. Anbindung an Anlagen und Medien über flexible Schlauchleitungen.",
+    "type": "Rohrleitungssystem mit Schlauchanschlüssen",
+    "inScope": true,
+    "connections": [
+      "Synthesereaktor → UF-Anlage 1",
+      "Synthesereaktor → UF-Anlage 2",
+      "UF-Anlage 1 → Poolingbehälter",
+      "UF-Anlage 2 → Poolingbehälter",
+      "Poolingbehälter → Synthesereaktor (Probenahme/Kreislauf)",
+      "KTC-Kreislauf → UF-Anlage 1 (Abzweigung)",
+      "KTC-Kreislauf → UF-Anlage 2 (Abzweigung)"
+    ]
+  },
+  "outOfScope": {
+    "excludedSystems": [
+      "Interne Technik Synthesereaktor (Package Unit – separate Prozessstufen-Risikoanalyse)",
+      "Interne Technik UF-Anlage 1 & 2 (Package Unit)",
+      "Lösemittelzuführung ins Technikum (upstream)",
+      "Abluftreinigungsanlage (downstream)",
+      "Gebäudetechnik (Lüftung, Elektro, Brandschutz)",
+      "Transfer-System downstream Poolingbehälter zu anderen Anlagen"
+    ],
+    "inScopeAsFailureScenario": [
+      "Eiswasserversorgung (Ausfall / Gefahrenszenarien werden betrachtet)",
+      "Abluftsystem (Ausfall / Gefahrenszenarien werden betrachtet)",
+      "Stickstoffsystem (Ausfall / Gefahrenszenarien werden betrachtet)"
+    ],
+    "description": "Nicht im FMEA-Scope: Interne Technik der Package Units (Synthesereaktor, UF-Anlagen), Lösemittelzuführung außerhalb Technikum, Abluftreinigungsanlage, Gebäudetechnik. Medien (Eiswasser, Abluft, N₂) werden nicht als Systeme betrachtet, aber ihre Ausfallszenarien sind im FMEA-Scope."
+  }
+}

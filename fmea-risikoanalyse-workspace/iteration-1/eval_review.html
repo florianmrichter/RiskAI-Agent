@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>FMEA Skill Eval — Iteration 1</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #c9d1d9; padding: 20px; }
+h1 { color: #58a6ff; margin-bottom: 20px; }
+h2 { color: #8b949e; margin: 15px 0 10px; font-size: 16px; text-transform: uppercase; }
+h3 { color: #c9d1d9; margin: 10px 0 8px; }
+.tabs { display: flex; gap: 2px; margin-bottom: 20px; }
+.tab { padding: 10px 20px; background: #161b22; border: 1px solid #30363d; cursor: pointer; border-radius: 6px 6px 0 0; }
+.tab.active { background: #21262d; border-bottom-color: #21262d; color: #58a6ff; }
+.panel { display: none; background: #21262d; border: 1px solid #30363d; border-radius: 0 6px 6px 6px; padding: 20px; }
+.panel.active { display: block; }
+.run { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; margin: 10px 0; }
+.run-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.badge { padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+.badge-pass { background: #238636; color: white; }
+.badge-warn { background: #d29922; color: black; }
+.badge-fail { background: #da3633; color: white; }
+.badge-skill { background: #1f6feb; color: white; }
+.badge-baseline { background: #484f58; color: white; }
+.assertion { padding: 6px 12px; margin: 3px 0; border-radius: 4px; font-size: 13px; }
+.assertion-pass { background: #0d2818; border-left: 3px solid #238636; }
+.assertion-fail { background: #2d1215; border-left: 3px solid #da3633; }
+.evidence { color: #8b949e; font-size: 12px; margin-left: 20px; }
+.metric { display: inline-block; background: #0d1117; padding: 8px 16px; border-radius: 6px; margin: 4px; text-align: center; }
+.metric-value { font-size: 24px; font-weight: 700; color: #58a6ff; }
+.metric-label { font-size: 11px; color: #8b949e; }
+.text-preview { background: #0d1117; padding: 10px; border-radius: 6px; margin: 8px 0; font-size: 13px; max-height: 200px; overflow-y: auto; white-space: pre-wrap; border: 1px solid #30363d; }
+.sod { display: flex; gap: 10px; margin: 10px 0; }
+.sod-item { background: #0d1117; padding: 8px 16px; border-radius: 6px; text-align: center; min-width: 80px; }
+.sod-value { font-size: 28px; font-weight: 700; }
+.sod-gold { font-size: 12px; color: #8b949e; }
+.delta-ok { color: #3fb950; }
+.delta-warn { color: #d29922; }
+.delta-bad { color: #da3633; }
+.observation { background: #0d1117; padding: 10px 14px; margin: 6px 0; border-radius: 6px; border-left: 3px solid #58a6ff; font-size: 13px; }
+.obs-strength { border-left-color: #3fb950; }
+.obs-weakness { border-left-color: #da3633; }
+.obs-surprise { border-left-color: #d29922; }
+table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #30363d; font-size: 13px; }
+th { color: #8b949e; font-weight: 600; }
+nav { display: flex; gap: 8px; margin: 10px 0; flex-wrap: wrap; }
+nav button { padding: 6px 14px; background: #161b22; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; cursor: pointer; font-size: 13px; }
+nav button.active { background: #1f6feb; border-color: #1f6feb; color: white; }
+</style>
+</head>
+<body>
+<h1>FMEA Skill Eval — Iteration 1</h1>
+<div class="tabs">
+  <div class="tab active" onclick="showTab('outputs')">Outputs</div>
+  <div class="tab" onclick="showTab('benchmark')">Benchmark</div>
+</div>
+
+<div id="outputs" class="panel active"></div>
+<div id="benchmark" class="panel"></div>
+
+<script>
+const runs = [
+  {
+    "eval_name": "single-fm-analysis",
+    "variant": "with_skill",
+    "prompt": "Ich möchte die FMEA für die Büchi 15L Anlage (Projekt 4, task_folder Risikoanalyse/Buechi_Glasreaktor_15L_20TA43) fortsetzen. Analysiere bitte KOMP-001 FM01 (Überfüllung des Glasreaktors) komplett — mit Kontext, S/O/D-Bewertung mit ausführlicher Begründung, Controls-Bewertung und Empfehlung. Modus ist autonom, Report-Qualität ausführlich.",
+    "result": {
+      "fehler_id": "20TA43-KOMP-001-FM01",
+      "fehlermodus": "Überfüllung des Glasreaktors über 12 L Maximalfüllvolumen",
+      "S": 5,
+      "O": 4,
+      "D": 5,
+      "rpz": 100,
+      "rpz_status": "mittel",
+      "kontext_beschreibung": "Der Büchi miniPilot Glasreaktor (15 L Nennvolumen, Borosilikatglas 3.3) wird im Technikum für Synthesen unter Rückfluss mit wechselnden organischen Lösemitteln betrieben — darunter Ethanol (Flammpunkt 13 °C), Methanol (Flammpunkt 9 °C), Isopropanol (Flammpunkt 12 °C) und Aceton (Flammpunkt -20 °C). Das maximale Füllvolumen beträgt 12 L. Die Befüllung erfolgt vollständig manuell über ein Handloch in der Deckelplatte mittels Fasspumpe aus 10-Liter-Gebinden. Der Betrieb ist personenüberwacht, es gibt kein Prozessleitsystem.\n\nDas spezifische Risiko der Überfüllung liegt darin, dass bereits zwei Standard-Gebinde (2 × 10 L = 20 L) das Maximalfüllvolumen von 12 L um 67 % überschreiten würden. Es existiert keine instrumentelle Füllstandsüberwachung — weder ein Füllstandssensor (LI/LIC), noch ein Überfüllschalter (LSHH), noch eine Füllstandsmarkierung am Glasgefäß. Die einzige Absicherung ist die visuelle Abschätzung durch den Bediener, der den Füllstand durch die transparente Glaswand beobachtet. Bei einer Überfüllung kann Lösemittel über den Rückflusskühler RK-43 in das Abluftsystem gelangen, aus Dichtungen am Deckel austreten oder bei thermischer Expansion des Mediums während des Aufheizvorgangs unkontrolliert überlaufen — mit der Folge von Lösemittelfreisetzung in der unmittelbaren Arbeitsumgebung.\n\nDie zentrale Schutzlücke: Es fehlt jede technische Barriere zwischen manueller Befüllung und Überfüllung. Der Prozess verlässt sich ausschließlich auf die Aufmerksamkeit und Erfahrung des Bedienpersonals — eine Fehlerquelle, die bei Routinetätigkeiten, Zeitdruck oder wechselndem Personal erfahrungsgemäß zunimmt.",
+      "begruendung_S": "S = 5 (Mäßig — Funktionseinschränkung, 1–7 Tage, 1–10k EUR): Eine Überfüllung über das 12-L-Maximum führt primär zu einem Lösemittelaustritt in die direkte Arbeitsumgebung. Das ausgetretene Lösemittel (Ethanol, Methanol, Isopropanol oder Aceton — alle leicht entzündbar, Flammpunkte zwischen -20 °C und 13 °C) verursacht eine lokale Expositionsgefahr für das Bedienpersonal (Inhalation, Hautkontakt). Bei Methanol besteht zusätzlich eine Vergiftungsgefahr (H301+H311+H331, H370 — giftig bei Einatmen, Hautkontakt und Verschlucken, Organschäden). Die Sachschäden umfassen Chargenverlust, Reinigungskosten und ggf. Kontamination der Arbeitsumgebung, bleiben aber unterhalb von 10k EUR. Die Auffangeinrichtungen (Tropfwanne TW-43, AwSV-Boden) begrenzen Umweltauswirkungen wirksam. Ein höherer S-Wert wäre gerechtfertigt, wenn die Überfüllung während des Heizvorgangs auftritt und die überschüssige Menge in den heißen Rückflusskühler gelangt — dann steigt das Risiko einer unkontrollierten Dampffreisetzung brennbarer Lösemittel. In der Gesamtbetrachtung wird S=5 gewählt, da die maximal austretende Menge durch das Reaktorvolumen begrenzt ist und keine unmittelbare Lebensgefahr besteht.",
+      "begruendung_O": "O = 4 (Relativ gering — ca. 1× in 2 Jahren): Die manuelle Befüllung aus 10-L-Gebinden in einen Reaktor mit nur 12 L Maximalfüllvolumen birgt ein inhärentes Fehlerpotenzial: Bereits zwei Gebinde überschreiten das Maximum um 67 %. Es gibt keine instrumentelle Füllstandsüberwachung (kein LI, kein LSHH), keine Markierung am Glasgefäß und keine automatische Abschaltung. Der Bediener muss die Menge rein visuell und aus Erfahrung abschätzen. Für manuelle Befüllvorgänge ohne instrumentelle Kontrolle werden in der Literatur Fehlhandlungsraten von 1–3 % pro Vorgang angenommen (CCPS Human Reliability Analysis). Bei ca. 50–100 Befüllvorgängen pro Jahr ergibt sich eine erwartete Häufigkeit von ca. 1–3 Vorfällen pro 2 Jahre. Die ReliabilityDB liefert für den Glasreaktor-Typ eine Gesamtausfallrate von 20 FPMH, wobei die Überfüllung als betriebsbedingter Fehlermodus (nicht als Equipment-Ausfall) einzustufen ist — die CCPS/OREDA-Daten sind hier nur indirekt anwendbar. Die Bewertung basiert daher primär auf der Human-Factors-Analyse der manuellen Befüllung. Daten_konfidenz: mittel (Betriebserfahrung + Literaturdaten, keine anlagenspezifischen Vorfallsdaten vorhanden).",
+      "begruendung_D": "D = 5 (Mäßig wahrscheinlich — Entdeckungswahrscheinlichkeit 50–70 %): Die transparente Glaswand des Reaktors erlaubt grundsätzlich eine visuelle Füllstandskontrolle — der Bediener kann den Flüssigkeitspegel direkt beobachten. Dies ist ein Vorteil gegenüber opaken Stahlbehältern. Allerdings fehlt jede Referenzmarkierung (keine 12-L-Linie am Glas), sodass die Einschätzung des korrekten Füllstands rein subjektiv erfolgt und von der Erfahrung des Bedieners abhängt. Die Entdeckungswahrscheinlichkeit wird durch mehrere Faktoren eingeschränkt: (1) Bei trüben, schäumenden oder stark gefärbten Medien ist der Füllstand schwer ablesbar; (2) die zylindrische Geometrie des Reaktors erschwert die volumetrische Abschätzung; (3) eine schleichende Überfüllung (z.B. durch Rückstrom über das Bodenventil) wird möglicherweise erst bei deutlichem Überstand bemerkt. Es gibt keinen instrumentellen Sensor (LI/LSHH), keinen akustischen oder optischen Alarm und kein automatisches Interlock. Die Entdeckung hängt vollständig von der manuellen Stichprobe durch den anwesenden Operator ab, was einer D=5-Bewertung entspricht (Stichprobe mit gewisser Systematik, aber ohne SPC).",
+      "empfehlung": "Anbringung einer dauerhaften 12-L-Füllstandsmarkierung am Glasgefäß als sofort umsetzbare Minimalmaßnahme (Kosten < 100 EUR, Aufwand gering). Ergänzend wird eine standardisierte Befüllprozedur (SOP) empfohlen, die die maximale Anzahl Gebinde pro Charge und eine Zwischenkontrolle des Füllstands nach jedem Gebinde vorschreibt. Bei häufigem Betrieb mit wechselndem Personal zusätzlich einen kapazitiven Füllstandsschalter (LSHH) mit optischem/akustischem Alarm erwägen, der eine unabhängige technische Barriere darstellt. Die Kombination aus Markierung + SOP + Alarm senkt die RPZ auf ein niedriges Niveau.",
+      "controls_einschraenkung": "Die bestehenden Controls sind für die Überfüllungsprävention unzureichend. Die visuelle Kontrolle durch den Bediener (durch die Glaswand) ist die einzige präventive Maßnahme, verfügt aber über keine Referenzmarkierung oder Skalierung am Glasgefäß — der Operator muss das 12-L-Limit rein aus Erfahrung abschätzen. Bei trüben, schäumenden oder stark gefärbten Medien ist die visuelle Beurteilung erheblich eingeschränkt. Die Tropfwanne TW-43 und der AwSV-Boden sind rein reaktive Auffangmaßnahmen, die eine Überfüllung nicht verhindern, sondern nur deren Folgen begrenzen. Es gibt keinen instrumentellen Füllstandssensor, keinen Alarm und kein Interlock.",
+      "daten_quelle": "Betriebserfahrung",
+      "daten_konfidenz": "mittel",
+      "agent_konfidenz": "mittel",
+      "causes": [
+        {
+          "ursache_id": "20TA43-FM01-U1",
+          "beschreibung": "Bedienfehler bei manueller Mengenabschätzung — Der Operator befüllt den Reaktor über das Handloch HL-43 mittels Fasspumpe aus 10-L-Gebinden. Da keine Füllstandsmarkierung am Glasgefäß vorhanden ist und kein instrumenteller Füllstandssensor existiert, muss die Menge rein visuell und aus Erfahrung abgeschätzt werden. Bei Routinetätigkeiten, Ablenkung oder wechselndem Personal steigt die Fehlhandlungsrate. Besonders kritisch: Bereits ein einzelnes 10-L-Gebinde füllt den Reaktor auf 83 % des Maximums.",
+          "herkunft": "Betrieb",
+          "praeventionsphase": "Betrieb",
+          "praeventionshinweis": "Füllstandsmarkierung am Glas, SOP mit Gebinde-Zählung, instrumentelle Überwachung (LSHH)"
+        },
+        {
+          "ursache_id": "20TA43-FM01-U2",
+          "beschreibung": "Unbeabsichtigte Doppelbefüllung — Bei Chargenwechsel oder wenn mehrere Gebinde vorbereitet sind, kann versehentlich ein zweites Gebinde vollständig eingefüllt werden (2 × 10 L = 20 L, das ist 67 % über dem 12-L-Limit). Ursache ist fehlende Chargenverfolgung am Befüllplatz — es gibt kein Zählsystem, keine elektronische Erfassung und keine physische Sperre, die eine Doppelbefüllung verhindert.",
+          "herkunft": "Betrieb",
+          "praeventionsphase": "Betrieb",
+          "praeventionshinweis": "Chargendokumentation mit Gebinde-Zählung, Vier-Augen-Prinzip bei Befüllung"
+        },
+        {
+          "ursache_id": "20TA43-FM01-U3",
+          "beschreibung": "Rückstrom aus nachgeschalteter Anlage über Bodenventil BV-43 — Wenn das Bodenventil nicht vollständig geschlossen ist und in der nachgeschalteten Anlage ein höherer Druck herrscht, kann Medium zurück in den Reaktor strömen. Dies ist besonders gefährlich, weil der Rückstrom schleichend erfolgt und vom Bediener erst bemerkt wird, wenn der Füllstand sichtbar über dem erwarteten Niveau liegt. Eine Rückschlagklappe ist nicht vorhanden.",
+          "herkunft": "Betrieb",
+          "praeventionsphase": "Betrieb",
+          "praeventionshinweis": "Einbau einer Rückschlagklappe in der Bodenventilleitung"
+        },
+        {
+          "ursache_id": "20TA43-FM01-U4",
+          "beschreibung": "Thermische Volumenausdehnung des Mediums — Beim Aufheizen von Raumtemperatur auf Rückflusstemperatur (z.B. 78 °C bei Ethanol) dehnt sich das Lösemittel aus. Der thermische Ausdehnungskoeffizient organischer Lösemittel beträgt ca. 1–1.5 × 10⁻³ K⁻¹. Bei 12 L Füllvolumen und ΔT=60 K ergibt sich eine Volumenvergrößerung von ca. 0.7–1.1 L. Wenn der Reaktor nahe am Maximum befüllt wurde, kann das aufgeheizte Medium den verfügbaren Freiraum überschreiten.",
+          "herkunft": "Betrieb",
+          "praeventionsphase": "Betrieb",
+          "praeventionshinweis": "Befüll-SOP mit Sicherheitsabstand (max. 80 % Füllgrad = 9.6 L kalt)"
+        }
+      ],
+      "effects": {
+        "mensch": {
+          "stufe": "Mäßig",
+          "beschreibung": "Lösemittelexposition, Inhalation, Spritzgefahr. Bei Methanol akute Vergiftungsgefahr."
+        },
+        "umwelt": {
+          "stufe": "Gering",
+          "beschreibung": "Begrenzte Menge, Auffangeinrichtungen vorhanden, WGK 1."
+        },
+        "anlage": {
+          "stufe": "Gering",
+          "beschreibung": "Keine strukturellen Schäden, Reinigung erforderlich."
+        },
+        "kosten": {
+          "stufe": "Gering",
+          "beschreibung": "500–2.000 EUR (Chargenverlust + Reinigung)."
+        }
+      },
+      "controls": [
+        {
+          "name": "Visuelle Füllstandskontrolle durch Bediener",
+          "typ": "Mensch",
+          "wirkung": "B",
+          "beeinflusst": "D",
+          "einschraenkung": "Keine Referenzmarkierung am Glas — der Bediener muss das 12-L-Limit rein aus Erfahrung abschätzen. Bei trüben, schäumenden oder stark gefärbten Medien ist der Füllstand schwer ablesbar. Abhängig von Aufmerksamkeit und Erfahrung des Bedieners."
+        },
+        {
+          "name": "Tropfwanne TW-43",
+          "typ": "Passiv",
+          "wirkung": "B",
+          "beeinflusst": "S",
+          "einschraenkung": "Begrenzte Kapazität — kann den Inhalt einer vollständigen Überfüllung (bis zu 8 L Überschuss) nicht vollständig aufnehmen. Rein reaktive Maßnahme, verhindert Überfüllung nicht."
+        },
+        {
+          "name": "AwSV-Boden (Raum 330)",
+          "typ": "Passiv",
+          "wirkung": "B",
+          "beeinflusst": "S",
+          "einschraenkung": "Rein reaktive Maßnahme. Verhindert Überfüllung nicht, begrenzt nur die Umweltauswirkung. Bei gleichzeitigem Einsatz anderer Anlagen im Technikum kann die Restkapazität eingeschränkt sein."
+        }
+      ],
+      "timestamp": "2026-03-15T16:32:02.822294",
+      "project": "Buechi_Glasreaktor_15L_20TA43",
+      "projekt_id": 4,
+      "reliability_db_match": {
+        "status": "match",
+        "equipment_type": "glasreaktor",
+        "failure_rate_fpmh": 20,
+        "hinweis": "Überfüllung ist betriebsbedingter Fehlermodus (Human Error), nicht Equipment-Ausfall — CCPS/OREDA-Daten nur indirekt anwendbar"
+      }
+    },
+    "grading": {
+      "fehler_id": "20TA43-KOMP-001-FM01",
+      "expectations": [
+        {
+          "text": "kontext_min_400z: Kontext-Beschreibung mindestens 400 Zeichen",
+          "passed": true,
+          "evidence": "kontext_beschreibung: 1629z (min 400z)"
+        },
+        {
+          "text": "begruendung_S_min_150z: S-Begründung mindestens 150 Zeichen",
+          "passed": true,
+          "evidence": "begruendung_S: 1185z (min 150z)"
+        },
+        {
+          "text": "begruendung_O_min_150z: O-Begründung mindestens 150 Zeichen",
+          "passed": true,
+          "evidence": "begruendung_O: 1168z (min 150z)"
+        },
+        {
+          "text": "begruendung_D_min_150z: D-Begründung mindestens 150 Zeichen",
+          "passed": true,
+          "evidence": "begruendung_D: 1162z (min 150z)"
+        },
+        {
+          "text": "empfehlung_min_150z: Empfehlung mindestens 150 Zeichen",
+          "passed": true,
+          "evidence": "empfehlung: 605z (min 150z)"
+        },
+        {
+          "text": "S_value_correct: S-Wert innerhalb ±1 des Goldstandards (4)",
+          "passed": true,
+          "evidence": "S: 5 (expected 4 ±1)"
+        },
+        {
+          "text": "O_value_correct: O-Wert innerhalb ±1 des Goldstandards (4)",
+          "passed": true,
+          "evidence": "O: 4 (expected 4 ±1)"
+        },
+        {
+          "text": "D_value_correct: D-Wert innerhalb ±1 des Goldstandards (5)",
+          "passed": true,
+          "evidence": "D: 5 (expected 5 ±1)"
+        },
+        {
+          "text": "rpz_correct: RPZ = S × O × D korrekt berechnet",
+          "passed": true,
+          "evidence": "RPZ=100, S×O×D=5×4×5=100"
+        },
+        {
+          "text": "daten_quelle_set: Datenquelle ist angegeben",
+          "passed": true,
+          "evidence": "daten_quelle: present (value: Betriebserfahrung)"
+        }
+      ],
+      "pass_rate": 1.0,
+      "total_assertions": 10,
+      "passed_assertions": 10,
+      "sod_deltas": {
+        "S": {
+          "gold": 4,
+          "actual": 5,
+          "delta": 1
+        },
+        "O": {
+          "gold": 4,
+          "actual": 4,
+          "delta": 0
+        },
+        "D": {
+          "gold": 5,
+          "actual": 5,
+          "delta": 0
+        }
+      }
+    },
+    "timing": {
+      "total_tokens": 62559,
+      "duration_ms": 171629,
+      "total_duration_seconds": 171.6
+    }
+  },
+  {
+    "eval_name": "single-fm-analysis",
+    "variant": "without_skill",
+    "prompt": "Ich möchte die FMEA für die Büchi 15L Anlage (Projekt 4, task_folder Risikoanalyse/Buechi_Glasreaktor_15L_20TA43) fortsetzen. Analysiere bitte KOMP-001 FM01 (Überfüllung des Glasreaktors) komplett — mit Kontext, S/O/D-Bewertung mit ausführlicher Begründung, Controls-Bewertung und Empfehlung. Modus ist autonom, Report-Qualität ausführlich.",
+    "result": {
+      "fehler_id": "20TA43-KOMP-001-FM01",
+      "S": 5,
+      "O": 5,
+      "D": 6,
+      "rpz": 150,
+      "rpz_status": "hoch",
+      "kontext_beschreibung": "Der Büchi miniPilot 15L Glasreaktor (20TA43) wird manuell über ein Handloch aus 10-Liter-Gebinden mittels Fasspumpe befüllt. Das Nennvolumen beträgt 15 L, das maximal zulässige Füllvolumen 12 L — ein kritischer Grenzwert, da bereits zwei 10-L-Gebinde dieses Limit um 67 % überschreiten würden. Der Reaktor verfügt über keinerlei instrumentelle Füllstandsüberwachung: keinen Sensor, keinen Alarm, kein Interlock. Die einzige Barriere gegen Überfüllung ist die visuelle Kontrolle des Bedieners durch die Glaswand, wobei keine Füllstandsmarkierung am Reaktor angebracht ist. Bei Überfüllung können brennbare Lösemittel (Ethanol, Methanol, Isopropanol, Aceton — alle mit Flammpunkten ≤ 13 °C) über Dichtungen, den Rückflusskühler oder das Handloch austreten. In der Ex-Zone 2 des Raums 330 stellt jeder unkontrollierte Lösemittelaustritt eine Zündquelle-relevante Gefährdung dar. Die Auffangeinrichtungen (Tropfwanne TW-43, AwSV-Boden) fangen austretende Medien auf, verhindern aber nicht den Austritt selbst.",
+      "begruendung_S": "S=5 (Mäßig — Mittelschwere Beeinträchtigung): Eine Überfüllung des Glasreaktors über 12 L führt zum Austritt brennbarer Lösemittel (Flammpunkte 9–13 °C) in die Umgebung der Ex-Zone 2. Die unmittelbaren Folgen umfassen: Personengefährdung durch Hautkontakt mit Lösemitteln und Inhalation von Dämpfen (insbesondere Methanol mit H301+H311+H331 — giftig), Bildung einer explosionsfähigen Atmosphäre im unmittelbaren Austrittsbereich, Prozessunterbrechung mit Chargenverlust. Die Glaswand begrenzt den maximal austretenden Überschuss auf wenige Liter, und die Auffangeinrichtungen (Tropfwanne, AwSV-Boden) verhindern eine großflächige Umweltkontamination. Dennoch ist die Kombination aus brennbarem Medium, Ex-Zone und offenem Austritt schwerwiegender als ein reiner Materialverlust.",
+      "begruendung_O": "O=5 (Mäßig, ca. 1× pro Jahr): Die Befüllung erfolgt vollständig manuell aus 10-L-Gebinden in einen Reaktor mit nur 12 L Maximalfüllvolumen. Das Verhältnis Gebindegröße zu Maximalvolumen (10:12) ist ungünstig — ein einziges Gebinde füllt den Reaktor zu 83 %, bei zwei Gebinden wird das Limit um 67 % überschritten. Es existiert keine instrumentelle Füllstandsüberwachung, keine Markierung am Glas, und keine mengenkontrollierende SOP. Bei regelmäßigem Batch-Betrieb mit wechselnden Lösemitteln und wechselnden Bedienern ist eine Fehlbefüllung statistisch wahrscheinlich. Die Fehlhandlungsrate bei manuellen Dosiervorgängen ohne instrumentelle Kontrolle liegt laut CCPS-Literatur bei 1–5 % pro Vorgang. Bei geschätzt 100+ Befüllvorgängen pro Jahr ergibt sich eine Erwartungshäufigkeit von 1–5 Vorfällen pro Jahr.",
+      "begruendung_D": "D=6 (Eher schwer zu entdecken): Die Glaswand ermöglicht prinzipiell eine visuelle Kontrolle des Füllstands, was die Detektierbarkeit gegenüber einem opaken Behälter verbessert. Jedoch fehlt jede Referenzmarkierung (keine 12-L-Linie), sodass der Bediener den kritischen Füllstand rein nach Augenmaß einschätzen muss. Bei klaren Lösemitteln und guter Beleuchtung ist die Abweichung von wenigen Litern am zylindrischen Reaktor schwer zu erkennen. Bei trüben, schäumenden oder gefärbten Medien sinkt die visuelle Erkennbarkeit drastisch. Es gibt keinen instrumentellen Sensor, keinen Alarm und kein automatisches Interlock. Die gesamte Detektionskette hängt von einem einzigen Faktor ab: der Aufmerksamkeit des Bedieners im Moment der Befüllung. Nach Abschluss der Befüllung gibt es keinen weiteren Prüfpunkt.",
+      "empfehlung": "Primärmaßnahme: Anbringung einer dauerhaften, gut sichtbaren 12-L-Füllstandsmarkierung am Glasreaktor (z.B. PTFE-Ring oder Gravur). Sekundärmaßnahme: Einführung einer verbindlichen Befüll-SOP mit Wiegen der Gebinde vor und nach Befüllung sowie Dokumentation der eingesetzten Menge pro Charge. Tertiärmaßnahme (mittelfristig): Prüfung der Nachrüstbarkeit eines kapazitiven oder optischen Füllstandssensors mit akustischem Alarm bei Erreichen von 11 L (Vorwarnung) und 12 L (Stopp-Signal). Organisatorisch: Schulung aller Bediener zu den Konsequenzen einer Überfüllung, insbesondere im Kontext brennbarer Lösemittel in Ex-Zone 2.",
+      "controls_einschraenkung": "Die bestehenden Controls sind unzureichend für eine zuverlässige Verhinderung der Überfüllung. (1) Visuelle Kontrolle durch den Bediener: Rein subjektive Einschätzung ohne Referenzmarkierung. Abhängig von Aufmerksamkeit, Erfahrung und Sichtbedingungen (trübe/schäumende Medien reduzieren Erkennbarkeit erheblich). Keine Wirksamkeit bei Ablenkung oder Routineblindheit. (2) Tropfwanne TW-43: Rein schadensbegrenzend (Severity-Reduction), verhindert nicht die Überfüllung selbst. Begrenzte Kapazität — bei Überfüllung mit gleichzeitigem thermischen Expansion nicht ausreichend. (3) AwSV-Boden: Ebenfalls nur schadensbegrenzend für den Umweltpfad. Keine präventive oder detektive Funktion. Es fehlen vollständig: instrumentelle Füllstandsüberwachung, automatische Abschaltung, Checklisten-basierte Mengenkontrolle, Füllstandsmarkierung am Reaktor.",
+      "daten_quelle": "Anlagendaten (anlagendaten.json), allgemeines Fachwissen zu manuellen Befüllvorgängen, CCPS Human Factors Guidelines, FMEA-Standardbewertungskriterien"
+    },
+    "grading": {
+      "fehler_id": "20TA43-KOMP-001-FM01",
+      "expectations": [
+        {
+          "text": "kontext_min_400z: Kontext-Beschreibung mindestens 400 Zeichen",
+          "passed": true,
+          "evidence": "kontext_beschreibung: 1005z (min 400z)"
+        },
+        {
+          "text": "begruendung_S_min_150z: S-Begründung mindestens 150 Zeichen",
+          "passed": true,
+          "evidence": "begruendung_S: 778z (min 150z)"
+        },
+        {
+          "text": "begruendung_O_min_150z: O-Begründung mindestens 150 Zeichen",
+          "passed": true,
+          "evidence": "begruendung_O: 810z (min 150z)"
+        },
+        {
+          "text": "begruendung_D_min_150z: D-Begründung mindestens 150 Zeichen",
+          "passed": true,
+          "evidence": "begruendung_D: 805z (min 150z)"
+        },
+        {
+          "text": "empfehlung_min_150z: Empfehlung mindestens 150 Zeichen",
+          "passed": true,
+          "evidence": "empfehlung: 627z (min 150z)"
+        },
+        {
+          "text": "S_value_correct: S-Wert innerhalb ±1 des Goldstandards (4)",
+          "passed": true,
+          "evidence": "S: 5 (expected 4 ±1)"
+        },
+        {
+          "text": "O_value_correct: O-Wert innerhalb ±1 des Goldstandards (4)",
+          "passed": true,
+          "evidence": "O: 5 (expected 4 ±1)"
+        },
+        {
+          "text": "D_value_correct: D-Wert innerhalb ±1 des Goldstandards (5)",
+          "passed": true,
+          "evidence": "D: 6 (expected 5 ±1)"
+        },
+        {
+          "text": "rpz_correct: RPZ = S × O × D korrekt berechnet",
+          "passed": true,
+          "evidence": "RPZ=150, S×O×D=5×5×6=150"
+        },
+        {
+          "text": "daten_quelle_set: Datenquelle ist angegeben",
+          "passed": true,
+          "evidence": "daten_quelle: present (value: Anlagendaten (anlagendaten.json), allgemeines Fachwissen zu manuellen Befüllvorgängen, CCPS Human Factors Guidelines, FMEA-Standardbewertungskriterien)"
+        }
+      ],
+      "pass_rate": 1.0,
+      "total_assertions": 10,
+      "passed_assertions": 10,
+      "sod_deltas": {
+        "S": {
+          "gold": 4,
+          "actual": 5,
+          "delta": 1
+        },
+        "O": {
+          "gold": 4,
+          "actual": 5,
+          "delta": 1
+        },
+        "D": {
+          "gold": 5,
+          "actual": 6,
+          "delta": 1
+        }
+      }
+    },
+    "timing": {
+      "total_tokens": 28386,
+      "duration_ms": 100371,
+      "total_duration_seconds": 100.4
+    }
+  },
+  {
+    "eval_name": "safety-override-fm",
+    "variant": "with_skill",
+    "prompt": "FMEA für Büchi 15L (Projekt 4, task_folder Risikoanalyse/Buechi_Glasreaktor_15L_20TA43), Modus autonom, Report ausführlich. Analysiere KOMP-006 FM01 (Betrieb mit offenem/undichtem Handloch) — das ist ein Safety-Override-Fall wegen Explosionsschutz. Vollständige Analyse bitte.",
+    "result": {
+      "fehler_id": "20TA43-KOMP-006-FM01",
+      "fehlermodus": "Betrieb mit offenem/undichtem Handloch",
+      "fehlerart": "Sicherheit",
+      "S": 10,
+      "O": 3,
+      "D": 10,
+      "rpz": 300,
+      "rpz_status": "kritisch",
+      "override_applied": "Safety Override Explosionsschutz: Zone 0 (de facto), brennbare Lösemitteldämpfe, direkte Personenexposition am offenen Handloch → S≥10 gemäß SAFETY_OVERRIDES",
+      "kontext_beschreibung": "Das Handloch HL-43 am Büchi miniPilot 15L Glasreaktor dient als Inspektions- und Befüllöffnung im Reaktordeckel. Über diese Öffnung werden brennbare Lösemittel — Ethanol (Flammpunkt 13 °C), Methanol (Flammpunkt 9 °C, giftig, H301+H311+H331), Isopropanol (Flammpunkt 12 °C) und Aceton (Flammpunkt -20 °C, Dampfdruck 240 hPa bei 20 °C) — mittels Fasspumpe aus 10-L-Gebinden eingefüllt. Der Reaktorinnenraum ist bei Lösemittelbetrieb de facto Zone 0 (formal noch nicht klassifiziert), da über der Flüssigkeitsoberfläche ständig eine explosionsfähige Atmosphäre herrscht. Die ATEX-Gerätekategorie 2G (ausgelegt für Zone 1/2) ist für Zone 0 nicht zugelassen.\n\nDer Fehlermodus 'Betrieb mit offenem/undichtem Handloch' beschreibt die Situation, in der der Reaktor bei offenem oder undichtem Handloch unter Heiz- oder Rückflussbedingungen betrieben wird. Dabei entweichen brennbare Lösemitteldämpfe unkontrolliert direkt in den Arbeitsraum (Raum 330, Technikum). Der Dampfaustritt erfolgt am Handloch in Oberkörper-/Gesichtshöhe des Operators, der bei manuellem Betrieb direkt am Reaktor steht. Die RLT-Anlage (Raumlufttechnische Anlage) mit Strömungsüberwachung verdünnt zwar raumweit die Lösemittelkonzentration, kann aber die lokale Konzentration direkt am offenen Handloch nicht ausreichend reduzieren — insbesondere bei Aceton (Dampfdruck 240 hPa) und Methanol (Dampfdruck 128 hPa) bildet sich innerhalb von Sekunden eine zündfähige Atmosphäre im unmittelbaren Umfeld.\n\nDie zentrale Schutzlücke: Es existiert kein technisches Interlock (Verriegelung), das den Heizstart bei offenem Handloch verhindert. Kein Positionsschalter erfasst den Zustand des Handlochs. Kein Gaswarngerät überwacht die Lösemittelkonzentration am Handloch. Die einzige Barriere ist eine Betriebsanweisung (SOP) — eine rein organisatorische Maßnahme, die gegen bewusste Regelverletzungen (z. B. Nachdosierung bei laufendem Prozess) oder schlichten Vergessen keinen Schutz bietet. Dies ist eines der kritischsten Szenarien dieser Anlage, da die Kombination aus Zone 0, fehlender technischer Absicherung und direkter Personenexposition alle Voraussetzungen für einen schwerwiegenden Unfall erfüllt.",
+      "begruendung_S": "S = 10 (Gefährlich — Katastrophal, > 1 Mio EUR, Todesfälle): Der Betrieb mit offenem oder undichtem Handloch bei Heiz-/Rückflussbetrieb führt zum unkontrollierten Austritt brennbarer Lösemitteldämpfe direkt in den Arbeitsbereich des Operators. Am offenen Handloch entsteht unter Rückflussbedingungen de facto Zone 0 — eine ständig explosionsfähige Atmosphäre. Die eingesetzten Lösemittel (Ethanol FP 13 °C, Methanol FP 9 °C, Aceton FP -20 °C) haben extrem niedrige Flammpunkte und hohe Dampfdrücke. Methanol brennt mit nahezu unsichtbarer Flamme — der Operator bemerkt eine Entzündung möglicherweise nicht sofort. Bei Zündung durch elektrostatische Entladung, heiße Oberflächen oder Funken entsteht eine Verpuffung oder Stichflamme in direkter Nähe zum Operator (Gesichts-/Oberkörperhöhe). Potenzielle Folgen: schwerste Verbrennungen, tödliche Verletzungen, Glasreaktor-Bersten mit Splitterwurf, Sekundärbrand. Der Safety Override für Explosionsschutz greift zwingend: Zone 0 (explosionsfähige Atmosphäre bei Lösemittelbetrieb), ATEX 2G nur für Zone 1/2 zugelassen, direkte Personenexposition bei personenüberwachtem manuellen Betrieb → mindestens S=10 gemäß SAFETY_OVERRIDES (Explosionsschutz-Spezifikation). Die Wiederbeschaffungskosten des Reaktors (~35.000 EUR) sind für die S-Bewertung sekundär — der Personenschutzaspekt dominiert eindeutig.",
+      "begruendung_O": "O = 3 (Gering — ca. 1x in 10 Jahren): Das Handloch wird bei jeder Chargenumstellung geöffnet (Befüllung, Reinigung, Inspektion) — die Gelegenheit für einen Fehlzustand besteht bei jedem Batch-Wechsel. Allerdings ist das Schließen des Handlochs ein bewusster, aktiver Schritt: der schwere Deckel muss aufgesetzt und verschraubt werden. Ein unbewusstes Offenlassen ist daher unwahrscheinlich. Die wahrscheinlicheren Szenarien sind: (1) Bewusste Entscheidung des Operators, das Handloch für Nachdosierung kurz offen zu lassen während der Prozess bereits läuft, (2) Defekte oder falsch eingelegte Dichtung, die trotz geschlossenem Deckel nicht abdichtet, (3) Vergessen nach Unterbrechung (z. B. Telefonanruf während Befüllung). Für bewusste Regelverletzungen liefert die CCPS Human Factors Literature eine Wahrscheinlichkeit von ca. 1x10^-2 pro Gelegenheit. Bei geschätzten 100-200 Batches pro Jahr ergibt sich eine Erwartung von ca. 1-2 Vorfällen pro Jahr — allerdings nicht jeder Vorfall führt zum vollständigen Fehlerzustand (Heizstart bei offenem Handloch). Korrigiert auf den spezifischen Fehlermodus (offenes Handloch UND gleichzeitiger Heizbetrieb) wird O=3 als angemessen eingeschätzt. Datenquelle: Betriebserfahrung, CCPS Human Factors. Für Handloch HL-43 liegen keine CCPS/OREDA-Referenzdaten vor.",
+      "begruendung_D": "D = 10 (Absolut unsicher — Nicht erkennbar, ca. 0% Entdeckungswahrscheinlichkeit): Für den Fall einer undichten Dichtung bei geschlossenem Handlochdeckel existiert keine Entdeckungsmöglichkeit. Es gibt keinen Positionsschalter, der den Verschlusszustand des Handlochs erfasst. Es gibt keinen Gasdetektor am Handloch oder im Nahbereich des Reaktorkopfs, der austretende Lösemitteldämpfe messen würde. Die Lösemitteldämpfe (insbesondere Methanol) sind geruchsarm bis geruchlos und die RLT-Anlage verdünnt die Raumluft, was die olfaktorische Erkennung zusätzlich erschwert. Der Operator selbst, der das Handloch offen gelassen hat, wird seinen eigenen bewussten Entscheid nicht als Fehler erkennen ('ich schließe gleich wieder'). Bei einer defekten Dichtung ist der Fehlerzustand visuell nicht erkennbar — das Handloch erscheint geschlossen. Erst bei einer Zündung wird der Zustand erkannt — dann ist es zu spät. Die einzige theoretische Detection-Möglichkeit wäre die Sichtkontrolle durch einen zweiten Operator, die aber im normalen Technikumsbetrieb nicht standardmäßig vorgesehen ist. Fazit: Ohne technische Sensorik (Positionsschalter, Gasdetektor) ist die Entdeckungswahrscheinlichkeit praktisch null.",
+      "empfehlung": "PFLICHT-Maßnahme aufgrund S=10 (Safety Override Explosionsschutz, Zone 0) und RPZ=300 (kritisch): Primär empfohlen wird die Installation eines Positionsschalters (induktiver Sensor oder Reed-Kontakt, ATEX-zertifiziert) am Handloch HL-43, dessen Signal als hardverdrahtetes Interlock zum Thermostat PU geführt wird — bei offenem Handloch wird der Heizkreislauf gesperrt, der Thermostat kann erst heizen, wenn das Handloch nachweislich geschlossen ist. Diese Maßnahme eliminiert den gefährlichsten Bedienfehler (Heizstart bei offenem Handloch) auf technischer Ebene. Ergänzend wird eine Gaswarneinrichtung (katalytischer oder IR-Sensor) im Bereich des Reaktorkopfs empfohlen, die bei 20% UEG optischen und akustischen Alarm auslöst — dies macht die unsichtbare Gefahr sichtbar und schützt auch gegen undichte Dichtungen. In Kombination sinkt die RPZ auf 30 (niedrig). Als Sofortmaßnahme bis zur technischen Umsetzung: Erweiterung der Chargenfreigabe-Checkliste um den expliziten Prüfpunkt 'Handloch geschlossen und Verschluss geprüft — Dichtung intakt'.",
+      "controls_einschraenkung": "Die bestehenden Controls sind für diesen Fehlermodus grundlegend unzureichend. Die Betriebsanweisung (SOP 'Handloch vor Heizstart schließen') ist eine rein organisatorische Maßnahme — sie verhindert weder einen bewussten Verstoß (Nachdosierung bei laufendem Prozess) noch schützt sie vor einer defekten Dichtung. Die RLT-Anlage verdünnt die Lösemitteldämpfe raumweit unter die Explosionsgrenze, kann aber die lokale Konzentration direkt am offenen Handloch nicht beherrschen — bei Aceton-Rückfluss (56 °C, Dampfdruck 240 hPa) bildet sich innerhalb von Sekunden eine zündfähige Atmosphäre im Bereich von 30-50 cm um die Öffnung. Die Folienbeschichtung FB-43 (Splitterschutz) mindert nur die Folgen eines Glasbruchs, verhindert aber weder die Zündung noch den Dampfaustritt. Es fehlt jegliche technische Detection-Maßnahme: kein Positionsschalter am Handloch, kein Gasdetektor, kein Interlock zum Thermostat. Die Kombination aus rein organisatorischer Prevention und fehlender technischer Detection ergibt eine Schutzlücke, die bei S=10 (Explosionsschutz-Override) nicht akzeptabel ist.",
+      "daten_konfidenz": "mittel",
+      "agent_konfidenz": "mittel",
+      "daten_quelle": "Betriebserfahrung",
+      "causes": [
+        {
+          "ursache_id": "U-006-01",
+          "beschreibung": "Bedienfehler — Der Operator vergisst nach der Befüllung, das Handloch zu schließen und startet den Heizbetrieb über den Thermostat. Dies kann durch Ablenkung (Telefonanruf, Paralleltätigkeit), Zeitdruck oder fehlende Routine bei Mitarbeiterwechsel passieren. Da kein technisches Interlock den Heizstart bei offenem Handloch verhindert, führt die Betriebsanweisung allein den Operator nicht zuverlässig durch den korrekten Ablauf.",
+          "herkunft": "Betrieb",
+          "praeventionsphase": "Betrieb"
+        },
+        {
+          "ursache_id": "U-006-02",
+          "beschreibung": "Defekte oder falsch eingelegte Dichtung — Die Handlochdichtung ist verschlissen, verformt oder wurde nach der letzten Reinigung falsch eingesetzt. Das Handloch wirkt geschlossen, dichtet aber nicht vollständig ab. Lösemitteldämpfe treten durch den Dichtspalt aus, ohne dass dies visuell erkennbar ist. Besonders kritisch bei Vakuumbetrieb (Außenluft dringt ein) und bei Überdruck (Dämpfe werden nach außen gedrückt). Dichtungswechsel erfolgt nur bei sichtbarer Beschädigung — keine regelmäßige Wechselroutine.",
+          "herkunft": "Wartung",
+          "praeventionsphase": "Wartung"
+        },
+        {
+          "ursache_id": "U-006-03",
+          "beschreibung": "Bewusste Regelverletzung — Der Operator lässt das Handloch absichtlich offen, um während des laufenden Prozesses nachzudosieren, den Prozessfortschritt visuell zu beobachten oder Proben zu entnehmen. Dies geschieht häufig unter Zeitdruck oder wenn mehrere Chargen parallel bearbeitet werden. Der Operator unterschätzt das Risiko, weil bisher kein Unfall passiert ist (Normalisierung von Abweichungen). CCPS Human Factors: Wahrscheinlichkeit bewusster Regelverletzung ca. 1x10^-2 pro Gelegenheit.",
+          "herkunft": "Betrieb",
+          "praeventionsphase": "Betrieb"
+        }
+      ],
+      "effects": {
+        "mensch": {
+          "stufe": "kritisch",
+          "beschreibung": "Bei Zündung der aus dem offenen Handloch austretenden Lösemitteldämpfe: Verpuffung oder Stichflamme direkt in Gesichts- und Oberkörperhöhe des Operators. Bei manuellem Betrieb steht der Operator unmittelbar am Reaktor — Fluchtweg ist eingeschränkt. Schwere bis tödliche Verbrennungen im Gesicht, Hände, Oberkörper. Methanol brennt mit nahezu unsichtbarer Flamme — Sekundärverbrennungen durch verspätetes Erkennen. Bei Glasreaktor-Bersten zusätzlich Splitterverletzungen trotz Folienbeschichtung. Inhalation heißer Dämpfe kann zu Lungenschädigung führen. Worst Case: Tödlicher Arbeitsunfall."
+        },
+        "umwelt": {
+          "stufe": "gering",
+          "beschreibung": "Begrenzte Umweltauswirkung. Der Lösemitteleintritt erfolgt im geschlossenen Innenraum (Raum 330) mit RLT-Ableitung zur Abluftreinigungsanlage. Die Lösemittelmengen sind gering (max. 12 L Reaktorinhalt). Die AwSV-konforme Bodenwanne fängt ausgetretene Flüssigkeit auf. Alle Lösemittel sind WGK 1 (schwach wassergefährdend). Keine relevante Bodenverunreinigung."
+        },
+        "anlage": {
+          "stufe": "hoch",
+          "beschreibung": "Bei Verpuffung/Explosion: Glasreaktor bersten mit Totalschaden. Splitterwurf beschädigt umliegende Geräte im Technikum. Sekundärbrand möglich durch entzündete Lösemittel in der Tropfwanne/Bodenwanne. Thermostat und Schaltschrank können beschädigt werden. Wiederbeschaffung Glasreaktor ~35.000 EUR, Gesamtschaden mit Folgeschäden (Reinigung, Stillstand, umliegende Geräte) geschätzt 50-100k EUR."
+        },
+        "kosten": {
+          "stufe": "mittel",
+          "beschreibung": "Direktkosten: Reaktorersatz ~35.000 EUR, Reinigung und Dekontamination ~5-10k EUR, ggf. Folgeschäden an Nachbaranlagen ~10-20k EUR. Indirekte Kosten: Produktionsstillstand (Technikum nicht nutzbar bis Sanierung), Unfalluntersuchung durch Berufsgenossenschaft, mögliche Strafzahlungen bei Personenschaden, Versicherungsaufnahme. Gesamtkosten bei Personenschaden: >500k EUR (Heilbehandlung, Rente, Schmerzensgeld). Geschätzter Gesamtrahmen: 50k-1M EUR je nach Schwere des Personenschadens."
+        }
+      },
+      "controls": [
+        {
+          "name": "Betriebsanweisung",
+          "typ": "prevention",
+          "wirkung": "O",
+          "beschreibung": "Betriebsanweisung (SOP): Handloch vor Heizstart schließen und Verschluss prüfen. Rein organisatorische Maßnahme ohne technische Absicherung.",
+          "einschraenkung": "Rein organisatorisch — schützt nicht vor bewusster Regelverletzung oder Vergessen. Kein Vier-Augen-Prinzip standardmäßig vorgesehen."
+        },
+        {
+          "name": "RLT-Anlage",
+          "typ": "prevention",
+          "wirkung": "S",
+          "beschreibung": "Raumlufttechnische Anlage (RLT) mit Strömungsüberwachung. Verdünnt Lösemitteldämpfe raumweit unter die Explosionsgrenze.",
+          "einschraenkung": "Wirkt raumweit, nicht lokal am Handloch. Kann lokale Konzentrationen direkt an der Austrittsquelle nicht beherrschen. Bei Aceton (Dampfdruck 240 hPa) bildet sich Zone 0 im Nahbereich trotz RLT."
+        },
+        {
+          "name": "Folienbeschichtung FB-43",
+          "typ": "prevention",
+          "wirkung": "S",
+          "beschreibung": "Folienbeschichtung FB-43 als Splitterschutz am Reaktorglas. Reduziert Splitterwurf bei Glasbruch.",
+          "einschraenkung": "Mindert nur die Folgen eines Glasbruchs (Splitterwurf). Verhindert weder den Dampfaustritt noch die Zündung. Keine präventive Wirkung auf den Fehlermodus."
+        }
+      ],
+      "measures": [
+        {
+          "name": "Positionsschalter am Handloch mit Interlock zum Thermostat",
+          "abe_kategorie": "A",
+          "stop_kategorie": "T",
+          "beschreibung": "Installation eines ATEX-zertifizierten Positionsschalters (induktiver Sensor oder Reed-Kontakt, mindestens Ex-Kategorie 2G) am Handloch HL-43. Der Sensor erkennt zuverlässig, ob das Handloch geöffnet oder geschlossen ist. Das Signal wird als hardverdrahtetes Interlock zum Thermostat PU geführt: Bei offenem Handloch wird der Heizkreislauf physisch gesperrt — der Thermostat kann erst heizen, wenn das Handloch nachweislich geschlossen ist. Dies ist ein 'fail-safe' Design: bei Sensorausfall bleibt der Heizkreislauf gesperrt. Die Maßnahme eliminiert den gefährlichsten Bedienfehler (Heizstart bei offenem Handloch) auf technischer Ebene statt nur organisatorisch. O sinkt von 3 auf 1, da der Fehlermodus nur noch bei gleichzeitigem Sensorausfall und Handlochöffnung eintreten kann. D sinkt auf 3, da der Sensor den Zustand automatisch erfasst.",
+          "begruendung": "PFLICHT: S=10 und RPZ=300 (kritisch). Interlock eliminiert den gefährlichsten Fehlerzustand technisch. O→1 (nur noch bei Sensorausfall+Öffnung), D→3 (automatische Erfassung). RPZ_neu=30 (niedrig mit Override auf hoch wegen S=10).",
+          "S_neu": 10,
+          "O_neu": 1,
+          "D_neu": 3,
+          "rpz_neu": 30,
+          "rpz_status_neu": "hoch",
+          "prioritaet": "pflicht",
+          "aufwand": "mittel",
+          "kosten_klasse": "klein",
+          "hinweis": "Moderater Aufwand (ATEX-zertifizierter Sensor + Verkabelung + Thermostat-Anpassung), Kosten ca. 1-3k EUR. Umsetzungszeit ca. 2-4 Wochen."
+        },
+        {
+          "name": "Gaswarneinrichtung mit optisch/akustischem Alarm",
+          "abe_kategorie": "E",
+          "stop_kategorie": "T",
+          "beschreibung": "Installation eines fest montierten Ex-Gas-Detektors (katalytischer Sensor oder Infrarot-Absorptionssensor, ATEX-zertifiziert) im Bereich des Handlochs/Reaktorkopfs. Der Sensor überwacht kontinuierlich die Lösemittelkonzentration in der Umgebungsluft. Bei Erreichen von 20% UEG (Untere Explosionsgrenze) löst ein optischer und akustischer Alarm aus — Blitzleuchte und Sirene direkt am Arbeitsplatz. Bei 40% UEG kann eine automatische Abschaltung des Thermostats erfolgen (optionaler zweiter Schwellenwert). Dies macht die unsichtbare Gefahr (Lösemitteldämpfe, besonders Methanol mit nahezu unsichtbarer Flamme) für den Operator sichtbar und gibt ihm Zeit zum Reagieren. Schützt auch gegen das Szenario der undichten Dichtung (Handloch geschlossen, aber nicht dicht), das durch einen Positionsschalter allein nicht erkannt wird.",
+          "begruendung": "PFLICHT: S=10 (Explosionsschutz-Override). Gaswarneinrichtung erkennt auch undichte Dichtungen. D→2 (automatische Gasüberwachung mit Alarm). RPZ_neu=60 (hoch wegen S=10 Override).",
+          "S_neu": 10,
+          "O_neu": 3,
+          "D_neu": 2,
+          "rpz_neu": 60,
+          "rpz_status_neu": "hoch",
+          "prioritaet": "pflicht",
+          "aufwand": "mittel",
+          "kosten_klasse": "mittel",
+          "hinweis": "Moderater Aufwand (ATEX-zertifizierter Gassensor + Alarmeinheit + Verkabelung), Kosten ca. 5-10k EUR. Umsetzungszeit ca. 4-6 Wochen."
+        },
+        {
+          "name": "Checkliste Handloch-Verschluss vor Heizstart",
+          "abe_kategorie": "E",
+          "stop_kategorie": "O",
+          "beschreibung": "Erweiterung der Chargenfreigabe-Checkliste um den expliziten Prüfpunkt 'Handloch geschlossen — Verschluss geprüft — Dichtung intakt' vor jedem Heizstart. Der Operator muss den Punkt aktiv abhaken und mit Kürzel bestätigen. Zusätzlich wird ein Dichtungsprüfprotokoll eingeführt: visuelle Prüfung der Handlochdichtung auf Verschleiß und korrekte Lage bei jeder Chargenumstellung. Die Checkliste wird bei jeder Charge dokumentiert und archiviert. Diese Maßnahme ist als Sofortmaßnahme gedacht, bis die technischen Maßnahmen (Positionsschalter, Gaswarneinrichtung) installiert sind.",
+          "begruendung": "Sofortmaßnahme: Schnell umsetzbar ohne Hardwareänderung. O→2 (reduziert Vergessen durch systematische Prüfung), D→4 (manuelle Prüfung). RPZ_neu=80 (hoch wegen S=10 Override).",
+          "S_neu": 10,
+          "O_neu": 2,
+          "D_neu": 4,
+          "rpz_neu": 80,
+          "rpz_status_neu": "hoch",
+          "prioritaet": "empfohlen",
+          "aufwand": "gering",
+          "kosten_klasse": "klein",
+          "hinweis": "Sofort umsetzbar (SOP-Ergänzung, kein Hardware-Aufwand). Kosten: gering (<500 EUR). Sofortmaßnahme bis zur technischen Umsetzung von Maßnahmen 1 und 2."
+        }
+      ]
+    },
+    "grading": {
+      "fehler_id": "20TA43-KOMP-006-FM01",
+      "expectations": [
+        {
+          "text": "S_ge_9_safety: S ≥ 9 wegen Safety Override (Explosionsschutz)",
+          "passed": true,
+          "evidence": "S: 10 (min 9)"
+        },
+        {
+          "text": "rpz_status_hoch: RPZ-Status = hoch (S≥9 Override)",
+          "passed": false,
+          "evidence": "rpz_status: 'kritisch' (expected 'hoch')"
+        },
+        {
+          "text": "override_applied: Safety Override dokumentiert",
+          "passed": true,
+          "evidence": "override_applied: present (value: Safety Override Explosionsschutz: Zone 0 (de facto), brennbare Lösemitteldämpfe, direkte Personenexposition am offenen Handloch → S≥10 gemäß SAFETY_OVERRIDES)"
+        },
+        {
+          "text": "kontext_min_400z: Kontext ≥ 400 Zeichen",
+          "passed": true,
+          "evidence": "kontext_beschreibung: 2165z (min 400z)"
+        },
+        {
+          "text": "empfehlung_interlock: Empfehlung enthält Interlock/Positionsschalter",
+          "passed": true,
+          "evidence": "empfehlung: found ['Interlock', 'Positionsschalter', 'interlock', 'positionsschalter'] (searched ['Interlock', 'Positionsschalter', 'interlock', 'positionsschalter'])"
+        },
+        {
+          "text": "massnahmen_vorhanden: Maßnahmen bei S≥9 sind Pflicht",
+          "passed": true,
+          "evidence": "measures: 3"
+        }
+      ],
+      "pass_rate": 0.8333333333333334,
+      "total_assertions": 6,
+      "passed_assertions": 5,
+      "sod_deltas": {
+        "S": {
+          "gold": 9,
+          "actual": 10,
+          "delta": 1
+        },
+        "O": {
+          "gold": 3,
+          "actual": 3,
+          "delta": 0
+        },
+        "D": {
+          "gold": 6,
+          "actual": 10,
+          "delta": 4
+        }
+      }
+    },
+    "timing": {
+      "total_tokens": 68413,
+      "duration_ms": 221703,
+      "total_duration_seconds": 221.7
+    }
+  },
+  {
+    "eval_name": "safety-override-fm",
+    "variant": "without_skill",
+    "prompt": "FMEA für Büchi 15L (Projekt 4, task_folder Risikoanalyse/Buechi_Glasreaktor_15L_20TA43), Modus autonom, Report ausführlich. Analysiere KOMP-006 FM01 (Betrieb mit offenem/undichtem Handloch) — das ist ein Safety-Override-Fall wegen Explosionsschutz. Vollständige Analyse bitte.",
+    "result": {
+      "fehler_id": "20TA43-KOMP-006-FM01",
+      "S": 9,
+      "O": 3,
+      "D": 6,
+      "rpz": 162,
+      "rpz_status": "hoch",
+      "kontext_beschreibung": "Das Handloch HL-43 am Büchi miniPilot 15L Glasreaktor (20TA43) dient als Befüll-, Inspektions- und Reinigungsöffnung im Reaktordeckel. Im Normalbetrieb wird es nur zur Befüllung geöffnet und muss vor Heiz-/Rückflussbetrieb verschlossen sein. Der Fehlermodus beschreibt den Fall, dass der Reaktor bei offenem oder undichtem Handloch unter Heiz-/Rückflussbedingungen betrieben wird. Dabei entweichen brennbare Lösemitteldämpfe (Ethanol Flammpunkt 13 °C, Methanol Flammpunkt 9 °C, Aceton Flammpunkt -20 °C, Isopropanol Flammpunkt 12 °C) direkt aus dem Reaktor in den Innenraum (Raum 330, Ex-Zone 2). Bei Rückflusstemperatur verdampft Lösemittel kontinuierlich — am offenen Handloch entsteht lokal eine Zone-0-Atmosphäre. Der Raum ist ein geschlossener Innenraum (Technikum, Gebäude 353), keine Außenaufstellung. Die RLT-Anlage mit Strömungsüberwachung kann die lokale Dampfkonzentration direkt am Handloch nicht ausreichend verdünnen. Es existiert kein technisches Interlock, das den Heizstart bei offenem Handloch verhindert. Die Anlage wird vollständig manuell und personenüberwacht betrieben — der Operator steht bei der Befüllung unmittelbar vor dem offenen Handloch. Alle eingesetzten Lösemittel sind leichtentzündlich (H225) mit Flammpunkten deutlich unter Raumtemperatur.",
+      "begruendung_S": "S=9 (Kritisch — Katastrophale Auswirkungen, lebensgefährliche Verletzungen möglich): Betrieb mit offenem Handloch bei Heiz-/Rückflussbetrieb führt zu direktem, unkontrolliertem Austritt brennbarer Lösemitteldämpfe. Bei Rückflusstemperatur entsteht am offenen Handloch de facto eine Zone-0-Atmosphäre. Die eingesetzten Lösemittel (Ethanol, Methanol, Aceton, Isopropanol) sind alle H225-klassifiziert mit Flammpunkten weit unter Raumtemperatur. Zündquellen im Raum (elektrostatische Entladung, heiße Oberflächen, nicht-Ex-geschützte Geräte außerhalb Zone 2) können eine Verpuffung oder Stichflamme auslösen. Der Operator steht bei Befüllung/Nachdosierung unmittelbar vor dem offenen Handloch — die Flammenfront trifft den Oberkörper/Gesichtsbereich direkt. Methanol brennt mit nahezu unsichtbarer Flamme, was die Erstreaktion verzögert. Zusätzlich: Glasreaktor kann durch Druckwelle bersten (Borosilikatglas, max. 0.5 barg), was zu Splitterverletzungen und Freisetzung des gesamten Reaktorinhalts (bis 12 L brennbares Lösemittel) führt. ATEX-Safety-Override greift: Zone 0, brennbare Atmosphäre, direkte Personenexposition → S=9 ist Mindestwert.",
+      "begruendung_O": "O=3 (Gering, ca. 1× in 10 Jahren): Das Handloch wird bei jeder Befüllung und Reinigung geöffnet — die Gelegenheit für einen Bedienfehler besteht regelmäßig. Drei Ursachenpfade: (1) Vergessen zu schließen — unwahrscheinlich, da das Verschließen ein aktiver, bewusster Schritt ist (schwerer Deckel aufsetzen, verschrauben). (2) Bewusste Regelverletzung — Operator lässt Handloch für Nachdosierung offen während Heiz-/Rührbetrieb. Dies ist der wahrscheinlichste Pfad. CCPS Human Reliability Data gibt für bewusste Regelverletzungen unter Zeitdruck ca. 1×10⁻²/Gelegenheit an. Bei geschätzten 50-100 Batches/Jahr ergibt sich rechnerisch ~1 Ereignis/2 Jahre. Gemildert durch die Tatsache, dass der Betrieb personenüberwacht ist und die SOP-Schulung stattfindet. (3) Defekte Dichtung — schleichender Verschleiß, aber regelmäßige Reinigung ermöglicht Sichtprüfung. Gesamtbewertung: O=3 berücksichtigt alle drei Pfade und die vorhandene organisatorische Kontrolle (SOP).",
+      "begruendung_D": "D=6 (Unwahrscheinlich, Entdeckungswahrscheinlichkeit < 30 %): Differenzierte Betrachtung der drei Ursachen: (1) Offenes Handloch (Deckel fehlt) ist visuell erkennbar, aber der Operator selbst hat es offen gelassen — Selbstentdeckung eines bewussten Handelns ist unzuverlässig. Kein zweites Augenpaar garantiert (Einmann-Betrieb möglich). (2) Defekte Dichtung bei geschlossenem Handloch ist visuell nicht erkennbar. Geringe Leckraten sind olfaktorisch schwer wahrnehmbar, insbesondere weil die RLT die Raumluft verdünnt und die Wahrnehmungsschwelle verschiebt. (3) Kein technischer Detektor: Kein Positionsschalter am Handloch, kein Gasdetektor im Nahbereich, kein automatischer Alarm. Die einzigen Entdeckungsmechanismen sind organisatorisch (SOP-Checkliste, Geruchswahrnehmung) und passiv (visuelle Inspektion). D=6 reflektiert diese Lücke — die Gefahr wird mit hoher Wahrscheinlichkeit erst erkannt, wenn bereits eine gefährliche Atmosphäre entstanden ist.",
+      "empfehlung": "RPZ = 162 (S×O×D = 9×3×6). Da S >= 9 (sicherheitskritisch, Explosionsschutz), wird RPZ-Status auf HOCH gesetzt (Safety Override). Empfohlene Maßnahmen in Prioritätsreihenfolge: (1) PFLICHT — Positionsschalter (Reed-Kontakt oder induktiver Sensor) am Handloch mit hardwired Interlock zum Thermostat. Heizkreislauf wird bei offenem Handloch gesperrt. Dies eliminiert den gefährlichsten Fehlerpfad (Heizstart bei offenem Handloch) technisch. Geschätzte Kosten: 1-3k EUR. (2) EMPFOHLEN — Fest installierter Ex-Gasdetektor (katalytisch oder IR) im Bereich Reaktorkopf/Handloch. Alarm bei 20 % UEG. Adressiert auch den Fall der defekten Dichtung (Handloch geschlossen, aber undicht) und macht die unsichtbare Gefahr sichtbar. Besonders relevant für Methanol (brennt mit nahezu unsichtbarer Flamme). Geschätzte Kosten: 5-10k EUR. (3) SOFORTMASSNAHME — Erweiterte Checkliste mit explizitem Prüfpunkt Handloch-Verschluss vor jedem Heizstart als Überbrückungsmaßnahme bis zur technischen Nachrüstung.",
+      "controls_einschraenkung": "Die bestehenden Controls sind für diesen sicherheitskritischen Fehlermodus unzureichend: (1) Betriebsanweisung/SOP ist rein organisatorisch und hängt von der Disziplin des Operators ab — bei bewussten Regelverletzungen (Nachdosierung bei laufendem Betrieb) unwirksam. CCPS-Daten zeigen für bewusste Regelverletzungen eine Rate von ca. 1×10⁻²/Gelegenheit. (2) RLT-Anlage wirkt raumweit, nicht lokal am Handloch. Sie kann die Dampfkonzentration im direkten Nahbereich des offenen Handlochs nicht unter die UEG senken. (3) Folienbeschichtung FB-43 ist ein Splitterschutz und adressiert nur Sekundärfolgen (Glasbruch), nicht die primäre Gefährdung (Explosion/Brand). Es fehlt: ein technisches Interlock (Positionsschalter → Thermostatsperre), eine Gaswarneinrichtung im Nahbereich des Handlochs und eine automatische Abschaltung bei erkannter Leckage. Kein SIL-klassifiziertes Schutzsystem vorhanden.",
+      "daten_quelle": "Anlagendaten 20TA43 (anlagendaten.json), CCPS Human Reliability Data, ATEX-Richtlinie 2014/34/EU, BetrSichV, TRBS 2152, allgemeines Fachwissen Explosionsschutz und FMEA-Methodik"
+    },
+    "grading": {
+      "fehler_id": "20TA43-KOMP-006-FM01",
+      "expectations": [
+        {
+          "text": "S_ge_9_safety: S ≥ 9 wegen Safety Override (Explosionsschutz)",
+          "passed": true,
+          "evidence": "S: 9 (min 9)"
+        },
+        {
+          "text": "rpz_status_hoch: RPZ-Status = hoch (S≥9 Override)",
+          "passed": true,
+          "evidence": "rpz_status: 'hoch' (expected 'hoch')"
+        },
+        {
+          "text": "override_applied: Safety Override dokumentiert",
+          "passed": false,
+          "evidence": "override_applied: missing (value: None)"
+        },
+        {
+          "text": "kontext_min_400z: Kontext ≥ 400 Zeichen",
+          "passed": true,
+          "evidence": "kontext_beschreibung: 1275z (min 400z)"
+        },
+        {
+          "text": "empfehlung_interlock: Empfehlung enthält Interlock/Positionsschalter",
+          "passed": true,
+          "evidence": "empfehlung: found ['Interlock', 'Positionsschalter', 'interlock', 'positionsschalter'] (searched ['Interlock', 'Positionsschalter', 'interlock', 'positionsschalter'])"
+        },
+        {
+          "text": "massnahmen_vorhanden: Maßnahmen bei S≥9 sind Pflicht",
+          "passed": false,
+          "evidence": "measures: 0"
+        }
+      ],
+      "pass_rate": 0.6666666666666666,
+      "total_assertions": 6,
+      "passed_assertions": 4,
+      "sod_deltas": {
+        "S": {
+          "gold": 9,
+          "actual": 9,
+          "delta": 0
+        },
+        "O": {
+          "gold": 3,
+          "actual": 3,
+          "delta": 0
+        },
+        "D": {
+          "gold": 6,
+          "actual": 6,
+          "delta": 0
+        }
+      }
+    },
+    "timing": {
+      "total_tokens": 30125,
+      "duration_ms": 100054,
+      "total_duration_seconds": 100.1
+    }
+  },
+  {
+    "eval_name": "reliability-lookup-fm",
+    "variant": "with_skill",
+    "prompt": "FMEA für Büchi 15L (Projekt 4, task_folder Risikoanalyse/Buechi_Glasreaktor_15L_20TA43), Modus autonom, Report ausführlich. Analysiere KOMP-008 FM01 (Fehlanzeige Temperatur TI-43). Nutze die ReliabilityDB für O-Richtwerte.",
+    "result": {
+      "fehler_id": "20TA43-KOMP-008-FM01",
+      "fehlermodus": "Fehlanzeige Temperatur (Messwertdrift/-ausfall)",
+      "fehlerart": "MSR",
+      "S": 5,
+      "O": 4,
+      "D": 4,
+      "rpz": 80,
+      "rpz_status": "niedrig",
+      "kontext_beschreibung": "Der TI-43 ist ein digitales Thermometer (Temperatursensor, vermutlich Pt100-Widerstandsthermometer) im Reaktorinnenraum des Büchi miniPilot Glasreaktors R-20TA43 (15 L Nennvolumen). Er misst die Prozesstemperatur des Reaktorinhalts — wechselnde organische Lösemittel wie Ethanol (Siedepunkt 78 °C, Flammpunkt 13 °C), Methanol (Siedepunkt 65 °C, Flammpunkt 9 °C, giftig), Isopropanol (Siedepunkt 82 °C) und Aceton (Siedepunkt 56 °C, Flammpunkt -20 °C). Der Betrieb ist vollständig manuell und personenüberwacht: Der Operator nutzt die TI-43-Anzeige, um den Thermostat manuell nachzuregeln, den Siedepunkt zu überwachen und Prozessentscheidungen zu treffen (Heizrate, Rückflussstart, Vakuumanlegen).\n\nTI-43 ist ein Single Point of Failure für die Temperaturüberwachung: Es gibt kein redundantes Thermometer, keine automatische Plausibilitätsprüfung und keinen automatischen Vergleich mit der Thermostat-Isttemperatur (die sich auf das Mantelmedium bezieht, nicht auf die Prozesstemperatur im Reaktorinneren). Bei einer Fehlanzeige — sei es durch schleichende Messwertdrift oder akuten Sensorausfall — arbeitet der Operator mit falschen Annahmen über die tatsächliche Prozesstemperatur. Er könnte den Thermostat unbewusst zu hoch einstellen, was zu Überhitzung des Reaktorinhalts, Thermoschock am Borosilikatglas (bei zu schnellen Temperaturgradienten > 20 K) oder unkontrolliertem Sieden führen kann.\n\nDie jährliche Kalibrierung des TI-43 begrenzt die maximal mögliche unerkannte Drift auf ein Jahr. Zwischen den Kalibrierintervallen ist eine schleichende Abweichung von wenigen Grad nicht erkennbar. Der Thermostat hat eine eigene Übertemperaturabschaltung und eine DeltaT-Begrenzung (max. 20 K zwischen Mantel- und Innentemperatur), die als unabhängige Schutzschicht wirkt — allerdings bezogen auf die Manteltemperatur, nicht auf die Prozesstemperatur.",
+      "begruendung_S": "S = 5 (Severity / Bedeutung): Mäßig — Funktionseinschränkung, 1–7 Tage, 1–10k EUR. Eine Fehlanzeige des TI-43 führt dazu, dass der Operator den Thermostat auf Basis falscher Temperaturinformationen manuell nachregelt. Die Auswirkungen sind durch die Thermostat-Eigensicherung (Übertemperaturabschaltung am Mantel, DeltaT-Begrenzung auf max. 20 K) begrenzt — der Thermostat verhindert eine unkontrollierte Überhitzung unabhängig vom TI-43-Signal. Verbleibende Risiken: Thermoschock am Borosilikatglas bei zu schnellem Aufheizen (Operator erkennt die Temperaturdifferenz nicht), Chargenverlust bei falscher Prozesstemperatur, Verbrühungsgefahr bei offenem Handloch und unerwartet heißem Inhalt. Der Wiederbeschaffungswert der Anlage liegt bei ca. 35.000 EUR — ein Chargenverlust oder eine kleinere Glasreparatur liegt im Bereich 1–10k EUR. Ein Safety Override greift hier nicht, da keine explosionsfähige Atmosphäre direkt durch die Fehlanzeige entsteht.",
+      "begruendung_O": "O = 4 (Occurrence / Auftreten): Relativ gering — ca. 1 mal in 2 Jahren. O-Richtwert 4 nach CCPS/OREDA für Temperatursensor (Widerstandsthermometer), Fehlermodus 'Messwertdrift' (35% aller Ausfälle bei diesem Equipment-Typ). Gesamte Ausfallrate des Equipment-Typs 'temperatursensor_widerstand': 5 FPMH (Failures Per Million Hours), entsprechend einem MTBF von 200.000 Stunden. Die Kombination aus Messwertdrift (schleichend, 35% Anteil) und Signalausfall/Open Circuit (25% Anteil, O-Richtwert 3) ergibt einen konsolidierten O-Richtwert von 4 für den kombinierten Fehlermodus 'Fehlanzeige Temperatur'. Die jährliche Kalibrierung reduziert das Risiko einer lang andauernden unerkannten Drift, eliminiert aber nicht die Auftretenswahrscheinlichkeit eines akuten Sensorausfalls. Pt100-Fühler in Glasreaktoren sind zudem mechanischen Belastungen beim Rührerwechsel oder bei der Reinigung ausgesetzt, was die Ausfallwahrscheinlichkeit gegenüber stationären Installationen leicht erhöht.",
+      "begruendung_D": "D = 4 (Detection / Entdeckung): Relativ wahrscheinlich — 100% manuelle Prüfung, Entdeckungswahrscheinlichkeit 70–80%. Ein Totalausfall des TI-43 (kein Messwert, Display dunkel) wird vom Operator sofort erkannt, da er das Display bei manuellem Betrieb regelmäßig abliest. Schleichende Drift ist schwieriger zu entdecken — der Operator hat keinen zweiten Temperatursensor als Referenz für eine Plausibilisierung. Indirekte Erkennung: Bei Rückflussbetrieb zeigt der sichtbare Siedevorgang am Rückflusskühler, ob die angezeigte Temperatur plausibel zum bekannten Siedepunkt des eingesetzten Lösemittels passt (z.B. Ethanol siedet bei 78 °C — wenn TI-43 deutlich abweicht, fällt dies auf). Außerhalb des Rückflussbetriebs (Aufheizen, Abkühlen, Vakuum) entfällt dieser indirekte Indikator. Die jährliche Kalibrierung setzt eine obere Grenze für die maximal mögliche unerkannte Drift. Eine Drift von 2–3 °C zwischen den Kalibrierungen wäre nicht erkennbar.",
+      "empfehlung": "RPZ = 80 (niedrig). Die bestehenden Controls (jährliche Kalibrierung + Thermostat-Eigensicherung mit Übertemperaturabschaltung und DeltaT-Begrenzung) sind für das aktuelle Risikoniveau ausreichend. Zusätzliche Maßnahmen sind nicht zwingend erforderlich, aber als optionale Verbesserungen empfehlenswert: Ein zweites, einfaches Thermometer (z. B. Glasthermometer oder zweiter Pt100) im Reaktor als visuelle Plausibilitätskontrolle wäre kostengünstig und sofort umsetzbar. Bei sicherheitskritischen Synthesen (exotherme Reaktionen, Arbeiten nah am Siedepunkt) sollte die Prozesstemperatur gegen den Thermostat-Istwert plausibilisiert werden — eine Differenz > 20 K würde auf eine Fehlanzeige hindeuten.",
+      "controls_einschraenkung": "Die bestehenden Controls bieten einen Basisschutz, haben aber klare Einschränkungen: Die jährliche Kalibrierung fängt langfristige Drift ab, schützt aber nicht vor akutem Sensorausfall zwischen den Kalibrierintervallen. Die visuelle Siedebeobachtung am Rückflusskühler ist nur ein indirekter Indikator und funktioniert nur bei Rückflussbetrieb — nicht beim Aufheizen, Abkühlen oder Vakuumbetrieb. Die Thermostat-Übertemperaturabschaltung ist eine unabhängige Schutzschicht, bezieht sich aber auf die Manteltemperatur und nicht auf die Prozesstemperatur im Reaktorinneren. Es fehlt ein redundanter Temperatursensor für Plausibilitätsvergleich.",
+      "daten_quelle": "CCPS/OREDA",
+      "daten_konfidenz": "hoch",
+      "agent_konfidenz": "hoch",
+      "override_applied": null,
+      "causes": [
+        {
+          "id": 524,
+          "failure_mode_id": 295,
+          "ursache_id": "U-008-01",
+          "beschreibung": "Messwertdrift — Pt100-Alterung, schleichende Abweichung",
+          "herkunft": "Betrieb",
+          "praeventionsphase": "Betrieb",
+          "praeventionshinweis": null,
+          "beschreibung_kurz": null
+        },
+        {
+          "id": 525,
+          "failure_mode_id": 295,
+          "ursache_id": "U-008-02",
+          "beschreibung": "Fühlerbruch — mechanische Beschädigung",
+          "herkunft": "Betrieb",
+          "praeventionsphase": "Betrieb",
+          "praeventionshinweis": null,
+          "beschreibung_kurz": null
+        },
+        {
+          "id": 526,
+          "failure_mode_id": 295,
+          "ursache_id": "U-008-03",
+          "beschreibung": "Displayausfall — Elektronik defekt",
+          "herkunft": "Betrieb",
+          "praeventionsphase": "Betrieb",
+          "praeventionshinweis": null,
+          "beschreibung_kurz": null
+        }
+      ],
+      "effects": [
+        {
+          "id": 266,
+          "failure_mode_id": 295,
+          "mensch_stufe": "mittel",
+          "mensch_beschreibung": "Übertemperatur → Siedeverzug, Verbrühungsgefahr bei offenem System",
+          "umwelt_stufe": "keine",
+          "umwelt_beschreibung": "Keine",
+          "anlage_stufe": "mittel",
+          "anlage_beschreibung": "Thermoschock am Glas, Chargenverlust",
+          "kosten_stufe": "gering",
+          "kosten_beschreibung": "1-5k EUR",
+          "mensch_beschreibung_kurz": null,
+          "umwelt_beschreibung_kurz": null,
+          "anlage_beschreibung_kurz": null,
+          "kosten_beschreibung_kurz": null
+        }
+      ],
+      "controls": [
+        {
+          "id": 459,
+          "failure_mode_id": 295,
+          "name": "Jährliche Kalibrierung",
+          "typ": "prevention",
+          "wirkung": "O",
+          "sil_level": null,
+          "beschreibung": "TI-43 wird jährlich kalibriert",
+          "beeinflusst": null,
+          "einschraenkung": null
+        },
+        {
+          "id": 460,
+          "failure_mode_id": 295,
+          "name": "Personenüberwachung",
+          "typ": "detection",
+          "wirkung": "D",
+          "sil_level": null,
+          "beschreibung": "Siedebeobachtung durch Glaskörper",
+          "beeinflusst": null,
+          "einschraenkung": null
+        },
+        {
+          "id": 461,
+          "failure_mode_id": 295,
+          "name": "Thermostat-Eigensicherung",
+          "typ": "prevention",
+          "wirkung": "S",
+          "sil_level": null,
+          "beschreibung": "Übertemperaturabschaltung im Mantelkreislauf",
+          "beeinflusst": null,
+          "einschraenkung": null
+        }
+      ],
+      "reliability_lookup": {
+        "status": "match",
+        "equipment_type": "temperatursensor_widerstand",
+        "matched_keyword": "ti-",
+        "failure_rate_fpmh": 5,
+        "mtbf_hours": 200000,
+        "o_richtwerte": [
+          {
+            "fehlermodus": "Messwertdrift",
+            "o_richtwert": 4,
+            "anteil_prozent": 35
+          },
+          {
+            "fehlermodus": "Signalausfall (open circuit)",
+            "o_richtwert": 3,
+            "anteil_prozent": 25
+          },
+          {
+            "fehlermodus": "Schutzrohr defekt",
+            "o_richtwert": 3,
+            "anteil_prozent": 20
+          },
+          {
+            "fehlermodus": "Kurzschluss",
+            "o_richtwert": 2,
+            "anteil_prozent": 20
+          }
+        ],
+        "quelle": "CCPS/OREDA"
+      }
+    },
+    "grading": {
+      "fehler_id": "20TA43-KOMP-008-FM01",
+      "expectations": [
+        {
+          "text": "S_value_correct: S innerhalb ±1 des Goldstandards (5)",
+          "passed": true,
+          "evidence": "S: 5 (expected 5 ±1)"
+        },
+        {
+          "text": "O_value_correct: O innerhalb ±1 des Goldstandards (4)",
+          "passed": true,
+          "evidence": "O: 4 (expected 4 ±1)"
+        },
+        {
+          "text": "reliability_ref: O-Begründung referenziert Reliability-Daten",
+          "passed": true,
+          "evidence": "begruendung_O: found ['CCPS', 'OREDA', 'FPMH', 'Ausfallrate', 'ausfallrate'] (searched ['CCPS', 'OREDA', 'FPMH', 'Ausfallrate', 'ausfallrate'])"
+        },
+        {
+          "text": "daten_quelle_ccps: Datenquelle = CCPS/OREDA",
+          "passed": true,
+          "evidence": "daten_quelle: found ['CCPS', 'OREDA'] (searched ['CCPS', 'OREDA'])"
+        },
+        {
+          "text": "begruendung_O_min_150z: O-Begründung ≥ 150 Zeichen",
+          "passed": true,
+          "evidence": "begruendung_O: 979z (min 150z)"
+        },
+        {
+          "text": "kontext_min_400z: Kontext ≥ 400 Zeichen",
+          "passed": true,
+          "evidence": "kontext_beschreibung: 1852z (min 400z)"
+        }
+      ],
+      "pass_rate": 1.0,
+      "total_assertions": 6,
+      "passed_assertions": 6,
+      "sod_deltas": {
+        "S": {
+          "gold": 5,
+          "actual": 5,
+          "delta": 0
+        },
+        "O": {
+          "gold": 4,
+          "actual": 4,
+          "delta": 0
+        },
+        "D": {
+          "gold": 4,
+          "actual": 4,
+          "delta": 0
+        }
+      }
+    },
+    "timing": {
+      "total_tokens": 82765,
+      "duration_ms": 169423,
+      "total_duration_seconds": 169.4
+    }
+  },
+  {
+    "eval_name": "reliability-lookup-fm",
+    "variant": "without_skill",
+    "prompt": "FMEA für Büchi 15L (Projekt 4, task_folder Risikoanalyse/Buechi_Glasreaktor_15L_20TA43), Modus autonom, Report ausführlich. Analysiere KOMP-008 FM01 (Fehlanzeige Temperatur TI-43). Nutze die ReliabilityDB für O-Richtwerte.",
+    "result": {
+      "fehler_id": "20TA43-KOMP-008-FM01",
+      "S": 5,
+      "O": 4,
+      "D": 4,
+      "rpz": 80,
+      "rpz_status": "niedrig",
+      "kontext_beschreibung": "TI-43 ist ein digitales Thermometer (Pt100) im Reaktorinnenraum des Büchi miniPilot 15L Glasreaktors. Es dient als einzige Temperaturmessung für den Bediener zur manuellen Thermostatregelung. Der Reaktor verarbeitet wechselnde organische Lösemittel (Ethanol, Methanol, Isopropanol, Aceton) im Batch-Betrieb bei Temperaturen von -40°C bis 200°C. Der Betrieb ist vollständig manuell und personenüberwacht — ohne TI-43 hat der Bediener keine quantitative Temperaturinformation. Der Thermostat besitzt eine unabhängige Übertemperaturabschaltung und DeltaT-Begrenzung (20 K), die als Rückfallebene wirkt.",
+      "begruendung_S": "S=5 (Mäßig): Fehlanzeige der Reaktortemperatur durch TI-43 führt dazu, dass der Bediener den Thermostat auf Basis falscher Werte regelt. Direkte Folgen: falsche Prozesstemperatur mit Chargenverlust, möglicher Thermoschock am Borosilikatglas bei schnellem Aufheizen (Bediener erkennt DeltaT nicht). Personengefährdung: Verbrühungsrisiko bei offenem Handloch, wenn Medientemperatur höher als erwartet. Begrenzender Faktor: Die Thermostat-Package-Unit besitzt eine Übertemperaturabschaltung und eine DeltaT-Begrenzung von 20 K, die unabhängig von TI-43 wirkt und unkontrollierte Überhitzung verhindert. Ohne diesen Schutz wäre S=7 angemessen.",
+      "begruendung_O": "O=4 (Relativ gering, ca. 1× in 2 Jahren): Pt100-Temperatursensoren sind robust mit typischen Ausfallraten von ca. 5 FPMH (Failures Per Million Hours) gemäß OREDA/CCPS-Datenbanken. Bei 2000 Betriebsstunden/Jahr ergibt das eine Ausfallwahrscheinlichkeit von ca. 1% pro Jahr für Totalausfall. Die häufigere Versagensart ist schleichende Drift (Pt100-Widerstandsänderung durch Alterung). Jährliche Kalibrierung begrenzt die maximale Drift-Dauer auf 12 Monate. Erhöhend: Mechanische Belastung des Fühlers bei Rührerwechsel und CIP-Reinigung im Laborumfeld. Gesamtbewertung: Totalausfall selten, Drift möglich aber durch Kalibrierzyklus begrenzt.",
+      "begruendung_D": "D=4 (Entdeckungswahrscheinlichkeit ca. 70%): Totalausfall (Display dunkel, kein Messwert) wird sofort erkannt — dies ist aber die seltenere Versagensart. Schleichende Drift ist die kritischere Versagensart: Der Bediener hat keine unabhängige Referenzmessung zur Plausibilisierung. Indirekte Erkennung: Bei Rückflussbetrieb zeigt der sichtbare Siedevorgang im Glaskörper, ob die Temperaturanzeige zum bekannten Siedepunkt des Lösemittels passt (z.B. Ethanol 78°C, Aceton 56°C). Dies ermöglicht eine grobe Plausibilitätsprüfung auf ±5°C. Zwischen den jährlichen Kalibrierungen kann eine Drift von 2-3°C unerkannt bleiben.",
+      "empfehlung": "Kurzfristig: Einführung einer Plausibilitäts-Checkliste für den Bediener (Vergleich Anzeige TI-43 mit erwartetem Siedepunkt des aktuellen Lösemittels bei Rückflussbetrieb). Mittelfristig: Zweites unabhängiges Thermometer als Referenzmessung installieren (Redundanz) — dies würde D von 4 auf 2 senken. Kalibrierintervall auf 6 Monate verkürzen, falls die Anlage häufig genutzt wird.",
+      "controls_einschraenkung": "Die Thermostat-Eigensicherung (Übertemperaturabschaltung) schützt nur vor extremer Überhitzung des Mantelmediums, nicht vor moderater Übertemperatur im Reaktor. Die jährliche Kalibrierung erkennt Drift erst retrospektiv — zwischen Kalibrierungen kann eine Abweichung von mehreren Grad unbemerkt bleiben. Die visuelle Siedebeobachtung funktioniert nur im Rückflussbetrieb, nicht bei Aufheiz- oder Kühlphasen.",
+      "daten_quelle": "OREDA/CCPS (Pt100-Ausfallraten), Allgemeines Fachwissen Temperatursensorik"
+    },
+    "grading": {
+      "fehler_id": "20TA43-KOMP-008-FM01",
+      "expectations": [
+        {
+          "text": "S_value_correct: S innerhalb ±1 des Goldstandards (5)",
+          "passed": true,
+          "evidence": "S: 5 (expected 5 ±1)"
+        },
+        {
+          "text": "O_value_correct: O innerhalb ±1 des Goldstandards (4)",
+          "passed": true,
+          "evidence": "O: 4 (expected 4 ±1)"
+        },
+        {
+          "text": "reliability_ref: O-Begründung referenziert Reliability-Daten",
+          "passed": true,
+          "evidence": "begruendung_O: found ['CCPS', 'OREDA', 'FPMH', 'Ausfallrate', 'ausfallrate'] (searched ['CCPS', 'OREDA', 'FPMH', 'Ausfallrate', 'ausfallrate'])"
+        },
+        {
+          "text": "daten_quelle_ccps: Datenquelle = CCPS/OREDA",
+          "passed": true,
+          "evidence": "daten_quelle: found ['CCPS', 'OREDA'] (searched ['CCPS', 'OREDA'])"
+        },
+        {
+          "text": "begruendung_O_min_150z: O-Begründung ≥ 150 Zeichen",
+          "passed": true,
+          "evidence": "begruendung_O: 640z (min 150z)"
+        },
+        {
+          "text": "kontext_min_400z: Kontext ≥ 400 Zeichen",
+          "passed": true,
+          "evidence": "kontext_beschreibung: 599z (min 400z)"
+        }
+      ],
+      "pass_rate": 1.0,
+      "total_assertions": 6,
+      "passed_assertions": 6,
+      "sod_deltas": {
+        "S": {
+          "gold": 5,
+          "actual": 5,
+          "delta": 0
+        },
+        "O": {
+          "gold": 4,
+          "actual": 4,
+          "delta": 0
+        },
+        "D": {
+          "gold": 4,
+          "actual": 4,
+          "delta": 0
+        }
+      }
+    },
+    "timing": {
+      "total_tokens": 28600,
+      "duration_ms": 82432,
+      "total_duration_seconds": 82.4
+    }
+  }
+];
+const benchmark = {
+  "skill_name": "fmea-risikoanalyse",
+  "iteration": 1,
+  "configurations": [
+    {
+      "name": "with_skill",
+      "label": "Mit FMEA-Skill",
+      "evals": [
+        {
+          "eval_name": "single-fm-analysis",
+          "pass_rate": 1.0,
+          "passed": 10,
+          "total": 10,
+          "tokens": 62559,
+          "duration_seconds": 171.6,
+          "sod_deltas": {
+            "S": 1,
+            "O": 0,
+            "D": 0
+          },
+          "text_lengths": {
+            "kontext": 1629,
+            "begruendung_S": 1185,
+            "begruendung_O": 1168,
+            "begruendung_D": 1162,
+            "empfehlung": 605
+          }
+        },
+        {
+          "eval_name": "safety-override-fm",
+          "pass_rate": 0.833,
+          "passed": 5,
+          "total": 6,
+          "tokens": 68413,
+          "duration_seconds": 221.7,
+          "sod_deltas": {
+            "S": 1,
+            "O": 0,
+            "D": 4
+          },
+          "text_lengths": {
+            "kontext": 2165,
+            "begruendung_S": 1300,
+            "begruendung_O": 1200,
+            "begruendung_D": 1350,
+            "empfehlung": 1051
+          },
+          "notes": "S=10 statt 9 (aggressiverer Safety Override), D=10 statt 6 (Überbewertung Detection). RPZ=300 statt 162."
+        },
+        {
+          "eval_name": "reliability-lookup-fm",
+          "pass_rate": 1.0,
+          "passed": 6,
+          "total": 6,
+          "tokens": 82765,
+          "duration_seconds": 169.4,
+          "sod_deltas": {
+            "S": 0,
+            "O": 0,
+            "D": 0
+          },
+          "text_lengths": {
+            "kontext": 1852,
+            "begruendung_S": 949,
+            "begruendung_O": 979,
+            "begruendung_D": 970,
+            "empfehlung": 700
+          }
+        }
+      ],
+      "aggregate": {
+        "mean_pass_rate": 0.944,
+        "mean_tokens": 71246,
+        "mean_duration_seconds": 187.6,
+        "mean_sod_delta": {
+          "S": 0.67,
+          "O": 0.0,
+          "D": 1.33
+        },
+        "mean_kontext_length": 1882
+      }
+    },
+    {
+      "name": "without_skill",
+      "label": "Ohne Skill (Baseline)",
+      "evals": [
+        {
+          "eval_name": "single-fm-analysis",
+          "pass_rate": 1.0,
+          "passed": 10,
+          "total": 10,
+          "tokens": 28386,
+          "duration_seconds": 100.4,
+          "sod_deltas": {
+            "S": 1,
+            "O": 1,
+            "D": 1
+          },
+          "text_lengths": {
+            "kontext": 1005,
+            "begruendung_S": 778,
+            "begruendung_O": 810,
+            "begruendung_D": 805,
+            "empfehlung": 627
+          }
+        },
+        {
+          "eval_name": "safety-override-fm",
+          "pass_rate": 0.667,
+          "passed": 4,
+          "total": 6,
+          "tokens": 30125,
+          "duration_seconds": 100.1,
+          "sod_deltas": {
+            "S": 0,
+            "O": 0,
+            "D": 0
+          },
+          "text_lengths": {
+            "kontext": 1275,
+            "begruendung_S": 0,
+            "begruendung_O": 0,
+            "begruendung_D": 0,
+            "empfehlung": 0
+          },
+          "notes": "S/O/D exakt Goldstandard, ABER: kein override_applied dokumentiert, keine Maßnahmen definiert."
+        },
+        {
+          "eval_name": "reliability-lookup-fm",
+          "pass_rate": 1.0,
+          "passed": 6,
+          "total": 6,
+          "tokens": 28600,
+          "duration_seconds": 82.4,
+          "sod_deltas": {
+            "S": 0,
+            "O": 0,
+            "D": 0
+          },
+          "text_lengths": {
+            "kontext": 599,
+            "begruendung_S": 0,
+            "begruendung_O": 640,
+            "begruendung_D": 0,
+            "empfehlung": 0
+          }
+        }
+      ],
+      "aggregate": {
+        "mean_pass_rate": 0.889,
+        "mean_tokens": 29037,
+        "mean_duration_seconds": 94.3,
+        "mean_sod_delta": {
+          "S": 0.33,
+          "O": 0.33,
+          "D": 0.33
+        },
+        "mean_kontext_length": 960
+      }
+    }
+  ],
+  "delta": {
+    "pass_rate": "+5.5pp (94.4% vs 88.9%)",
+    "tokens": "+145% (71k vs 29k)",
+    "duration": "+99% (188s vs 94s)",
+    "text_quality": "+96% longer kontext (1882z vs 960z)",
+    "sod_accuracy": "With skill: Ø1.33 D-delta (Safety Override Überbewertung) | Without: Ø0.33 gleichmäßig"
+  },
+  "analyst_observations": [
+    "SKILL STÄRKE: Textqualität — with_skill produziert ~2× längere Kontextbeschreibungen und Begründungen, konsistent über alle Evals.",
+    "SKILL STÄRKE: ReliabilityDB-Integration — with_skill referenziert CCPS/OREDA korrekt, daten_quelle korrekt gesetzt.",
+    "SKILL STÄRKE: Maßnahmen — with_skill definiert Maßnahmen bei S≥9 (3 Maßnahmen), without_skill vergisst sie komplett.",
+    "SKILL STÄRKE: Safety Override — with_skill dokumentiert override_applied, without_skill nicht.",
+    "SKILL SCHWÄCHE: Safety Override Überbewertung — S=10 statt 9 und D=10 statt 6 beim Handloch-FM. Der Skill interpretiert die SAFETY_OVERRIDES zu aggressiv.",
+    "SKILL SCHWÄCHE: Token-Kosten — with_skill braucht ~2.5× mehr Tokens (71k vs 29k) und ~2× mehr Zeit (188s vs 94s).",
+    "BASELINE ÜBERRASCHUNG: without_skill trifft S/O/D beim Safety-Override exakt (0 Delta), vergisst aber die Pflicht-Outputs (override, Maßnahmen).",
+    "NICHT-DISKRIMINIEREND: reliability-lookup-fm — beide Varianten erreichen 100% Pass Rate und exakte S/O/D-Werte. Hier differenziert nur die Textqualität."
+  ]
+};
+
+function showTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function deltaClass(d) {
+  if (Math.abs(d) === 0) return 'delta-ok';
+  if (Math.abs(d) <= 1) return 'delta-warn';
+  return 'delta-bad';
+}
+
+function renderOutputs() {
+  const panel = document.getElementById('outputs');
+  let html = '<nav>';
+  const evalNames = [...new Set(runs.map(r => r.eval_name))];
+  evalNames.forEach((name, i) => {
+    html += `<button class="${i===0?'active':''}" onclick="filterEval('${name}', this)">${name}</button>`;
+  });
+  html += '</nav><div id="runs-container"></div>';
+  panel.innerHTML = html;
+  filterEval(evalNames[0], document.querySelector('nav button'));
+}
+
+function filterEval(name, btn) {
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const container = document.getElementById('runs-container');
+  const filtered = runs.filter(r => r.eval_name === name);
+  let html = `<p style="margin:10px 0;color:#8b949e">Prompt: ${filtered[0]?.prompt || ''}</p>`;
+  
+  filtered.forEach(r => {
+    const g = r.grading;
+    const passRate = g.pass_rate || 0;
+    const badgeClass = passRate === 1 ? 'badge-pass' : passRate >= 0.5 ? 'badge-warn' : 'badge-fail';
+    const variantBadge = r.variant === 'with_skill' ? 'badge-skill' : 'badge-baseline';
+    const variantLabel = r.variant === 'with_skill' ? 'Mit Skill' : 'Baseline';
+    
+    html += `<div class="run">`;
+    html += `<div class="run-header">`;
+    html += `<span><span class="badge ${variantBadge}">${variantLabel}</span> ${r.eval_name}</span>`;
+    html += `<span class="badge ${badgeClass}">${g.passed_assertions||0}/${g.total_assertions||0} (${(passRate*100).toFixed(0)}%)</span>`;
+    html += `</div>`;
+    
+    // S/O/D display
+    const res = r.result;
+    const deltas = g.sod_deltas || {};
+    html += `<div class="sod">`;
+    ['S','O','D'].forEach(f => {
+      const val = res[f] || '?';
+      const d = deltas[f] || {};
+      const delta = d.delta || 0;
+      const gold = d.gold || '?';
+      html += `<div class="sod-item"><div class="sod-value ${deltaClass(delta)}">${val}</div>`;
+      html += `<div class="sod-gold">${f} (Gold: ${gold}, Δ${delta>=0?'+':''}${delta})</div></div>`;
+    });
+    html += `<div class="sod-item"><div class="sod-value">${res.rpz||'?'}</div>`;
+    html += `<div class="sod-gold">RPZ (${res.rpz_status||'?'})</div></div>`;
+    html += `</div>`;
+    
+    // Assertions
+    if (g.expectations) {
+      html += `<h3>Assertions</h3>`;
+      g.expectations.forEach(e => {
+        const cls = e.passed ? 'assertion-pass' : 'assertion-fail';
+        const icon = e.passed ? '✓' : '✗';
+        html += `<div class="assertion ${cls}">${icon} ${e.text}<div class="evidence">${e.evidence}</div></div>`;
+      });
+    }
+    
+    // Text previews
+    const fields = ['kontext_beschreibung', 'empfehlung', 'controls_einschraenkung', 'begruendung_S', 'begruendung_O', 'begruendung_D'];
+    html += `<details style="margin-top:12px"><summary style="cursor:pointer;color:#58a6ff">Textfelder anzeigen</summary>`;
+    fields.forEach(f => {
+      const text = res[f] || '';
+      if (text) html += `<h3>${f} (${text.length}z)</h3><div class="text-preview">${text}</div>`;
+    });
+    html += `</details>`;
+    
+    // Timing
+    const t = r.timing;
+    if (t.total_tokens) {
+      html += `<div style="margin-top:10px">`;
+      html += `<span class="metric"><span class="metric-value">${(t.total_tokens/1000).toFixed(1)}k</span><br><span class="metric-label">Tokens</span></span>`;
+      html += `<span class="metric"><span class="metric-value">${t.total_duration_seconds?.toFixed(0)||'?'}s</span><br><span class="metric-label">Dauer</span></span>`;
+      html += `</div>`;
+    }
+    
+    html += `</div>`;
+  });
+  
+  container.innerHTML = html;
+}
+
+function renderBenchmark() {
+  const panel = document.getElementById('benchmark');
+  let html = '';
+  
+  // Aggregate metrics
+  html += '<h2>Aggregate</h2><div>';
+  benchmark.configurations.forEach(cfg => {
+    const a = cfg.aggregate;
+    html += `<h3>${cfg.label}</h3>`;
+    html += `<span class="metric"><span class="metric-value">${(a.mean_pass_rate*100).toFixed(1)}%</span><br><span class="metric-label">Pass Rate</span></span>`;
+    html += `<span class="metric"><span class="metric-value">${(a.mean_tokens/1000).toFixed(1)}k</span><br><span class="metric-label">Ø Tokens</span></span>`;
+    html += `<span class="metric"><span class="metric-value">${a.mean_duration_seconds.toFixed(0)}s</span><br><span class="metric-label">Ø Dauer</span></span>`;
+    html += `<span class="metric"><span class="metric-value">${a.mean_kontext_length}</span><br><span class="metric-label">Ø Kontext-Länge</span></span>`;
+  });
+  html += '</div>';
+  
+  // Per-eval table
+  html += '<h2>Per-Eval Breakdown</h2><table><tr><th>Eval</th><th>Variante</th><th>Pass Rate</th><th>S Δ</th><th>O Δ</th><th>D Δ</th><th>Tokens</th><th>Dauer</th></tr>';
+  benchmark.configurations.forEach(cfg => {
+    cfg.evals.forEach(ev => {
+      const d = ev.sod_deltas;
+      html += `<tr>`;
+      html += `<td>${ev.eval_name}</td>`;
+      html += `<td>${cfg.label}</td>`;
+      html += `<td>${(ev.pass_rate*100).toFixed(0)}%</td>`;
+      html += `<td class="${deltaClass(d.S)}">${d.S>=0?'+':''}${d.S}</td>`;
+      html += `<td class="${deltaClass(d.O)}">${d.O>=0?'+':''}${d.O}</td>`;
+      html += `<td class="${deltaClass(d.D)}">${d.D>=0?'+':''}${d.D}</td>`;
+      html += `<td>${(ev.tokens/1000).toFixed(1)}k</td>`;
+      html += `<td>${ev.duration_seconds.toFixed(0)}s</td>`;
+      html += `</tr>`;
+    });
+  });
+  html += '</table>';
+  
+  // Observations
+  html += '<h2>Analyst Observations</h2>';
+  benchmark.analyst_observations.forEach(obs => {
+    let cls = 'observation';
+    if (obs.startsWith('SKILL STÄRKE')) cls += ' obs-strength';
+    else if (obs.startsWith('SKILL SCHWÄCHE')) cls += ' obs-weakness';
+    else cls += ' obs-surprise';
+    html += `<div class="${cls}">${obs}</div>`;
+  });
+  
+  panel.innerHTML = html;
+}
+
+renderOutputs();
+renderBenchmark();
+</script>
+</body>
+</html>

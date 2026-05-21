@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FMEA Report – Deep Institutional</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy: #003366;
+  --gold: #C5992A;
+  --white: #FFFFFF;
+  --offwhite: #F9F8F6;
+  --mid: #4A4E5C;
+  --muted: #8A8E99;
+  --border: #D8DAE0;
+  --hoch: #9B1C1C;
+  --mittel: #003366;
+  --niedrig: #166534;
+  --row-alt: #F3F4F7;
+}
+
+body {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 400;
+  background: #E8E9ED;
+  color: #1A1C22;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  width: 794px;
+  min-height: 1123px;
+  margin: 32px auto;
+  background: var(--white);
+  box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ── */
+.page-header {
+  background: var(--navy);
+  padding: 36px 48px 28px;
+  position: relative;
+}
+
+.institution-line {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 14px;
+}
+
+.group-title {
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 700;
+  font-size: 28px;
+  color: var(--white);
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.group-subtitle {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 300;
+  font-size: 13px;
+  color: rgba(255,255,255,0.70);
+  margin-bottom: 18px;
+}
+
+.gold-rule {
+  width: 56px;
+  height: 2px;
+  background: var(--gold);
+  margin-bottom: 24px;
+}
+
+.header-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.stat-box {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+  padding: 12px 14px;
+}
+
+.stat-label {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 600;
+  font-size: 9px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.50);
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--white);
+}
+
+.stat-value.gold { color: var(--gold); }
+
+/* ── BODY ── */
+.page-body {
+  padding: 36px 48px;
+  flex: 1;
+}
+
+/* ── FM CARD ── */
+.fm-card {
+  border: 1px solid var(--border);
+  margin-bottom: 28px;
+  background: var(--white);
+}
+
+.fm-card-header {
+  background: var(--navy);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fm-id-title {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.fm-id {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.fm-title {
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 400;
+  font-size: 15px;
+  color: var(--white);
+}
+
+.status-badge {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border: 1px solid;
+}
+
+.status-badge.mittel {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+.status-badge.hoch {
+  color: #F4B8B8;
+  border-color: #F4B8B8;
+  background: rgba(155,28,28,0.25);
+}
+
+/* ── FUNCTION CONTEXT ── */
+.function-context {
+  background: var(--offwhite);
+  border-bottom: 1px solid var(--border);
+  padding: 9px 20px;
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 300;
+  font-size: 10.5px;
+  color: var(--muted);
+  letter-spacing: 0.3px;
+}
+
+.function-context span {
+  color: var(--mid);
+  font-weight: 600;
+}
+
+/* ── SECTION ── */
+.fm-section {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.fm-section:last-child {
+  border-bottom: none;
+}
+
+.section-title {
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--navy);
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--gold);
+  display: inline-block;
+}
+
+/* ── NARRATIVE ── */
+.narrative-text {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 300;
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--mid);
+}
+
+/* ── SOD ── */
+.sod-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.sod-box {
+  border: 1px solid var(--border);
+  padding: 14px 16px 12px;
+  position: relative;
+}
+
+.sod-label {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 600;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.sod-number {
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 700;
+  font-size: 36px;
+  color: var(--navy);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.sod-criterion {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+
+.sod-bar-track {
+  height: 3px;
+  background: var(--border);
+  margin-bottom: 8px;
+  border-radius: 1px;
+}
+
+.sod-bar-fill {
+  height: 3px;
+  background: var(--navy);
+  border-radius: 1px;
+}
+
+.sod-beschreibung {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 300;
+  font-size: 10.5px;
+  color: var(--mid);
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.sod-begr {
+  font-family: 'Libre Baskerville', serif;
+  font-style: italic;
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+.sod-soll {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 600;
+  font-size: 10px;
+  color: var(--gold);
+}
+
+/* ── RPZ ROW ── */
+.rpz-row {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+  margin-top: 0;
+}
+
+.rpz-spacer { flex: 1; }
+
+.rpz-box {
+  border: 2px solid var(--gold);
+  padding: 12px 20px;
+  text-align: center;
+  min-width: 120px;
+}
+
+.rpz-label {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 600;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.rpz-number {
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 700;
+  font-size: 32px;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.rpz-status {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--navy);
+  margin-bottom: 3px;
+}
+
+.rpz-soll {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.rpz-soll strong {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* ── TABLES ── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 11.5px;
+}
+
+thead tr {
+  background: var(--navy);
+}
+
+thead th {
+  color: var(--white);
+  font-weight: 600;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+tbody tr:nth-child(even) {
+  background: var(--row-alt);
+}
+
+tbody td {
+  padding: 8px 10px;
+  color: var(--mid);
+  border-bottom: 1px solid var(--border);
+  line-height: 1.4;
+}
+
+.td-id {
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--navy);
+  white-space: nowrap;
+}
+
+/* ── FEHLERFOLGEN GRID ── */
+.folgen-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.folge-item {
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+}
+
+.folge-kategorie {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.folge-text {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 300;
+  font-size: 11.5px;
+  color: var(--mid);
+  line-height: 1.45;
+}
+
+/* ── CONTROLS ── */
+.wirkung-badge {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  border: 1.5px solid var(--navy);
+  color: var(--navy);
+}
+
+.wirkung-badge.d { border-color: var(--gold); color: var(--gold); }
+
+.ctrl-typ {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 600;
+  font-size: 10px;
+  color: var(--mid);
+}
+
+.ctrl-note {
+  font-family: 'Libre Baskerville', serif;
+  font-style: italic;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* ── MASSNAHME ── */
+.massnahme-card {
+  border-left: 4px solid var(--gold);
+  background: var(--offwhite);
+  padding: 14px 16px;
+}
+
+.massnahme-badges {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.m-badge {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 600;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  background: var(--navy);
+  color: var(--white);
+}
+
+.m-badge.gold {
+  background: var(--gold);
+  color: var(--white);
+}
+
+.massnahme-title {
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--navy);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.massnahme-delta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.delta-pill {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 600;
+  font-size: 10px;
+  padding: 2px 8px;
+  background: var(--navy);
+  color: var(--white);
+}
+
+.delta-rpz {
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--niedrig);
+}
+
+.massnahme-body {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 300;
+  font-size: 12px;
+  color: var(--mid);
+  line-height: 1.6;
+  margin-bottom: 6px;
+}
+
+.massnahme-ratio {
+  font-family: 'Libre Baskerville', serif;
+  font-style: italic;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.massnahme-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.m-tag {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  padding: 2px 7px;
+}
+
+/* ── FM-T02 COMPRESSED ── */
+.fm-card.compressed .fm-section {
+  padding: 10px 20px;
+}
+
+.compressed-sod {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.compressed-sod-item {
+  text-align: center;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  min-width: 56px;
+}
+
+.c-sod-lbl {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 600;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.c-sod-num {
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--navy);
+  line-height: 1;
+}
+
+.sonderregel-flag {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 600;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border: 1.5px solid var(--hoch);
+  color: var(--hoch);
+  white-space: nowrap;
+}
+
+/* ── FOOTER ── */
+.page-footer {
+  background: var(--navy);
+  padding: 12px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.footer-left {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.45);
+}
+
+.footer-right {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 12px;
+  color: var(--gold);
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ══ HEADER ══ -->
+  <header class="page-header">
+    <div class="institution-line">Risikoanalyse · FMEA-Bericht · Vertraulich</div>
+    <div class="group-title">Temperaturregelung</div>
+    <div class="group-subtitle">Reaktor R-101 · Fehlergruppe 03</div>
+    <div class="gold-rule"></div>
+    <div class="header-stats">
+      <div class="stat-box">
+        <div class="stat-label">Anlage</div>
+        <div class="stat-value" style="font-size:13px; padding-top:4px;">Reaktor R-101</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Fehlermodi</div>
+        <div class="stat-value">2</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Max. RPZ</div>
+        <div class="stat-value gold">96</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Sonderregeln</div>
+        <div class="stat-value" style="color:#F4B8B8;">1</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══ BODY ══ -->
+  <main class="page-body">
+
+    <!-- ─ FM-T01 CARD ─ -->
+    <div class="fm-card">
+
+      <!-- Card Header -->
+      <div class="fm-card-header">
+        <div class="fm-id-title">
+          <span class="fm-id">FM-T01</span>
+          <span class="fm-title">Temperatursensor fällt aus</span>
+        </div>
+        <span class="status-badge mittel">Mittel</span>
+      </div>
+
+      <!-- Function Context -->
+      <div class="function-context">
+        <span>20TA24-KOMP-003-F1</span> &nbsp;·&nbsp; <span>Hauptfunktion</span> &nbsp;·&nbsp;
+        Temperatur im Reaktor R-101 kontinuierlich messen und regeln &nbsp;·&nbsp; <span>Reaktor R-101</span>
+      </div>
+
+      <!-- Narrative -->
+      <div class="fm-section">
+        <div class="section-title">Worum geht es?</div>
+        <p class="narrative-text">Thermoelement TI-201 erfasst die Reaktortemperatur kontinuierlich. Bei Leitungsbruch oder Sensorausfall fehlt das Messsignal; der DCS erkennt den Ausfall und gibt Alarm. Ohne redundante Messung kann die Temperaturregelung nicht aufrechterhalten werden — das Risiko einer unkontrollierten Exotherme steigt.</p>
+      </div>
+
+      <!-- SOD -->
+      <div class="fm-section">
+        <div class="section-title">Bewertung S / O / D</div>
+        <div class="sod-row">
+
+          <div class="sod-box">
+            <div class="sod-label">Schwere (S)</div>
+            <div class="sod-number">8</div>
+            <div class="sod-criterion">Hoch</div>
+            <div class="sod-bar-track"><div class="sod-bar-fill" style="width:80%"></div></div>
+            <div class="sod-beschreibung">Schwere Schäden an Anlage · Produktionsstopp 2–4 Tage</div>
+            <div class="sod-begr">„Exotherme ohne Regelung möglich"</div>
+          </div>
+
+          <div class="sod-box">
+            <div class="sod-label">Auftreten (O)</div>
+            <div class="sod-number">3</div>
+            <div class="sod-criterion">Gering</div>
+            <div class="sod-bar-track"><div class="sod-bar-fill" style="width:30%"></div></div>
+            <div class="sod-beschreibung">~1× in 3 Jahren · Thermoelement-Ausfälle selten</div>
+            <div class="sod-begr">„Leitungsbruch durch Vibration"</div>
+            <div class="sod-soll">&#8595; SOLL: O → 2</div>
+          </div>
+
+          <div class="sod-box">
+            <div class="sod-label">Entdeckung (D)</div>
+            <div class="sod-number">4</div>
+            <div class="sod-criterion">Mäßig</div>
+            <div class="sod-bar-track"><div class="sod-bar-fill" style="width:40%"></div></div>
+            <div class="sod-beschreibung">~70 % Erkennungsrate · DCS-Alarm, kein Automatikeingriff</div>
+            <div class="sod-begr">„Bediener muss manuell reagieren"</div>
+            <div class="sod-soll">&#8595; SOLL: D → 2</div>
+          </div>
+
+        </div>
+
+        <!-- RPZ -->
+        <div class="rpz-row">
+          <div class="rpz-spacer"></div>
+          <div class="rpz-box">
+            <div class="rpz-label">Risikoprioritätszahl</div>
+            <div class="rpz-number">96</div>
+            <div class="rpz-status">Mittel</div>
+            <div class="rpz-soll">SOLL: <strong>32</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fehlerursachen -->
+      <div class="fm-section">
+        <div class="section-title">Fehlerursachen</div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Ursache</th>
+              <th>Entstehungsort</th>
+              <th>Erkennungsort</th>
+              <th>Vermeidungsmaßnahme</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-id">FM-T01-U1</td>
+              <td>Leitungsbruch durch Vibration am Flansch</td>
+              <td>Betrieb</td>
+              <td>Fertigung</td>
+              <td>–</td>
+            </tr>
+            <tr>
+              <td class="td-id">FM-T01-U2</td>
+              <td>Korrosion am Schutzrohr</td>
+              <td>Wartung</td>
+              <td>Wartung</td>
+              <td>–</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Fehlerfolgen -->
+      <div class="fm-section">
+        <div class="section-title">Fehlerfolgen</div>
+        <div class="folgen-grid">
+          <div class="folge-item">
+            <div class="folge-kategorie">Mensch</div>
+            <div class="folge-text">Verbrennungsgefahr bei Exotherme</div>
+          </div>
+          <div class="folge-item">
+            <div class="folge-kategorie">Umwelt</div>
+            <div class="folge-text">Geringe Auswirkung, geschlossenes System</div>
+          </div>
+          <div class="folge-item">
+            <div class="folge-kategorie">Anlage</div>
+            <div class="folge-text">Produktionsstopp 2–4 Tage, Schaden möglich</div>
+          </div>
+          <div class="folge-item">
+            <div class="folge-kategorie">Kosten</div>
+            <div class="folge-text">15.000–40.000 €</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="fm-section">
+        <div class="section-title">Vorhandene Kontrollen</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Art</th>
+              <th>Bezeichnung</th>
+              <th>Typ</th>
+              <th>Beschreibung</th>
+              <th>Wirkung</th>
+              <th>Anmerkung</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="ctrl-typ">[P]</span></td>
+              <td>Temperaturbegrenzer TI-202</td>
+              <td>Technisch</td>
+              <td>Unabhängiger Begrenzer am Reaktormantel</td>
+              <td><span class="wirkung-badge">O</span></td>
+              <td class="ctrl-note">Kein Abschalter</td>
+            </tr>
+            <tr>
+              <td><span class="ctrl-typ">[E]</span></td>
+              <td>DCS-Signalüberwachung</td>
+              <td>Organisatorisch</td>
+              <td>Bediener alarmiert</td>
+              <td><span class="wirkung-badge d">D</span></td>
+              <td class="ctrl-note">Kein Automatikeingriff</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Maßnahmen -->
+      <div class="fm-section">
+        <div class="section-title">Empfohlene Maßnahme</div>
+        <div class="massnahme-card">
+          <div class="massnahme-badges">
+            <span class="m-badge">Entdeckung</span>
+            <span class="m-badge gold">Technisch</span>
+          </div>
+          <div class="massnahme-title">Redundanter Temperatursensor PT-102 installieren (SIL 1)</div>
+          <div class="massnahme-delta">
+            <span class="delta-pill">O: 3 → 2</span>
+            <span class="delta-pill">D: 4 → 2</span>
+            <span class="delta-rpz">RPZ' = 32 &nbsp;·&nbsp; NIEDRIG</span>
+          </div>
+          <p class="massnahme-body">Zweiter Pt100-Sensor mit SPS-Auswertung und automatischer Abschaltung.</p>
+          <p class="massnahme-ratio">O sinkt 3→2: Redundanz macht Ausfall unwahrscheinlich. D sinkt 4→2: Automatische Abschaltung eliminiert manuelle Reaktion.</p>
+          <div class="massnahme-tags">
+            <span class="m-tag">schnell umsetzbar</span>
+            <span class="m-tag">mittlere Investition</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /.fm-card FM-T01 -->
+
+    <!-- ─ FM-T02 COMPRESSED ─ -->
+    <div class="fm-card compressed">
+
+      <div class="fm-card-header">
+        <div class="fm-id-title">
+          <span class="fm-id">FM-T02</span>
+          <span class="fm-title">Übertemperatur durch Heizkreisausfall</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="sonderregel-flag">S≥9 · Sonderregel</span>
+          <span class="status-badge hoch">Hoch</span>
+        </div>
+      </div>
+
+      <div class="function-context">
+        <span>20TA24-KOMP-003-F1</span> &nbsp;·&nbsp; <span>Hauptfunktion</span> &nbsp;·&nbsp;
+        Temperatur im Reaktor R-101 kontinuierlich messen und regeln &nbsp;·&nbsp; <span>Reaktor R-101</span>
+      </div>
+
+      <div class="fm-section">
+        <div class="compressed-sod" style="align-items:center;">
+          <div class="compressed-sod-item">
+            <div class="c-sod-lbl">S</div>
+            <div class="c-sod-num">9</div>
+          </div>
+          <div class="compressed-sod-item">
+            <div class="c-sod-lbl">O</div>
+            <div class="c-sod-num">2</div>
+          </div>
+          <div class="compressed-sod-item">
+            <div class="c-sod-lbl">D</div>
+            <div class="c-sod-num">3</div>
+          </div>
+          <div style="flex:1"></div>
+          <div class="rpz-box" style="min-width:100px; padding:8px 14px;">
+            <div class="rpz-label">RPZ</div>
+            <div class="rpz-number" style="font-size:24px;">54</div>
+            <div class="rpz-status" style="color:var(--hoch);">Hoch</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /.fm-card FM-T02 -->
+
+  </main>
+
+  <!-- ══ FOOTER ══ -->
+  <footer class="page-footer">
+    <span class="footer-left">Vertraulich &nbsp;·&nbsp; FMEA Risikoanalyse &nbsp;·&nbsp; 20TA24 &nbsp;·&nbsp; 2026-03-08</span>
+    <span class="footer-right">Seite 3</span>
+  </footer>
+
+</div><!-- /.page -->
+</body>
+</html>

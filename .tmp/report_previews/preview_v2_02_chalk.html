@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FMEA Report — Chalk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;800&display=swap" rel="stylesheet">
+<style>
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #F0F0F0;
+  color: #111111;
+  -webkit-font-smoothing: antialiased;
+  padding: 40px 20px;
+}
+.report-wrapper {
+  width: 794px;
+  margin: 0 auto;
+  background: #FFFFFF;
+  box-shadow: 0 20px 80px rgba(0,0,0,0.18);
+}
+.header-block {
+  padding: 36px 48px 28px;
+}
+.header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.header-rule {
+  width: 100%;
+  height: 1px;
+  margin-top: 20px;
+}
+.report-meta { font-size: 9px; letter-spacing: 2px; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-bottom: 10px; font-family: 'Inter', sans-serif; }
+.report-title { font-family: 'Inter', sans-serif; color: #111111; }
+.report-subtitle { font-family: 'Inter', sans-serif; }
+.header-stats { display: flex; gap: 28px; align-items: flex-end; }
+.stat-item { text-align: right; }
+.stat-value { font-family: 'Inter', sans-serif; display: block; }
+.stat-label { text-transform: uppercase; display: block; margin-top: 2px; }
+.content-area { padding: 32px 48px 48px; }
+
+/* Section header */
+.section-header {
+  padding: 14px 0;
+  margin-bottom: 20px;
+  margin-top: 36px;
+  position: relative;
+}
+.section-header:first-child { margin-top: 0; }
+.section-header-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-icon { display: flex; align-items: center; }
+.section-title-group { display: flex; flex-direction: column; gap: 2px; }
+.section-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+}
+.section-stats {
+  font-size: 9px;
+  font-weight: 400;
+}
+
+/* Cards */
+.fm-card {
+  border-radius: 3px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  background: #FFFFFF;
+  border: 1px solid #E8E8E8;
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid #E8E8E8;
+}
+.card-header-left { flex: 1; min-width: 0; }
+.card-header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; margin-left: 16px; }
+.fm-id { font-size: 8px; letter-spacing: 1.5px; color: #111111; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+.fm-title { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; line-height: 1.3; color: #111111; margin-bottom: 4px; }
+.fm-komp { font-size: 9px; color: #BBBBBB; }
+.fm-context {
+  font-size: 10.5px; font-style: italic; color: #888888;
+  padding: 10px 20px; border-bottom: 1px solid #E8E8E8;
+  line-height: 1.6;
+}
+.rpz-box {
+  text-align: center;
+  padding: 8px 14px;
+  border: 1px solid;
+  border-radius: 2px;
+  min-width: 70px;
+}
+.rpz-value { font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 700; line-height: 1; }
+.rpz-label { font-size: 7px; letter-spacing: 2px; opacity: 0.6; text-transform: uppercase; }
+.rpz-formula { font-size: 8px; opacity: 0.5; margin-top: 2px; }
+.status-badge {
+  font-size: 7.5px; font-weight: 700; letter-spacing: 1.5px;
+  padding: 3px 7px; border-radius: 2px; border: 1px solid;
+  text-transform: uppercase;
+}
+.badge-mini {
+  font-size: 7px; font-weight: 700; letter-spacing: 1px;
+  padding: 2px 5px; border-radius: 2px; border: 1px solid;
+  text-transform: uppercase; margin-left: 6px;
+}
+
+/* SOD */
+.sod-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  padding: 16px 20px;
+  border-bottom: 1px solid #E8E8E8;
+}
+.sod-item {
+  flex: 1;
+  padding: 0 12px;
+}
+.sod-item:first-child { padding-left: 0; }
+.sod-item:last-child { padding-right: 0; }
+.sod-meta { margin-top: 4px; }
+.sod-desc { font-size: 9px; color: #888888; line-height: 1.4; }
+.sod-grund { font-size: 8.5px; color: #BBBBBB; margin-top: 3px; line-height: 1.4; font-style: italic; }
+.sod-mult {
+  font-size: 14px; color: #BBBBBB; padding-top: 10px;
+  flex-shrink: 0;
+}
+.override-note {
+  font-size: 9.5px; color: #7C2D12; background: #FFF7ED;
+  border-left: 3px solid #C2410C; padding: 8px 16px;
+  border-bottom: 1px solid rgba(194,65,12,0.15);
+}
+
+/* Details */
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid #E8E8E8;
+}
+.details-col { padding: 12px 20px; }
+.details-col:first-child { border-right: 1px solid #E8E8E8; }
+.section-label { font-size: 7.5px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #111111; margin-bottom: 8px; }
+.cause-row { display: grid; grid-template-columns: auto 1fr auto; gap: 6px; padding: 4px 0; border-bottom: 0.5px solid #E8E8E8; align-items: baseline; }
+.cause-row:last-child { border-bottom: none; }
+.cause-id { font-size: 8px; font-weight: 600; color: #111111; white-space: nowrap; }
+.cause-desc { font-size: 9px; color: #888888; line-height: 1.4; }
+.cause-phase { font-size: 7.5px; color: #BBBBBB; white-space: nowrap; }
+.eff-row { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 0; border-bottom: 0.5px dotted #E8E8E8; }
+.eff-row:last-child { border-bottom: none; }
+.eff-label { font-size: 8.5px; color: #BBBBBB; }
+.eff-val { font-size: 9px; font-weight: 500; color: #888888; }
+.controls-section { padding: 12px 20px; border-bottom: 1px solid #E8E8E8; }
+.ctrl-row { display: grid; grid-template-columns: auto auto 1fr; gap: 8px; padding: 4px 0; border-bottom: 0.5px solid #E8E8E8; align-items: baseline; }
+.ctrl-row:last-child { border-bottom: none; }
+.ctrl-name { font-size: 9px; font-weight: 600; color: #111111; }
+.ctrl-type { font-size: 7.5px; color: #BBBBBB; }
+.ctrl-wirkung { font-size: 9px; color: #888888; }
+.measures-section { padding: 12px 20px; }
+.measure-row { padding: 6px 0; border-bottom: 0.5px solid #E8E8E8; }
+.measure-row:last-child { border-bottom: none; }
+.measure-name { font-size: 9.5px; font-weight: 500; color: #111111; margin-bottom: 3px; }
+.measure-delta { font-size: 8.5px; color: #BBBBBB; }
+.measure-begr { font-size: 8px; color: #BBBBBB; font-style: italic; margin-top: 2px; }
+
+/* Compact card */
+.fm-compact { padding: 10px 16px; }
+.compact-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 12px; }
+.compact-left { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.fm-id-small { font-size: 7.5px; letter-spacing: 1.5px; color: #111111; font-weight: 600; text-transform: uppercase; }
+.fm-title-small { font-size: 11px; font-weight: 500; color: #111111; line-height: 1.3; }
+.fm-komp-small { font-size: 8.5px; color: #BBBBBB; }
+.compact-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.rpz-inline { font-size: 9px; }
+.status-badge-small {
+  font-size: 7px; font-weight: 700; letter-spacing: 1px;
+  padding: 2px 6px; border-radius: 2px; border: 1px solid;
+  text-transform: uppercase;
+}
+.compact-causes { font-size: 8.5px; color: #BBBBBB; margin-bottom: 5px; line-height: 1.5; }
+.causes-label { font-weight: 600; color: #888888; }
+.inline-cause { }
+.compact-verdict {
+  font-size: 8.5px; font-style: italic; opacity: 0.7;
+  padding: 4px 8px; border-radius: 2px;
+  background: transparent;
+}
+
+/* Tier divider */
+.tier-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0 12px;
+}
+.tier-line { flex: 1; height: 0.5px; background: #E8E8E8; }
+.tier-label { font-size: 8px; letter-spacing: 1.5px; color: #BBBBBB; text-transform: uppercase; white-space: nowrap; }
+
+/* Footer */
+.footer-block {
+  padding: 16px 48px;
+  border-top: 1px solid #E8E8E8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.footer-text { font-size: 8px; color: #BBBBBB; letter-spacing: 1px; }
+
+
+          .header-block { background: #FFFFFF; border-bottom: 1px solid #111; }
+          .header-rule { background: #111; height: 2px; }
+          .report-title { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+          .report-subtitle { font-size: 10px; color: #888; font-weight: 300; letter-spacing: 1px; margin-top: 6px; }
+          .stat-value { font-size: 32px; font-weight: 800; letter-spacing: -1px; }
+          .stat-label { font-size: 8px; color: #888; font-weight: 300; letter-spacing: 1px; }
+          .fm-card { box-shadow: none; }
+          .section-name { font-weight: 800; font-size: 10px; letter-spacing: 3px; }
+        
+</style>
+</head>
+<body>
+<div class="report-wrapper">
+  <div class="header-block">
+    <div class="report-meta">Ethylacetatproduktion · Teilanlage 20TA42 · FMEA Risikoanalyse 2026</div>
+    <div class="header-inner">
+      <div>
+        <div class="report-title">Chalk</div>
+        <div class="report-subtitle">Schweizer Editorial — Maximales Whitespace, Haarlinien-Raster</div>
+      </div>
+      <div class="header-stats">
+        <div class="stat-item">
+          <span class="stat-value">5</span>
+          <span class="stat-label" style="color:#BBBBBB">Maßnahmen</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">6</span>
+          <span class="stat-label" style="color:#BBBBBB">Niedrig</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">150</span>
+          <span class="stat-label" style="color:#BBBBBB">Max RPZ</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-rule"></div>
+  </div>
+  <div class="content-area">
+    
+<div class="section-header" style="background:transparent;border-top:1px solid #111111;padding-top:16px;">
+  <div class="section-header-inner">
+    <div class="section-icon" style="color:#111111"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
+    </svg></div>
+    <div class="section-title-group">
+      <div class="section-name" style="color:#111111">THERMISCH</div>
+      <div class="section-stats" style="color:#888888">1 hoch · 2 niedrig · max. RPZ 100</div>
+    </div>
+  </div>
+</div>
+<div class="fm-card fm-full" style="background:#FFFFFF;border:0.5px solid #C2410C;border-top:2px solid #C2410C;">
+  <div class="card-header">
+    <div class="card-header-left">
+      <div class="fm-id">KOMP-038-F1-FM1</div>
+      <div class="fm-title">Fail-to-start / No Flow – Notkühlung schaltet nicht zu oder fördert nicht</div>
+      <div class="fm-komp">Notkühlsystem NK-301 · Notkühlsystem NK-301 – Solekreislauf -10 °C, Ethylenglykol 30 %, 3 bar, max. 5 m³/h, Backup bei KW-301-Ausfall</div>
+    </div>
+    <div class="card-header-right">
+      <div class="rpz-box" style="color:#7C2D12;background:#FFF7ED;border-color:#C2410C">
+        <div class="rpz-value">100</div>
+        <div class="rpz-label">RPZ</div>
+        <div class="rpz-formula">10 × 2 × 5</div>
+      </div>
+      <div class="status-badge" style="color:#7C2D12;background:#FFF7ED;border-color:#C2410C">HOCH</div>
+    </div>
+  </div>
+  <div class="fm-context">NK-301 ist Backup für KW-301. Versagen bei Bedarf katastrophal.</div>
+  <div class="sod-row">
+    <div class="sod-item">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <svg width="57" height="24" viewBox="0 0 57 24"><rect x="2" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="35" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="46" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="2" y="13" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="13" width="7" height="7" rx="1.5" fill="#111111"/><rect x="35" y="13" width="7" height="7" rx="1.5" fill="#111111"/><rect x="46" y="13" width="7" height="7" rx="1.5" fill="#111111"/></svg>
+        <span style="font-size:20px;font-weight:700;color:#1A1A1A">10</span>
+        <span style="font-size:9px;color:#888;letter-spacing:1px">S</span>
+      </div>
+      <div class="sod-desc">Bedeutung – Schweregrad</div>
+      <div class="sod-grund">Notkühlung ist letzte Kühlebene bei KW-Ausfall.</div>
+    </div>
+    <div class="sod-mult">×</div>
+    <div class="sod-item">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <svg width="57" height="24" viewBox="0 0 57 24"><rect x="2" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="2" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="35" y="2" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="46" y="2" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="2" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="24" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="35" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="46" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/></svg>
+        <span style="font-size:20px;font-weight:700;color:#1A1A1A">2</span>
+        <span style="font-size:9px;color:#888;letter-spacing:1px">O</span>
+      </div>
+      <div class="sod-desc">Auftreten – Wahrscheinlichkeit</div>
+      <div class="sod-grund">NK nur bei KW-Ausfall gefordert; Fail-to-start selten.</div>
+    </div>
+    <div class="sod-mult">×</div>
+    <div class="sod-item">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <svg width="57" height="24" viewBox="0 0 57 24"><rect x="2" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="35" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="46" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="2" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="24" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="35" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="46" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/></svg>
+        <span style="font-size:20px;font-weight:700;color:#1A1A1A">5</span>
+        <span style="font-size:9px;color:#888;letter-spacing:1px">D</span>
+      </div>
+      <div class="sod-desc">Entdeckung – Detektierbarkeit</div>
+      <div class="sod-grund">Keine Online-Prüfung ob NK anläuft; nur periodische Prüfung.</div>
+    </div>
+  </div>
+  <div class="override-note">⚠ AIAG-VDA Sonderregel: Sonderregel: B >= 9 → mindestens 'hoch' (Sicherheitsrelevanz erzwingt Maßnahme)</div>
+  <div class="details-grid">
+    <div class="details-col">
+      <div class="section-label">Fehlerursachen</div>
+      <div class="causes-list"><div class="cause-row">
+          <span class="cause-id">KOMP-038-F1-FM1-UC1</span>
+          <span class="cause-desc">Pumpe, Ventil oder Steuerung defekt</span>
+          <span class="cause-phase">Wartung</span>
+        </div><div class="cause-row">
+          <span class="cause-id">KOMP-038-F1-FM1-UC2</span>
+          <span class="cause-desc">Sole zu warm oder Leckage</span>
+          <span class="cause-phase">Betrieb</span>
+        </div></div>
+    </div>
+    <div class="details-col">
+      <div class="section-label">Fehlerfolgen</div>
+      <div class="effects-list"><div class="eff-row"><span class="eff-label">Mensch</span><span class="eff-val">Lebensgefahr</span></div><div class="eff-row"><span class="eff-label">Umwelt</span><span class="eff-val">Betriebsbereich</span></div><div class="eff-row"><span class="eff-label">Anlage</span><span class="eff-val">Totalausfall</span></div><div class="eff-row"><span class="eff-label">Kosten</span><span class="eff-val">Bis 1 Mio €</span></div></div>
+    </div>
+  </div>
+  <div class="controls-section"><div class="section-label">Bestehende Maßnahmen</div><div class="ctrl-row">
+          <span class="ctrl-name">KW-301</span>
+          <span class="ctrl-type">Prozess</span>
+          <span class="ctrl-wirkung">O</span>
+        </div><div class="ctrl-row">
+          <span class="ctrl-name">TIC-401 / PSV-410</span>
+          <span class="ctrl-type">Sensor/Sicherheit</span>
+          <span class="ctrl-wirkung">B/E</span>
+        </div></div>
+  <div class="measures-section"><div class="section-label">Empfohlene Maßnahmen</div><div class="measure-row">
+          <div class="measure-name">Periodische Funktionsprüfung NK-301</div>
+          <div class="measure-delta">RPZ 100 → <strong>40</strong>
+            <span class="badge-mini" style="color:#14532D;background:#F0FDF4;border-color:#16A34A">NIEDRIG</span>
+          </div>
+          <div class="measure-begr">O sinkt: Fail-to-start vermieden</div>
+        </div><div class="measure-row">
+          <div class="measure-name">Alarmierung bei NK-Start (KW-Ausfall)</div>
+          <div class="measure-delta">RPZ 100 → <strong>60</strong>
+            <span class="badge-mini" style="color:#14532D;background:#F0FDF4;border-color:#16A34A">NIEDRIG</span>
+          </div>
+          <div class="measure-begr">D sinkt: Ereignis erkennbar</div>
+        </div></div>
+</div>
+<div class="tier-divider">
+  <div class="tier-line"></div>
+  <div class="tier-label">Niedrig-Risiko — vollständig bewertet, keine Maßnahmen</div>
+  <div class="tier-line"></div>
+</div>
+<div class="fm-card fm-compact" style="background:#FFFFFF;border:0.5px solid #16A34A;">
+  <div class="compact-header">
+    <div class="compact-left">
+      <span class="fm-id-small">KOMP-001-F2-FM5</span>
+      <span class="fm-title-small">Thermische Fehlfunktion (Kälte/Schock) – Zu niedrige Temperatur oder t</span>
+      <span class="fm-komp-small">Synthesereaktor R-101</span>
+    </div>
+    <div class="compact-right">
+      <div class="rpz-inline" style="color:#14532D">RPZ <strong>90</strong> = 6×3×5</div>
+      <div class="status-badge-small" style="color:#14532D;background:#F0FDF4;border-color:#16A34A">NIEDRIG</div>
+    </div>
+  </div>
+  <div class="compact-causes"><span class="causes-label">Ursachen:</span> <span class='inline-cause'>FM5-UC1 Kühlwasser zu kalt (Winter, Sole-Notkühl</span> &nbsp;·&nbsp; <span class='inline-cause'>FM5-UC2 Essigsäure kristallisiert bei ca. 17 °C</span> &nbsp;·&nbsp; <span class='inline-cause'>FM5-UC3 Thermischer Schock – extreme Temperaturg</span></div>
+  <div class="compact-verdict" style="color:#14532D">Vollständig bewertet — RPZ 90 unter Handlungsschwelle (100). Keine Maßnahmen erforderlich.</div>
+</div>
+<div class="fm-card fm-compact" style="background:#FFFFFF;border:0.5px solid #16A34A;">
+  <div class="compact-header">
+    <div class="compact-left">
+      <span class="fm-id-small">KOMP-003-F1-FM2</span>
+      <span class="fm-title-small">Kühlwassertemperatur zu niedrig – Vereisung im Mantel, Rohrbruch mögli</span>
+      <span class="fm-komp-small">Kühlmantel KM-101</span>
+    </div>
+    <div class="compact-right">
+      <div class="rpz-inline" style="color:#14532D">RPZ <strong>90</strong> = 6×3×5</div>
+      <div class="status-badge-small" style="color:#14532D;background:#F0FDF4;border-color:#16A34A">NIEDRIG</div>
+    </div>
+  </div>
+  <div class="compact-causes"><span class="causes-label">Ursachen:</span> <span class='inline-cause'>KOMP-003-F1-FM2-UC1 Kühlwasser zu kalt (Winterbetrieb, Sole-</span></div>
+  <div class="compact-verdict" style="color:#14532D">Vollständig bewertet — RPZ 90 unter Handlungsschwelle (100). Keine Maßnahmen erforderlich.</div>
+</div>
+<div class="section-header" style="background:transparent;border-top:1px solid #111111;padding-top:16px;">
+  <div class="section-header-inner">
+    <div class="section-icon" style="color:#111111"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+      <path d="M12 2v2M12 20v2M2 12h2M20 12h2"/>
+    </svg></div>
+    <div class="section-title-group">
+      <div class="section-name" style="color:#111111">MECHANISCH</div>
+      <div class="section-stats" style="color:#888888">1 hoch · 1 mittel · 2 niedrig · max. RPZ 150</div>
+    </div>
+  </div>
+</div>
+<div class="fm-card fm-full" style="background:#FFFFFF;border:0.5px solid #C2410C;border-top:2px solid #C2410C;">
+  <div class="card-header">
+    <div class="card-header-left">
+      <div class="fm-id">KOMP-009-F2-FM3</div>
+      <div class="fm-title">Äußere Leckage – Medienaustritt in Ex-Zone 1</div>
+      <div class="fm-komp">Destillatvorlage DV-102 · Dichtheit gewährleisten – keine Leckage in Ex-Zone 1</div>
+    </div>
+    <div class="card-header-right">
+      <div class="rpz-box" style="color:#7C2D12;background:#FFF7ED;border-color:#C2410C">
+        <div class="rpz-value">150</div>
+        <div class="rpz-label">RPZ</div>
+        <div class="rpz-formula">10 × 3 × 5</div>
+      </div>
+      <div class="status-badge" style="color:#7C2D12;background:#FFF7ED;border-color:#C2410C">HOCH</div>
+    </div>
+  </div>
+  <div class="fm-context">Leckage an DV-102 – gleiche Bewertung wie DV-101, Medien in Ex-Zone 1.</div>
+  <div class="sod-row">
+    <div class="sod-item">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <svg width="57" height="24" viewBox="0 0 57 24"><rect x="2" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="35" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="46" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="2" y="13" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="13" width="7" height="7" rx="1.5" fill="#111111"/><rect x="35" y="13" width="7" height="7" rx="1.5" fill="#111111"/><rect x="46" y="13" width="7" height="7" rx="1.5" fill="#111111"/></svg>
+        <span style="font-size:20px;font-weight:700;color:#1A1A1A">10</span>
+        <span style="font-size:9px;color:#888;letter-spacing:1px">S</span>
+      </div>
+      <div class="sod-desc">Bedeutung – Schweregrad</div>
+      <div class="sod-grund">Medien in Ex-Zone 1.</div>
+    </div>
+    <div class="sod-mult">×</div>
+    <div class="sod-item">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <svg width="57" height="24" viewBox="0 0 57 24"><rect x="2" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="35" y="2" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="46" y="2" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="2" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="24" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="35" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="46" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/></svg>
+        <span style="font-size:20px;font-weight:700;color:#1A1A1A">3</span>
+        <span style="font-size:9px;color:#888;letter-spacing:1px">O</span>
+      </div>
+      <div class="sod-desc">Auftreten – Wahrscheinlichkeit</div>
+      <div class="sod-grund">Leckage gelegentlich.</div>
+    </div>
+    <div class="sod-mult">×</div>
+    <div class="sod-item">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <svg width="57" height="24" viewBox="0 0 57 24"><rect x="2" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="35" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="46" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="2" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="24" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="35" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="46" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/></svg>
+        <span style="font-size:20px;font-weight:700;color:#1A1A1A">5</span>
+        <span style="font-size:9px;color:#888;letter-spacing:1px">D</span>
+      </div>
+      <div class="sod-desc">Entdeckung – Detektierbarkeit</div>
+      <div class="sod-grund">Sichtprüfung, keine kontinuierliche Überwachung.</div>
+    </div>
+  </div>
+  <div class="override-note">⚠ AIAG-VDA Sonderregel: OVERRIDE: Explosionsschutz-Spezifikation (S angehoben auf 10) | Sonderregel: B >= 9 → mindestens 'hoch' (Sicherheitsrelevanz erzwingt Maßnahme)</div>
+  <div class="details-grid">
+    <div class="details-col">
+      <div class="section-label">Fehlerursachen</div>
+      <div class="causes-list"><div class="cause-row">
+          <span class="cause-id">KOMP-009-F2-FM3-UC1</span>
+          <span class="cause-desc">Flanschdichtung oder Stutzen undicht</span>
+          <span class="cause-phase">Wartung</span>
+        </div><div class="cause-row">
+          <span class="cause-id">KOMP-009-F2-FM3-UC2</span>
+          <span class="cause-desc">Korrosion oder Riss</span>
+          <span class="cause-phase">Wartung</span>
+        </div></div>
+    </div>
+    <div class="details-col">
+      <div class="section-label">Fehlerfolgen</div>
+      <div class="effects-list"><div class="eff-row"><span class="eff-label">Mensch</span><span class="eff-val">Verletzte</span></div><div class="eff-row"><span class="eff-label">Umwelt</span><span class="eff-val">Betriebsbereich</span></div><div class="eff-row"><span class="eff-label">Anlage</span><span class="eff-val">Teilausfall</span></div><div class="eff-row"><span class="eff-label">Kosten</span><span class="eff-val">Bis 100.000 €</span></div></div>
+    </div>
+  </div>
+  <div class="controls-section"><div class="section-label">Bestehende Maßnahmen</div><div class="ctrl-row">
+          <span class="ctrl-name">Auffangwanne</span>
+          <span class="ctrl-type">Sicherheit</span>
+          <span class="ctrl-wirkung">E</span>
+        </div><div class="ctrl-row">
+          <span class="ctrl-name">Begehungen</span>
+          <span class="ctrl-type">Organisatorisch</span>
+          <span class="ctrl-wirkung">B</span>
+        </div></div>
+  <div class="measures-section"><div class="section-label">Empfohlene Maßnahmen</div><div class="measure-row">
+          <div class="measure-name">Leckagesensor / Tropfwanne unter DV-102</div>
+          <div class="measure-delta">RPZ 150 → <strong>48</strong>
+            <span class="badge-mini" style="color:#14532D;background:#F0FDF4;border-color:#16A34A">NIEDRIG</span>
+          </div>
+          <div class="measure-begr">D sinkt: Leckage in Ex-Zone früh erkennbar</div>
+        </div><div class="measure-row">
+          <div class="measure-name">Regelmäßige Inspektion DV-102</div>
+          <div class="measure-delta">RPZ 150 → <strong>64</strong>
+            <span class="badge-mini" style="color:#14532D;background:#F0FDF4;border-color:#16A34A">NIEDRIG</span>
+          </div>
+          <div class="measure-begr">O sinkt durch präventive Wartung</div>
+        </div></div>
+</div>
+<div class="fm-card fm-full" style="background:#FFFFFF;border:0.5px solid #B45309;border-top:2px solid #B45309;">
+  <div class="card-header">
+    <div class="card-header-left">
+      <div class="fm-id">KOMP-004-F2-FM3</div>
+      <div class="fm-title">Wellenabdichtung undicht – Leckage an Stopfbuchse oder Gleitringdichtung</div>
+      <div class="fm-komp">Rührwerk RW-101 · Gewährleistet Dichtheit der Wellenabdichtung gegen Prozessmedien</div>
+    </div>
+    <div class="card-header-right">
+      <div class="rpz-box" style="color:#713F12;background:#FEFCE8;border-color:#B45309">
+        <div class="rpz-value">120</div>
+        <div class="rpz-label">RPZ</div>
+        <div class="rpz-formula">8 × 3 × 5</div>
+      </div>
+      <div class="status-badge" style="color:#713F12;background:#FEFCE8;border-color:#B45309">MITTEL</div>
+    </div>
+  </div>
+  <div class="fm-context">Undichte Stopfbuchse oder Gleitringdichtung führt zu Tropfen an der Welle. Folge: Medienfreisetzung Essigsäure/Ethanol in Ex-Zone 1.</div>
+  <div class="sod-row">
+    <div class="sod-item">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <svg width="57" height="24" viewBox="0 0 57 24"><rect x="2" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="35" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="46" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="2" y="13" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="13" width="7" height="7" rx="1.5" fill="#111111"/><rect x="35" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="46" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/></svg>
+        <span style="font-size:20px;font-weight:700;color:#1A1A1A">8</span>
+        <span style="font-size:9px;color:#888;letter-spacing:1px">S</span>
+      </div>
+      <div class="sod-desc">Bedeutung – Schweregrad</div>
+      <div class="sod-grund">Essigsäure/Ethanol in Ex-Zone, Verätzungsgefahr</div>
+    </div>
+    <div class="sod-mult">×</div>
+    <div class="sod-item">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <svg width="57" height="24" viewBox="0 0 57 24"><rect x="2" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="35" y="2" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="46" y="2" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="2" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="24" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="35" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="46" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/></svg>
+        <span style="font-size:20px;font-weight:700;color:#1A1A1A">3</span>
+        <span style="font-size:9px;color:#888;letter-spacing:1px">O</span>
+      </div>
+      <div class="sod-desc">Auftreten – Wahrscheinlichkeit</div>
+      <div class="sod-grund">Dichtungsausfall bei Rührwerken in Säureumgebung gelegentlich</div>
+    </div>
+    <div class="sod-mult">×</div>
+    <div class="sod-item">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <svg width="57" height="24" viewBox="0 0 57 24"><rect x="2" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="35" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="46" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="2" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="24" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="35" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="46" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/></svg>
+        <span style="font-size:20px;font-weight:700;color:#1A1A1A">5</span>
+        <span style="font-size:9px;color:#888;letter-spacing:1px">D</span>
+      </div>
+      <div class="sod-desc">Entdeckung – Detektierbarkeit</div>
+      <div class="sod-grund">Keine kontinuierliche Leckageüberwachung, nur Sichtprüfung</div>
+    </div>
+  </div>
+  
+  <div class="details-grid">
+    <div class="details-col">
+      <div class="section-label">Fehlerursachen</div>
+      <div class="causes-list"><div class="cause-row">
+          <span class="cause-id">KOMP-004-F2-FM3-UC1</span>
+          <span class="cause-desc">Verschleiß der Dichtung durch abrasive Medien oder falsche Montage</span>
+          <span class="cause-phase">Wartung</span>
+        </div><div class="cause-row">
+          <span class="cause-id">KOMP-004-F2-FM3-UC2</span>
+          <span class="cause-desc">Thermische Schädigung durch Überhitzung</span>
+          <span class="cause-phase">Betrieb</span>
+        </div></div>
+    </div>
+    <div class="details-col">
+      <div class="section-label">Fehlerfolgen</div>
+      <div class="effects-list"><div class="eff-row"><span class="eff-label">Mensch</span><span class="eff-val">Schwere Verletzung</span></div><div class="eff-row"><span class="eff-label">Umwelt</span><span class="eff-val">Betriebsbereich</span></div><div class="eff-row"><span class="eff-label">Anlage</span><span class="eff-val">Teilausfall</span></div><div class="eff-row"><span class="eff-label">Kosten</span><span class="eff-val">Bis 50.000 €</span></div></div>
+    </div>
+  </div>
+  <div class="controls-section"><div class="section-label">Bestehende Maßnahmen</div><div class="ctrl-row">
+          <span class="ctrl-name">Produktionspersonal</span>
+          <span class="ctrl-type">Organisatorisch</span>
+          <span class="ctrl-wirkung">B</span>
+        </div></div>
+  <div class="measures-section"><div class="section-label">Empfohlene Maßnahmen</div><div class="measure-row">
+          <div class="measure-name">Leckage-Detektor an Wellenabdichtung</div>
+          <div class="measure-delta">RPZ 120 → <strong>72</strong>
+            <span class="badge-mini" style="color:#14532D;background:#F0FDF4;border-color:#16A34A">NIEDRIG</span>
+          </div>
+          <div class="measure-begr">D sinkt: Direkte Leckageerkennung</div>
+        </div><div class="measure-row">
+          <div class="measure-name">Gleitringdichtung mit Sperrmedium-Überwachung</div>
+          <div class="measure-delta">RPZ 120 → <strong>96</strong>
+            <span class="badge-mini" style="color:#14532D;background:#F0FDF4;border-color:#16A34A">NIEDRIG</span>
+          </div>
+          <div class="measure-begr">D sinkt: Leckage an innerem Ring erkennbar</div>
+        </div></div>
+</div>
+<div class="tier-divider">
+  <div class="tier-line"></div>
+  <div class="tier-label">Niedrig-Risiko — vollständig bewertet, keine Maßnahmen</div>
+  <div class="tier-line"></div>
+</div>
+<div class="fm-card fm-compact" style="background:#FFFFFF;border:0.5px solid #16A34A;">
+  <div class="compact-header">
+    <div class="compact-left">
+      <span class="fm-id-small">KOMP-024-F1-FM2</span>
+      <span class="fm-title-small">Äußere Leckage – Gleitringdichtung oder Anschluss</span>
+      <span class="fm-komp-small">Dosierpumpe P-201</span>
+    </div>
+    <div class="compact-right">
+      <div class="rpz-inline" style="color:#14532D">RPZ <strong>96</strong> = 8×3×4</div>
+      <div class="status-badge-small" style="color:#14532D;background:#F0FDF4;border-color:#16A34A">NIEDRIG</div>
+    </div>
+  </div>
+  <div class="compact-causes"><span class="causes-label">Ursachen:</span> <span class='inline-cause'>KOMP-024-F1-FM2-UC1 Membran undicht oder Flanschdichtung</span></div>
+  <div class="compact-verdict" style="color:#14532D">Vollständig bewertet — RPZ 96 unter Handlungsschwelle (100). Keine Maßnahmen erforderlich.</div>
+</div>
+<div class="fm-card fm-compact" style="background:#FFFFFF;border:0.5px solid #16A34A;">
+  <div class="compact-header">
+    <div class="compact-left">
+      <span class="fm-id-small">KOMP-038-F1-FM2</span>
+      <span class="fm-title-small">Leckage – Sole austretend</span>
+      <span class="fm-komp-small">Notkühlsystem NK-301</span>
+    </div>
+    <div class="compact-right">
+      <div class="rpz-inline" style="color:#14532D">RPZ <strong>75</strong> = 5×3×5</div>
+      <div class="status-badge-small" style="color:#14532D;background:#F0FDF4;border-color:#16A34A">NIEDRIG</div>
+    </div>
+  </div>
+  <div class="compact-causes"><span class="causes-label">Ursachen:</span> <span class='inline-cause'>KOMP-038-F1-FM2-UC1 Dichtung, Schlauch oder Flansch</span></div>
+  <div class="compact-verdict" style="color:#14532D">Vollständig bewertet — RPZ 75 unter Handlungsschwelle (100). Keine Maßnahmen erforderlich.</div>
+</div>
+<div class="section-header" style="background:transparent;border-top:1px solid #111111;padding-top:16px;">
+  <div class="section-header-inner">
+    <div class="section-icon" style="color:#111111"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+    </svg></div>
+    <div class="section-title-group">
+      <div class="section-name" style="color:#111111">MESS-, STEUER- & REGELTECHNIK</div>
+      <div class="section-stats" style="color:#888888">1 hoch · 1 mittel · 2 niedrig · max. RPZ 140</div>
+    </div>
+  </div>
+</div>
+<div class="fm-card fm-full" style="background:#FFFFFF;border:0.5px solid #B45309;border-top:2px solid #B45309;">
+  <div class="card-header">
+    <div class="card-header-left">
+      <div class="fm-id">KOMP-010-F1-FM2</div>
+      <div class="fm-title">Messwertdrift – Schleichende Fehlanzeige, Regelung arbeitet mit falschem Soll</div>
+      <div class="fm-komp">TIC-401 · TIC-401 – Prozesstemperatur im Synthesereaktor erfassen, anzeigen und regeln (Heizung/Kühlung)</div>
+    </div>
+    <div class="card-header-right">
+      <div class="rpz-box" style="color:#713F12;background:#FEFCE8;border-color:#B45309">
+        <div class="rpz-value">140</div>
+        <div class="rpz-label">RPZ</div>
+        <div class="rpz-formula">7 × 4 × 5</div>
+      </div>
+      <div class="status-badge" style="color:#713F12;background:#FEFCE8;border-color:#B45309">MITTEL</div>
+    </div>
+  </div>
+  <div class="fm-context">Schleichende Messwertdrift führt dazu, dass die Regelung mit falschem Istwert arbeitet. Folge: Untertemperatur (Qualität) oder Überschreitung (Runaway-Risiko).</div>
+  <div class="sod-row">
+    <div class="sod-item">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <svg width="57" height="24" viewBox="0 0 57 24"><rect x="2" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="35" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="46" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="2" y="13" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="35" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="46" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/></svg>
+        <span style="font-size:20px;font-weight:700;color:#1A1A1A">7</span>
+        <span style="font-size:9px;color:#888;letter-spacing:1px">S</span>
+      </div>
+      <div class="sod-desc">Bedeutung – Schweregrad</div>
+      <div class="sod-grund">Drift kann zu Übertemperatur und Runaway führen.</div>
+    </div>
+    <div class="sod-mult">×</div>
+    <div class="sod-item">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <svg width="57" height="24" viewBox="0 0 57 24"><rect x="2" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="35" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="46" y="2" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="2" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="24" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="35" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="46" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/></svg>
+        <span style="font-size:20px;font-weight:700;color:#1A1A1A">4</span>
+        <span style="font-size:9px;color:#888;letter-spacing:1px">O</span>
+      </div>
+      <div class="sod-desc">Auftreten – Wahrscheinlichkeit</div>
+      <div class="sod-grund">Drift bei Temperatursensoren im Laufe der Zeit möglich.</div>
+    </div>
+    <div class="sod-mult">×</div>
+    <div class="sod-item">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <svg width="57" height="24" viewBox="0 0 57 24"><rect x="2" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="35" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="46" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="2" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="24" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="35" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="46" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/></svg>
+        <span style="font-size:20px;font-weight:700;color:#1A1A1A">5</span>
+        <span style="font-size:9px;color:#888;letter-spacing:1px">D</span>
+      </div>
+      <div class="sod-desc">Entdeckung – Detektierbarkeit</div>
+      <div class="sod-grund">Kalibrierung und Abweichungsprüfung erkennen Drift mit Verzögerung.</div>
+    </div>
+  </div>
+  
+  <div class="details-grid">
+    <div class="details-col">
+      <div class="section-label">Fehlerursachen</div>
+      <div class="causes-list"><div class="cause-row">
+          <span class="cause-id">KOMP-010-F1-FM2-UC1</span>
+          <span class="cause-desc">Sensor altert oder verschmutzt</span>
+          <span class="cause-phase">Wartung</span>
+        </div><div class="cause-row">
+          <span class="cause-id">KOMP-010-F1-FM2-UC2</span>
+          <span class="cause-desc">Falsche Kalibrierung bei Instandhaltung</span>
+          <span class="cause-phase">Inbetriebnahme</span>
+        </div></div>
+    </div>
+    <div class="details-col">
+      <div class="section-label">Fehlerfolgen</div>
+      <div class="effects-list"><div class="eff-row"><span class="eff-label">Mensch</span><span class="eff-val">Verletzte</span></div><div class="eff-row"><span class="eff-label">Umwelt</span><span class="eff-val">Betriebsbereich</span></div><div class="eff-row"><span class="eff-label">Anlage</span><span class="eff-val">Teilausfall</span></div><div class="eff-row"><span class="eff-label">Kosten</span><span class="eff-val">Bis 250.000 €</span></div></div>
+    </div>
+  </div>
+  <div class="controls-section"><div class="section-label">Bestehende Maßnahmen</div><div class="ctrl-row">
+          <span class="ctrl-name">Kalibrierung</span>
+          <span class="ctrl-type">Organisatorisch</span>
+          <span class="ctrl-wirkung">B</span>
+        </div><div class="ctrl-row">
+          <span class="ctrl-name">TI-401a/b Abweichungsprüfung</span>
+          <span class="ctrl-type">Sensor</span>
+          <span class="ctrl-wirkung">B</span>
+        </div></div>
+  <div class="measures-section"><div class="section-label">Empfohlene Maßnahmen</div><div class="measure-row">
+          <div class="measure-name">Plausibilitätsprüfung TIC mit Redundanz-TI</div>
+          <div class="measure-delta">RPZ 140 → <strong>72</strong>
+            <span class="badge-mini" style="color:#14532D;background:#F0FDF4;border-color:#16A34A">NIEDRIG</span>
+          </div>
+          <div class="measure-begr">D sinkt: Drift erkennbar</div>
+        </div><div class="measure-row">
+          <div class="measure-name">Kalibrierintervall TIC-401 dokumentieren</div>
+          <div class="measure-delta">RPZ 140 → <strong>64</strong>
+            <span class="badge-mini" style="color:#14532D;background:#F0FDF4;border-color:#16A34A">NIEDRIG</span>
+          </div>
+          <div class="measure-begr">O sinkt durch präventive Wartung</div>
+        </div></div>
+</div>
+<div class="fm-card fm-full" style="background:#FFFFFF;border:0.5px solid #C2410C;border-top:2px solid #C2410C;">
+  <div class="card-header">
+    <div class="card-header-left">
+      <div class="fm-id">KOMP-010-F1-FM1</div>
+      <div class="fm-title">Eingefrorener Messwert (Frozen Value) – Anzeige konstant, reale Temperatur steigt</div>
+      <div class="fm-komp">TIC-401 · TIC-401 – Prozesstemperatur im Synthesereaktor erfassen, anzeigen und regeln (Heizung/Kühlung)</div>
+    </div>
+    <div class="card-header-right">
+      <div class="rpz-box" style="color:#7C2D12;background:#FFF7ED;border-color:#C2410C">
+        <div class="rpz-value">135</div>
+        <div class="rpz-label">RPZ</div>
+        <div class="rpz-formula">9 × 3 × 5</div>
+      </div>
+      <div class="status-badge" style="color:#7C2D12;background:#FFF7ED;border-color:#C2410C">HOCH</div>
+    </div>
+  </div>
+  <div class="fm-context">TIC-401 ist die zentrale Temperaturregelung des Reaktors. Zeigt der TIC einen konstanten (eingefrorenen) Wert, während die reale Temperatur steigt, reagiert die Regelung nicht – Runaway-Gefahr. Redundante Temperaturmessung und Drucküberwachung sind entscheidend.</div>
+  <div class="sod-row">
+    <div class="sod-item">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <svg width="57" height="24" viewBox="0 0 57 24"><rect x="2" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="35" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="46" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="2" y="13" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="13" width="7" height="7" rx="1.5" fill="#111111"/><rect x="35" y="13" width="7" height="7" rx="1.5" fill="#111111"/><rect x="46" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/></svg>
+        <span style="font-size:20px;font-weight:700;color:#1A1A1A">9</span>
+        <span style="font-size:9px;color:#888;letter-spacing:1px">S</span>
+      </div>
+      <div class="sod-desc">Bedeutung – Schweregrad</div>
+      <div class="sod-grund">Runaway in Ex-Zone 1, Verätzungs- und Brandgefahr, katastrophale Folgen.</div>
+    </div>
+    <div class="sod-mult">×</div>
+    <div class="sod-item">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <svg width="57" height="24" viewBox="0 0 57 24"><rect x="2" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="35" y="2" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="46" y="2" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="2" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="24" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="35" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="46" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/></svg>
+        <span style="font-size:20px;font-weight:700;color:#1A1A1A">3</span>
+        <span style="font-size:9px;color:#888;letter-spacing:1px">O</span>
+      </div>
+      <div class="sod-desc">Auftreten – Wahrscheinlichkeit</div>
+      <div class="sod-grund">Frozen Value bei MSR gelegentlich (Sensor, Leitung, Bus).</div>
+    </div>
+    <div class="sod-mult">×</div>
+    <div class="sod-item">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <svg width="57" height="24" viewBox="0 0 57 24"><rect x="2" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="13" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="24" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="35" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="46" y="2" width="7" height="7" rx="1.5" fill="#111111"/><rect x="2" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="24" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="35" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/><rect x="46" y="13" width="7" height="7" rx="1.5" fill="rgba(0,0,0,0.08)"/></svg>
+        <span style="font-size:20px;font-weight:700;color:#1A1A1A">5</span>
+        <span style="font-size:9px;color:#888;letter-spacing:1px">D</span>
+      </div>
+      <div class="sod-desc">Entdeckung – Detektierbarkeit</div>
+      <div class="sod-grund">Redundante TI-401a/b und PIC-402 können Abweichung erkennen; bei allen ausgefall</div>
+    </div>
+  </div>
+  <div class="override-note">⚠ AIAG-VDA Sonderregel: Sonderregel: B >= 9 → mindestens 'hoch' (Sicherheitsrelevanz erzwingt Maßnahme)</div>
+  <div class="details-grid">
+    <div class="details-col">
+      <div class="section-label">Fehlerursachen</div>
+      <div class="causes-list"><div class="cause-row">
+          <span class="cause-id">KOMP-010-F1-FM1-UC1</span>
+          <span class="cause-desc">Sensor oder Messumformer defekt, liefert konstanten Wert</span>
+          <span class="cause-phase">Wartung</span>
+        </div><div class="cause-row">
+          <span class="cause-id">KOMP-010-F1-FM1-UC2</span>
+          <span class="cause-desc">Impulsleitung verstopft oder abgeklemmt</span>
+          <span class="cause-phase">Wartung</span>
+        </div><div class="cause-row">
+          <span class="cause-id">KOMP-010-F1-FM1-UC3</span>
+          <span class="cause-desc">Bus/DCS-Kommunikation ausgefallen, letzter Wert bleibt stehen</span>
+          <span class="cause-phase">Betrieb</span>
+        </div></div>
+    </div>
+    <div class="details-col">
+      <div class="section-label">Fehlerfolgen</div>
+      <div class="effects-list"><div class="eff-row"><span class="eff-label">Mensch</span><span class="eff-val">Schwere Verletzung</span></div><div class="eff-row"><span class="eff-label">Umwelt</span><span class="eff-val">Betriebsbereich</span></div><div class="eff-row"><span class="eff-label">Anlage</span><span class="eff-val">Totalausfall</span></div><div class="eff-row"><span class="eff-label">Kosten</span><span class="eff-val">Bis 500.000 €</span></div></div>
+    </div>
+  </div>
+  <div class="controls-section"><div class="section-label">Bestehende Maßnahmen</div><div class="ctrl-row">
+          <span class="ctrl-name">TI-401a / TI-401b</span>
+          <span class="ctrl-type">Sensor</span>
+          <span class="ctrl-wirkung">B</span>
+        </div><div class="ctrl-row">
+          <span class="ctrl-name">PIC-402</span>
+          <span class="ctrl-type">Sensor</span>
+          <span class="ctrl-wirkung">B</span>
+        </div></div>
+  <div class="measures-section"><div class="section-label">Empfohlene Maßnahmen</div><div class="measure-row">
+          <div class="measure-name">Plausibilitätsprüfung TIC-401 mit TI-401a/401b</div>
+          <div class="measure-delta">RPZ 135 → <strong>54</strong>
+            <span class="badge-mini" style="color:#14532D;background:#F0FDF4;border-color:#16A34A">NIEDRIG</span>
+          </div>
+          <div class="measure-begr">D sinkt: Frozen Value erkennbar</div>
+        </div><div class="measure-row">
+          <div class="measure-name">Jährliche Kalibrierung TIC-401</div>
+          <div class="measure-delta">RPZ 135 → <strong>54</strong>
+            <span class="badge-mini" style="color:#14532D;background:#F0FDF4;border-color:#16A34A">NIEDRIG</span>
+          </div>
+          <div class="measure-begr">O sinkt durch präventive Wartung</div>
+        </div></div>
+</div>
+<div class="tier-divider">
+  <div class="tier-line"></div>
+  <div class="tier-label">Niedrig-Risiko — vollständig bewertet, keine Maßnahmen</div>
+  <div class="tier-line"></div>
+</div>
+<div class="fm-card fm-compact" style="background:#FFFFFF;border:0.5px solid #16A34A;">
+  <div class="compact-header">
+    <div class="compact-left">
+      <span class="fm-id-small">KOMP-014-F1-FM1</span>
+      <span class="fm-title-small">Eingefrorener Messwert – Überfüllung wird nicht erkannt</span>
+      <span class="fm-komp-small">LIC-403</span>
+    </div>
+    <div class="compact-right">
+      <div class="rpz-inline" style="color:#14532D">RPZ <strong>96</strong> = 8×3×4</div>
+      <div class="status-badge-small" style="color:#14532D;background:#F0FDF4;border-color:#16A34A">NIEDRIG</div>
+    </div>
+  </div>
+  <div class="compact-causes"><span class="causes-label">Ursachen:</span> <span class='inline-cause'>KOMP-014-F1-FM1-UC1 Radar-Störung, Schaum oder Verschmutzung</span> &nbsp;·&nbsp; <span class='inline-cause'>KOMP-014-F1-FM1-UC2 Leitung oder Messumformer defekt</span></div>
+  <div class="compact-verdict" style="color:#14532D">Vollständig bewertet — RPZ 96 unter Handlungsschwelle (100). Keine Maßnahmen erforderlich.</div>
+</div>
+<div class="fm-card fm-compact" style="background:#FFFFFF;border:0.5px solid #16A34A;">
+  <div class="compact-header">
+    <div class="compact-left">
+      <span class="fm-id-small">KOMP-014-F1-FM3</span>
+      <span class="fm-title-small">Signalausfall – Regler blind, Füllstand unbekannt</span>
+      <span class="fm-komp-small">LIC-403</span>
+    </div>
+    <div class="compact-right">
+      <div class="rpz-inline" style="color:#14532D">RPZ <strong>96</strong> = 8×3×4</div>
+      <div class="status-badge-small" style="color:#14532D;background:#F0FDF4;border-color:#16A34A">NIEDRIG</div>
+    </div>
+  </div>
+  <div class="compact-causes"><span class="causes-label">Ursachen:</span> <span class='inline-cause'>KOMP-014-F1-FM3-UC1 Leitung, Steckverbinder oder Messumforme</span></div>
+  <div class="compact-verdict" style="color:#14532D">Vollständig bewertet — RPZ 96 unter Handlungsschwelle (100). Keine Maßnahmen erforderlich.</div>
+</div>
+  </div>
+  <div class="footer-block">
+    <span class="footer-text">FMEA Risikoanalyse · Ethylacetatproduktion · Vertraulich</span>
+    <span class="footer-text">Design: Chalk · Runde 6</span>
+  </div>
+</div>
+</body>
+</html>

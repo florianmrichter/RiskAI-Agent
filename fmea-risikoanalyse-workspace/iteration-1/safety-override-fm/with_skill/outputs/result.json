@@ -1,0 +1,131 @@
+{
+  "fehler_id": "20TA43-KOMP-006-FM01",
+  "fehlermodus": "Betrieb mit offenem/undichtem Handloch",
+  "fehlerart": "Sicherheit",
+  "S": 10,
+  "O": 3,
+  "D": 10,
+  "rpz": 300,
+  "rpz_status": "kritisch",
+  "override_applied": "Safety Override Explosionsschutz: Zone 0 (de facto), brennbare Lösemitteldämpfe, direkte Personenexposition am offenen Handloch → S≥10 gemäß SAFETY_OVERRIDES",
+  "kontext_beschreibung": "Das Handloch HL-43 am Büchi miniPilot 15L Glasreaktor dient als Inspektions- und Befüllöffnung im Reaktordeckel. Über diese Öffnung werden brennbare Lösemittel — Ethanol (Flammpunkt 13 °C), Methanol (Flammpunkt 9 °C, giftig, H301+H311+H331), Isopropanol (Flammpunkt 12 °C) und Aceton (Flammpunkt -20 °C, Dampfdruck 240 hPa bei 20 °C) — mittels Fasspumpe aus 10-L-Gebinden eingefüllt. Der Reaktorinnenraum ist bei Lösemittelbetrieb de facto Zone 0 (formal noch nicht klassifiziert), da über der Flüssigkeitsoberfläche ständig eine explosionsfähige Atmosphäre herrscht. Die ATEX-Gerätekategorie 2G (ausgelegt für Zone 1/2) ist für Zone 0 nicht zugelassen.\n\nDer Fehlermodus 'Betrieb mit offenem/undichtem Handloch' beschreibt die Situation, in der der Reaktor bei offenem oder undichtem Handloch unter Heiz- oder Rückflussbedingungen betrieben wird. Dabei entweichen brennbare Lösemitteldämpfe unkontrolliert direkt in den Arbeitsraum (Raum 330, Technikum). Der Dampfaustritt erfolgt am Handloch in Oberkörper-/Gesichtshöhe des Operators, der bei manuellem Betrieb direkt am Reaktor steht. Die RLT-Anlage (Raumlufttechnische Anlage) mit Strömungsüberwachung verdünnt zwar raumweit die Lösemittelkonzentration, kann aber die lokale Konzentration direkt am offenen Handloch nicht ausreichend reduzieren — insbesondere bei Aceton (Dampfdruck 240 hPa) und Methanol (Dampfdruck 128 hPa) bildet sich innerhalb von Sekunden eine zündfähige Atmosphäre im unmittelbaren Umfeld.\n\nDie zentrale Schutzlücke: Es existiert kein technisches Interlock (Verriegelung), das den Heizstart bei offenem Handloch verhindert. Kein Positionsschalter erfasst den Zustand des Handlochs. Kein Gaswarngerät überwacht die Lösemittelkonzentration am Handloch. Die einzige Barriere ist eine Betriebsanweisung (SOP) — eine rein organisatorische Maßnahme, die gegen bewusste Regelverletzungen (z. B. Nachdosierung bei laufendem Prozess) oder schlichten Vergessen keinen Schutz bietet. Dies ist eines der kritischsten Szenarien dieser Anlage, da die Kombination aus Zone 0, fehlender technischer Absicherung und direkter Personenexposition alle Voraussetzungen für einen schwerwiegenden Unfall erfüllt.",
+  "begruendung_S": "S = 10 (Gefährlich — Katastrophal, > 1 Mio EUR, Todesfälle): Der Betrieb mit offenem oder undichtem Handloch bei Heiz-/Rückflussbetrieb führt zum unkontrollierten Austritt brennbarer Lösemitteldämpfe direkt in den Arbeitsbereich des Operators. Am offenen Handloch entsteht unter Rückflussbedingungen de facto Zone 0 — eine ständig explosionsfähige Atmosphäre. Die eingesetzten Lösemittel (Ethanol FP 13 °C, Methanol FP 9 °C, Aceton FP -20 °C) haben extrem niedrige Flammpunkte und hohe Dampfdrücke. Methanol brennt mit nahezu unsichtbarer Flamme — der Operator bemerkt eine Entzündung möglicherweise nicht sofort. Bei Zündung durch elektrostatische Entladung, heiße Oberflächen oder Funken entsteht eine Verpuffung oder Stichflamme in direkter Nähe zum Operator (Gesichts-/Oberkörperhöhe). Potenzielle Folgen: schwerste Verbrennungen, tödliche Verletzungen, Glasreaktor-Bersten mit Splitterwurf, Sekundärbrand. Der Safety Override für Explosionsschutz greift zwingend: Zone 0 (explosionsfähige Atmosphäre bei Lösemittelbetrieb), ATEX 2G nur für Zone 1/2 zugelassen, direkte Personenexposition bei personenüberwachtem manuellen Betrieb → mindestens S=10 gemäß SAFETY_OVERRIDES (Explosionsschutz-Spezifikation). Die Wiederbeschaffungskosten des Reaktors (~35.000 EUR) sind für die S-Bewertung sekundär — der Personenschutzaspekt dominiert eindeutig.",
+  "begruendung_O": "O = 3 (Gering — ca. 1x in 10 Jahren): Das Handloch wird bei jeder Chargenumstellung geöffnet (Befüllung, Reinigung, Inspektion) — die Gelegenheit für einen Fehlzustand besteht bei jedem Batch-Wechsel. Allerdings ist das Schließen des Handlochs ein bewusster, aktiver Schritt: der schwere Deckel muss aufgesetzt und verschraubt werden. Ein unbewusstes Offenlassen ist daher unwahrscheinlich. Die wahrscheinlicheren Szenarien sind: (1) Bewusste Entscheidung des Operators, das Handloch für Nachdosierung kurz offen zu lassen während der Prozess bereits läuft, (2) Defekte oder falsch eingelegte Dichtung, die trotz geschlossenem Deckel nicht abdichtet, (3) Vergessen nach Unterbrechung (z. B. Telefonanruf während Befüllung). Für bewusste Regelverletzungen liefert die CCPS Human Factors Literature eine Wahrscheinlichkeit von ca. 1x10^-2 pro Gelegenheit. Bei geschätzten 100-200 Batches pro Jahr ergibt sich eine Erwartung von ca. 1-2 Vorfällen pro Jahr — allerdings nicht jeder Vorfall führt zum vollständigen Fehlerzustand (Heizstart bei offenem Handloch). Korrigiert auf den spezifischen Fehlermodus (offenes Handloch UND gleichzeitiger Heizbetrieb) wird O=3 als angemessen eingeschätzt. Datenquelle: Betriebserfahrung, CCPS Human Factors. Für Handloch HL-43 liegen keine CCPS/OREDA-Referenzdaten vor.",
+  "begruendung_D": "D = 10 (Absolut unsicher — Nicht erkennbar, ca. 0% Entdeckungswahrscheinlichkeit): Für den Fall einer undichten Dichtung bei geschlossenem Handlochdeckel existiert keine Entdeckungsmöglichkeit. Es gibt keinen Positionsschalter, der den Verschlusszustand des Handlochs erfasst. Es gibt keinen Gasdetektor am Handloch oder im Nahbereich des Reaktorkopfs, der austretende Lösemitteldämpfe messen würde. Die Lösemitteldämpfe (insbesondere Methanol) sind geruchsarm bis geruchlos und die RLT-Anlage verdünnt die Raumluft, was die olfaktorische Erkennung zusätzlich erschwert. Der Operator selbst, der das Handloch offen gelassen hat, wird seinen eigenen bewussten Entscheid nicht als Fehler erkennen ('ich schließe gleich wieder'). Bei einer defekten Dichtung ist der Fehlerzustand visuell nicht erkennbar — das Handloch erscheint geschlossen. Erst bei einer Zündung wird der Zustand erkannt — dann ist es zu spät. Die einzige theoretische Detection-Möglichkeit wäre die Sichtkontrolle durch einen zweiten Operator, die aber im normalen Technikumsbetrieb nicht standardmäßig vorgesehen ist. Fazit: Ohne technische Sensorik (Positionsschalter, Gasdetektor) ist die Entdeckungswahrscheinlichkeit praktisch null.",
+  "empfehlung": "PFLICHT-Maßnahme aufgrund S=10 (Safety Override Explosionsschutz, Zone 0) und RPZ=300 (kritisch): Primär empfohlen wird die Installation eines Positionsschalters (induktiver Sensor oder Reed-Kontakt, ATEX-zertifiziert) am Handloch HL-43, dessen Signal als hardverdrahtetes Interlock zum Thermostat PU geführt wird — bei offenem Handloch wird der Heizkreislauf gesperrt, der Thermostat kann erst heizen, wenn das Handloch nachweislich geschlossen ist. Diese Maßnahme eliminiert den gefährlichsten Bedienfehler (Heizstart bei offenem Handloch) auf technischer Ebene. Ergänzend wird eine Gaswarneinrichtung (katalytischer oder IR-Sensor) im Bereich des Reaktorkopfs empfohlen, die bei 20% UEG optischen und akustischen Alarm auslöst — dies macht die unsichtbare Gefahr sichtbar und schützt auch gegen undichte Dichtungen. In Kombination sinkt die RPZ auf 30 (niedrig). Als Sofortmaßnahme bis zur technischen Umsetzung: Erweiterung der Chargenfreigabe-Checkliste um den expliziten Prüfpunkt 'Handloch geschlossen und Verschluss geprüft — Dichtung intakt'.",
+  "controls_einschraenkung": "Die bestehenden Controls sind für diesen Fehlermodus grundlegend unzureichend. Die Betriebsanweisung (SOP 'Handloch vor Heizstart schließen') ist eine rein organisatorische Maßnahme — sie verhindert weder einen bewussten Verstoß (Nachdosierung bei laufendem Prozess) noch schützt sie vor einer defekten Dichtung. Die RLT-Anlage verdünnt die Lösemitteldämpfe raumweit unter die Explosionsgrenze, kann aber die lokale Konzentration direkt am offenen Handloch nicht beherrschen — bei Aceton-Rückfluss (56 °C, Dampfdruck 240 hPa) bildet sich innerhalb von Sekunden eine zündfähige Atmosphäre im Bereich von 30-50 cm um die Öffnung. Die Folienbeschichtung FB-43 (Splitterschutz) mindert nur die Folgen eines Glasbruchs, verhindert aber weder die Zündung noch den Dampfaustritt. Es fehlt jegliche technische Detection-Maßnahme: kein Positionsschalter am Handloch, kein Gasdetektor, kein Interlock zum Thermostat. Die Kombination aus rein organisatorischer Prevention und fehlender technischer Detection ergibt eine Schutzlücke, die bei S=10 (Explosionsschutz-Override) nicht akzeptabel ist.",
+  "daten_konfidenz": "mittel",
+  "agent_konfidenz": "mittel",
+  "daten_quelle": "Betriebserfahrung",
+  "causes": [
+    {
+      "ursache_id": "U-006-01",
+      "beschreibung": "Bedienfehler — Der Operator vergisst nach der Befüllung, das Handloch zu schließen und startet den Heizbetrieb über den Thermostat. Dies kann durch Ablenkung (Telefonanruf, Paralleltätigkeit), Zeitdruck oder fehlende Routine bei Mitarbeiterwechsel passieren. Da kein technisches Interlock den Heizstart bei offenem Handloch verhindert, führt die Betriebsanweisung allein den Operator nicht zuverlässig durch den korrekten Ablauf.",
+      "herkunft": "Betrieb",
+      "praeventionsphase": "Betrieb"
+    },
+    {
+      "ursache_id": "U-006-02",
+      "beschreibung": "Defekte oder falsch eingelegte Dichtung — Die Handlochdichtung ist verschlissen, verformt oder wurde nach der letzten Reinigung falsch eingesetzt. Das Handloch wirkt geschlossen, dichtet aber nicht vollständig ab. Lösemitteldämpfe treten durch den Dichtspalt aus, ohne dass dies visuell erkennbar ist. Besonders kritisch bei Vakuumbetrieb (Außenluft dringt ein) und bei Überdruck (Dämpfe werden nach außen gedrückt). Dichtungswechsel erfolgt nur bei sichtbarer Beschädigung — keine regelmäßige Wechselroutine.",
+      "herkunft": "Wartung",
+      "praeventionsphase": "Wartung"
+    },
+    {
+      "ursache_id": "U-006-03",
+      "beschreibung": "Bewusste Regelverletzung — Der Operator lässt das Handloch absichtlich offen, um während des laufenden Prozesses nachzudosieren, den Prozessfortschritt visuell zu beobachten oder Proben zu entnehmen. Dies geschieht häufig unter Zeitdruck oder wenn mehrere Chargen parallel bearbeitet werden. Der Operator unterschätzt das Risiko, weil bisher kein Unfall passiert ist (Normalisierung von Abweichungen). CCPS Human Factors: Wahrscheinlichkeit bewusster Regelverletzung ca. 1x10^-2 pro Gelegenheit.",
+      "herkunft": "Betrieb",
+      "praeventionsphase": "Betrieb"
+    }
+  ],
+  "effects": {
+    "mensch": {
+      "stufe": "kritisch",
+      "beschreibung": "Bei Zündung der aus dem offenen Handloch austretenden Lösemitteldämpfe: Verpuffung oder Stichflamme direkt in Gesichts- und Oberkörperhöhe des Operators. Bei manuellem Betrieb steht der Operator unmittelbar am Reaktor — Fluchtweg ist eingeschränkt. Schwere bis tödliche Verbrennungen im Gesicht, Hände, Oberkörper. Methanol brennt mit nahezu unsichtbarer Flamme — Sekundärverbrennungen durch verspätetes Erkennen. Bei Glasreaktor-Bersten zusätzlich Splitterverletzungen trotz Folienbeschichtung. Inhalation heißer Dämpfe kann zu Lungenschädigung führen. Worst Case: Tödlicher Arbeitsunfall."
+    },
+    "umwelt": {
+      "stufe": "gering",
+      "beschreibung": "Begrenzte Umweltauswirkung. Der Lösemitteleintritt erfolgt im geschlossenen Innenraum (Raum 330) mit RLT-Ableitung zur Abluftreinigungsanlage. Die Lösemittelmengen sind gering (max. 12 L Reaktorinhalt). Die AwSV-konforme Bodenwanne fängt ausgetretene Flüssigkeit auf. Alle Lösemittel sind WGK 1 (schwach wassergefährdend). Keine relevante Bodenverunreinigung."
+    },
+    "anlage": {
+      "stufe": "hoch",
+      "beschreibung": "Bei Verpuffung/Explosion: Glasreaktor bersten mit Totalschaden. Splitterwurf beschädigt umliegende Geräte im Technikum. Sekundärbrand möglich durch entzündete Lösemittel in der Tropfwanne/Bodenwanne. Thermostat und Schaltschrank können beschädigt werden. Wiederbeschaffung Glasreaktor ~35.000 EUR, Gesamtschaden mit Folgeschäden (Reinigung, Stillstand, umliegende Geräte) geschätzt 50-100k EUR."
+    },
+    "kosten": {
+      "stufe": "mittel",
+      "beschreibung": "Direktkosten: Reaktorersatz ~35.000 EUR, Reinigung und Dekontamination ~5-10k EUR, ggf. Folgeschäden an Nachbaranlagen ~10-20k EUR. Indirekte Kosten: Produktionsstillstand (Technikum nicht nutzbar bis Sanierung), Unfalluntersuchung durch Berufsgenossenschaft, mögliche Strafzahlungen bei Personenschaden, Versicherungsaufnahme. Gesamtkosten bei Personenschaden: >500k EUR (Heilbehandlung, Rente, Schmerzensgeld). Geschätzter Gesamtrahmen: 50k-1M EUR je nach Schwere des Personenschadens."
+    }
+  },
+  "controls": [
+    {
+      "name": "Betriebsanweisung",
+      "typ": "prevention",
+      "wirkung": "O",
+      "beschreibung": "Betriebsanweisung (SOP): Handloch vor Heizstart schließen und Verschluss prüfen. Rein organisatorische Maßnahme ohne technische Absicherung.",
+      "einschraenkung": "Rein organisatorisch — schützt nicht vor bewusster Regelverletzung oder Vergessen. Kein Vier-Augen-Prinzip standardmäßig vorgesehen."
+    },
+    {
+      "name": "RLT-Anlage",
+      "typ": "prevention",
+      "wirkung": "S",
+      "beschreibung": "Raumlufttechnische Anlage (RLT) mit Strömungsüberwachung. Verdünnt Lösemitteldämpfe raumweit unter die Explosionsgrenze.",
+      "einschraenkung": "Wirkt raumweit, nicht lokal am Handloch. Kann lokale Konzentrationen direkt an der Austrittsquelle nicht beherrschen. Bei Aceton (Dampfdruck 240 hPa) bildet sich Zone 0 im Nahbereich trotz RLT."
+    },
+    {
+      "name": "Folienbeschichtung FB-43",
+      "typ": "prevention",
+      "wirkung": "S",
+      "beschreibung": "Folienbeschichtung FB-43 als Splitterschutz am Reaktorglas. Reduziert Splitterwurf bei Glasbruch.",
+      "einschraenkung": "Mindert nur die Folgen eines Glasbruchs (Splitterwurf). Verhindert weder den Dampfaustritt noch die Zündung. Keine präventive Wirkung auf den Fehlermodus."
+    }
+  ],
+  "measures": [
+    {
+      "name": "Positionsschalter am Handloch mit Interlock zum Thermostat",
+      "abe_kategorie": "A",
+      "stop_kategorie": "T",
+      "beschreibung": "Installation eines ATEX-zertifizierten Positionsschalters (induktiver Sensor oder Reed-Kontakt, mindestens Ex-Kategorie 2G) am Handloch HL-43. Der Sensor erkennt zuverlässig, ob das Handloch geöffnet oder geschlossen ist. Das Signal wird als hardverdrahtetes Interlock zum Thermostat PU geführt: Bei offenem Handloch wird der Heizkreislauf physisch gesperrt — der Thermostat kann erst heizen, wenn das Handloch nachweislich geschlossen ist. Dies ist ein 'fail-safe' Design: bei Sensorausfall bleibt der Heizkreislauf gesperrt. Die Maßnahme eliminiert den gefährlichsten Bedienfehler (Heizstart bei offenem Handloch) auf technischer Ebene statt nur organisatorisch. O sinkt von 3 auf 1, da der Fehlermodus nur noch bei gleichzeitigem Sensorausfall und Handlochöffnung eintreten kann. D sinkt auf 3, da der Sensor den Zustand automatisch erfasst.",
+      "begruendung": "PFLICHT: S=10 und RPZ=300 (kritisch). Interlock eliminiert den gefährlichsten Fehlerzustand technisch. O→1 (nur noch bei Sensorausfall+Öffnung), D→3 (automatische Erfassung). RPZ_neu=30 (niedrig mit Override auf hoch wegen S=10).",
+      "S_neu": 10,
+      "O_neu": 1,
+      "D_neu": 3,
+      "rpz_neu": 30,
+      "rpz_status_neu": "hoch",
+      "prioritaet": "pflicht",
+      "aufwand": "mittel",
+      "kosten_klasse": "klein",
+      "hinweis": "Moderater Aufwand (ATEX-zertifizierter Sensor + Verkabelung + Thermostat-Anpassung), Kosten ca. 1-3k EUR. Umsetzungszeit ca. 2-4 Wochen."
+    },
+    {
+      "name": "Gaswarneinrichtung mit optisch/akustischem Alarm",
+      "abe_kategorie": "E",
+      "stop_kategorie": "T",
+      "beschreibung": "Installation eines fest montierten Ex-Gas-Detektors (katalytischer Sensor oder Infrarot-Absorptionssensor, ATEX-zertifiziert) im Bereich des Handlochs/Reaktorkopfs. Der Sensor überwacht kontinuierlich die Lösemittelkonzentration in der Umgebungsluft. Bei Erreichen von 20% UEG (Untere Explosionsgrenze) löst ein optischer und akustischer Alarm aus — Blitzleuchte und Sirene direkt am Arbeitsplatz. Bei 40% UEG kann eine automatische Abschaltung des Thermostats erfolgen (optionaler zweiter Schwellenwert). Dies macht die unsichtbare Gefahr (Lösemitteldämpfe, besonders Methanol mit nahezu unsichtbarer Flamme) für den Operator sichtbar und gibt ihm Zeit zum Reagieren. Schützt auch gegen das Szenario der undichten Dichtung (Handloch geschlossen, aber nicht dicht), das durch einen Positionsschalter allein nicht erkannt wird.",
+      "begruendung": "PFLICHT: S=10 (Explosionsschutz-Override). Gaswarneinrichtung erkennt auch undichte Dichtungen. D→2 (automatische Gasüberwachung mit Alarm). RPZ_neu=60 (hoch wegen S=10 Override).",
+      "S_neu": 10,
+      "O_neu": 3,
+      "D_neu": 2,
+      "rpz_neu": 60,
+      "rpz_status_neu": "hoch",
+      "prioritaet": "pflicht",
+      "aufwand": "mittel",
+      "kosten_klasse": "mittel",
+      "hinweis": "Moderater Aufwand (ATEX-zertifizierter Gassensor + Alarmeinheit + Verkabelung), Kosten ca. 5-10k EUR. Umsetzungszeit ca. 4-6 Wochen."
+    },
+    {
+      "name": "Checkliste Handloch-Verschluss vor Heizstart",
+      "abe_kategorie": "E",
+      "stop_kategorie": "O",
+      "beschreibung": "Erweiterung der Chargenfreigabe-Checkliste um den expliziten Prüfpunkt 'Handloch geschlossen — Verschluss geprüft — Dichtung intakt' vor jedem Heizstart. Der Operator muss den Punkt aktiv abhaken und mit Kürzel bestätigen. Zusätzlich wird ein Dichtungsprüfprotokoll eingeführt: visuelle Prüfung der Handlochdichtung auf Verschleiß und korrekte Lage bei jeder Chargenumstellung. Die Checkliste wird bei jeder Charge dokumentiert und archiviert. Diese Maßnahme ist als Sofortmaßnahme gedacht, bis die technischen Maßnahmen (Positionsschalter, Gaswarneinrichtung) installiert sind.",
+      "begruendung": "Sofortmaßnahme: Schnell umsetzbar ohne Hardwareänderung. O→2 (reduziert Vergessen durch systematische Prüfung), D→4 (manuelle Prüfung). RPZ_neu=80 (hoch wegen S=10 Override).",
+      "S_neu": 10,
+      "O_neu": 2,
+      "D_neu": 4,
+      "rpz_neu": 80,
+      "rpz_status_neu": "hoch",
+      "prioritaet": "empfohlen",
+      "aufwand": "gering",
+      "kosten_klasse": "klein",
+      "hinweis": "Sofort umsetzbar (SOP-Ergänzung, kein Hardware-Aufwand). Kosten: gering (<500 EUR). Sofortmaßnahme bis zur technischen Umsetzung von Maßnahmen 1 und 2."
+    }
+  ]
+}

@@ -1,0 +1,635 @@
+    {# ══════════════════  5. DETAILLIERTE RISIKO-DOKUMENTATION  ══════════════════ #}
+    <section class="page-section" id="sec-5">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 5</div>
+        <div class="section-title">Detaillierte Risiko-Dokumentation</div>
+        <div class="section-desc">
+          Jeder Fehlermodus als vollständige Risiko-Card mit S/O/D-Bewertung, Ursachen, Folgen und Maßnahmen.
+          {% if report_context.fms_with_measures_count > 0 %}
+          {{ report_context.fms_with_measures_count }} von {{ stats.failure_modes }} Fehlermodi haben Maßnahmen.
+          {% endif %}
+        </div>
+      </div>
+
+      {# Klickbares Risiko-Inhaltsverzeichnis #}
+      <table class="risk-toc-table">
+        <thead>
+          <tr>
+            <th>ID</th><th>Fehlermodus</th><th>Art</th>
+            <th style="text-align:center;">S</th>
+            <th style="text-align:center;">O</th>
+            <th style="text-align:center;">D</th>
+            <th style="text-align:center;">RPZ</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fm in fmea_sorted %}
+          <tr>
+            <td style="font-weight:600;"><a href="#risk-{{ fm.fehler_id }}" class="risk-toc-link">{{ fm.fehler_id }}</a></td>
+            <td><a href="#risk-{{ fm.fehler_id }}" class="risk-toc-link">{{ fm.fehlermodus }}</a></td>
+            <td>{{ fm.fehlerart }}</td>
+            <td style="text-align:center;">{{ fm.S }}</td>
+            <td style="text-align:center;">{{ fm.O }}</td>
+            <td style="text-align:center;">{{ fm.D }}</td>
+            <td style="text-align:center;font-weight:700;">{{ fm.rpz }}</td>
+            <td>
+              <span class="risk-badge {{ fm.rpz_status }}"><span class="bdot"></span>{{ fm.rpz_status|capitalize }}</span>
+              {% if fm.special_rule %}<span style="font-size:10px;color:#9A3412;margin-left:4px;">⚠</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {# ── THEMATISCHE ANSICHT ── #}
+      <div class="view-thematic" id="view-thematic">
+
+        {# Sammle alle fehlerart-Kategorien in einer geordneten Liste #}
+        {% set ns3 = namespace(seen_cats=[]) %}
+        {% for fm in fmea_sorted %}
+          {% if fm.fehlerart and fm.fehlerart not in ns3.seen_cats %}
+            {% set ns3.seen_cats = ns3.seen_cats + [fm.fehlerart] %}
+          {% endif %}
+        {% endfor %}
+
+        {# Kategorie-Icons #}
+        {% set cat_icons = {
+          'Prozess': '⚗',
+          'Thermisch': '🌡',
+          'Mechanisch': '⚙',
+          'Equipment': '🔧',
+          'MSR': '📡',
+          'MSR-Fehler': '📡',
+          'Mess-, Steuer- und Regelungstechnik (MSR)': '📡',
+          'Sicherheit': '🛡',
+          'Sicherheitseinrichtungen': '🛡',
+          'Elektrisch': '⚡',
+          'Dosierung': '💧',
+          'Verschleiß': '🔄',
+          'Korrosion': '🧪',
+          'Bedienfehler': '👤',
+          'Auslegung': '📐',
+          'Sonstiges': '📋'
+        } %}
+
+        {% for cat in ns3.seen_cats %}
+        {% set cat_fms = fmea_sorted | selectattr('fehlerart', 'eq', cat) | list %}
+        {% set cat_id = cat|lower|replace(' ','_')|replace('/','_')|replace('ä','ae')|replace('ö','oe')|replace('ü','ue') %}
+        {% set cat_max_status = 'niedrig' %}
+        {% for fm in cat_fms %}
+          {% if fm.rpz_status == 'kritisch' %}{% set cat_max_status = 'kritisch' %}
+          {% elif fm.rpz_status == 'hoch' and cat_max_status != 'kritisch' %}{% set cat_max_status = 'hoch' %}
+          {% elif fm.rpz_status == 'mittel' and cat_max_status not in ('kritisch','hoch') %}{% set cat_max_status = 'mittel' %}
+          {% endif %}
+        {% endfor %}
+
+        <div class="category-block" id="cat-{{ cat_id }}">
+          <div class="category-header">
+            <div class="category-icon">{{ cat_icons.get(cat, '📋') }}</div>
+            <div class="category-info">
+              <div class="category-name">{{ cat }}</div>
+              <div class="category-desc">{{ cat_fms|length }} Fehlermodi in dieser Kategorie</div>
+            </div>
+            <div class="category-meta">
+              <span class="risk-badge {{ cat_max_status }}"><span class="bdot"></span>Max: {{ cat_max_status|capitalize }}</span>
+              <span class="cat-count">{{ cat_fms|length }} FMs</span>
+            </div>
+          </div>
+
+          {% for fm in cat_fms %}
+          {% set status = fm.rpz_status %}
+          {% set measures = fm.measures or [] %}
+          {% set best_measure = measures|sort(attribute='rpz_neu')|first if measures else None %}
+          {% set fd = func_details.get(fm.funktion_id, {}) %}
+
+          <div class="risk-card {{ status }}" id="risk-{{ fm.fehler_id }}">
+
+            {# Card Header #}
+            <div class="card-header" onclick="toggleCard(this)">
+              <div>
+                <div class="card-id-row">
+                  <span class="card-id">{{ fm.fehler_id }}</span>
+                  {% if fd %}<span class="card-component">{{ fd.component_name }}</span>{% endif %}
+                  {% if fm.get('moc_status') and fm.moc_status not in ('original', 'unverändert') %}
+                  <span style="display:inline-block;background:#EDE9FE;border:1px solid #C4B5FD;border-radius:4px;padding:1px 6px;font-size:10px;color:#5B21B6;font-weight:600;">
+                    {{ {'neu_bewertet':'Neu bewertet','hinzugefügt':'Neu hinzugefügt','entfernt':'Entfernt'}.get(fm.moc_status, fm.moc_status) }}
+                  </span>
+                  {% endif %}
+                </div>
+                <div class="card-title">{{ fm.fehlermodus }}</div>
+                {% if fd %}
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">
+                  {{ 'Hauptfunktion' if fd.typ == 'haupt' else 'Nebenfunktion' }}: {{ fd.beschreibung }}
+                </div>
+                {% endif %}
+              </div>
+              <div class="card-header-right">
+                <span class="card-chevron">&#9660;</span>
+                <span class="risk-badge {{ status }}"><span class="bdot"></span>{{ status|capitalize }}</span>
+                {% if fm.special_rule %}
+                <span class="special-rule-badge">⚠ Sonderregel</span>
+                {% endif %}
+              </div>
+            </div>
+
+            {# Scores Row #}
+            <div class="card-scores">
+              <div class="sod-group">
+                {% set risk_scores = fm.get('risk') or {} %}
+                {% set beg_keys = {'S': 'begruendung_S', 'O': 'begruendung_O', 'D': 'begruendung_D'} %}
+                {% for key, val, css, label_text, info in sod_data(fm) %}
+                <div class="sod-row-wrapper">
+                  <div class="sod-row sod-toggle" onclick="toggleSodRationale(this)">
+                    <span class="sod-label">{{ key }}</span>
+                    <div class="sod-bar-track">
+                      <div class="sod-bar-fill sod-v{{ val }}" style="width:{{ (val / 10 * 100)|int }}%;"></div>
+                    </div>
+                    <span class="sod-val">{{ val }}</span>
+                    <span class="sod-scale-desc">{{ info[0] }} — {{ info[1] }}</span>
+                    {% set beg = risk_scores.get(beg_keys[key]) %}
+                    {% if beg %}<span class="sod-expand-hint">&#9654;</span>{% endif %}
+                  </div>
+                  {% if beg %}
+                  {% set beg_kurz = risk_scores.get(beg_keys[key] ~ '_kurz') %}
+                  <div class="sod-rationale sod-collapsible">
+                    <span class="text-kurz">{{ (beg_kurz or beg) | strip_sod_prefix }}</span>
+                    <span class="text-detail">{{ beg | strip_sod_prefix }}</span>
+                  </div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              </div>
+              <div class="rpz-divider"></div>
+              <div class="rpz-box">
+                <span class="rpz-label">RPZ</span>
+                <span class="rpz-value {{ status }}">{{ fm.rpz }}</span>
+                <span class="rpz-formula">{{ fm.S }} × {{ fm.O }} × {{ fm.D }}</span>
+                {% if best_measure and best_measure.rpz_neu and best_measure.rpz_neu != fm.rpz %}
+                <span style="font-size:11px;color:var(--risk-niedrig);font-weight:600;margin-top:2px;">→ {{ best_measure.rpz_neu }}</span>
+                {% endif %}
+              </div>
+            </div>
+
+            {# Card Body #}
+            <div class="card-body">
+
+              {# Kontextbeschreibung #}
+              {% if fm.kontext_beschreibung %}
+              <div class="sub-section sub-collapsible" data-preview="{{ fm.kontext_beschreibung[:150] }}">
+                <div class="sub-label sub-toggle" onclick="toggleSection(this)">
+                  <span class="section-chevron">&#9654;</span>
+                  Kontext
+                </div>
+                <div class="sub-content">
+                  <p class="text-kurz" style="font-size:13px;color:var(--text-secondary);margin:0;">{{ fm.kontext_beschreibung_kurz or fm.kontext_beschreibung }}</p>
+                  <p class="text-detail" style="font-size:13px;color:var(--text-secondary);margin:0;">{{ fm.kontext_beschreibung }}</p>
+                </div>
+              </div>
+              {% endif %}
+
+              {# Konfidenz-Badges mit Hover-Tooltips #}
+              {% set risk = fm.get('risk') or {} %}
+              {% set dk_explain = {
+                'hoch': 'Quantitative Ausfallraten aus industriellen Datenbanken (CCPS/OREDA) verfügbar.',
+                'mittel': 'Keine anlagenspezifischen Ausfalldaten. Einstufung basiert auf allgemeinem Branchenwissen und Literaturwerten des KI-Agents.',
+                'niedrig': 'Keine belastbaren Daten verfügbar. Einstufung ist eine KI-gestützte Schätzung auf Basis von Analogieschlüssen — Validierung durch Fachexperten erforderlich.'
+              } %}
+              {% set ak_explain = {
+                'hoch': 'Eindeutige Gefahrenlage mit klaren Standards — die Bewertung ist gut abgesichert.',
+                'mittel': 'Mehrere plausible Einstufungen möglich. Die S/O/D-Begründungen zeigen die Abwägung im Detail.',
+                'niedrig': 'Hohe Unsicherheit bei dieser Bewertung. Bitte die S/O/D-Begründungen prüfen und ggf. korrigieren.'
+              } %}
+              {% set dq_explain = {
+                'CCPS/OREDA': 'Ausfallrate aus industrieller Zuverlässigkeitsdatenbank. CCPS = Center for Chemical Process Safety, OREDA = Offshore &amp; Onshore Reliability Data.',
+                'CCPS': 'Referenzwert aus CCPS Guidelines for Chemical Process Safety (Center for Chemical Process Safety).',
+                'OREDA': 'Ausfallrate aus OREDA Handbook (Offshore &amp; Onshore Reliability Data).',
+                'Betriebserfahrung': 'Achtung: Keine tatsächlichen Betriebsdaten dieser Anlage. Der KI-Agent nutzt allgemeines Branchenwissen über typische Ausfallraten dieses Anlagentyps.',
+                'Expertenschätzung': 'Einstufung ohne quantitative Datenbasis — basiert auf Erfahrungswissen, das im Rahmen der Analyse eingebracht wurde.',
+                'KI-Vorschlag': 'Vom KI-Agent vorgeschlagene Einstufung auf Basis von Analogieschlüssen. Keine quantitativen Daten verfügbar — unbedingt durch Fachexperten validieren.'
+              } %}
+              {% if risk.get('daten_konfidenz') or risk.get('agent_konfidenz') %}
+              <div class="sub-section" style="padding-top:8px;padding-bottom:8px;">
+                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+                  {% if risk.get('daten_konfidenz') %}
+                  {% set dk = risk.daten_konfidenz %}
+                  {% set dk_color = {'hoch':'#16A34A','mittel':'#CA8A04','niedrig':'#DC2626'}.get(dk,'#6B7280') %}
+                  {% set dk_tip %}<b>Datenbasis: {{ dk }}</b><br>{{ dk_explain.get(dk, '') }}<br><br><span style="color:#9CA3AF;font-size:11px;">Details: S/O/D-Begründungen auf dieser Karte aufklappen.</span>{% endset %}
+                  <span style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid {{ dk_color }};color:{{ dk_color }};font-weight:600;" data-badge-tip="{{ dk_tip | e }}">Datenbasis: {{ dk }}</span>
+                  {% endif %}
+                  {% if risk.get('agent_konfidenz') %}
+                  {% set ak = risk.agent_konfidenz %}
+                  {% set ak_color = {'hoch':'#16A34A','mittel':'#CA8A04','niedrig':'#DC2626'}.get(ak,'#6B7280') %}
+                  {% set ak_tip %}<b>KI-Konfidenz: {{ ak }}</b><br>{{ ak_explain.get(ak, '') }}{% if risk.get('agent_konfidenz_begruendung') %}<br><br><b>Detail:</b> {{ risk.agent_konfidenz_begruendung | e }}{% endif %}{% endset %}
+                  <span style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid {{ ak_color }};color:{{ ak_color }};font-weight:600;" data-badge-tip="{{ ak_tip | e }}">KI-Konfidenz: {{ ak }}</span>
+                  {% endif %}
+                  {% if risk.get('agent_konfidenz') == 'niedrig' %}
+                  <span style="font-size:10px;color:#991B1B;font-weight:600;">⚠ Expertenprüfung empfohlen</span>
+                  {% endif %}
+                  {% if risk.get('daten_quelle') %}
+                  {% set dq = risk.daten_quelle %}
+                  {% set dq_tip %}<b>Quelle: {{ dq }}</b><br>{{ dq_explain.get(dq, 'Datenquelle: ' ~ dq) }}{% endset %}
+                  <span style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid #6B7280;color:#6B7280;font-weight:600;" data-badge-tip="{{ dq_tip | e }}">Quelle: {{ dq }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              {% endif %}
+
+              {# S/O/D-Begründungen sind jetzt in die Bar-Zeilen integriert (card-scores) #}
+
+              {# Sonderregel-Hinweis #}
+              {% if fm.special_rule %}
+              <div class="sub-section" style="padding-top:6px;padding-bottom:6px;">
+                <div class="special-rule-box" style="margin:0;">
+                  <span class="special-rule-icon">⚠</span>
+                  <div class="special-rule-content">
+                    <div class="special-rule-title">Sonderregel angewendet (AIAG-VDA)</div>
+                    <div class="special-rule-desc">{{ fm.special_rule.description }}</div>
+                    <div class="special-rule-calc">
+                      Rechnerisch: <strong>{{ fm.special_rule.calculated_status|upper }}</strong> (RPZ {{ fm.rpz }})
+                      → Angehoben: <strong>{{ fm.special_rule.final_status|upper }}</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+
+              {# Fehlerursachen #}
+              {% if fm.causes %}
+              <div class="sub-section sub-collapsible" data-preview="{{ fm.causes[0].beschreibung[:150] if fm.causes else '' }}">
+                <div class="sub-label sub-toggle" onclick="toggleSection(this)">
+                  <span class="section-chevron">&#9654;</span>
+                  Fehlerursachen ({{ fm.causes|length }})
+                </div>
+                <div class="sub-content">
+                <table class="mini-table">
+                  <thead><tr><th>ID</th><th>Beschreibung</th><th>Herkunft</th><th>Präventionsphase</th></tr></thead>
+                  <tbody>
+                    {% for c in fm.causes %}
+                    <tr>
+                      <td class="td-id">{{ c.ursache_id }}</td>
+                      <td><span class="text-kurz">{{ c.beschreibung_kurz or c.beschreibung }}</span><span class="text-detail">{{ c.beschreibung }}</span></td>
+                      <td>{{ c.herkunft }}</td>
+                      <td>{{ c.praeventionsphase }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                </div>
+              </div>
+              {% endif %}
+
+              {# Fehlerfolgen #}
+              {% set eff = fm.effects %}
+              {% if eff %}
+              <div class="sub-section sub-collapsible" data-preview="{{ eff.get('mensch_beschreibung', '')[:150] }}">
+                <div class="sub-label sub-toggle" onclick="toggleSection(this)">
+                  <span class="section-chevron">&#9654;</span>
+                  Fehlerfolgen
+                </div>
+                <div class="sub-content">
+                <div class="effects-grid">
+                  {% for dim, desc_key, stufe_key in [('Mensch','mensch_beschreibung','mensch_stufe'),('Umwelt','umwelt_beschreibung','umwelt_stufe'),('Anlage','anlage_beschreibung','anlage_stufe'),('Kosten','kosten_beschreibung','kosten_stufe')] %}
+                  <div class="effect-cell {% if not eff.get(desc_key) %}none{% endif %}">
+                    <div class="effect-cell-label">{{ dim }}{% if eff.get(stufe_key) %} <span class="effect-stufe">{{ eff.get(stufe_key) }}</span>{% endif %}</div>
+                    <div class="effect-cell-text">
+                      <span class="text-kurz">{{ eff.get(desc_key ~ '_kurz') or eff.get(desc_key, '—') }}</span>
+                      <span class="text-detail">{{ eff.get(desc_key, '—') if eff.get(desc_key) else '—' }}</span>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                </div>
+              </div>
+              {% endif %}
+
+              {# Controls #}
+              {% if fm.controls %}
+              <div class="sub-section sub-collapsible" data-preview="{{ fm.controls[0].name ~ ': ' ~ (fm.controls[0].beschreibung or '')[:100] if fm.controls else '' }}">
+                <div class="sub-label sub-toggle" onclick="toggleSection(this)">
+                  <span class="section-chevron">&#9654;</span>
+                  Bestehende Controls ({{ fm.controls|length }})
+                </div>
+                <div class="sub-content">
+                {% set ns_ctrl = namespace(has_einschr=false) %}
+                {% for ctrl in fm.controls %}
+                  {% if ctrl.get('einschraenkung') %}{% set ns_ctrl.has_einschr = true %}{% endif %}
+                {% endfor %}
+                <table class="mini-table">
+                  <thead><tr><th>Wirkung</th><th>Name</th><th>Typ</th><th>Beschreibung</th><th>Beeinflusst</th>{% if ns_ctrl.has_einschr %}<th>Einschr&auml;nkung</th>{% endif %}</tr></thead>
+                  <tbody>
+                    {% for ctrl in fm.controls %}
+                    <tr>
+                      <td><span class="abe-badge {{ ctrl.wirkung }}">{{ abe_labels.get(ctrl.wirkung, ctrl.wirkung) }}</span></td>
+                      <td style="font-weight:600;">{{ ctrl.name }}</td>
+                      <td>{{ ctrl.typ }}</td>
+                      <td>{{ ctrl.beschreibung or '–' }}</td>
+                      <td>{{ ctrl.beeinflusst or '–' }}</td>
+                      {% if ns_ctrl.has_einschr %}<td>{{ ctrl.get('einschraenkung') or '–' }}</td>{% endif %}
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                {% if fm.controls_einschraenkung %}
+                <div class="controls-einschraenkung">
+                  <span class="text-kurz">Einschränkung: {{ fm.controls_einschraenkung_kurz or fm.controls_einschraenkung }}</span>
+                  <span class="text-detail">Einschränkung: {{ fm.controls_einschraenkung }}</span>
+                </div>
+                {% endif %}
+                </div>{# /sub-content controls #}
+              </div>
+              {% endif %}
+
+              {# Maßnahmen #}
+              {% if measures %}
+              <div class="sub-section sub-collapsible" data-preview="{{ measures[0].name ~ ' (RPZ ' ~ (measures[0].rpz_neu or '?') ~ ')' if measures else '' }}">
+                <div class="sub-label sub-toggle" onclick="toggleSection(this)">
+                  <span class="section-chevron">&#9654;</span>
+                  Maßnahmen zur Risikoreduktion ({{ measures|length }})
+                </div>
+                <div class="sub-content">
+                {% for m in measures %}
+                <div class="measure-card">
+                  <div class="measure-header">
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                      <span class="abe-badge {{ m.abe_kategorie }}">{{ abe_labels.get(m.abe_kategorie, m.abe_kategorie) }}</span>
+                      {% if m.stop_kategorie %}
+                      <span class="stop-badge stop-{{ m.stop_kategorie }}">{{ stop_labels.get(m.stop_kategorie, m.stop_kategorie) }}</span>
+                      {% endif %}
+                      <span class="measure-name">{{ m.name }}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex-shrink:0;">
+                      {% for sk, sl in [('S_neu','S'),('O_neu','O'),('D_neu','D')] %}
+                        {% if m.get(sk) and m[sk] != fm.get(sl) %}
+                        <span class="reduction-arrow">{{ sl }}: {{ fm.get(sl) }}→{{ m[sk] }}</span>
+                        {% endif %}
+                      {% endfor %}
+                      {% if m.rpz_neu %}
+                      <div class="measure-rpz-row">
+                        <div class="rpz-arrow">
+                          <span class="rpz-old">{{ fm.rpz }}</span>
+                          <span>→</span>
+                          <span class="rpz-new">{{ m.rpz_neu }}</span>
+                        </div>
+                      </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  {% if m.get('prioritaet') or m.get('aufwand') or m.get('kosten_klasse') %}
+                  <div class="measure-meta">
+                    {% if m.get('prioritaet') %}
+                    {% set prio_colors = {'pflicht': '#DC2626', 'empfohlen': '#CA8A04', 'optional': '#6B7280'} %}
+                    {% set prio_labels = {'pflicht': 'Pflicht', 'empfohlen': 'Empfohlen', 'optional': 'Optional'} %}
+                    <span class="measure-meta-badge" style="border-color:{{ prio_colors.get(m.prioritaet, '#6B7280') }};color:{{ prio_colors.get(m.prioritaet, '#6B7280') }};">{{ prio_labels.get(m.prioritaet, m.prioritaet) }}</span>
+                    {% endif %}
+                    {% if m.get('aufwand') %}
+                    <span class="measure-meta-badge" style="border-color:#6B7280;color:#6B7280;">Aufwand: {{ m.aufwand }}</span>
+                    {% endif %}
+                    {% if m.get('kosten_klasse') %}
+                    <span class="measure-meta-badge" style="border-color:#6B7280;color:#6B7280;">Kosten: {{ m.kosten_klasse }}</span>
+                    {% endif %}
+                  </div>
+                  {% endif %}
+                  <div class="measure-desc"><span class="text-kurz">{{ m.beschreibung_kurz or m.beschreibung }}</span><span class="text-detail">{{ m.beschreibung }}</span></div>
+                  {% if m.begruendung %}
+                  <div class="measure-reasoning">{{ m.begruendung }}</div>
+                  {% endif %}
+                  {% if m.hinweis %}
+                  <div class="measure-hinweis">{{ m.hinweis }}</div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+                </div>{# /sub-content measures #}
+              </div>
+              {% endif %}
+
+              {# Vorgeschlagene Maßnahmen (nicht umgesetzt) #}
+              {% set vorgeschlagen = fm.get('vorgeschlagene_massnahmen', []) %}
+              {% if vorgeschlagen %}
+              <div class="sub-section" style="margin-top:8px;opacity:0.7;">
+                <div class="sub-label">Weitere empfohlene Maßnahmen (nicht umgesetzt)</div>
+                {% for m in vorgeschlagen %}
+                <div class="measure-card" style="border-style:dashed;">
+                  <div class="measure-header">
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                      <span class="abe-badge {{ m.abe_kategorie }}">{{ abe_labels.get(m.abe_kategorie, m.abe_kategorie) }}</span>
+                      {% if m.stop_kategorie %}
+                      <span class="stop-badge stop-{{ m.stop_kategorie }}">{{ stop_labels.get(m.stop_kategorie, m.stop_kategorie) }}</span>
+                      {% endif %}
+                      <span class="measure-name">{{ m.name }}</span>
+                      <span style="font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid #9CA3AF;color:#9CA3AF;font-weight:600;">{{ m.get('implementation_status', 'vorgeschlagen') }}</span>
+                    </div>
+                  </div>
+                  <div class="measure-desc"><span class="text-kurz">{{ m.beschreibung_kurz or m.beschreibung }}</span><span class="text-detail">{{ m.beschreibung }}</span></div>
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+
+              {# Empfehlung des Agenten #}
+              {% if fm.empfehlung %}
+              <div class="sub-section sub-collapsible" data-preview="{{ fm.empfehlung[:150] }}" style="padding:10px 12px;background:var(--bg-secondary);border-radius:6px;border-left:3px solid var(--accent-blue);margin-top:8px;">
+                <div class="sub-label sub-toggle" onclick="toggleSection(this)" style="margin-bottom:4px;">
+                  <span class="section-chevron">&#9654;</span>
+                  Empfehlung
+                </div>
+                <div class="sub-content">
+                  <p class="text-kurz" style="font-size:12px;color:var(--text-secondary);margin:0;">{{ fm.empfehlung_kurz or fm.empfehlung }}</p>
+                  <p class="text-detail" style="font-size:12px;color:var(--text-secondary);margin:0;">{{ fm.empfehlung }}</p>
+                </div>
+              </div>
+              {% endif %}
+
+            </div>{# /card-body #}
+          </div>{# /risk-card #}
+          {% endfor %}{# /fm in cat_fms #}
+        </div>{# /category-block #}
+        {% endfor %}{# /cat #}
+
+      </div>{# /view-thematic #}
+
+      {# ── KOMPONENTENWEISE ANSICHT ── #}
+      <div class="view-component" id="view-component" style="display:none;">
+
+        {% set ns4 = namespace(seen_comps=[]) %}
+        {% for fm in fmea_sorted %}
+          {% set comp = fm.get('component_name') or fm.get('komponente','?') %}
+          {% if comp not in ns4.seen_comps %}
+            {% set ns4.seen_comps = ns4.seen_comps + [comp] %}
+          {% endif %}
+        {% endfor %}
+
+        {% for comp_name in ns4.seen_comps %}
+        {% set comp_fms = [] %}
+        {% for fm in fmea_sorted %}
+          {% set c = fm.get('component_name') or fm.get('komponente','?') %}
+          {% if c == comp_name %}
+            {% set _ = comp_fms.append(fm) %}
+          {% endif %}
+        {% endfor %}
+        {% set comp_id = comp_name|lower|replace(' ','_')|replace('-','_') %}
+
+        <div class="category-block" id="comp-{{ comp_id }}">
+          <div class="comp-group-header">
+            <span class="comp-group-id">{{ comp_name }}</span>
+            <span class="comp-group-name">{{ comp_name }}</span>
+            <span class="comp-group-count">{{ comp_fms|length }} Fehlermodi</span>
+          </div>
+
+          {% for fm in comp_fms %}
+          {% set status = fm.rpz_status %}
+          {% set measures = fm.measures or [] %}
+          {% set best_measure = measures|sort(attribute='rpz_neu')|first if measures else None %}
+          {% set fd = func_details.get(fm.funktion_id, {}) %}
+
+          <div class="risk-card {{ status }}" id="risk-comp-{{ fm.fehler_id }}">
+            <div class="card-header" onclick="toggleCard(this)">
+              <div>
+                <div class="card-id-row">
+                  <span class="card-id">{{ fm.fehler_id }}</span>
+                  <span class="tag">{{ fm.fehlerart }}</span>
+                </div>
+                <div class="card-title">{{ fm.fehlermodus }}</div>
+                {% if fd %}
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">{{ 'Hauptfunktion' if fd.typ == 'haupt' else 'Nebenfunktion' }}: {{ fd.beschreibung }}</div>
+                {% endif %}
+              </div>
+              <div class="card-header-right">
+                <span class="card-chevron">&#9660;</span>
+                <span class="risk-badge {{ status }}"><span class="bdot"></span>{{ status|capitalize }}</span>
+                {% if fm.special_rule %}<span class="special-rule-badge">⚠ Sonderregel</span>{% endif %}
+              </div>
+            </div>
+
+            <div class="card-scores">
+              <div class="sod-group">
+                {% for key, val, css, label_text, info in sod_data(fm) %}
+                <div class="sod-row">
+                  <span class="sod-label">{{ key }}</span>
+                  <div class="sod-bar-track">
+                    <div class="sod-bar-fill sod-v{{ val }}" style="width:{{ (val / 10 * 100)|int }}%;"></div>
+                  </div>
+                  <span class="sod-val">{{ val }}</span>
+                  <span style="font-size:11px;color:var(--text-muted);margin-left:4px;">{{ info[0] }}</span>
+                </div>
+                {% endfor %}
+              </div>
+              <div class="rpz-divider"></div>
+              <div class="rpz-box">
+                <span class="rpz-label">RPZ</span>
+                <span class="rpz-value {{ status }}">{{ fm.rpz }}</span>
+                <span class="rpz-formula">{{ fm.S }} × {{ fm.O }} × {{ fm.D }}</span>
+                {% if best_measure and best_measure.rpz_neu and best_measure.rpz_neu != fm.rpz %}
+                <span style="font-size:11px;color:var(--risk-niedrig);font-weight:600;margin-top:2px;">→ {{ best_measure.rpz_neu }}</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="card-body">
+              {% if fm.causes %}
+              <div class="sub-section sub-collapsible" data-preview="{{ fm.causes[0].beschreibung[:150] if fm.causes else '' }}">
+                <div class="sub-label sub-toggle" onclick="toggleSection(this)">
+                  <span class="section-chevron">&#9654;</span>
+                  Fehlerursachen ({{ fm.causes|length }})
+                </div>
+                <div class="sub-content">
+                <table class="mini-table">
+                  <thead><tr><th>ID</th><th>Beschreibung</th><th>Herkunft</th></tr></thead>
+                  <tbody>
+                    {% for c in fm.causes %}
+                    <tr>
+                      <td class="td-id">{{ c.ursache_id }}</td>
+                      <td>{{ c.beschreibung }}</td>
+                      <td>{{ c.herkunft }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                </div>
+              </div>
+              {% endif %}
+
+              {% set eff = fm.effects %}
+              {% if eff %}
+              <div class="sub-section sub-collapsible" data-preview="{{ eff.get('mensch_beschreibung', '')[:150] }}">
+                <div class="sub-label sub-toggle" onclick="toggleSection(this)">
+                  <span class="section-chevron">&#9654;</span>
+                  Fehlerfolgen
+                </div>
+                <div class="sub-content">
+                <div class="effects-grid">
+                  {% for dim, desc_key, stufe_key in [('Mensch','mensch_beschreibung','mensch_stufe'),('Umwelt','umwelt_beschreibung','umwelt_stufe'),('Anlage','anlage_beschreibung','anlage_stufe'),('Kosten','kosten_beschreibung','kosten_stufe')] %}
+                  <div class="effect-cell {% if not eff.get(desc_key) %}none{% endif %}">
+                    <div class="effect-cell-label">{{ dim }}{% if eff.get(stufe_key) %} <span class="effect-stufe">{{ eff.get(stufe_key) }}</span>{% endif %}</div>
+                    <div class="effect-cell-text">{{ eff.get(desc_key, '—') if eff.get(desc_key) else '—' }}</div>
+                  </div>
+                  {% endfor %}
+                </div>
+                </div>
+              </div>
+              {% endif %}
+
+              {% if fm.controls %}
+              <div class="sub-section sub-collapsible" data-preview="{{ fm.controls[0].name ~ ': ' ~ (fm.controls[0].beschreibung or '')[:100] if fm.controls else '' }}">
+                <div class="sub-label sub-toggle" onclick="toggleSection(this)">
+                  <span class="section-chevron">&#9654;</span>
+                  Bestehende Controls ({{ fm.controls|length }})
+                </div>
+                <div class="sub-content">
+                <table class="mini-table">
+                  <thead><tr><th>Wirkung</th><th>Name</th><th>Beschreibung</th></tr></thead>
+                  <tbody>
+                    {% for ctrl in fm.controls %}
+                    <tr>
+                      <td><span class="abe-badge {{ ctrl.wirkung }}">{{ abe_labels.get(ctrl.wirkung, ctrl.wirkung) }}</span></td>
+                      <td style="font-weight:600;">{{ ctrl.name }}</td>
+                      <td>{{ ctrl.beschreibung or '–' }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                </div>
+              </div>
+              {% endif %}
+
+              {% if measures %}
+              <div class="sub-section sub-collapsible" data-preview="{{ measures[0].name ~ ' (RPZ ' ~ (measures[0].rpz_neu or '?') ~ ')' if measures else '' }}">
+                <div class="sub-label sub-toggle" onclick="toggleSection(this)">
+                  <span class="section-chevron">&#9654;</span>
+                  Maßnahmen ({{ measures|length }})
+                </div>
+                <div class="sub-content">
+                {% for m in measures %}
+                <div class="measure-card">
+                  <div class="measure-header">
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                      <span class="abe-badge {{ m.abe_kategorie }}">{{ abe_labels.get(m.abe_kategorie, m.abe_kategorie) }}</span>
+                      {% if m.stop_kategorie %}<span class="stop-badge stop-{{ m.stop_kategorie }}">{{ stop_labels.get(m.stop_kategorie, m.stop_kategorie) }}</span>{% endif %}
+                      <span class="measure-name">{{ m.name }}</span>
+                    </div>
+                    {% if m.rpz_neu %}
+                    <div class="measure-rpz-row">
+                      <div class="rpz-arrow">
+                        <span class="rpz-old">{{ fm.rpz }}</span>
+                        <span>→</span>
+                        <span class="rpz-new">{{ m.rpz_neu }}</span>
+                      </div>
+                    </div>
+                    {% endif %}
+                  </div>
+                  <div class="measure-desc"><span class="text-kurz">{{ m.beschreibung_kurz or m.beschreibung }}</span><span class="text-detail">{{ m.beschreibung }}</span></div>
+                  {% if m.begruendung %}<div class="measure-reasoning">{{ m.begruendung }}</div>{% endif %}
+                </div>
+                {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          </div>{# /risk-card #}
+          {% endfor %}{# /fm in comp_fms #}
+        </div>{# /category-block #}
+        {% endfor %}{# /comp_name #}
+
+      </div>{# /view-component #}
+
+    </section>{# /sec-5 #}

@@ -139,23 +139,22 @@ def save_components_to_db(components: list, project_id: int, db_path: str = None
     sys.path.insert(0, str(Path(__file__).parent.parent))
     from tools.storage import FMEAStorage
 
-    db = FMEAStorage(db_path)
-    saved = 0
-    for comp in components:
-        db.insert_component(
-            project_id=project_id,
-            komp_id=comp["komp_id"],
-            name=comp["name"],
-            typ=comp["typ"],
-            kategorie=comp["kategorie"],
-            system_name=comp["system_name"],
-            beschreibung=comp["beschreibung"],
-            parameters=comp["parameters"],
-            kontext=comp["lean_context"],
-        )
-        saved += 1
-    db.close()
-    return saved
+    with FMEAStorage(db_path) as db:
+        saved = 0
+        for comp in components:
+            db.insert_component(
+                project_id=project_id,
+                komp_id=comp["komp_id"],
+                name=comp["name"],
+                typ=comp["typ"],
+                kategorie=comp["kategorie"],
+                system_name=comp["system_name"],
+                beschreibung=comp["beschreibung"],
+                parameters=comp["parameters"],
+                kontext=comp["lean_context"],
+            )
+            saved += 1
+        return saved
 
 
 if __name__ == "__main__":

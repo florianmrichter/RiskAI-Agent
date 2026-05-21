@@ -13,9 +13,11 @@ Usage:
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from tools.storage import FMEAStorage
+from tools._base import tool_entry
 from tools.insert_measures import insert_measures_for_fehlermodus
 from tools.fmea_loader import load_measures_module
 
@@ -32,6 +34,7 @@ def _get_measures_module(task_folder: str):
         return None
 
 
+@tool_entry
 def run_generate_measures(project_id: int, task_folder: str = "Risikoanalyse", db_path: str = None) -> dict:
     """
     Generiert und speichert Maßnahmen für alle Fehlermodi mit RPZ >= 100 (oder Status hoch/kritisch).
@@ -48,33 +51,32 @@ def run_generate_measures(project_id: int, task_folder: str = "Risikoanalyse", d
 
     get_measures = mod.get_measures_for_fehlermodus
 
-    db = FMEAStorage(db_path)
-    high = db.get_failure_modes_needing_measures(project_id)
-    inserted_total = 0
-    skipped = 0
-    missing = []
+    with FMEAStorage(db_path) as db:
+        high = db.get_failure_modes_needing_measures(project_id)
+        inserted_total = 0
+        skipped = 0
+        missing = []
 
-    for fm in high:
-        if db.get_measures(fm["id"]):
-            skipped += 1
-            continue
+        for fm in high:
+            if db.get_measures(fm["id"]):
+                skipped += 1
+                continue
 
-        fehler_id = fm["fehler_id"]
-        fehlermodus = fm.get("fehlermodus", "")
-        komponente = fm.get("komponente", "")
+            fehler_id = fm["fehler_id"]
+            fehlermodus = fm.get("fehlermodus", "")
+            komponente = fm.get("komponente", "")
 
-        measures = get_measures(fehler_id, fehlermodus, komponente)
+            measures = get_measures(fehler_id, fehlermodus, komponente)
 
-        if not measures:
-            missing.append(fehler_id)
-            continue
+            if not measures:
+                missing.append(fehler_id)
+                continue
 
-        result = insert_measures_for_fehlermodus(project_id, fehler_id, measures, db_path)
-        inserted_total += result["inserted"]
-        if result["inserted"] > 0:
-            print(f"  {fehler_id}: {result['inserted']} Maßnahmen eingefügt")
+            result = insert_measures_for_fehlermodus(project_id, fehler_id, measures, db_path)
+            inserted_total += result["inserted"]
+            if result["inserted"] > 0:
+                print(f"  {fehler_id}: {result['inserted']} Maßnahmen eingefügt")
 
-    db.close()
     return {"inserted": inserted_total, "skipped": skipped, "missing": missing}
 
 

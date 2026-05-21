@@ -1,0 +1,135 @@
+{
+  "fehler_id": "20TA43-KOMP-008-FM01",
+  "fehlermodus": "Fehlanzeige Temperatur (Messwertdrift/-ausfall)",
+  "fehlerart": "MSR",
+  "S": 5,
+  "O": 4,
+  "D": 4,
+  "rpz": 80,
+  "rpz_status": "niedrig",
+  "kontext_beschreibung": "Der TI-43 ist ein digitales Thermometer (Temperatursensor, vermutlich Pt100-Widerstandsthermometer) im Reaktorinnenraum des Büchi miniPilot Glasreaktors R-20TA43 (15 L Nennvolumen). Er misst die Prozesstemperatur des Reaktorinhalts — wechselnde organische Lösemittel wie Ethanol (Siedepunkt 78 °C, Flammpunkt 13 °C), Methanol (Siedepunkt 65 °C, Flammpunkt 9 °C, giftig), Isopropanol (Siedepunkt 82 °C) und Aceton (Siedepunkt 56 °C, Flammpunkt -20 °C). Der Betrieb ist vollständig manuell und personenüberwacht: Der Operator nutzt die TI-43-Anzeige, um den Thermostat manuell nachzuregeln, den Siedepunkt zu überwachen und Prozessentscheidungen zu treffen (Heizrate, Rückflussstart, Vakuumanlegen).\n\nTI-43 ist ein Single Point of Failure für die Temperaturüberwachung: Es gibt kein redundantes Thermometer, keine automatische Plausibilitätsprüfung und keinen automatischen Vergleich mit der Thermostat-Isttemperatur (die sich auf das Mantelmedium bezieht, nicht auf die Prozesstemperatur im Reaktorinneren). Bei einer Fehlanzeige — sei es durch schleichende Messwertdrift oder akuten Sensorausfall — arbeitet der Operator mit falschen Annahmen über die tatsächliche Prozesstemperatur. Er könnte den Thermostat unbewusst zu hoch einstellen, was zu Überhitzung des Reaktorinhalts, Thermoschock am Borosilikatglas (bei zu schnellen Temperaturgradienten > 20 K) oder unkontrolliertem Sieden führen kann.\n\nDie jährliche Kalibrierung des TI-43 begrenzt die maximal mögliche unerkannte Drift auf ein Jahr. Zwischen den Kalibrierintervallen ist eine schleichende Abweichung von wenigen Grad nicht erkennbar. Der Thermostat hat eine eigene Übertemperaturabschaltung und eine DeltaT-Begrenzung (max. 20 K zwischen Mantel- und Innentemperatur), die als unabhängige Schutzschicht wirkt — allerdings bezogen auf die Manteltemperatur, nicht auf die Prozesstemperatur.",
+  "begruendung_S": "S = 5 (Severity / Bedeutung): Mäßig — Funktionseinschränkung, 1–7 Tage, 1–10k EUR. Eine Fehlanzeige des TI-43 führt dazu, dass der Operator den Thermostat auf Basis falscher Temperaturinformationen manuell nachregelt. Die Auswirkungen sind durch die Thermostat-Eigensicherung (Übertemperaturabschaltung am Mantel, DeltaT-Begrenzung auf max. 20 K) begrenzt — der Thermostat verhindert eine unkontrollierte Überhitzung unabhängig vom TI-43-Signal. Verbleibende Risiken: Thermoschock am Borosilikatglas bei zu schnellem Aufheizen (Operator erkennt die Temperaturdifferenz nicht), Chargenverlust bei falscher Prozesstemperatur, Verbrühungsgefahr bei offenem Handloch und unerwartet heißem Inhalt. Der Wiederbeschaffungswert der Anlage liegt bei ca. 35.000 EUR — ein Chargenverlust oder eine kleinere Glasreparatur liegt im Bereich 1–10k EUR. Ein Safety Override greift hier nicht, da keine explosionsfähige Atmosphäre direkt durch die Fehlanzeige entsteht.",
+  "begruendung_O": "O = 4 (Occurrence / Auftreten): Relativ gering — ca. 1 mal in 2 Jahren. O-Richtwert 4 nach CCPS/OREDA für Temperatursensor (Widerstandsthermometer), Fehlermodus 'Messwertdrift' (35% aller Ausfälle bei diesem Equipment-Typ). Gesamte Ausfallrate des Equipment-Typs 'temperatursensor_widerstand': 5 FPMH (Failures Per Million Hours), entsprechend einem MTBF von 200.000 Stunden. Die Kombination aus Messwertdrift (schleichend, 35% Anteil) und Signalausfall/Open Circuit (25% Anteil, O-Richtwert 3) ergibt einen konsolidierten O-Richtwert von 4 für den kombinierten Fehlermodus 'Fehlanzeige Temperatur'. Die jährliche Kalibrierung reduziert das Risiko einer lang andauernden unerkannten Drift, eliminiert aber nicht die Auftretenswahrscheinlichkeit eines akuten Sensorausfalls. Pt100-Fühler in Glasreaktoren sind zudem mechanischen Belastungen beim Rührerwechsel oder bei der Reinigung ausgesetzt, was die Ausfallwahrscheinlichkeit gegenüber stationären Installationen leicht erhöht.",
+  "begruendung_D": "D = 4 (Detection / Entdeckung): Relativ wahrscheinlich — 100% manuelle Prüfung, Entdeckungswahrscheinlichkeit 70–80%. Ein Totalausfall des TI-43 (kein Messwert, Display dunkel) wird vom Operator sofort erkannt, da er das Display bei manuellem Betrieb regelmäßig abliest. Schleichende Drift ist schwieriger zu entdecken — der Operator hat keinen zweiten Temperatursensor als Referenz für eine Plausibilisierung. Indirekte Erkennung: Bei Rückflussbetrieb zeigt der sichtbare Siedevorgang am Rückflusskühler, ob die angezeigte Temperatur plausibel zum bekannten Siedepunkt des eingesetzten Lösemittels passt (z.B. Ethanol siedet bei 78 °C — wenn TI-43 deutlich abweicht, fällt dies auf). Außerhalb des Rückflussbetriebs (Aufheizen, Abkühlen, Vakuum) entfällt dieser indirekte Indikator. Die jährliche Kalibrierung setzt eine obere Grenze für die maximal mögliche unerkannte Drift. Eine Drift von 2–3 °C zwischen den Kalibrierungen wäre nicht erkennbar.",
+  "empfehlung": "RPZ = 80 (niedrig). Die bestehenden Controls (jährliche Kalibrierung + Thermostat-Eigensicherung mit Übertemperaturabschaltung und DeltaT-Begrenzung) sind für das aktuelle Risikoniveau ausreichend. Zusätzliche Maßnahmen sind nicht zwingend erforderlich, aber als optionale Verbesserungen empfehlenswert: Ein zweites, einfaches Thermometer (z. B. Glasthermometer oder zweiter Pt100) im Reaktor als visuelle Plausibilitätskontrolle wäre kostengünstig und sofort umsetzbar. Bei sicherheitskritischen Synthesen (exotherme Reaktionen, Arbeiten nah am Siedepunkt) sollte die Prozesstemperatur gegen den Thermostat-Istwert plausibilisiert werden — eine Differenz > 20 K würde auf eine Fehlanzeige hindeuten.",
+  "controls_einschraenkung": "Die bestehenden Controls bieten einen Basisschutz, haben aber klare Einschränkungen: Die jährliche Kalibrierung fängt langfristige Drift ab, schützt aber nicht vor akutem Sensorausfall zwischen den Kalibrierintervallen. Die visuelle Siedebeobachtung am Rückflusskühler ist nur ein indirekter Indikator und funktioniert nur bei Rückflussbetrieb — nicht beim Aufheizen, Abkühlen oder Vakuumbetrieb. Die Thermostat-Übertemperaturabschaltung ist eine unabhängige Schutzschicht, bezieht sich aber auf die Manteltemperatur und nicht auf die Prozesstemperatur im Reaktorinneren. Es fehlt ein redundanter Temperatursensor für Plausibilitätsvergleich.",
+  "daten_quelle": "CCPS/OREDA",
+  "daten_konfidenz": "hoch",
+  "agent_konfidenz": "hoch",
+  "override_applied": null,
+  "causes": [
+    {
+      "id": 524,
+      "failure_mode_id": 295,
+      "ursache_id": "U-008-01",
+      "beschreibung": "Messwertdrift — Pt100-Alterung, schleichende Abweichung",
+      "herkunft": "Betrieb",
+      "praeventionsphase": "Betrieb",
+      "praeventionshinweis": null,
+      "beschreibung_kurz": null
+    },
+    {
+      "id": 525,
+      "failure_mode_id": 295,
+      "ursache_id": "U-008-02",
+      "beschreibung": "Fühlerbruch — mechanische Beschädigung",
+      "herkunft": "Betrieb",
+      "praeventionsphase": "Betrieb",
+      "praeventionshinweis": null,
+      "beschreibung_kurz": null
+    },
+    {
+      "id": 526,
+      "failure_mode_id": 295,
+      "ursache_id": "U-008-03",
+      "beschreibung": "Displayausfall — Elektronik defekt",
+      "herkunft": "Betrieb",
+      "praeventionsphase": "Betrieb",
+      "praeventionshinweis": null,
+      "beschreibung_kurz": null
+    }
+  ],
+  "effects": [
+    {
+      "id": 266,
+      "failure_mode_id": 295,
+      "mensch_stufe": "mittel",
+      "mensch_beschreibung": "Übertemperatur → Siedeverzug, Verbrühungsgefahr bei offenem System",
+      "umwelt_stufe": "keine",
+      "umwelt_beschreibung": "Keine",
+      "anlage_stufe": "mittel",
+      "anlage_beschreibung": "Thermoschock am Glas, Chargenverlust",
+      "kosten_stufe": "gering",
+      "kosten_beschreibung": "1-5k EUR",
+      "mensch_beschreibung_kurz": null,
+      "umwelt_beschreibung_kurz": null,
+      "anlage_beschreibung_kurz": null,
+      "kosten_beschreibung_kurz": null
+    }
+  ],
+  "controls": [
+    {
+      "id": 459,
+      "failure_mode_id": 295,
+      "name": "Jährliche Kalibrierung",
+      "typ": "prevention",
+      "wirkung": "O",
+      "sil_level": null,
+      "beschreibung": "TI-43 wird jährlich kalibriert",
+      "beeinflusst": null,
+      "einschraenkung": null
+    },
+    {
+      "id": 460,
+      "failure_mode_id": 295,
+      "name": "Personenüberwachung",
+      "typ": "detection",
+      "wirkung": "D",
+      "sil_level": null,
+      "beschreibung": "Siedebeobachtung durch Glaskörper",
+      "beeinflusst": null,
+      "einschraenkung": null
+    },
+    {
+      "id": 461,
+      "failure_mode_id": 295,
+      "name": "Thermostat-Eigensicherung",
+      "typ": "prevention",
+      "wirkung": "S",
+      "sil_level": null,
+      "beschreibung": "Übertemperaturabschaltung im Mantelkreislauf",
+      "beeinflusst": null,
+      "einschraenkung": null
+    }
+  ],
+  "reliability_lookup": {
+    "status": "match",
+    "equipment_type": "temperatursensor_widerstand",
+    "matched_keyword": "ti-",
+    "failure_rate_fpmh": 5,
+    "mtbf_hours": 200000,
+    "o_richtwerte": [
+      {
+        "fehlermodus": "Messwertdrift",
+        "o_richtwert": 4,
+        "anteil_prozent": 35
+      },
+      {
+        "fehlermodus": "Signalausfall (open circuit)",
+        "o_richtwert": 3,
+        "anteil_prozent": 25
+      },
+      {
+        "fehlermodus": "Schutzrohr defekt",
+        "o_richtwert": 3,
+        "anteil_prozent": 20
+      },
+      {
+        "fehlermodus": "Kurzschluss",
+        "o_richtwert": 2,
+        "anteil_prozent": 20
+      }
+    ],
+    "quelle": "CCPS/OREDA"
+  }
+}

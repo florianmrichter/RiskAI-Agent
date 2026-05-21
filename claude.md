@@ -97,13 +97,39 @@ task_folder ist der Pfad zum Projektordner, z.B. "Risikoanalyse/Ethylacetatprodu
 
 Kernprinzip: Lokale Dateien dienen nur der Verarbeitung. Alles, was ich sehen oder nutzen muss, befindet sich in Cloud-Diensten. Alles in .tmp/ ist wegwerfbar.
 
-**Archiv-Regel (Risikoanalyse):**
-- `archive/` enthält abgeschlossene oder Referenz-Analysen. Diese dienen NUR der Dokumentation.
-- Bei einer NEUEN Risikoanalyse: NIEMALS FMEA-Daten (Funktionen, Fehlermodi, S/O/D) aus dem Archiv übernehmen.
-- Jede Analyse basiert ausschließlich auf den Anlagendaten des aktuellen Projektordners (`tasks/Risikoanalyse/{projekt}/anlagendaten.json`).
-
 Domänen-spezifische Anweisungen (FMEA)
-Bei FMEA-Risikoanalyse: Lies und befolge zu Session-Start und während der gesamten Analyse die Anweisungen in **workflows/fmea-workflow.md**. Dort sind definiert: Rolle (Moderator), Session-Start und State-Steuerung, Kontext-Recherche, Zwei-Phasen-Ablauf pro Komponente, S/O/D-Darstellung, Risiko-Präsentation, Review-Punkte, Testmodus und Abschluss-Zusammenfassung. Diese Datei ist die kanonische Quelle für FMEA-Verhalten – in Cursor wird sie über `.cursor/rules/` eingebunden, in Claude (z. B. Claude Code) gilt dieser Verweis hier.
+Bei FMEA-Risikoanalyse: Starte den Skill `fmea-risikoanalyse` (`.claude/skills/fmea-risikoanalyse/`). Dieser lädt Moderator-Regeln aus `references/fmea-workflow.md` und referenziert Config-Dateien (`config/fmea_standards.py`, `config/msr_glossar.md`) direkt aus dem Projekt-Root. Jede Analyse basiert ausschließlich auf den Anlagendaten des aktuellen Projektordners (`tasks/Risikoanalyse/{projekt}/anlagendaten.json`). Niemals FMEA-Daten aus anderen Projekten übernehmen.
+
+**Dateien-Architektur:** Alle Tools (`tools/`), Config (`config/`), Templates (`templates/`) existieren nur einmal im Projekt-Root. Die Skills referenzieren diese direkt — keine Kopien innerhalb von `.claude/skills/`.
+
+Claude Code Plugin-Setup
+Dieses Projekt nutzt Claude Code Plugins auf zwei Ebenen:
+
+**Projekt-Plugins (automatisch aktiv beim Klonen):**
+Die Projekt-Settings unter `.claude/projects/.../settings.json` aktivieren diese Plugins automatisch:
+- `code-review` — PR-Review
+- `code-simplifier` — Code vereinfachen/refactorn
+- `feature-dev` — Geführte Feature-Entwicklung
+- `plugin-dev` — Plugin-Erstellung & -Entwicklung
+- `security-guidance` — Sicherheits-Best-Practices
+- `autofix-bot` — Automatische Fixes
+
+**Empfohlene globale Plugins (manuell installieren):**
+Diese Plugins sind projektübergreifend nützlich und sollten global aktiviert werden:
+```
+claude plugins install superpowers@claude-plugins-official
+claude plugins install commit-commands@claude-plugins-official
+claude plugins install github@claude-plugins-official
+claude plugins install claude-md-management@claude-plugins-official
+claude plugins install context7@claude-plugins-official
+claude plugins install skill-creator@claude-plugins-official
+claude plugins install claude-code-setup@claude-plugins-official
+```
+
+**Optionale Plugins (bei Bedarf pro Projekt):**
+- `firecrawl` — Web-Scraping, wenn Recherche benötigt wird
+- `frontend-design` — Falls UI-Arbeit anfällt
+- `playwright` — Browser-Automation/Testing
 
 Fazit
 Du stehst zwischen dem, was ich will (Workflows), und dem, was tatsächlich erledigt wird (Tools). Dein Job ist es, Anweisungen zu lesen, kluge Entscheidungen zu treffen, die richtigen Tools aufzurufen, dich von Fehlern zu erholen und das System kontinuierlich zu verbessern.

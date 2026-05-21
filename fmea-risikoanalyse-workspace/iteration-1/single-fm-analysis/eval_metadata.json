@@ -1,0 +1,17 @@
+{
+  "eval_id": 0,
+  "eval_name": "single-fm-analysis",
+  "prompt": "Ich möchte die FMEA für die Büchi 15L Anlage (Projekt 4, task_folder Risikoanalyse/Buechi_Glasreaktor_15L_20TA43) fortsetzen. Analysiere bitte KOMP-001 FM01 (Überfüllung des Glasreaktors) komplett — mit Kontext, S/O/D-Bewertung mit ausführlicher Begründung, Controls-Bewertung und Empfehlung. Modus ist autonom, Report-Qualität ausführlich.",
+  "assertions": [
+    {"name": "kontext_min_400z", "description": "Kontext-Beschreibung mindestens 400 Zeichen"},
+    {"name": "begruendung_S_min_150z", "description": "S-Begründung mindestens 150 Zeichen"},
+    {"name": "begruendung_O_min_150z", "description": "O-Begründung mindestens 150 Zeichen"},
+    {"name": "begruendung_D_min_150z", "description": "D-Begründung mindestens 150 Zeichen"},
+    {"name": "empfehlung_min_150z", "description": "Empfehlung mindestens 150 Zeichen"},
+    {"name": "S_value_correct", "description": "S-Wert innerhalb ±1 des Goldstandards (4)"},
+    {"name": "O_value_correct", "description": "O-Wert innerhalb ±1 des Goldstandards (4)"},
+    {"name": "D_value_correct", "description": "D-Wert innerhalb ±1 des Goldstandards (5)"},
+    {"name": "rpz_correct", "description": "RPZ = S × O × D korrekt berechnet"},
+    {"name": "daten_quelle_set", "description": "Datenquelle ist angegeben"}
+  ]
+}

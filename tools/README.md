@@ -22,21 +22,17 @@
 | failure_templates.py | Fehlervorlagen pro Komponententyp | aktiv | fehleranalyse |
 | reliability_lookup.py | O-Wert-Vorschläge | aktiv | fehleranalyse |
 | chart_comparison.py | RPZ-Vergleichs-Chart | aktiv | report_generator |
-| mermaid_renderer.py | Mermaid zu SVG/PNG | aktiv | report_generator |
 | export.py | Excel/JSON-Export | aktiv | - |
 | clear_fmea_for_project.py | FMEA eines Projekts zurücksetzen | aktiv | - |
-| apply_explicit_measures.py | Maßnahmen aus Config | **deprecated** | - |
 | cleanup_generic_data.py | KOMP-002 bis KOMP-047 löschen | einmalig | - |
 | run_full_fmea.py | Vollständige Pipeline (ohne Agent) | aktiv | - |
 | update_fmea_report_fields.py | kontext_beschreibung etc. aus Config | aktiv | - |
-| fmea_proper_analysis.py | Nur Info-Ausgabe | veraltet | - |
+| observability.py | Dashboard-Metriken + Quality Report | aktiv | - |
 
 ## Status
 
 - **aktiv** – im Standard-Workflow oder manuell genutzt
-- **deprecated** – nicht mehr empfohlen, Ersatz nutzen (z. B. generate_measures statt apply_explicit_measures)
 - **einmalig** – für spezielle Aufräum-Aktionen (z. B. cleanup_generic_data)
-- **veraltet** – nur noch Hinweis-Ausgabe, Logik liegt woanders
 
 ## Siehe auch
 

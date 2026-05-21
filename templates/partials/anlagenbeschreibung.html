@@ -1,0 +1,158 @@
+    {# ══════════════════  3. ANLAGENBESCHREIBUNG  ══════════════════ #}
+    <section class="page-section" id="sec-anlage">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 3</div>
+        <div class="section-title">Anlagenbeschreibung</div>
+      </div>
+
+      {% if plant %}
+      {% set pd = plant.get('processDescription', {}) %}
+      {% set loc = plant.get('location', {}) %}
+
+      <h3>3.1 Allgemein</h3>
+      <p>{{ pd.get('description', '') }}</p>
+
+      {% if pd.get('purpose') %}
+      <div class="info-box">
+        <strong>Zweck:</strong> {{ pd.get('purpose', '') }}<br>
+        <strong>Betriebsart:</strong> {{ pd.get('operatingMode', '') }}
+        {% if pd.get('additionalNotes') %}<br><strong>Hinweis:</strong> {{ pd.get('additionalNotes', '') }}{% endif %}
+      </div>
+      {% endif %}
+
+      <div class="info-grid">
+        <div class="info-grid-item">
+          <h4>Standort</h4>
+          <div class="kv-row"><span class="kv-key">Werk</span><span class="kv-val">{{ loc.get('site', '–') }}</span></div>
+          <div class="kv-row"><span class="kv-key">Gebäude</span><span class="kv-val">{{ loc.get('building', '–') }}</span></div>
+          <div class="kv-row"><span class="kv-key">Raum</span><span class="kv-val">{{ loc.get('room', '–') }}</span></div>
+          <div class="kv-row"><span class="kv-key">Bereich</span><span class="kv-val">{{ loc.get('area', '–') }}</span></div>
+        </div>
+        <div class="info-grid-item">
+          <h4>Kenndaten</h4>
+          <div class="kv-row"><span class="kv-key">Teilanlage</span><span class="kv-val">{{ plant.get('teilanlage_nr', '–') }}</span></div>
+          <div class="kv-row"><span class="kv-key">Bezeichnung</span><span class="kv-val">{{ plant.get('bezeichnung', '–') }}</span></div>
+          <div class="kv-row"><span class="kv-key">Systeme</span><span class="kv-val">{{ plant.get('systems', [])|length }}</span></div>
+          <div class="kv-row"><span class="kv-key">Einsatzstoffe</span><span class="kv-val">{{ plant.get('feedstocks', [])|length }}</span></div>
+          <div class="kv-row"><span class="kv-key">Produkte</span><span class="kv-val">{{ plant.get('products', [])|length }}</span></div>
+        </div>
+      </div>
+
+      <h3>3.2 Anlagensysteme</h3>
+      {% for sys in plant.get('systems', []) %}
+      <div class="system-card avoid-break">
+        <div class="system-card-header">
+          <span class="system-name">{{ sys.name }}</span>
+          <span class="system-type">{{ sys.type|upper }}</span>
+        </div>
+        <div class="system-card-body">
+          <div class="system-desc">{{ sys.description }}</div>
+          {% if sys.designData %}
+          <div class="param-grid">
+            {% for dd in sys.designData %}
+            <div class="param-cell">
+              <div class="param-key">{{ dd.label }}</div>
+              <div class="param-val">{{ dd.value }} {{ dd.unit }}</div>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+          {% set mfr = sys.get('manufacturerData', {}) %}
+          {% if mfr.get('manufacturer') %}
+          <div class="param-grid">
+            <div class="param-cell"><div class="param-key">Hersteller</div><div class="param-val">{{ mfr.manufacturer }}</div></div>
+            {% if mfr.get('modelType') %}<div class="param-cell"><div class="param-key">Modell</div><div class="param-val">{{ mfr.modelType }}</div></div>{% endif %}
+            {% if mfr.get('yearOfManufacture') %}<div class="param-cell"><div class="param-key">Baujahr</div><div class="param-val">{{ mfr.yearOfManufacture }}</div></div>{% endif %}
+          </div>
+          {% endif %}
+          {% if sys.equipment %}
+          <div class="sub-group-title equipment">Equipment ({{ sys.equipment|length }})</div>
+          <table class="compact-table">
+            <thead><tr><th>Name</th><th>Typ</th><th>Position</th><th>Parameter</th></tr></thead>
+            <tbody>
+              {% for eq in sys.equipment %}
+              <tr>
+                <td style="font-weight:600;">{{ eq.name }}</td>
+                <td>{{ eq.type }}</td>
+                <td>{{ eq.position }}</td>
+                <td>{% for pk, pv in (eq.parameters or {}).items() %}{{ pk }}: {{ pv }}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% endif %}
+          {% if sys.msrEquipment %}
+          <div class="sub-group-title msr">MSR-Technik ({{ sys.msrEquipment|length }})</div>
+          <table class="compact-table">
+            <thead><tr><th>Kennung</th><th>Typ</th><th>Position</th><th>Signal</th><th>SIL</th></tr></thead>
+            <tbody>
+              {% for msr in sys.msrEquipment %}
+              <tr>
+                <td style="font-weight:600;">{{ msr.name }}</td>
+                <td>{{ msr.type }}</td>
+                <td>{{ msr.position }}</td>
+                <td>{{ msr.signalType }}</td>
+                <td>{{ msr.sil or '–' }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% endif %}
+          {% if sys.securityFeatures %}
+          <div class="sub-group-title safety">Sicherheitseinrichtungen ({{ sys.securityFeatures|length }})</div>
+          <table class="compact-table">
+            <thead><tr><th>Name</th><th>Typ</th><th>Position</th></tr></thead>
+            <tbody>
+              {% for sf in sys.securityFeatures %}
+              <tr>
+                <td style="font-weight:600;">{{ sf.name }}</td>
+                <td>{{ sf.type }}</td>
+                <td>{{ sf.position }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+
+      <h3>3.3 Stoffübersicht</h3>
+      {% if plant.get('feedstocks') %}
+      <h4>Einsatzstoffe</h4>
+      <div class="substance-grid">
+        {% for sub in plant.feedstocks %}
+        <div class="substance-card avoid-break">
+          <div class="substance-name">{{ sub.name }}</div>
+          <div class="substance-props">{{ sub.properties }}</div>
+          {% if sub.parameters %}
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">
+            CAS: {{ sub.parameters.get('casNumber', '–') }} | MW: {{ sub.parameters.get('molWeight', '–') }} | Fp: {{ sub.parameters.get('flashPoint', '–') }}
+          </div>
+          {% endif %}
+          {% if sub.parameters and sub.parameters.get('ghs') %}
+          <div class="substance-ghs">
+            {% for g in sub.parameters.ghs.split(', ') %}<span class="ghs-pill">{{ g }}</span>{% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if plant.get('products') %}
+      <h4>Produkte</h4>
+      <div class="substance-grid">
+        {% for sub in plant.products %}
+        <div class="substance-card avoid-break">
+          <div class="substance-name">{{ sub.name }}</div>
+          <div class="substance-props">{{ sub.properties }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% else %}
+      <p style="color:var(--text-muted);font-style:italic;">Keine Anlagendaten verfügbar.</p>
+      {% endif %}
+    </section>

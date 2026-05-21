@@ -15,7 +15,8 @@ import json
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from tools.storage import FMEAStorage
 from tools.workflow_state import load_state, save_state
@@ -26,81 +27,77 @@ def clear_fmea_for_project(task_folder: str, db_path: str = None) -> dict:
     Löscht alle FMEA-Daten für alle Komponenten des Projekts.
     Returns: Statistik der gelöschten Einträge.
     """
-    db = FMEAStorage(db_path)
-    proj = db.get_project_by_task_folder(task_folder)
-    if not proj:
-        db.close()
-        raise ValueError(f"Projekt mit task_folder '{task_folder}' nicht gefunden")
+    with FMEAStorage(db_path) as db:
+        proj = db.get_project_by_task_folder(task_folder)
+        if not proj:
+            raise ValueError(f"Projekt mit task_folder '{task_folder}' nicht gefunden")
 
-    project_id = proj["id"]
-    component_ids = [
-        r[0]
-        for r in db.conn.execute(
-            "SELECT id FROM components WHERE project_id = ?", (project_id,)
-        ).fetchall()
-    ]
+        project_id = proj["id"]
+        component_ids = [
+            r[0]
+            for r in db.conn.execute(
+                "SELECT id FROM components WHERE project_id = ?", (project_id,)
+            ).fetchall()
+        ]
 
-    if not component_ids:
-        db.close()
-        return {"deleted_functions": 0, "deleted_failure_modes": 0}
+        if not component_ids:
+            return {"deleted_functions": 0, "deleted_failure_modes": 0}
 
-    ph = ",".join("?" * len(component_ids))
-    func_ids = [
-        r[0]
-        for r in db.conn.execute(
-            f"SELECT id FROM functions WHERE component_id IN ({ph})", component_ids
-        ).fetchall()
-    ]
+        ph = ",".join("?" * len(component_ids))
+        func_ids = [
+            r[0]
+            for r in db.conn.execute(
+                f"SELECT id FROM functions WHERE component_id IN ({ph})", component_ids
+            ).fetchall()
+        ]
 
-    if not func_ids:
-        db.close()
-        return {"deleted_functions": 0, "deleted_failure_modes": 0}
+        if not func_ids:
+            return {"deleted_functions": 0, "deleted_failure_modes": 0}
 
-    func_ph = ",".join("?" * len(func_ids))
-    fm_ids = [
-        r[0]
-        for r in db.conn.execute(
-            f"SELECT id FROM failure_modes WHERE function_id IN ({func_ph})", func_ids
-        ).fetchall()
-    ]
+        func_ph = ",".join("?" * len(func_ids))
+        fm_ids = [
+            r[0]
+            for r in db.conn.execute(
+                f"SELECT id FROM failure_modes WHERE function_id IN ({func_ph})", func_ids
+            ).fetchall()
+        ]
 
-    deleted = {
-        "measures": 0,
-        "risk_assessments": 0,
-        "current_controls": 0,
-        "failure_effects": 0,
-        "failure_causes": 0,
-        "failure_modes": 0,
-        "functions": 0,
-    }
+        deleted = {
+            "measures": 0,
+            "risk_assessments": 0,
+            "current_controls": 0,
+            "failure_effects": 0,
+            "failure_causes": 0,
+            "failure_modes": 0,
+            "functions": 0,
+        }
 
-    if fm_ids:
-        fm_ph = ",".join("?" * len(fm_ids))
-        for table, col in [
-            ("measures", "failure_mode_id"),
-            ("risk_assessments", "failure_mode_id"),
-            ("current_controls", "failure_mode_id"),
-            ("failure_effects", "failure_mode_id"),
-            ("failure_causes", "failure_mode_id"),
-        ]:
+        if fm_ids:
+            fm_ph = ",".join("?" * len(fm_ids))
+            for table, col in [
+                ("measures", "failure_mode_id"),
+                ("risk_assessments", "failure_mode_id"),
+                ("current_controls", "failure_mode_id"),
+                ("failure_effects", "failure_mode_id"),
+                ("failure_causes", "failure_mode_id"),
+            ]:
+                cur = db.conn.execute(
+                    f"DELETE FROM {table} WHERE {col} IN ({fm_ph})", fm_ids
+                )
+                deleted[table] = cur.rowcount
+
             cur = db.conn.execute(
-                f"DELETE FROM {table} WHERE {col} IN ({fm_ph})", fm_ids
+                f"DELETE FROM failure_modes WHERE id IN ({fm_ph})", fm_ids
             )
-            deleted[table] = cur.rowcount
+            deleted["failure_modes"] = cur.rowcount
 
         cur = db.conn.execute(
-            f"DELETE FROM failure_modes WHERE id IN ({fm_ph})", fm_ids
+            f"DELETE FROM functions WHERE id IN ({func_ph})", func_ids
         )
-        deleted["failure_modes"] = cur.rowcount
+        deleted["functions"] = cur.rowcount
 
-    cur = db.conn.execute(
-        f"DELETE FROM functions WHERE id IN ({func_ph})", func_ids
-    )
-    deleted["functions"] = cur.rowcount
-
-    db.conn.commit()
-    db.close()
-    return deleted
+        db.conn.commit()
+        return deleted
 
 
 def reset_fmea_explicit(task_folder: str) -> None:

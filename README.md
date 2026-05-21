@@ -38,13 +38,15 @@ RiskAI-Agent/
 ├── plans/           # Architektur- und Strategiepläne
 ├── tasks/           # Aufgaben-spezifische Eingabedaten
 ├── data/            # SQLite-Datenbank fmea.db (gitignored)
-├── archive/         # Archivierte Analyse-Läufe
+├── .claude/skills/  # Claude Code Skills (fmea-risikoanalyse, anlagendaten-interview, fmea-training)
+├── .github/         # CI/CD (GitHub Actions: ruff + pytest)
 ├── .tmp/            # Temporäre Verarbeitungsdateien (gitignored)
 ├── .env.example     # Vorlage für .env (API-Keys, FMEA_TESTMODE_PASSWORD)
-└── requirements.txt # Python-Abhängigkeiten
+├── pyproject.toml   # Projekt-Konfiguration (Python >=3.10, Dependencies)
+└── requirements.txt # Python-Abhängigkeiten (Legacy)
 ```
 
-**Agent-Anweisungen:** Generisches WAT-Framework in `CLAUDE.md`; FMEA-spezifische Regeln (Moderation, Testmodus, S/O/D) in `workflows/fmea-workflow.md` (in Cursor per Symlink unter `.cursor/rules/` eingebunden, in Claude über den Verweis in CLAUDE.md).
+**Agent-Anweisungen:** Generisches WAT-Framework in `CLAUDE.md`; FMEA-spezifische Regeln in den Claude Code Skills unter `.claude/skills/` (Moderator-Rolle, S/O/D-Skalen, MSR-Glossar werden automatisch geladen). Quell-SOPs bleiben kanonisch in `workflows/`.
 
 **Indizes (Übersichten):**
 - [workflows/README.md](workflows/README.md) – Index aller Workflows und zugehörige Tools
@@ -54,30 +56,57 @@ RiskAI-Agent/
 ## Setup
 
 ```bash
+# Option 1: Mit pyproject.toml (empfohlen)
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -e .
+
+# Option 2: Mit requirements.txt
 pip install -r requirements.txt
+
+# Optional: Dev-Tools (Linting, Tests)
+pip install -e ".[dev]"
 ```
 
 ### Voraussetzungen
 
 - Python 3.10+
-- API-Schlüssel in `.env` (siehe `claude.md` für Details)
-- Optional: `.env` aus `.env.example` kopieren – enthält u.a. `FMEA_TESTMODE_PASSWORD` für den Testmodus
+- Claude Code CLI (für Agent-Interaktion)
+- API-Schlüssel in `.env` (siehe `.env.example`)
+- Optional: `FMEA_TESTMODE_PASSWORD` in `.env` für autonome Testläufe
 
-## Standards
+## Standards & Methodik
 
-- FMEA nach **AIAG-VDA** (harmonisierter Standard)
-- 10-Punkte Bewertungsskalen für Severity, Occurrence, Detection
-- Safety-Guard-System für automatische Risiko-Overrides
-- ABE-Hierarchie für Maßnahmen (Vermeidung → Entdeckung → Abschwächung)
+- FMEA nach **AIAG-VDA** (harmonisierter Standard, 1. Auflage 2019)
+- 10-Punkte Bewertungsskalen für Severity (S), Occurrence (O), Detection (D)
+- RPZ-Klassifizierung: kritisch (≥300), hoch (≥200), mittel (≥100), niedrig (<100)
+- Safety-Guard-System für automatische Risiko-Overrides (S≥9 → mind. hoch; D≥9 & S≥7 → kritisch)
+- Kontextbasierte S-Anhebung mit **Qualifier-System**: Explosionsschutz (→S≥10, bei lokaler/temporärer Ex-Gefahr →S≥9), Gefahrstoffe (→S≥9), Sicherheitsbauteile (→S≥10)
+- **Multi-Szenario D-Bewertung**: Bei Fehlermodi mit mehreren Szenarien (z.B. "offen/undicht") wird der D-Wert gewichtet gemittelt statt Worst-Case genommen
+- **9 Fehlermodi-Kategorien** (Prozess, Thermisch, Mechanisch, Equipment, Elektrisch, MSR, Sicherheit, Dosierung, Sonstiges) — jede Komponente wird systematisch gegen alle Kategorien geprüft
+- **35 Gefahrenfelder-Checkpunkte** (26 Pflicht-Prozessbedingungen, 6 Pflicht-Energie/Medien, 3 optionale externe Einflüsse)
+- Datenquellen-Priorisierung für O-Bewertung: CCPS → OREDA → Betriebserfahrung → Expertenschätzung → KI-Vorschlag
+- Dreistufiges **Konfidenz-System**: Daten-Konfidenz, Agent-Konfidenz, Daten-Quelle pro Bewertung
 - STOP-Prinzip (Substitution → Technisch → Organisatorisch → Persönlich)
+- ABE-Hierarchie (Abschaffend → Begrenzend → Entdeckend)
+- ATEX-Validierung für Ex-Zonen, Common-Cause-Failure-Prüfung (CCF)
+- Akzeptanzkriterium: RPZ < 100 nach Maßnahmen; formale Risikoakzeptanz bei Abweichung
+
+### Rechtliche Einordnung
+
+Die KI-gestützte Risikoanalyse ist konform mit dem **EU AI Act (Verordnung (EU) 2024/1689)**:
+- **Einstufung:** Minimales Risiko gemäß Art. 6(3)(b)-(d) — KI als vorbereitendes/unterstützendes Werkzeug
+- **Menschliche Aufsicht:** Human-in-the-Loop (HITL) nach Art. 14 — Fachingenieur validiert, korrigiert und genehmigt jede Bewertung
+- **Transparenz:** KI-Einsatz wird im Report offengelegt (Art. 50)
+- Weitere relevante Regelwerke: Maschinenverordnung (EU) 2023/1230, Seveso-III-Richtlinie, IEC 60812:2018
+
+Die vollständige Methodik-Dokumentation einschließlich rechtlicher Einordnung ist im FMEA-Report (Abschnitt 2 — Methodik) enthalten.
 
 ## Berichts-Features
 
 - **Detaillierte Risiko-Cards** mit S/O/D-Bewertung, Ursachen, Folgen, Controls und Maßnahmen an einem Ort
 - **Ausführliche Controls-Tabelle** mit Beschreibung und Wirkungsbereich statt reiner Pill-Badges
 - **Maßnahmen-Checkliste** im Anhang zur systematischen Abarbeitung
-- **SOLL-Erklärung & Grenzwert:** Konfigurierbare Zielschwelle (z. B. 100); im Report Hinweis, ob SOLL unter Grenzwert erreichbar ist oder nur mit mehreren Maßnahmen
-- **Maßnahmen-Priorisierung:** „Empfohlene“ Maßnahme pro Fehlermodus (lexikographisch: Reduktion → Umsetzbarkeit → Kosten); Badges „Unter Grenzwert“ und „Empfohlen“; Anzeige von Umsetzbarkeit/Kosten (Klasse + optionaler Hinweis) aus Config/DB
 - **Visualisierungen**: Donut-Chart, Risikomatrix, Treemap (vorher/nachher), RPZ-Vergleich (Y-Achse: vollständige Fehlermodus-ID, z. B. KOMP-017-F1-FM2), 6-Chart-Typen-Vergleich
 - **Review-Tool mit S/O/D-Skala-Kontext**: zeigt Nachbarwerte zur besseren Einschätzung
 - **Treiber-Analyse**: erklärt welcher Faktor (S, O oder D) das Risiko dominiert und wie man ihn adressiert
@@ -134,7 +163,7 @@ struktur → fmea → rpz_validierung → massnahmen → report
 
 **Wichtig:** fmea_explicit.py ist **Output** – der Agent füllt sie bei jeder Analyse. Bei Neustart mit `--reset` wird sie geleert.
 
-**Archiv-Regel:** Jede Risikoanalyse ist NEU. NIEMALS FMEA-Daten aus `archive/` oder anderen Projekten übernehmen. Einzige Quelle: `anlagendaten.json` des aktuellen Projekts.
+**Analyse-Regel:** Jede Risikoanalyse ist NEU. Niemals FMEA-Daten aus anderen Projekten übernehmen. Einzige Quelle: `anlagendaten.json` des aktuellen Projekts.
 
 ---
 
@@ -199,7 +228,7 @@ struktur → fmea → rpz_validierung → massnahmen → report
 
 ### Testmodus (Passwort: Wunschpunsch)
 
-Für vollständige Testläufe: Gib das Passwort ein (steht in `.env` unter `FMEA_TESTMODE_PASSWORD`, Standard: `Wunschpunsch`). Der Agent führt die Risikoanalyse dann **autonom** durch – keine Rückfragen, alle Maßnahmen automatisch übernommen. Ziel: Ergebnisprüfung. Siehe `workflows/fmea-workflow.md` (in Cursor über `.cursor/rules/` eingebunden).
+Für vollständige Testläufe: Gib das Passwort ein (steht in `.env` unter `FMEA_TESTMODE_PASSWORD`, Standard: `Wunschpunsch`). Der Agent führt die Risikoanalyse dann **autonom** durch – keine Rückfragen, alle Maßnahmen automatisch übernommen. Ziel: Ergebnisprüfung. Regeln im Skill `.claude/skills/fmea-risikoanalyse/references/fmea-workflow.md`.
 
 ### Abschluss-Zusammenfassung
 
@@ -224,4 +253,14 @@ Jeder Projektordner enthält: `anlagendaten.json`, `fmea_explicit.py`, `measures
 
 **In aktiver Entwicklung** — **Frische Bewertung pro Analyse:** Agent analysiert jede Komponente neu, schreibt in `fmea_explicit.py`, Einspielung mit `tools/insert_fmea_explicit.py`. Maßnahmen: `tools/generate_measures.py` nutzt projektspezifische Generatoren aus `tasks/{task_folder}/measures_explicit.py` (oder `config/measures_explicit.py`); Fehlermodi ohne Generator werden vom Agent über `insert_measures_for_fehlermodus` eingespielt.
 
-**Cleanup (2026-03-02):** `insert_testmode_measures.py` entfernt – Maßnahmen liegen nun in `tasks/.../measures_explicit.py` und werden über `generate_measures.py` eingespielt. PoC-Skripte (`poc_run.py`, `setup_poc.py`) nach `archive/poc_scripts_2026-03-02/` verschoben. **Defaults neutralisiert:** `task_folder` ist bei allen Tools Pflichtparameter (kein projektspezifischer Standard mehr).
+**Cleanup (2026-03-05):** `archive/` entfernt (PoC-Reste). `.claude/commands/` durch Claude Code Skills in `.claude/skills/` ersetzt. Skill-Bundle ist self-contained: Moderator-Regeln, S/O/D-Skalen und MSR-Glossar sind direkt in `references/` gebündelt.
+
+**Änderungen (2026-03-08):** Skill `anlagendaten-interview`: PubChem-Stoffdaten-Integration, Phasen- und Referenz-Updates. Skill `fmea-risikoanalyse`: FMEA-Standards und Workflow-Referenzen überarbeitet. Tools: `insert_fmea_explicit.py`, `storage.py` angepasst. `claude.md` angepasst.
+
+**Änderungen (2026-03-13):** FMEA-Skill-Workflow weiter konsolidiert (`workflows/fmea-workflow.md`, FMEA-Referenzen, Report-Template). Tools: `load_plant_data.py`, `report_generator.py`, `storage.py`, `workflow_state.py` überarbeitet; neue Tools `migrate_db.py` (DB-Migration) und `moc_manager.py` (Management of Change) ergänzt. Plan `007_FMEA-Skill-Upgrade-Report-MoC_2026-03-10.md` fortgeschrieben.
+
+**Änderungen (2026-03-14):** FMEA-Report-Template (`templates/fmea_report.html`) und CSS (`templates/fmea_style.css`) zu einem thematischen App-Shell-Layout mit Komponenten-/Themen-Ansicht ausgebaut. Report-Generator (`tools/report_generator.py`) erzeugt zusätzliche Vergleichs- und Treemap-Charts, MoC-Deltas und Maßnahmen-Cockpit. Chat-Panel im Report wieder entfernt — FMEA-Interaktion läuft direkt über Claude Code.
+
+**Optimierung (2026-03-15):** Umfassendes Projekt-Review und Optimierung: ~11k LOC Duplikate eliminiert (Skill-Kopien von tools/config/templates), Token-Ladung bei Session-Start um ~50% reduziert (Lazy-Loading, Inline-Regeln), fmea-training auf Sonnet gewechselt, Interview-Schema von 1310→185 Zeilen komprimiert. Code-Qualität: pyproject.toml (Python 3.10+), zentrales Logging (tools/_base.py), storage.py schema_version (18x Speedup), GitHub Actions CI, sys.path.insert Cleanup, Type Hints, Auto-Backup, Token-Usage-Tracking.
+
+**Eval & Qualitäts-Upgrade (2026-03-15):** Büchi 15L Detail-Upgrade — 17 FMs auf A+ Textqualität gebracht (Kontext ≥400z, Begründungen ≥150z). Goldstandard v2.0 exportiert. Skill-Creator Eval-Run: 3 Test-Cases (single-FM, Safety Override, Reliability Lookup) mit 6 Subagent-Runs (with/without skill), Grading + Benchmark-Viewer. Safety-Override-Fix: `SAFETY_OVERRIDES` mit Qualifier-System erweitert (permanente vs. lokale Zone 0), Multi-Szenario D-Gewichtung im Workflow. Report-Methodik um Qualifier-Dokumentation und Multi-Szenario-Bewertung ergänzt.

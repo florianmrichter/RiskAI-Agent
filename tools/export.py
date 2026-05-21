@@ -10,8 +10,11 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 from tools.storage import FMEAStorage
+from tools._base import tool_entry
+from config.fmea_standards import RPZ_HEX as RPZ_COLORS, HEADER_COLOR, RPZ_THRESHOLDS, RPZ_LABELS, S_SCALE, O_SCALE, D_SCALE
 
 try:
     from openpyxl import Workbook
@@ -22,21 +25,12 @@ except ImportError:
     HAS_OPENPYXL = False
 
 
-RPZ_COLORS = {
-    "kritisch": "FF0000",
-    "hoch": "FF8C00",
-    "mittel": "FFD700",
-    "niedrig": "00B050",
-}
-
-
 def export_json(project_id: int, output_path: str, db_path: str = None) -> str:
     """Export full FMEA data as JSON."""
-    db = FMEAStorage(db_path)
-    project = db.get_project(project_id)
-    data = db.get_full_fmea_data(project_id)
-    stats = db.get_project_statistics(project_id)
-    db.close()
+    with FMEAStorage(db_path) as db:
+        project = db.get_project(project_id)
+        data = db.get_full_fmea_data(project_id)
+        stats = db.get_project_statistics(project_id)
 
     report = {
         "metadata": {
@@ -62,12 +56,11 @@ def export_excel(project_id: int, output_path: str, db_path: str = None) -> str:
     if not HAS_OPENPYXL:
         raise ImportError("openpyxl is required for Excel export. Install with: pip install openpyxl")
 
-    db = FMEAStorage(db_path)
-    project = db.get_project(project_id)
-    components = db.get_components(project_id)
-    full_data = db.get_full_fmea_data(project_id)
-    stats = db.get_project_statistics(project_id)
-    db.close()
+    with FMEAStorage(db_path) as db:
+        project = db.get_project(project_id)
+        components = db.get_components(project_id)
+        full_data = db.get_full_fmea_data(project_id)
+        stats = db.get_project_statistics(project_id)
 
     wb = Workbook()
 
@@ -75,15 +68,46 @@ def export_excel(project_id: int, output_path: str, db_path: str = None) -> str:
     _create_fmea_sheet(wb, full_data)
     _create_causes_sheet(wb, full_data)
     _create_measures_sheet(wb, full_data)
+    _create_legend_sheet(wb)
 
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     wb.save(output_path)
     return output_path
 
 
+ZEBRA_FILL = PatternFill(start_color="F2F4F7", end_color="F2F4F7", fill_type="solid") if HAS_OPENPYXL else None
+THIN_BORDER = Border(
+    left=Side(style='thin'), right=Side(style='thin'),
+    top=Side(style='thin'), bottom=Side(style='thin')
+) if HAS_OPENPYXL else None
+
+
+def _apply_zebra_and_border(ws, start_row: int, end_row: int, max_col: int):
+    """Apply alternating row shading and thin borders to data rows."""
+    for r in range(start_row, end_row + 1):
+        for c in range(1, max_col + 1):
+            cell = ws.cell(row=r, column=c)
+            cell.border = THIN_BORDER
+            cell.alignment = Alignment(wrap_text=True, vertical="top")
+            if (r - start_row) % 2 == 1 and not cell.fill.start_color.rgb or cell.fill.start_color.rgb == "00000000":
+                cell.fill = ZEBRA_FILL
+
+
+def _auto_fit_columns(ws, min_width: int = 10, max_width: int = 55):
+    """Auto-fit column widths based on content, within min/max bounds."""
+    for col_cells in ws.columns:
+        col_letter = get_column_letter(col_cells[0].column)
+        lengths = []
+        for cell in col_cells:
+            val = str(cell.value) if cell.value is not None else ""
+            lengths.append(min(len(val), max_width))
+        best = max(lengths) + 2 if lengths else min_width
+        ws.column_dimensions[col_letter].width = max(min_width, min(best, max_width))
+
+
 def _style_header(ws, row: int, max_col: int):
     header_font = Font(bold=True, color="FFFFFF", size=11)
-    header_fill = PatternFill(start_color="2F5496", end_color="2F5496", fill_type="solid")
+    header_fill = PatternFill(start_color=HEADER_COLOR, end_color=HEADER_COLOR, fill_type="solid")
     thin_border = Border(
         left=Side(style='thin'), right=Side(style='thin'),
         top=Side(style='thin'), bottom=Side(style='thin')
@@ -219,10 +243,11 @@ def _create_fmea_sheet(wb, full_data):
         ws.cell(row=row, column=19, value=risk.get("override_applied", ""))
         row += 1
 
-    for col in range(1, len(headers) + 1):
-        ws.column_dimensions[get_column_letter(col)].width = 18
+    _apply_zebra_and_border(ws, 2, row - 1, len(headers))
+    _auto_fit_columns(ws)
     ws.column_dimensions["B"].width = 30
     ws.column_dimensions["H"].width = 40
+    ws.auto_filter.ref = ws.dimensions
 
 
 def _create_causes_sheet(wb, full_data):
@@ -250,25 +275,14 @@ def _create_causes_sheet(wb, full_data):
             ws.cell(row=row, column=8, value=cause.get("praeventionshinweis", ""))
             row += 1
 
-    for col in range(1, len(headers) + 1):
-        ws.column_dimensions[get_column_letter(col)].width = 20
+    _apply_zebra_and_border(ws, 2, row - 1, len(headers))
+    _auto_fit_columns(ws)
     ws.column_dimensions["E"].width = 50
     ws.column_dimensions["H"].width = 50
+    ws.auto_filter.ref = ws.dimensions
 
 
-STOP_ORDER = {"S": 0, "T": 1, "O": 2, "P": 3}
-
-STOP_LABELS = {
-    "S": "Substitution",
-    "T": "Technisch",
-    "O": "Organisatorisch",
-    "P": "Persönlich",
-}
-
-
-def _sort_measures_by_stop(measures: list) -> list:
-    """Sort measures by STOP hierarchy (S before T before O before P)."""
-    return sorted(measures, key=lambda m: STOP_ORDER.get(m.get("stop_kategorie", ""), 99))
+from tools._base import STOP_LABELS, STOP_ORDER, _sort_measures_by_stop
 
 
 def _create_measures_sheet(wb, full_data):
@@ -330,14 +344,103 @@ def _create_measures_sheet(wb, full_data):
             ws.cell(row=row, column=16, value=measure.get("iteration", 1))
             row += 1
 
-    for col in range(1, len(headers) + 1):
-        ws.column_dimensions[get_column_letter(col)].width = 18
-    ws.column_dimensions["F"].width = 16
+    _apply_zebra_and_border(ws, 2, row - 1, len(headers))
+    _auto_fit_columns(ws)
     ws.column_dimensions["G"].width = 35
     ws.column_dimensions["I"].width = 50
     ws.column_dimensions["O"].width = 50
+    ws.auto_filter.ref = ws.dimensions
 
 
+def _create_legend_sheet(wb):
+    """Create a 'Legende' sheet explaining RPZ colors, scales, and STOP categories."""
+    ws = wb.create_sheet("Legende")
+
+    ws["A1"] = "FMEA-Legende"
+    ws["A1"].font = Font(bold=True, size=16, color=HEADER_COLOR)
+
+    # RPZ Risk Categories
+    row = 3
+    ws.cell(row=row, column=1, value="RPZ-Risikokategorien").font = Font(bold=True, size=13)
+    row += 1
+    headers = ["Kategorie", "RPZ-Schwellwert", "Farbe", "Handlungsempfehlung"]
+    for i, h in enumerate(headers, 1):
+        ws.cell(row=row, column=i, value=h)
+    _style_header(ws, row, len(headers))
+    row += 1
+
+    rpz_items = [
+        ("Kritisch", f"≥ {RPZ_THRESHOLDS['kritisch']}", "kritisch"),
+        ("Hoch", f"≥ {RPZ_THRESHOLDS['hoch']}", "hoch"),
+        ("Mittel", f"≥ {RPZ_THRESHOLDS['mittel']}", "mittel"),
+        ("Niedrig", f"< {RPZ_THRESHOLDS['mittel']}", "niedrig"),
+    ]
+    for label, threshold, key in rpz_items:
+        ws.cell(row=row, column=1, value=label).font = Font(bold=True)
+        ws.cell(row=row, column=2, value=threshold)
+        color_cell = ws.cell(row=row, column=3, value="████")
+        color_cell.fill = PatternFill(start_color=RPZ_COLORS[key], end_color=RPZ_COLORS[key], fill_type="solid")
+        if key in ["kritisch", "hoch"]:
+            color_cell.font = Font(color="FFFFFF", bold=True)
+        ws.cell(row=row, column=4, value=RPZ_LABELS[key])
+        row += 1
+
+    # STOP Categories
+    row += 1
+    ws.cell(row=row, column=1, value="STOP-Kategorien").font = Font(bold=True, size=13)
+    row += 1
+    stop_items = [
+        ("S — Substitution", "D5E8D4", "Gefährdung durch alternative Stoffe/Verfahren eliminieren"),
+        ("T — Technisch", "DAE8FC", "Technische Schutzmaßnahme installieren"),
+        ("O — Organisatorisch", "FFF2CC", "Organisatorische Maßnahme (Schulung, Verfahren, Prüfplan)"),
+        ("P — Persönlich", "F8CECC", "Persönliche Schutzausrüstung (PSA), letzte Verteidigungslinie"),
+    ]
+    for label, color, desc in stop_items:
+        ws.cell(row=row, column=1, value=label).font = Font(bold=True)
+        ws.cell(row=row, column=1).fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
+        ws.cell(row=row, column=2, value=desc)
+        row += 1
+
+    # ABE Categories
+    row += 1
+    ws.cell(row=row, column=1, value="ABE-Kategorien").font = Font(bold=True, size=13)
+    row += 1
+    abe_items = [
+        ("A — Vermeidung", "Maßnahme verhindert das Auftreten des Fehlers"),
+        ("B — Entdeckung", "Maßnahme verbessert die Entdeckbarkeit des Fehlers"),
+        ("E — Abschwächung", "Maßnahme reduziert die Auswirkung des Fehlers"),
+    ]
+    for label, desc in abe_items:
+        ws.cell(row=row, column=1, value=label).font = Font(bold=True)
+        ws.cell(row=row, column=2, value=desc)
+        row += 1
+
+    # S/O/D Scales
+    for scale_name, scale_label, scale_data in [("S", "Bedeutung (Severity)", S_SCALE),
+                                                  ("O", "Auftreten (Occurrence)", O_SCALE),
+                                                  ("D", "Entdeckung (Detection)", D_SCALE)]:
+        row += 1
+        ws.cell(row=row, column=1, value=f"{scale_label} — Skala 1-10").font = Font(bold=True, size=13)
+        row += 1
+        scale_headers = ["Wert", "Einstufung", "Beschreibung"]
+        for i, h in enumerate(scale_headers, 1):
+            ws.cell(row=row, column=i, value=h)
+        _style_header(ws, row, len(scale_headers))
+        row += 1
+        for val in range(1, 11):
+            label, desc = scale_data[val]
+            ws.cell(row=row, column=1, value=val).alignment = Alignment(horizontal="center")
+            ws.cell(row=row, column=2, value=label)
+            ws.cell(row=row, column=3, value=desc)
+            row += 1
+
+    ws.column_dimensions["A"].width = 28
+    ws.column_dimensions["B"].width = 45
+    ws.column_dimensions["C"].width = 20
+    ws.column_dimensions["D"].width = 45
+
+
+@tool_entry
 def export_fmea(project_id: int, output_path: str = None, db_path: str = None,
                 format: str = "both") -> dict:
     """

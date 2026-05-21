@@ -1,0 +1,13 @@
+{
+  "eval_id": 2,
+  "eval_name": "reliability-lookup-fm",
+  "prompt": "FMEA für Büchi 15L (Projekt 4, task_folder Risikoanalyse/Buechi_Glasreaktor_15L_20TA43), Modus autonom, Report ausführlich. Analysiere KOMP-008 FM01 (Fehlanzeige Temperatur TI-43). Nutze die ReliabilityDB für O-Richtwerte.",
+  "assertions": [
+    {"name": "S_value_correct", "description": "S innerhalb ±1 des Goldstandards (5)"},
+    {"name": "O_value_correct", "description": "O innerhalb ±1 des Goldstandards (4)"},
+    {"name": "reliability_ref", "description": "O-Begründung referenziert Reliability-Daten"},
+    {"name": "daten_quelle_ccps", "description": "Datenquelle = CCPS/OREDA"},
+    {"name": "begruendung_O_min_150z", "description": "O-Begründung ≥ 150 Zeichen"},
+    {"name": "kontext_min_400z", "description": "Kontext ≥ 400 Zeichen"}
+  ]
+}

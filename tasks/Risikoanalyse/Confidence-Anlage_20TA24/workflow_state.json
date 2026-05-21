@@ -1,0 +1,40 @@
+{
+  "project_id": 2,
+  "task_folder": "Risikoanalyse/Confidence-Anlage_20TA24",
+  "phase": "fmea",
+  "current_komp_id": "KOMP-006",
+  "last_updated": "2026-03-13T00:00:00",
+  "phases": {
+    "struktur": "done",
+    "fmea": "done",
+    "rpz_validierung": "done",
+    "massnahmen": "done",
+    "report": "done"
+  },
+  "components": {
+    "KOMP-001": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-002": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-003": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-004": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-005": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-006": {
+      "fmea": "done",
+      "measures": "done"
+    }
+  }
+}

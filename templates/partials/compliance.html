@@ -1,0 +1,56 @@
+    {# ══════════════════  5b. COMPLIANCE-STATUS  ══════════════════ #}
+    {% if compliance_findings is defined and compliance_findings %}
+    <section class="page-section" id="sec-compliance">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 5b</div>
+        <div class="section-title">Compliance-Status</div>
+        <div class="section-desc">Bewertung der regulatorischen Konformität basierend auf den FMEA-Ergebnissen.</div>
+      </div>
+      {% for finding in compliance_findings %}
+      <div class="compliance-card" style="border-left-color:{% if finding.status == 'konform' %}var(--risk-niedrig){% elif finding.status == 'bedingt_konform' %}var(--risk-mittel){% else %}var(--risk-kritisch){% endif %};">
+        <div class="compliance-title">{{ finding.regelwerk }}</div>
+        <div class="compliance-desc">{{ finding.aussage }}</div>
+        {% if finding.pflichtmassnahmen %}
+        <div class="compliance-actions">Pflichtmaßnahmen: {{ finding.pflichtmassnahmen | join(', ') }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    {# ══════════════════  5c. AKZEPTIERTE RESTRISIKEN  ══════════════════ #}
+    {% if akzeptierte_risiken is defined and akzeptierte_risiken %}
+    <section class="page-section" id="sec-akzeptanz">
+      <div class="section-header">
+        <div class="section-num">Abschnitt 5c</div>
+        <div class="section-title">Akzeptierte Restrisiken</div>
+        <div class="section-desc">Formal akzeptierte Risiken mit Dokumentation der Verantwortlichkeit.</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+        <thead>
+          <tr style="background:var(--bg);">
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">FM-ID</th>
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">Einstufung</th>
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">RPZ</th>
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">Akzeptiert von</th>
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">Datum</th>
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">Bedingungen</th>
+            <th style="padding:6px 8px;text-align:left;font-size:11px;border:1px solid var(--border);">Revalidierung</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ar in akzeptierte_risiken %}
+          <tr>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);font-weight:600;">{{ ar.fehler_id }}</td>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);">{{ ar.rpz_status | upper }}</td>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);">{{ ar.rpz }}</td>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);">{{ ar.akzeptiert_von or '—' }}</td>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);">{{ ar.akzeptiert_datum or '—' }}</td>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);">{{ ar.akzeptanz_bedingungen or '—' }}</td>
+            <td style="padding:6px 8px;font-size:11px;border:1px solid var(--border);">{{ ar.revalidierung_datum or '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+    {% endif %}

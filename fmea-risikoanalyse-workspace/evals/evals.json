@@ -1,0 +1,56 @@
+{
+  "skill_name": "fmea-risikoanalyse",
+  "skill_path": ".claude/skills/fmea-risikoanalyse/SKILL.md",
+  "goldstandard_path": "tasks/Risikoanalyse/Buechi_Glasreaktor_15L_20TA43/goldstandard_20TA43.json",
+  "evals": [
+    {
+      "id": 0,
+      "name": "single-fm-analysis",
+      "prompt": "Ich möchte die FMEA für die Büchi 15L Anlage (Projekt 4, task_folder Risikoanalyse/Buechi_Glasreaktor_15L_20TA43) fortsetzen. Analysiere bitte KOMP-001 FM01 (Überfüllung des Glasreaktors) komplett — mit Kontext, S/O/D-Bewertung mit ausführlicher Begründung, Controls-Bewertung und Empfehlung. Modus ist autonom, Report-Qualität ausführlich.",
+      "expected_output": "Vollständige FM-Analyse mit kontext_beschreibung ≥400z, begruendung_S/O/D je ≥150z, empfehlung ≥150z, controls_einschraenkung ≥100z. S=4, O=4, D=5, RPZ=80.",
+      "assertions": [
+        {"name": "kontext_min_400z", "type": "text_length", "field": "kontext_beschreibung", "min_length": 400, "description": "Kontext-Beschreibung mindestens 400 Zeichen"},
+        {"name": "begruendung_S_min_150z", "type": "text_length", "field": "begruendung_S", "min_length": 150, "description": "S-Begründung mindestens 150 Zeichen"},
+        {"name": "begruendung_O_min_150z", "type": "text_length", "field": "begruendung_O", "min_length": 150, "description": "O-Begründung mindestens 150 Zeichen"},
+        {"name": "begruendung_D_min_150z", "type": "text_length", "field": "begruendung_D", "min_length": 150, "description": "D-Begründung mindestens 150 Zeichen"},
+        {"name": "empfehlung_min_150z", "type": "text_length", "field": "empfehlung", "min_length": 150, "description": "Empfehlung mindestens 150 Zeichen"},
+        {"name": "S_value_correct", "type": "value_match", "field": "S", "expected": 4, "tolerance": 1, "description": "S-Wert innerhalb ±1 des Goldstandards (4)"},
+        {"name": "O_value_correct", "type": "value_match", "field": "O", "expected": 4, "tolerance": 1, "description": "O-Wert innerhalb ±1 des Goldstandards (4)"},
+        {"name": "D_value_correct", "type": "value_match", "field": "D", "expected": 5, "tolerance": 1, "description": "D-Wert innerhalb ±1 des Goldstandards (5)"},
+        {"name": "rpz_correct", "type": "rpz_math", "description": "RPZ = S × O × D korrekt berechnet"},
+        {"name": "daten_quelle_set", "type": "field_present", "field": "daten_quelle", "description": "Datenquelle ist angegeben"}
+      ],
+      "files": ["tasks/Risikoanalyse/Buechi_Glasreaktor_15L_20TA43/anlagendaten.json"]
+    },
+    {
+      "id": 1,
+      "name": "safety-override-fm",
+      "prompt": "FMEA für Büchi 15L (Projekt 4, task_folder Risikoanalyse/Buechi_Glasreaktor_15L_20TA43), Modus autonom, Report ausführlich. Analysiere KOMP-006 FM01 (Betrieb mit offenem/undichtem Handloch) — das ist ein Safety-Override-Fall wegen Explosionsschutz. Vollständige Analyse bitte.",
+      "expected_output": "S=9 (Safety Override Ex-Schutz), O=3, D=6, RPZ=162, rpz_status=hoch (Override wegen S≥9). Ausführliche Begründungen, Maßnahmen mit Interlock-Empfehlung.",
+      "assertions": [
+        {"name": "S_ge_9_safety", "type": "value_min", "field": "S", "min_value": 9, "description": "S ≥ 9 wegen Safety Override (Explosionsschutz)"},
+        {"name": "rpz_status_hoch", "type": "value_match", "field": "rpz_status", "expected": "hoch", "description": "RPZ-Status = hoch (S≥9 Override)"},
+        {"name": "override_applied", "type": "field_present", "field": "override_applied", "description": "Safety Override dokumentiert"},
+        {"name": "kontext_min_400z", "type": "text_length", "field": "kontext_beschreibung", "min_length": 400, "description": "Kontext ≥ 400 Zeichen"},
+        {"name": "empfehlung_interlock", "type": "text_contains", "field": "empfehlung", "contains": ["Interlock", "Positionsschalter", "interlock", "positionsschalter"], "description": "Empfehlung enthält Interlock/Positionsschalter"},
+        {"name": "massnahmen_vorhanden", "type": "measures_exist", "description": "Maßnahmen bei S≥9 sind Pflicht"}
+      ],
+      "files": ["tasks/Risikoanalyse/Buechi_Glasreaktor_15L_20TA43/anlagendaten.json"]
+    },
+    {
+      "id": 2,
+      "name": "reliability-lookup-fm",
+      "prompt": "FMEA für Büchi 15L (Projekt 4, task_folder Risikoanalyse/Buechi_Glasreaktor_15L_20TA43), Modus autonom, Report ausführlich. Analysiere KOMP-008 FM01 (Fehlanzeige Temperatur TI-43). Nutze die ReliabilityDB für O-Richtwerte.",
+      "expected_output": "S=5, O=4, D=4, RPZ=80. ReliabilityDB-Lookup für Temperatursensor, O-Richtwert aus CCPS/OREDA referenziert in begruendung_O. daten_quelle = CCPS/OREDA.",
+      "assertions": [
+        {"name": "S_value_correct", "type": "value_match", "field": "S", "expected": 5, "tolerance": 1, "description": "S innerhalb ±1 des Goldstandards (5)"},
+        {"name": "O_value_correct", "type": "value_match", "field": "O", "expected": 4, "tolerance": 1, "description": "O innerhalb ±1 des Goldstandards (4)"},
+        {"name": "reliability_ref", "type": "text_contains", "field": "begruendung_O", "contains": ["CCPS", "OREDA", "FPMH", "Ausfallrate", "ausfallrate"], "description": "O-Begründung referenziert Reliability-Daten"},
+        {"name": "daten_quelle_ccps", "type": "text_contains", "field": "daten_quelle", "contains": ["CCPS", "OREDA"], "description": "Datenquelle = CCPS/OREDA"},
+        {"name": "begruendung_O_min_150z", "type": "text_length", "field": "begruendung_O", "min_length": 150, "description": "O-Begründung ≥ 150 Zeichen"},
+        {"name": "kontext_min_400z", "type": "text_length", "field": "kontext_beschreibung", "min_length": 400, "description": "Kontext ≥ 400 Zeichen"}
+      ],
+      "files": ["tasks/Risikoanalyse/Buechi_Glasreaktor_15L_20TA43/anlagendaten.json"]
+    }
+  ]
+}

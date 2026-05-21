@@ -17,7 +17,8 @@ Usage:
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from tools.storage import FMEAStorage
 
@@ -73,99 +74,128 @@ def insert_fmea_for_component(
     if not fmea_data:
         raise ValueError(f"Keine FMEA-Daten für {komp_id}. Bitte task_folder angeben oder fmea_data übergeben.")
 
-    db = FMEAStorage(db_path)
-    comp = db.get_component_by_komp_id(komp_id)
-    if not comp:
-        db.close()
-        raise ValueError(f"Komponente {komp_id} nicht gefunden")
+    with FMEAStorage(db_path) as db:
+        comp = db.get_component_by_komp_id(komp_id, project_id=project_id)
+        if not comp:
+            raise ValueError(f"Komponente {komp_id} nicht gefunden")
 
-    comp_id = comp["id"]
-    func_id_to_db_id = {}
-    stats = {"functions": 0, "failure_modes": 0}
+        comp_id = comp["id"]
+        func_id_to_db_id = {}
+        stats = {"functions": 0, "failure_modes": 0}
 
-    for func in fmea_data.get("functions", []):
-        fid = db.insert_function(
-            comp_id,
-            func["funktion_id"],
-            func["typ"],
-            func["beschreibung"],
-            func.get("anforderungen", []),
-        )
-        func_id_to_db_id[func["funktion_id"]] = fid
-        stats["functions"] += 1
+        # Pflichtfeld-Prüfung pro Fehlermodus (Warnung, kein Abbruch)
+        for fm in fmea_data.get("failure_modes", []):
+            fid = fm.get("fehler_id", "?")
+            if not fm.get("causes"):
+                print(f"⚠ {fid}: Keine Ursachen definiert")
+            if not fm.get("effects"):
+                print(f"⚠ {fid}: Keine Folgen definiert")
+            if not fm.get("controls"):
+                print(f"⚠ {fid}: Keine Controls definiert")
+            if fm.get("begruendung_S", "").startswith("Siehe"):
+                print(f"⚠ {fid}: Begründung S ist ein Platzhalter")
+            if fm.get("begruendung_O", "").startswith("Siehe"):
+                print(f"⚠ {fid}: Begründung O ist ein Platzhalter")
+            if fm.get("begruendung_D", "").startswith("Siehe"):
+                print(f"⚠ {fid}: Begründung D ist ein Platzhalter")
 
-    for fm in fmea_data.get("failure_modes", []):
-        func_id = fm["funktion_id"]
-        if func_id not in func_id_to_db_id:
-            func_row = db.get_function_by_funktion_id(func_id)
-            if func_row:
-                func_id_to_db_id[func_id] = func_row["id"]
-            else:
-                continue
-        func_db_id = func_id_to_db_id[func_id]
+        for func in fmea_data.get("functions", []):
+            fid = db.insert_function(
+                comp_id,
+                func["funktion_id"],
+                func["typ"],
+                func["beschreibung"],
+                func.get("anforderungen", []),
+            )
+            func_id_to_db_id[func["funktion_id"]] = fid
+            stats["functions"] += 1
 
-        fehler_id = fm.get("fehler_id")
-        if not fehler_id:
-            existing = db.get_failure_modes(func_db_id)
-            fehler_id = f"{func_id}-FM{len(existing)+1}"
+        for fm in fmea_data.get("failure_modes", []):
+            func_id = fm["funktion_id"]
+            if func_id not in func_id_to_db_id:
+                func_row = db.get_function_by_funktion_id(func_id)
+                if func_row:
+                    func_id_to_db_id[func_id] = func_row["id"]
+                else:
+                    continue
+            func_db_id = func_id_to_db_id[func_id]
 
-        fm_id = db.insert_failure_mode(
-            func_db_id,
-            fehler_id,
-            fm["fehlermodus"],
-            fm["fehlerart"],
-            kontext_beschreibung=fm.get("kontext_beschreibung"),
-            controls_einschraenkung=fm.get("controls_einschraenkung"),
-        )
-        stats["failure_modes"] += 1
+            fehler_id = fm.get("fehler_id")
+            if not fehler_id:
+                existing = db.get_failure_modes(func_db_id)
+                # Komponentenbasierte ID: {teilanlage}-{komp_id}-FM{nn}
+                teilanlage = ""
+                if task_folder:
+                    parts = task_folder.split("/")[-1].split("_")
+                    teilanlage = parts[-1] if len(parts) > 1 else ""
+                if teilanlage:
+                    fehler_id = f"{teilanlage}-{komp_id}-FM{len(existing)+1:02d}"
+                else:
+                    fehler_id = f"{komp_id}-FM{len(existing)+1:02d}"
 
-        for uc in fm.get("causes", []):
-            db.insert_failure_cause(
+            fm_id = db.insert_failure_mode(
+                func_db_id,
+                fehler_id,
+                fm["fehlermodus"],
+                fm["fehlerart"],
+                kontext_beschreibung=fm.get("kontext_beschreibung"),
+                controls_einschraenkung=fm.get("controls_einschraenkung"),
+            )
+            stats["failure_modes"] += 1
+
+            for uc in fm.get("causes", []):
+                db.insert_failure_cause(
+                    fm_id,
+                    uc["ursache_id"],
+                    uc["beschreibung"],
+                    uc["herkunft"],
+                    uc.get("praeventionsphase") or uc.get("phase", "Betrieb"),
+                    uc.get("praeventionshinweis") or uc.get("hinweis"),
+                )
+
+            e = fm.get("effects", {})
+            if e:
+                db.insert_failure_effect(
+                    fm_id,
+                    mensch_stufe=e.get("mensch", ("", ""))[0],
+                    mensch_beschreibung=e.get("mensch", ("", ""))[1],
+                    umwelt_stufe=e.get("umwelt", ("", ""))[0],
+                    umwelt_beschreibung=e.get("umwelt", ("", ""))[1],
+                    anlage_stufe=e.get("anlage", ("", ""))[0],
+                    anlage_beschreibung=e.get("anlage", ("", ""))[1],
+                    kosten_stufe=e.get("kosten", ("", ""))[0],
+                    kosten_beschreibung=e.get("kosten", ("", ""))[1],
+                )
+
+            for ctrl in fm.get("controls", []):
+                db.insert_current_control(
+                    fm_id,
+                    ctrl["name"],
+                    ctrl["typ"],
+                    ctrl["wirkung"],
+                    ctrl.get("sil_level"),
+                    ctrl.get("beschreibung"),
+                    ctrl.get("beeinflusst"),
+                    ctrl.get("einschraenkung"),
+                )
+
+            db.insert_risk_assessment(
                 fm_id,
-                uc["ursache_id"],
-                uc["beschreibung"],
-                uc["herkunft"],
-                uc.get("praeventionsphase") or uc.get("phase", "Betrieb"),
-                uc.get("praeventionshinweis") or uc.get("hinweis"),
+                S=fm["S"],
+                O=fm["O"],
+                D=fm["D"],
+                begruendung_S=fm.get("begruendung_S"),
+                begruendung_O=fm.get("begruendung_O"),
+                begruendung_D=fm.get("begruendung_D"),
             )
 
-        e = fm.get("effects", {})
-        if e:
-            db.insert_failure_effect(
-                fm_id,
-                mensch_stufe=e.get("mensch", ("", ""))[0],
-                mensch_beschreibung=e.get("mensch", ("", ""))[1],
-                umwelt_stufe=e.get("umwelt", ("", ""))[0],
-                umwelt_beschreibung=e.get("umwelt", ("", ""))[1],
-                anlage_stufe=e.get("anlage", ("", ""))[0],
-                anlage_beschreibung=e.get("anlage", ("", ""))[1],
-                kosten_stufe=e.get("kosten", ("", ""))[0],
-                kosten_beschreibung=e.get("kosten", ("", ""))[1],
-            )
-
-        for ctrl in fm.get("controls", []):
-            db.insert_current_control(
-                fm_id,
-                ctrl["name"],
-                ctrl["typ"],
-                ctrl["wirkung"],
-                ctrl.get("sil_level"),
-                ctrl.get("beschreibung"),
-                ctrl.get("beeinflusst"),
-                ctrl.get("einschraenkung"),
-            )
-
-        db.insert_risk_assessment(
-            fm_id,
-            S=fm["S"],
-            O=fm["O"],
-            D=fm["D"],
-            begruendung_S=fm.get("begruendung_S"),
-            begruendung_O=fm.get("begruendung_O"),
-            begruendung_D=fm.get("begruendung_D"),
-        )
-
-    db.close()
+            # Empfehlung einspielen (falls vorhanden)
+            if fm.get("empfehlung"):
+                db.conn.execute(
+                    "UPDATE failure_modes SET empfehlung = ? WHERE id = ?",
+                    (fm["empfehlung"], fm_id)
+                )
+                db.conn.commit()
 
     if task_folder:
         from tools.workflow_state import mark_component_done

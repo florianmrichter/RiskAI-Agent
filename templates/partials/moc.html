@@ -1,0 +1,109 @@
+    {# ══════════════════  MoC — MANAGEMENT OF CHANGE  ══════════════════ #}
+    {% if moc_changes %}
+    <section class="page-section" id="sec-moc">
+      <div class="section-header">
+        <div class="section-num">Management of Change</div>
+        <div class="section-title">Änderungsdokumentation (MoC)</div>
+        <div class="section-desc">
+          Dokumentation aller Anlagenänderungen, die zu dieser Risikoanalyse geführt haben oder in deren Rahmen bewertet wurden.
+          {% if moc_fms %} {{ moc_fms|length }} Fehlermodi wurden im Rahmen dieser Änderung neu erfasst.{% endif %}
+        </div>
+      </div>
+
+      <div class="moc-alert">
+        ⚠️ Diese Risikoanalyse enthält Fehlermodi, die auf dokumentierte Anlagenänderungen zurückgehen.
+        Alle MoC-Einträge sind unten vollständig aufgeführt, einschließlich des Änderungsdatums, der betroffenen Komponenten und der daraus resultierenden Risikobeurteilungen.
+      </div>
+
+      {# Zusammenfassung #}
+      <div class="moc-summary-grid">
+        <div class="moc-summary-card">
+          <div class="moc-num">{{ moc_changes|length }}</div>
+          <div class="moc-label">Geänderte Equipment-Positionen</div>
+        </div>
+        <div class="moc-summary-card">
+          <div class="moc-num">{{ moc_fms|length }}</div>
+          <div class="moc-label">Neu bewertete Fehlermodi</div>
+        </div>
+        <div class="moc-summary-card">
+          <div class="moc-num">{{ moc_changes[0].datum if moc_changes else '–' }}</div>
+          <div class="moc-label">Änderungsdatum (frühestes)</div>
+        </div>
+      </div>
+
+      {# Geänderte Equipment-Positionen #}
+      <h3>Geänderte Anlagenkomponenten</h3>
+      {% for chg in moc_changes %}
+      <div class="moc-change-card avoid-break">
+        <div class="moc-change-header">
+          <span class="moc-badge">MoC</span>
+          <h3>{{ chg.equipment.name }}</h3>
+          <span class="moc-date">{{ chg.datum }}</span>
+        </div>
+        <div class="moc-change-body">
+          <div class="kv-row"><span class="kv-key">System</span><span class="kv-val">{{ chg.system.name }}</span></div>
+          <div class="kv-row"><span class="kv-key">Equipment-Typ</span><span class="kv-val">{{ chg.equipment.type }}</span></div>
+          {% if chg.equipment.get('position') %}
+          <div class="kv-row"><span class="kv-key">Position</span><span class="kv-val">{{ chg.equipment.position }}</span></div>
+          {% endif %}
+          {% if chg.beschreibung %}
+          <div class="kv-row"><span class="kv-key">Änderungsbeschreibung</span><span class="kv-val">{{ chg.beschreibung }}</span></div>
+          {% endif %}
+          {% for pk, pv in (chg.equipment.parameters or {}).items() if pk not in ('MoC_Datum', 'MoC_Beschreibung') %}
+          <div class="kv-row"><span class="kv-key">{{ pk }}</span><span class="kv-val">{{ pv }}</span></div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+
+      {# Betroffene Fehlermodi #}
+      {% if moc_fms %}
+      <h3>Betroffene Fehlermodi ({{ moc_fms|length }})</h3>
+      <p>Die folgenden Fehlermodi wurden im Rahmen dieser Änderung neu erfasst und bewertet.
+        Alle Risiken sind im Abschnitt «Detaillierte Risiko-Dokumentation» vollständig beschrieben.</p>
+      <table class="risk-toc-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fehlermodus</th>
+            <th>Komponente</th>
+            <th style="text-align:center;">S</th>
+            <th style="text-align:center;">O</th>
+            <th style="text-align:center;">D</th>
+            <th style="text-align:center;">RPZ</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fm in moc_fms %}
+          <tr>
+            <td style="font-weight:600;white-space:nowrap;">
+              <a href="#risk-{{ fm.fehler_id }}" class="risk-toc-link">{{ fm.fehler_id }}</a>
+            </td>
+            <td><a href="#risk-{{ fm.fehler_id }}" class="risk-toc-link">{{ fm.fehlermodus }}</a></td>
+            <td>{{ fm.get('component_name') or fm.get('komponente','–') }}</td>
+            <td style="text-align:center;">{{ fm.S }}</td>
+            <td style="text-align:center;">{{ fm.O }}</td>
+            <td style="text-align:center;">{{ fm.D }}</td>
+            <td style="text-align:center;font-weight:700;">{{ fm.rpz }}</td>
+            <td><span class="badge badge-{{ fm.rpz_status }}">{{ fm.rpz_status|capitalize }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {# Zusammenfassung Risikoeinstufung (in Python vorberechnet → moc_risk_summary) #}
+      <div class="info-box">
+        <strong>Risiko-Zusammenfassung (MoC-Fehlermodi):</strong>
+        {% if moc_risk_summary.kritisch > 0 %}<span class="badge badge-kritisch">{{ moc_risk_summary.kritisch }} Kritisch</span> {% endif %}
+        {% if moc_risk_summary.hoch  > 0 %}<span class="badge badge-hoch">{{ moc_risk_summary.hoch }} Hoch</span> {% endif %}
+        {% if moc_risk_summary.mittel > 0 %}<span class="badge badge-mittel">{{ moc_risk_summary.mittel }} Mittel</span> {% endif %}
+        {% if moc_risk_summary.niedrig > 0 %}<span class="badge badge-niedrig">{{ moc_risk_summary.niedrig }} Niedrig</span> {% endif %}
+        {% if moc_risk_summary.kritisch == 0 and moc_risk_summary.hoch == 0 %}
+        — Alle MoC-bedingten Risiken liegen im akzeptablen Bereich. Keine zusätzlichen Maßnahmen erforderlich.
+        {% endif %}
+      </div>
+      {% endif %}
+
+    </section>
+    {% endif %}
