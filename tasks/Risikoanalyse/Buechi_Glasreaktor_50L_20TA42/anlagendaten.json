@@ -1,0 +1,556 @@
+{
+  "teilanlage_nr": "20TA42",
+  "bezeichnung": "Büchi Glasreaktor 50L Mini Pilot",
+  "location": {
+    "site": "Werk Penzberg",
+    "building": "Gebäude 353",
+    "room": "Raum 330",
+    "floor": "Ebene 300",
+    "area": "Technikum",
+    "isOutdoor": false
+  },
+  "processDescription": {
+    "description": "Rühren und Kochen unter Rückfluss mit wechselnden organischen Lösemitteln. Batch-Betrieb, vollständig manuell und personenüberwacht. Befüllung offen über Handloch mittels Fasspumpe aus 25-Liter-Gebinden.",
+    "operatingMode": "Batch (diskontinuierlich)",
+    "purpose": "Synthese mit wechselnden Produkten unter Rückflusskühlung im Technikumsmaßstab",
+    "additionalNotes": "Nicht unter 12. BImSchV (Störfallverordnung). Anmeldepflichtig nach BImSchG. Ex-Zone 2 im Raum 330. Technische Lüftung (RLT) zur Ex-Zonen-Reduktion, strömungsüberwacht. Kein Prozessleitsystem, kein SIL, vollständig manueller Betrieb."
+  },
+  "betriebserfahrungen": [],
+  "systems": [
+    {
+      "name": "Glasreaktor R-20TA42",
+      "type": "main",
+      "description": "Büchi Mini Pilot Glasreaktor 50L mit Doppelmantel, Rührwerk, Rückflusskühler. Manueller Betrieb, personenüberwacht.",
+      "location": {
+        "site": "Werk Penzberg",
+        "building": "Gebäude 353",
+        "room": "Raum 330",
+        "floor": "Ebene 300",
+        "area": "Technikum",
+        "isOutdoor": false
+      },
+      "parameters": {
+        "Nennvolumen": "50 L",
+        "MaxFüllvolumen": "45 L",
+        "Material": "Borosilikatglas 3.3",
+        "Kontaktwerkstoffe": "Glas, PTFE, PFA, PEEK",
+        "ExZone": "Zone 2",
+        "ATEX_Klassifizierung": "2G IIB",
+        "CE_konform": true,
+        "cGMP_gerecht": true,
+        "CIP_fähig": true,
+        "Deckelplatte": "PFA-beschichtete Stahlplatte, 7 Anschlüsse (4 Standard-NS + 2 Reserve + Schnellverschluss)"
+      },
+      "designData": [
+        {
+          "key": "MinTemperatur",
+          "label": "Min. Temperatur",
+          "value": "-60",
+          "unit": "°C"
+        },
+        {
+          "key": "MaxTemperatur",
+          "label": "Max. Temperatur",
+          "value": "200",
+          "unit": "°C"
+        },
+        {
+          "key": "MinDruck",
+          "label": "Min. Druck (Vollvakuum)",
+          "value": "-1",
+          "unit": "barg"
+        },
+        {
+          "key": "MaxDruck",
+          "label": "Max. Druck",
+          "value": "0.5",
+          "unit": "barg"
+        },
+        {
+          "key": "Nennvolumen",
+          "label": "Nennvolumen",
+          "value": "50",
+          "unit": "L"
+        },
+        {
+          "key": "MaxFüllvolumen",
+          "label": "Max. Füllvolumen",
+          "value": "45",
+          "unit": "L"
+        },
+        {
+          "key": "Material",
+          "label": "Material",
+          "value": "Borosilikatglas 3.3",
+          "unit": ""
+        },
+        {
+          "key": "Kontaktwerkstoffe",
+          "label": "Kontaktwerkstoffe",
+          "value": "Glas, PTFE, PFA, PEEK",
+          "unit": ""
+        },
+        {
+          "key": "ATEX",
+          "label": "ATEX-Klassifizierung",
+          "value": "2G IIB",
+          "unit": ""
+        }
+      ],
+      "processConditions": {
+        "Betriebstemperatur": "variabel (Rückflusstemperatur des jeweiligen Lösemittels)",
+        "MinBetriebstemperatur": "-40 °C",
+        "MaxBetriebstemperatur": "200 °C",
+        "Betriebsdruck": "variabel (Vakuum / atmosphärisch / leichter Überdruck)",
+        "Betriebsmodi_Druck": ["Vakuum (Destillation, Trocknung)", "Atmosphärisch (Rückflussbetrieb)", "Leichter Überdruck (bis 0.5 barg)"],
+        "MinBetriebsdruck": "Vollvakuum",
+        "MaxBetriebsdruck": "0.5 barg",
+        "Ex_Zone_intern": "de facto Zone 0 (explosionsfähige Atmosphäre bei Lösemittelbetrieb, formal noch nicht klassifiziert)",
+        "ATEX_Geräte_Kategorie": "2G (ausgelegt für Zone 1/2, nicht für Zone 0)",
+        "Rührer_bei_Entleerung": "Ja — läuft im Durchgangsbetrieb um Absetzen zu verhindern"
+      },
+      "hasCompleteDesignData": true,
+      "hasExtendedParameters": true,
+      "createdBy": "user",
+      "equipment": [
+        {
+          "name": "Rührwerk RW-42",
+          "type": "Rührwerk mit mechanischer Getriebeübersetzung",
+          "position": "Zentral (Deckel)",
+          "driveType": "elektrisch",
+          "parameters": {
+            "Drehzahlbereich": "0–600 U/min",
+            "Drehzahlverstellung": "Mechanisch, per Hand",
+            "Drehzahlanzeige": "Sensor → Schaltschrankanzeige",
+            "Rührdichtung": "Trockenlaufende Gleitringdichtung mit N₂-Sperrung (Stickstoff als Sperrmedium, kein flüssiges Sperrmedium)",
+            "Rührertypen": "PTFE-/PEEK-Rührer (austauschbar): Anker, Propeller",
+            "ExSchutz": "ATEX Zone 2",
+            "ATEX_Rührwerk": true
+          }
+        },
+        {
+          "name": "Doppelmantel DM-42",
+          "type": "Heiz-/Kühlmantel (Glas)",
+          "position": "Mantel",
+          "driveType": null,
+          "parameters": {
+            "Medium": "Thermostatfluid",
+            "Anschluss": "Thermostat PU"
+          }
+        },
+        {
+          "name": "Rückflusskühler RK-42",
+          "type": "Rückflusskühler (Glas)",
+          "position": "Kopf",
+          "driveType": null,
+          "parameters": {
+            "Produktseite_MaxDruck": "0.5 barg",
+            "Produktseite_Vakuum": "Vollvakuum",
+            "Produktseite_MinTemp": "-60 °C",
+            "Produktseite_MaxTemp": "200 °C",
+            "Kühlseite_MaxDruck": "4 barg",
+            "Kühlmedium": "Eiswasser 0–4 °C",
+            "Durchflussanzeige": "Schwebekörper-Durchflussmesser (Kugel in transparentem Gehäuse) in Schlauchleitung, nur visuelle Anzeige, kein Alarm"
+          }
+        },
+        {
+          "name": "Bodenventil BV-42",
+          "type": "Bodenablassventil",
+          "position": "Boden",
+          "driveType": "manuell",
+          "parameters": {
+            "Funktion": "Produktablass über Schlauchleitung",
+            "Anschluss": "Schlauchleitung zu nachgeschalteten Anlagen"
+          }
+        },
+        {
+          "name": "Handloch HL-42",
+          "type": "Inspektions-/Befüllöffnung",
+          "position": "Deckel",
+          "driveType": "manuell",
+          "parameters": {
+            "Funktion": "Befüllung, Inspektion, Reinigung",
+            "Betriebszustand_bei_Öffnung": "Nur offen bei Befüllung — nicht während Heiz-/Rührbetrieb"
+          }
+        },
+        {
+          "name": "Sprühkugel SK-42",
+          "type": "CIP-Sprühkugel",
+          "position": "Innen (Deckel)",
+          "driveType": null,
+          "parameters": {
+            "Funktion": "Reinigung"
+          }
+        },
+        {
+          "name": "Schaltschrank SS-42",
+          "type": "Schaltschrank",
+          "position": "Neben Reaktor",
+          "driveType": null,
+          "parameters": {
+            "Funktion": "Spannungsversorgung Reaktor",
+            "Anzeigen": "Drehzahl",
+            "Steuerungsfunktion": "Keine"
+          }
+        }
+      ],
+      "msrEquipment": [
+        {
+          "name": "TI-42",
+          "type": "Digitales Thermometer",
+          "position": "Prozess (Reaktorinnenraum)",
+          "signalType": "Lokal",
+          "sil": null,
+          "atex": "Zone 2",
+          "ipRating": null,
+          "parameters": {
+            "Funktion": "Lokale Temperaturanzeige",
+            "Regelung": "Keine",
+            "Kalibrierung": "Jährlich"
+          }
+        },
+        {
+          "name": "PI-42",
+          "type": "Digitales Manometer",
+          "position": "Prozess (Reaktor)",
+          "signalType": "Lokal",
+          "sil": null,
+          "atex": "Zone 2",
+          "ipRating": null,
+          "parameters": {
+            "Funktion": "Lokale Druckanzeige",
+            "Regelung": "Keine",
+            "Kalibrierung": "Jährlich"
+          }
+        },
+        {
+          "name": "SI-42",
+          "type": "Drehzahlsensor",
+          "position": "Rührwerk",
+          "signalType": "Signal → Schaltschrankanzeige",
+          "sil": null,
+          "atex": "Zone 2",
+          "ipRating": null,
+          "parameters": {
+            "Funktion": "Drehzahlanzeige am Schaltschrank",
+            "Regelung": "Keine"
+          }
+        }
+      ],
+      "securityFeatures": [
+        {
+          "name": "DHV-42",
+          "type": "Druckhalteventil",
+          "position": "Reaktordeckel / Abluftleitung",
+          "parameters": {
+            "Ansprechdruck": "0.4 barg (400 mbar)",
+            "Funktion": "Kontrollierte Druckentlastung bei Überdruck in Richtung Abluftsystem zur Abluftreinigungsanlage",
+            "Abblaseleitung": "Abluftsystem (Abluftreinigungsanlage nicht im Scope)",
+            "Stufe": "1. Druckabsicherung (vor PSV)"
+          }
+        },
+        {
+          "name": "PSV-42",
+          "type": "Sicherheitsventil (Überdruckventil)",
+          "position": "Reaktordeckel",
+          "parameters": {
+            "Ansprechdruck": "0.5 barg",
+            "Funktion": "Letzte Druckabsicherung Glasreaktor (nach DHV-42)",
+            "Stufe": "2. Druckabsicherung (Rückfallebene)",
+            "Abblaseleitung": "Blowdown-System (kontrollierte Druckentlastung in sicheren Bereich)",
+            "Prüfintervall": "1 Jahr (bereits angelegt)"
+          }
+        },
+        {
+          "name": "Folienbeschichtung FB-42",
+          "type": "Splitterschutz",
+          "position": "Reaktoraußenseite",
+          "parameters": {
+            "Funktion": "Abtropfende Folie als Splitterschutz bei Glasbruch"
+          }
+        },
+        {
+          "name": "Erdung ER-42",
+          "type": "Erdung",
+          "position": "Reaktor",
+          "parameters": {
+            "Funktion": "Ableitung elektrostatischer Aufladung"
+          }
+        },
+        {
+          "name": "Tropfwanne TW-42",
+          "type": "Auffangwanne",
+          "position": "Unter Reaktor",
+          "parameters": {
+            "Funktion": "Auffangen von Tropfmengen"
+          }
+        },
+        {
+          "name": "AwSV-Boden",
+          "type": "Bodenwanne (AwSV-konform)",
+          "position": "Raum 330 (gesamter Technikumsboden)",
+          "parameters": {
+            "Funktion": "Auffangen des gesamten Reaktorinhalts bei Glasbruch/Totalverlust"
+          }
+        }
+      ],
+      "substances": {
+        "feedstocks": [
+          "Ethanol",
+          "Methanol",
+          "Isopropanol",
+          "Aceton"
+        ],
+        "intermediates": [],
+        "products": [],
+        "unassigned": []
+      },
+      "substanceProcessConditions": {
+        "Ethanol": {
+          "Einsatz": "Regelmäßig als Lösemittel",
+          "Rückflusstemperatur": "78 °C"
+        },
+        "Methanol": {
+          "Einsatz": "Gelegentlich als Lösemittel",
+          "Rückflusstemperatur": "65 °C"
+        },
+        "Isopropanol": {
+          "Einsatz": "Regelmäßig als Lösemittel",
+          "Rückflusstemperatur": "82 °C"
+        },
+        "Aceton": {
+          "Einsatz": "Häufig, primär als Reinigungsmittel",
+          "Rückflusstemperatur": "56 °C"
+        }
+      },
+      "manufacturerData": {
+        "manufacturer": "Büchi Glas Uster (Büchi AG)",
+        "modelType": "miniPilot (50L Sonderausführung, Standardbaureihe: 5/10/15L)",
+        "serialNumber": null,
+        "yearOfManufacture": null
+      },
+      "masterData": {
+        "technicalLocation": null,
+        "equipmentNumber": null,
+        "assetId": null,
+        "maintenanceGroup": null
+      },
+      "additionalInfo": {
+        "processDescription": "Rühren und Kochen unter Rückfluss mit wechselnden organischen Lösemitteln",
+        "operatingMode": "Batch, manuell, personenüberwacht",
+        "notes": "Befüllung offen über Handloch. Transfer über Schlauchleitung am Bodenventil.",
+        "investmentCosts": null,
+        "customFields": {}
+      },
+      "connectedSystems": {
+        "upstream": [
+          "Fasspumpe aus 25-L-Gebinden (nicht im Scope)"
+        ],
+        "downstream": [
+          "Transfer über Schlauchleitung in andere Anlagen (nicht im Scope)"
+        ]
+      }
+    }
+  ],
+  "feedstocks": [
+    {
+      "name": "Ethanol",
+      "category": "feedstock",
+      "categories": ["flammable", "solvent"],
+      "properties": "Brennbar (Flammpunkt 13 °C), wasserlöslich, Siedepunkt 78 °C",
+      "isGeneric": false,
+      "needsSpecification": false,
+      "parameters": {
+        "casNumber": "64-17-5",
+        "molWeight": "46.07 g/mol",
+        "density": "0.789 g/cm³",
+        "boilingPoint": "78.3 °C",
+        "meltingPoint": "-114.1 °C",
+        "flashPoint": "13 °C",
+        "autoIgnitionTemp": "363 °C",
+        "lowerExplosionLimit": "3.5 Vol.-%",
+        "upperExplosionLimit": "15 Vol.-%",
+        "vaporPressure20C": "59 hPa",
+        "hPhrases": "H225, H319",
+        "pPhrases": "P210, P233, P240, P241, P242, P243, P264, P280, P303+P361+P353, P305+P351+P338, P337+P313, P370+P378, P403+P235, P501",
+        "ghs": "GHS02, GHS07",
+        "signalWord": "Gefahr",
+        "wgk": "1",
+        "agwMak": "200 ppm / 380 mg/m³"
+      },
+      "dataSource": "Fachwissen"
+    },
+    {
+      "name": "Methanol",
+      "category": "feedstock",
+      "categories": ["flammable", "toxic", "solvent"],
+      "properties": "Brennbar (Flammpunkt 9 °C), giftig, Siedepunkt 65 °C",
+      "isGeneric": false,
+      "needsSpecification": false,
+      "parameters": {
+        "casNumber": "67-56-1",
+        "molWeight": "32.04 g/mol",
+        "density": "0.791 g/cm³",
+        "boilingPoint": "64.7 °C",
+        "meltingPoint": "-97.6 °C",
+        "flashPoint": "9 °C",
+        "autoIgnitionTemp": "440 °C",
+        "lowerExplosionLimit": "6.0 Vol.-%",
+        "upperExplosionLimit": "36 Vol.-%",
+        "vaporPressure20C": "128 hPa",
+        "hPhrases": "H225, H301+H311+H331, H370",
+        "pPhrases": "P210, P233, P240, P241, P242, P243, P260, P264, P270, P271, P280, P301+P310, P303+P361+P353, P304+P340, P308+P311, P370+P378, P403+P235, P501",
+        "ghs": "GHS02, GHS06, GHS08",
+        "signalWord": "Gefahr",
+        "wgk": "1",
+        "agwMak": "200 ppm / 270 mg/m³"
+      },
+      "dataSource": "Fachwissen"
+    },
+    {
+      "name": "Isopropanol",
+      "category": "feedstock",
+      "categories": ["flammable", "solvent"],
+      "properties": "Brennbar (Flammpunkt 12 °C), Siedepunkt 82 °C",
+      "isGeneric": false,
+      "needsSpecification": false,
+      "parameters": {
+        "casNumber": "67-63-0",
+        "molWeight": "60.10 g/mol",
+        "density": "0.786 g/cm³",
+        "boilingPoint": "82.6 °C",
+        "meltingPoint": "-89.5 °C",
+        "flashPoint": "12 °C",
+        "autoIgnitionTemp": "399 °C",
+        "lowerExplosionLimit": "2.0 Vol.-%",
+        "upperExplosionLimit": "12 Vol.-%",
+        "vaporPressure20C": "43 hPa",
+        "hPhrases": "H225, H319, H336",
+        "pPhrases": "P210, P233, P240, P241, P242, P243, P261, P264, P271, P280, P303+P361+P353, P304+P340, P305+P351+P338, P312, P337+P313, P370+P378, P403+P233, P403+P235, P501",
+        "ghs": "GHS02, GHS07",
+        "signalWord": "Gefahr",
+        "wgk": "1",
+        "agwMak": "200 ppm / 500 mg/m³"
+      },
+      "dataSource": "Fachwissen"
+    },
+    {
+      "name": "Aceton",
+      "category": "feedstock",
+      "categories": ["flammable", "solvent"],
+      "properties": "Leicht entzündbar (Flammpunkt -20 °C), Siedepunkt 56 °C, häufig als Reinigungsmittel",
+      "isGeneric": false,
+      "needsSpecification": false,
+      "parameters": {
+        "casNumber": "67-64-1",
+        "molWeight": "58.08 g/mol",
+        "density": "0.790 g/cm³",
+        "boilingPoint": "56.1 °C",
+        "meltingPoint": "-94.7 °C",
+        "flashPoint": "-20 °C",
+        "autoIgnitionTemp": "465 °C",
+        "lowerExplosionLimit": "2.5 Vol.-%",
+        "upperExplosionLimit": "13 Vol.-%",
+        "vaporPressure20C": "240 hPa",
+        "hPhrases": "H225, H319, H336, EUH066",
+        "pPhrases": "P210, P233, P240, P241, P242, P243, P261, P264, P271, P280, P303+P361+P353, P304+P340, P305+P351+P338, P312, P337+P313, P370+P378, P403+P233, P403+P235, P501",
+        "ghs": "GHS02, GHS07",
+        "signalWord": "Gefahr",
+        "wgk": "1",
+        "agwMak": "500 ppm / 1200 mg/m³"
+      },
+      "dataSource": "Fachwissen"
+    }
+  ],
+  "products": [],
+  "byproducts": [],
+  "media": [
+    {
+      "name": "Eiswasser",
+      "category": "heating-cooling",
+      "MinBetriebstemperatur": "0 °C",
+      "MaxBetriebstemperatur": "4 °C",
+      "MinBetriebsdruck": "2 barg",
+      "MaxBetriebsdruck": "4 barg",
+      "parameters": {
+        "Betriebsdruck": "3 barg",
+        "Temperatur": "0–4 °C",
+        "Verwendung": "Rückflusskühler"
+      }
+    },
+    {
+      "name": "Stickstoff",
+      "category": "gas",
+      "MinBetriebstemperatur": "15 °C",
+      "MaxBetriebstemperatur": "25 °C",
+      "MinBetriebsdruck": "0 barg",
+      "MaxBetriebsdruck": "2.5 barg",
+      "parameters": {
+        "Betriebsdruck": "2.5 barg",
+        "Absicherungsdruck": "3.5 barg",
+        "Verwendung": "Sperrgas Gleitringdichtung (Normalbetrieb) + Reaktor-Inertisierung (geplant als Standard bei Lösemittelbetrieb)",
+        "Inertisierung_Verfahren": "Druckwechsel-Inertisierung (Evakuieren + N₂-Befüllen, mehrfach)",
+        "Dichtigkeitstest": "Vor Inertisierung durchführbar",
+        "O2_Überwachung": "Nicht vorhanden — Wirksamkeit der Inertisierung nicht kontinuierlich überprüfbar",
+        "ATEX_Relevanz": "Pflichtmaßnahme — ohne Inertisierung ist Reaktorinnenraum Zone 0, ATEX 2G nur für Zone 1 zugelassen"
+      }
+    },
+    {
+      "name": "Thermostatfluid",
+      "category": "heating-cooling",
+      "MinBetriebstemperatur": "-40 °C",
+      "MaxBetriebstemperatur": "200 °C",
+      "MinBetriebsdruck": null,
+      "MaxBetriebsdruck": null,
+      "parameters": {
+        "Quelle": "Thermostat (Package Unit)",
+        "Verwendung": "Heizen und Kühlen über Doppelmantel",
+        "Übertemperaturabschaltung": "Ja (im Thermostat)",
+        "Temperaturregelung": "Automatisch, kein schlagartiges Aufheizen",
+        "DeltaT_Überwachung": "Max. 20 K Differenz zwischen Innentemperatur und Mantelmedium-Temperatur",
+        "Thermoschock_Schutz": "Ja (durch DeltaT-Begrenzung)"
+      }
+    },
+    {
+      "name": "Vakuum (Hausnetz)",
+      "category": "vacuum",
+      "MinBetriebstemperatur": null,
+      "MaxBetriebstemperatur": null,
+      "MinBetriebsdruck": null,
+      "MaxBetriebsdruck": null,
+      "parameters": {
+        "Verwendung": "Bei Bedarf über Hausvakuumnetz",
+        "Hinweis": "Hausvakuumnetz nicht im Scope der Risikobewertung"
+      }
+    },
+    {
+      "name": "Elektrische Versorgung",
+      "category": "electricity",
+      "MinBetriebstemperatur": null,
+      "MaxBetriebstemperatur": null,
+      "MinBetriebsdruck": null,
+      "MaxBetriebsdruck": null,
+      "parameters": {
+        "Spannung": "400 V / 3-phasig",
+        "USV": "Nein"
+      }
+    }
+  ],
+  "utilities": [],
+  "outOfScope": {
+    "excludedSystems": [
+      "Fasspumpe / Befüllung",
+      "Nachgeschaltete Anlagen (Transfer über Schlauchleitung)",
+      "Hausvakuumnetz",
+      "Thermostat-Interna (nur als Package Unit betrachtet)",
+      "Lüftungsanlage / Gebäudetechnik"
+    ],
+    "description": "Die folgenden Systeme sind nicht Bestandteil dieser Risikoanalyse: Fasspumpe (Hilfsmittel zur Befüllung), nachgeschaltete Anlagen (separate Betrachtung), Hausvakuumnetz (zentrale Infrastruktur), Thermostat-Interna (als PU betrachtet, nur Randdaten), Lüftungsanlage/Gebäudetechnik (separate Betrachtung)."
+  },
+  "interview_status": {
+    "complete": true,
+    "current_phase": 7,
+    "current_system": null,
+    "last_updated": "2026-03-14T12:00:00"
+  }
+}

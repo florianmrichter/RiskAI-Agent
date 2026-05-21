@@ -1,0 +1,204 @@
+{
+  "project_id": 1,
+  "task_folder": "Risikoanalyse/Ethylacetatproduktion_20TA42",
+  "phase": "report",
+  "current_komp_id": "KOMP-047",
+  "last_updated": "2026-03-02T22:40:10.736593",
+  "phases": {
+    "struktur": "done",
+    "fmea": "done",
+    "rpz_validierung": "done",
+    "massnahmen": "done",
+    "report": "done"
+  },
+  "components": {
+    "KOMP-001": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-002": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-003": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-004": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-005": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-006": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-007": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-008": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-009": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-010": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-011": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-012": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-013": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-014": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-015": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-016": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-017": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-018": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-019": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-020": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-021": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-022": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-023": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-024": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-025": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-026": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-027": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-028": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-029": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-030": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-031": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-032": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-033": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-034": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-035": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-036": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-037": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-038": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-039": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-040": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-041": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-042": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-043": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-044": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-045": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-046": {
+      "fmea": "done",
+      "measures": "done"
+    },
+    "KOMP-047": {
+      "fmea": "done",
+      "measures": "done"
+    }
+  }
+}

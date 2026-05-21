@@ -6,14 +6,18 @@
 # Skill-Entwicklungs-Artefakte (Iterations-Snapshots, Eval-Ergebnisse)
 .claude/skills/*-workspace/
 
-# Durchgeführte Analysen (projektspezifische Daten, nicht im Repo)
-tasks/
+# Durchgeführte Analysen — Risikoanalyse wird getrackt, andere Aufgabentypen nicht
+tasks/*
+!tasks/Risikoanalyse/
 
 # FMEA-Datenbank (liegt in data/)
 data/
 fmea.db
 
 # Python
+.coverage
+.pytest_cache/
+.ruff_cache/
 __pycache__/
 *.py[cod]
 *$py.class

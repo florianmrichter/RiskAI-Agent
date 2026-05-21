@@ -1,0 +1,195 @@
+{
+  "project_id": 5,
+  "task_folder": "Risikoanalyse/Ethylacetatproduktion_20TA41",
+  "phase": "fmea",
+  "current_komp_id": "KOMP-044",
+  "autonomy_mode": "autonom",
+  "session_started": "2026-03-20T14:03:40.590864",
+  "last_updated": "2026-03-20T19:12:58.378140",
+  "phases": {
+    "struktur": "done",
+    "fmea": "in_progress",
+    "rpz_validierung": "pending",
+    "massnahmen": "pending",
+    "report": "pending"
+  },
+  "components": {
+    "KOMP-001": {
+      "fmea": "done",
+      "measures": "pending"
+    },
+    "KOMP-002": {
+      "fmea": "done",
+      "measures": "pending"
+    },
+    "KOMP-003": {
+      "fmea": "done",
+      "measures": "pending"
+    },
+    "KOMP-004": {
+      "fmea": "done",
+      "measures": "pending"
+    },
+    "KOMP-005": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-006": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-007": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-008": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-009": {
+      "fmea": "done",
+      "measures": "pending"
+    },
+    "KOMP-010": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-011": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-012": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-013": {
+      "fmea": "done",
+      "measures": "pending"
+    },
+    "KOMP-014": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-015": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-016": {
+      "fmea": "done",
+      "measures": "pending"
+    },
+    "KOMP-017": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-018": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-019": {
+      "fmea": "done",
+      "measures": "pending"
+    },
+    "KOMP-020": {
+      "fmea": "done",
+      "measures": "pending"
+    },
+    "KOMP-021": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-022": {
+      "fmea": "done",
+      "measures": "pending"
+    },
+    "KOMP-023": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-024": {
+      "fmea": "done",
+      "measures": "pending"
+    },
+    "KOMP-025": {
+      "fmea": "done",
+      "measures": "pending"
+    },
+    "KOMP-026": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-027": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-028": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-029": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-030": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-031": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-032": {
+      "fmea": "done",
+      "measures": "pending"
+    },
+    "KOMP-033": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-034": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-035": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-036": {
+      "fmea": "done",
+      "measures": "pending"
+    },
+    "KOMP-037": {
+      "fmea": "done",
+      "measures": "pending"
+    },
+    "KOMP-038": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-039": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-040": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-041": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-042": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-043": {
+      "fmea": "pending",
+      "measures": "pending"
+    },
+    "KOMP-044": {
+      "fmea": "done",
+      "measures": "pending"
+    }
+  },
+  "report_quality": "ausfuehrlich"
+}
