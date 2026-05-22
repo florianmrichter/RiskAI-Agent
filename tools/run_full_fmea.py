@@ -22,12 +22,11 @@ if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from tools.load_plant_data import load_plant_data
-from tools.structure_analysis import analyze_structure, save_components_to_db
-from tools.storage import FMEAStorage
-from tools.rpz_calculator import calculate_and_store_rpz
-from tools.report_generator import generate_report
 from tools.reliability_lookup import ReliabilityDB
-from tools.failure_templates import get_templates_for_component
+from tools.report_generator import generate_report
+from tools.rpz_calculator import calculate_and_store_rpz
+from tools.storage import FMEAStorage
+from tools.structure_analysis import analyze_structure
 
 # ─── Typische Funktionen pro Komponententyp (Workflow-basiert) ───
 FUNKTIONEN_PRO_TYP = {
@@ -116,7 +115,6 @@ def step3_funktionsanalyse(project_id: int, db_path: str = None):
     """Schritt 3: Funktionen für alle Komponenten ohne Funktionen."""
     with FMEAStorage(db_path) as db:
         components = db.get_components(project_id)
-        rdb = ReliabilityDB()
         func_count = 0
         for comp in components:
             funcs = db.get_functions(comp["id"])
@@ -201,9 +199,6 @@ def step6_massnahmen(project_id: int, db_path: str = None):
     """Schritt 6: Maßnahmen – KEINE generische Logik.
     Maßnahmen werden ausschließlich explizit pro Fehlermodus definiert (Agent-Einzelfallanalyse
     oder config/measures_explicit). Kein automatisches Einfügen von Platzhaltern."""
-    with FMEAStorage(db_path) as db:
-        high = db.get_all_failure_modes_with_rpz(project_id, min_rpz=100)
-        ohne = sum(1 for fm in high if not db.get_measures(fm["id"]))
     return 0  # Keine generischen Maßnahmen mehr
 
 

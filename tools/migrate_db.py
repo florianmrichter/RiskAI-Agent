@@ -24,7 +24,7 @@ def run_migrations(db_path: str = None):
     if db_path:
         print(f"DB: {db_path}")
     else:
-        print(f"DB: data/fmea.db (default)")
+        print("DB: data/fmea.db (default)")
 
     with FMEAStorage(db_path) as db:
         # Verify new columns are present

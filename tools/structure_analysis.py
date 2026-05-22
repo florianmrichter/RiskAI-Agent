@@ -9,7 +9,6 @@ Usage:
     components = analyze_structure(plant_data)
 """
 
-import json
 import re
 import sys
 from pathlib import Path
@@ -174,12 +173,12 @@ if __name__ == "__main__":
         cat_counts[c["kategorie"]] = cat_counts.get(c["kategorie"], 0) + 1
 
     print(f"\n=== Strukturanalyse: {len(components)} Komponenten ===")
-    print(f"\nNach Typ:")
+    print("\nNach Typ:")
     for t, n in sorted(type_counts.items()):
         print(f"  {t}: {n}")
-    print(f"\nNach Kategorie:")
+    print("\nNach Kategorie:")
     for c, n in sorted(cat_counts.items()):
         print(f"  {c}: {n}")
-    print(f"\nKomponenten-Liste:")
+    print("\nKomponenten-Liste:")
     for c in components:
         print(f"  {c['komp_id']} | {c['typ']:12s} | {c['kategorie']:10s} | {c['system_name']:25s} | {c['name']}")

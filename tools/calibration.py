@@ -18,8 +18,8 @@ from __future__ import annotations
 
 import json
 import sys
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -358,7 +358,7 @@ if __name__ == "__main__":
         print("=== Correction Analysis ===")
         analysis = analyze_corrections(args.db_path)
         print(f"Total corrections: {analysis['total_corrections']}")
-        print(f"\nField bias:")
+        print("\nField bias:")
         for field, bias in analysis.get("field_bias", {}).items():
             print(f"  {field}: Ø {bias['avg_delta']:+.1f} ({bias['direction']}, {bias['count']} Korrekturen)")
         print(f"\nPatterns ({len(analysis.get('patterns', []))}):")

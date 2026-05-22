@@ -146,7 +146,7 @@ def generate_quality_report(db_path: str | None = None, project_id: int | None =
     Covers correction rates, common patterns, calibration rules, overall stats.
     (Merged from former quality_report.py)
     """
-    from tools.calibration import load_calibration_rules, analyze_corrections
+    from tools.calibration import analyze_corrections, load_calibration_rules
 
     with FMEAStorage(db_path) as db:
         report_lines = []

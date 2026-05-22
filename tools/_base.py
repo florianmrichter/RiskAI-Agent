@@ -5,11 +5,11 @@ Zentrale Infrastruktur für alle FMEA-Tools.
 """
 from __future__ import annotations
 
+import functools
 import json
 import logging
 import logging.handlers
 import time
-import functools
 from pathlib import Path
 
 LOG_DIR = Path(__file__).parent.parent / "data"

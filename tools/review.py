@@ -10,7 +10,6 @@ Usage:
 """
 from __future__ import annotations
 
-import json
 import sys
 from collections import defaultdict
 from datetime import datetime
@@ -18,12 +17,15 @@ from pathlib import Path
 
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent))
-from tools.storage import FMEAStorage
 from config.fmea_standards import (
-    S_SCALE, O_SCALE, D_SCALE,
-    RPZ_THRESHOLDS, RPZ_COLORS, RPZ_LABELS,
-    classify_rpz, apply_special_rules,
+    D_SCALE,
+    O_SCALE,
+    S_SCALE,
+    apply_special_rules,
+    classify_rpz,
 )
+from tools._base import STOP_LABELS, _sort_measures_by_stop
+from tools.storage import FMEAStorage
 
 
 def _db(db_path=None):
@@ -52,11 +54,11 @@ def get_plant_data_review(plant_data: dict[str, object]) -> str:
 
     systems = plant_data.get("systems", [])
     lines.append(f"\n**Systeme:** {len(systems)}")
-    for sys in systems:
-        eq_count = len(sys.get("equipment", []))
-        msr_count = len(sys.get("msrEquipment", []))
-        safety_count = len(sys.get("safetyFeatures", sys.get("securityFeatures", [])))
-        lines.append(f"  - {sys.get('name', '?')} ({sys.get('type', '?')}): "
+    for system in systems:
+        eq_count = len(system.get("equipment", []))
+        msr_count = len(system.get("msrEquipment", []))
+        safety_count = len(system.get("safetyFeatures", system.get("securityFeatures", [])))
+        lines.append(f"  - {system.get('name', '?')} ({system.get('type', '?')}): "
                       f"{eq_count} Equipment, {msr_count} MSR, {safety_count} Sicherheit")
 
     feedstocks = plant_data.get("feedstocks", [])
@@ -71,11 +73,11 @@ def get_plant_data_review(plant_data: dict[str, object]) -> str:
         warnings.append("Keine Systeme erkannt")
     if not feedstocks:
         warnings.append("Keine Einsatzstoffe definiert")
-    for sys in systems:
-        if not sys.get("msrEquipment"):
-            warnings.append(f"System '{sys.get('name', '?')}' hat keine MSR-Technik")
-        if not sys.get("safetyFeatures") and not sys.get("securityFeatures"):
-            warnings.append(f"System '{sys.get('name', '?')}' hat keine Sicherheitseinrichtungen")
+    for system in systems:
+        if not system.get("msrEquipment"):
+            warnings.append(f"System '{system.get('name', '?')}' hat keine MSR-Technik")
+        if not system.get("safetyFeatures") and not system.get("securityFeatures"):
+            warnings.append(f"System '{system.get('name', '?')}' hat keine Sicherheitseinrichtungen")
 
     if warnings:
         lines.append(f"\n**⚠ Warnungen ({len(warnings)}):**")
@@ -327,8 +329,6 @@ def get_ranking_review(project_id: int, db_path: str | None = None) -> str:
 # ═══════════════════════════════════════════════════════════════
 # Schritt 6: Measure Review
 # ═══════════════════════════════════════════════════════════════
-
-from tools._base import STOP_LABELS, STOP_ORDER, _sort_measures_by_stop
 
 
 def _build_stop_coverage(measures: list) -> dict:

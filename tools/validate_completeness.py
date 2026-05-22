@@ -18,17 +18,17 @@ Usage:
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 # Import the GEFAHRENFELDER dict from config
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from config.fmea_standards import GEFAHRENFELDER, FEHLERMODI_VORLAGEN, SAFETY_OVERRIDES
-from tools.storage import FMEAStorage
-from tools._base import tool_entry
-from tools.rpz_calculator import check_safety_overrides
-from tools.reliability_lookup import suggest_for_component
+from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config.fmea_standards import FEHLERMODI_VORLAGEN, GEFAHRENFELDER
+from tools._base import tool_entry
+from tools.reliability_lookup import suggest_for_component
+from tools.rpz_calculator import check_safety_overrides
+from tools.storage import FMEAStorage
 
 # ---------------------------------------------------------------------------
 # Helper: build combined FM text for keyword searches

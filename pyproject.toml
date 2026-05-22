@@ -36,7 +36,10 @@ line-length = 120
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]
-ignore = ["E501"]
+# E501: Zeilenlänge (line-length oben gesetzt).
+# E741: "ambiguous variable name" — S/O/D ist die kanonische FMEA-Notation
+#       (Severity/Occurrence/Detection, RPZ = S × O × D); kein Code-Smell.
+ignore = ["E501", "E741"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -98,13 +98,13 @@ def validate_plant_data(data: dict) -> list:
         warnings.append("FEHLER: Keine Systeme definiert")
         return warnings
 
-    for i, sys in enumerate(systems):
-        prefix = f"systems[{i}] '{sys.get('name', 'UNNAMED')}'"
-        if "name" not in sys:
+    for i, system in enumerate(systems):
+        prefix = f"systems[{i}] '{system.get('name', 'UNNAMED')}'"
+        if "name" not in system:
             warnings.append(f"FEHLER: {prefix} hat keinen Namen")
-        if "equipment" not in sys and "msrEquipment" not in sys:
+        if "equipment" not in system and "msrEquipment" not in system:
             warnings.append(f"WARNUNG: {prefix} hat weder Equipment noch MSR-Equipment")
-        if "processConditions" not in sys:
+        if "processConditions" not in system:
             warnings.append(f"WARNUNG: {prefix} hat keine Prozessbedingungen")
 
     return warnings

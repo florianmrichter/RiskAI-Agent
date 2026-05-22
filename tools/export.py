@@ -12,13 +12,14 @@ from pathlib import Path
 
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent))
+from config.fmea_standards import D_SCALE, HEADER_COLOR, O_SCALE, RPZ_LABELS, RPZ_THRESHOLDS, S_SCALE
+from config.fmea_standards import RPZ_HEX as RPZ_COLORS
+from tools._base import STOP_LABELS, _sort_measures_by_stop, tool_entry
 from tools.storage import FMEAStorage
-from tools._base import tool_entry
-from config.fmea_standards import RPZ_HEX as RPZ_COLORS, HEADER_COLOR, RPZ_THRESHOLDS, RPZ_LABELS, S_SCALE, O_SCALE, D_SCALE
 
 try:
     from openpyxl import Workbook
-    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
     from openpyxl.utils import get_column_letter
     HAS_OPENPYXL = True
 except ImportError:
@@ -282,9 +283,6 @@ def _create_causes_sheet(wb, full_data):
     ws.auto_filter.ref = ws.dimensions
 
 
-from tools._base import STOP_LABELS, STOP_ORDER, _sort_measures_by_stop
-
-
 def _create_measures_sheet(wb, full_data):
     ws = wb.create_sheet("Maßnahmen")
 
@@ -476,6 +474,6 @@ if __name__ == "__main__":
     pid = int(sys.argv[1])
     out = sys.argv[2] if len(sys.argv) > 2 else None
     result = export_fmea(pid, out)
-    print(f"Export abgeschlossen:")
+    print("Export abgeschlossen:")
     for fmt, path in result.items():
         print(f"  {fmt}: {path}")

@@ -13,10 +13,8 @@ from __future__ import annotations
 import base64
 import json
 import re
-import subprocess
 import sys
 import tempfile
-import time
 import urllib.request
 from collections import OrderedDict
 from collections.abc import Generator
@@ -24,30 +22,37 @@ from datetime import datetime
 from pathlib import Path
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 import matplotlib.colors as mcolors
+import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
 import numpy as np
 import squarify
-
 from jinja2 import Environment, FileSystemLoader
 from playwright.sync_api import sync_playwright
 
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent))
-from tools.storage import FMEAStorage
-from tools._base import tool_entry
+from config.fmea_standards import (
+    D_SCALE as D_INFO,
+)
+from config.fmea_standards import (
+    O_SCALE as O_INFO,
+)
+from config.fmea_standards import (
+    RPZ_COLORS as RPZ_HEX,
+)
+from config.fmea_standards import (
+    RPZ_THRESHOLDS,
+    apply_special_rules,
+    classify_rpz,
+)
 from config.fmea_standards import (
     S_SCALE as S_INFO,
-    O_SCALE as O_INFO,
-    D_SCALE as D_INFO,
-    RPZ_COLORS as RPZ_HEX,
-    RPZ_THRESHOLDS,
-    RPZ_LABELS,
-    classify_rpz,
-    apply_special_rules,
 )
+from tools._base import STOP_LABELS, STOP_ORDER, tool_entry
+from tools.storage import FMEAStorage
 
 _OUTFIT_FONT_STYLE_CACHE: str | None = None
 
@@ -101,7 +106,6 @@ def _embed_images_base64(html: str) -> str:
     return re.sub(r'src="(file://[^"]+)"', replace_uri, html)
 
 
-from tools._base import STOP_ORDER, STOP_LABELS
 STOP_ICONS = {"S": "↻", "T": "⚙", "O": "☰", "P": "👤"}
 
 LOGO_SVG_SMALL = """<svg style="height:6mm;width:auto;" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
@@ -151,8 +155,6 @@ def _compute_matrix_data(fmea_data: list[dict]) -> dict:
         return {"zones": [], "points": [], "cols": 10, "rows": 10}
 
     # Always full 10x10 grid
-    s_min, s_max = 1, 10
-    o_min, o_max = 1, 10
     cols, rows = 10, 10
 
     # Zone colors for each grid cell

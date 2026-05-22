@@ -21,10 +21,10 @@ if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from tools.load_plant_data import load_plant_data
-from tools.structure_analysis import analyze_structure, save_components_to_db
 from tools.storage import FMEAStorage
-from tools.workflow_state import init_state_from_structure
+from tools.structure_analysis import analyze_structure, save_components_to_db
 from tools.update_checklist import update_checklist
+from tools.workflow_state import init_state_from_structure
 
 
 def _write_empty_fmea_explicit(task_dir: Path) -> None:

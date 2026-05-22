@@ -16,10 +16,10 @@ from pathlib import Path
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from tools.storage import FMEAStorage
 from tools._base import tool_entry
-from tools.insert_measures import insert_measures_for_fehlermodus
 from tools.fmea_loader import load_measures_module
+from tools.insert_measures import insert_measures_for_fehlermodus
+from tools.storage import FMEAStorage
 
 
 def _get_measures_module(task_folder: str):
@@ -82,6 +82,7 @@ def run_generate_measures(project_id: int, task_folder: str = "Risikoanalyse", d
 
 def main():
     import argparse
+
     from tools.workflow_state import load_state
 
     ap = argparse.ArgumentParser(description="Maßnahmen für Fehlermodi mit RPZ>=100 generieren")
