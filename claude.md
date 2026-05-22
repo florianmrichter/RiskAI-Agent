@@ -98,9 +98,25 @@ task_folder ist der Pfad zum Projektordner, z.B. "Risikoanalyse/Ethylacetatprodu
 Kernprinzip: Lokale Dateien dienen nur der Verarbeitung. Alles, was ich sehen oder nutzen muss, befindet sich in Cloud-Diensten. Alles in .tmp/ ist wegwerfbar.
 
 Domänen-spezifische Anweisungen (FMEA)
-Bei FMEA-Risikoanalyse: Starte den Skill `fmea-risikoanalyse` (`.claude/skills/fmea-risikoanalyse/`). Dieser lädt Moderator-Regeln aus `references/fmea-workflow.md` und referenziert Config-Dateien (`config/fmea_standards.py`, `config/msr_glossar.md`) direkt aus dem Projekt-Root. Jede Analyse basiert ausschließlich auf den Anlagendaten des aktuellen Projektordners (`tasks/Risikoanalyse/{projekt}/anlagendaten.json`). Niemals FMEA-Daten aus anderen Projekten übernehmen.
+Bei FMEA-Risikoanalyse: Starte den Skill `fmea-risikoanalyse` (`.claude/skills/fmea-risikoanalyse/`). Dieser lädt Moderator-Regeln aus `workflows/fmea-workflow.md` und referenziert Config-Dateien (`config/fmea_standards.py`, `config/msr_glossar.md`) direkt aus dem Projekt-Root. Jede Analyse basiert ausschließlich auf den Anlagendaten des aktuellen Projektordners (`tasks/Risikoanalyse/{projekt}/anlagendaten.json`). Niemals FMEA-Daten aus anderen Projekten übernehmen.
 
 **Dateien-Architektur:** Alle Tools (`tools/`), Config (`config/`), Templates (`templates/`) existieren nur einmal im Projekt-Root. Die Skills referenzieren diese direkt — keine Kopien innerhalb von `.claude/skills/`.
+
+Skill-Architektur
+Jeder Skill lebt in `.claude/skills/{skill-name}/` und enthält:
+- `SKILL.md` — Trigger-Words, Instruktionen, Regeln (wird bei Skill-Aufruf geladen)
+- `README.md` — Installations-Anleitung, Übersicht
+- `references/` — Skill-spezifische Referenzdateien (FM-Vorlagen, Interview-Phasen, Schemas)
+
+**Pfad-Konvention:** Referenzdateien bleiben embedded in ihrem Skill-Ordner. In Docs und Skills den vollen Pfad verwenden:
+- `.claude/skills/fmea-risikoanalyse/references/fmea-standards.md` ✓
+- `references/fmea-standards.md` ✗ (veraltet)
+
+**Projektweite Dateien** (nicht in Skills, sondern im Root):
+- `workflows/*.md` — Standard Operating Procedures
+- `config/fmea_standards.py` — Kanonische S/O/D-Skalen, Safety-Overrides
+- `config/msr_glossar.md` — MSR-Kennzeichen
+- `config/reliability_data.json` — CCPS/OREDA-Ausfallraten
 
 Claude Code Plugin-Setup
 Dieses Projekt nutzt Claude Code Plugins auf zwei Ebenen:
