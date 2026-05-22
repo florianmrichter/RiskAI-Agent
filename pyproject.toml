@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "riskai-agent"
 version = "0.6.0"
@@ -20,6 +24,11 @@ dev = [
     "pytest-cov>=5.0",
     "ruff>=0.4.0",
 ]
+
+# Nur die importierbaren Pakete einschließen — verhindert, dass setuptools
+# plans/, workflows/, templates/ als Top-Level-Pakete entdeckt (Flat-Layout-Fehler).
+[tool.setuptools.packages.find]
+include = ["tools*", "config*"]
 
 [tool.ruff]
 target-version = "py310"
